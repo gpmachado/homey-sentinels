@@ -18,6 +18,7 @@
   "category": [
     "tools"
   ],
+  "brandColor": "#FF6D00",
   "permissions": ["homey:manager:api"],
   "api": {
     "getDevices": { "method": "GET", "path": "/devices" },
