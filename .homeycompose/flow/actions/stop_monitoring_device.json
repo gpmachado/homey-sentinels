@@ -1,0 +1,8 @@
+{
+  "title": { "en": "Stop monitoring device", "pt": "Parar monitoramento do dispositivo" },
+  "titleFormatted": { "en": "Stop monitoring device [[device]]", "pt": "Parar monitoramento do dispositivo [[device]]" },
+  "hint": { "en": "Closes the cycle started by \"Start monitoring device\" for this device — fires \"Activity finished\" with duration, energy and the rest of the usual tokens. Fails if no monitor exists yet for this device; run \"Start monitoring device\" first.", "pt": "Encerra o ciclo iniciado por \"Iniciar monitoramento do dispositivo\" para este dispositivo — dispara \"Atividade finalizada\" com duração, energia e o resto dos tokens de sempre. Falha se ainda não existir monitor para este dispositivo; rode \"Iniciar monitoramento do dispositivo\" primeiro." },
+  "args": [
+    { "name": "device", "type": "autocomplete", "title": { "en": "Device", "pt": "Dispositivo" } }
+  ]
+}

@@ -77,6 +77,19 @@ test('state monitor message templates default to empty and can be updated via up
   assert.equal(monitor.messageTemplateStarted, '%monitor% is now %label%');
 });
 
+test('upsertManualMonitor creates a mode "manual" monitor with no threshold, and reuses it on a second call for the same device', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const { monitor: first, created: firstCreated } = store.upsertManualMonitor({ device: { id: 'dev-1', name: 'Bomba' } });
+  assert.equal(firstCreated, true);
+  assert.equal(first.mode, 'manual');
+  assert.equal(first.threshold, null);
+  assert.equal(first.capability, 'measure_power');
+  const { monitor: second, created: secondCreated } = store.upsertManualMonitor({ device: { id: 'dev-1', name: 'Bomba' } });
+  assert.equal(secondCreated, false);
+  assert.equal(first, second);
+});
+
 test('allows a device to be monitored on two different capabilities but not the same one twice', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();

@@ -231,7 +231,7 @@ class StatisticTrackerApp extends Homey.App {
         device.name.toLowerCase().includes(normalized)
       ).map((device) => ({ name: device.name, description: device.zoneName || undefined, data: { id: device.id, name: device.name } }));
     });
-    ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor', 'add_device_to_state_group', 'remove_device_from_state_group'].forEach((id) => deviceAutocomplete(id));
+    ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor', 'add_device_to_state_group', 'remove_device_from_state_group', 'start_monitoring_device', 'stop_monitoring_device'].forEach((id) => deviceAutocomplete(id));
     ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor'].forEach((id) => this._registerCapabilityAutocomplete(id));
     ['remove_activity_monitor', 'reset_activity_monitor', 'update_activity_monitor', 'get_activity_statistics', 'get_activity_statistics_basic', 'start_activity', 'stop_activity'].forEach((id) => this._monitorActionAutocomplete(id));
     this._monitorConditionAutocomplete('is_active');
@@ -270,6 +270,30 @@ class StatisticTrackerApp extends Homey.App {
     // app's own threshold engine, which only understands a single numeric capability.
     action('start_activity', async ({ monitor }) => { const item = this._monitor(monitor); await this._handleActivityEvents(item, this.engine.startNow(item)); return true; });
     action('stop_activity', async ({ monitor }) => { const item = this._monitor(monitor); await this._handleActivityEvents(item, this.engine.stopNow(item)); return true; });
+    // One card handles both "create the monitor if it doesn't exist yet" and "start it" — for
+    // wiring a brand new on/off-only device (a pump, a device with no reliable standby signal)
+    // in a single Flow off a native "Power becomes greater than X" trigger, instead of needing
+    // "Add activity monitor" run separately first. The resulting monitor is mode 'manual' — it
+    // never decides ACTIVE/STANDBY on its own, only this card and its Stop counterpart do.
+    action('start_monitoring_device', async ({ device, name, continuity_minutes, min_confirmation_seconds }) => {
+      const selected = await this.gateway.getDevice(this._deviceId(device));
+      if (!selected) throw new Error('Device not found.');
+      if (!selected.capabilities.includes('measure_power')) throw new Error(`"${selected.name}" doesn't have a measure_power capability.`);
+      const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => selected.capabilities.includes(cap));
+      const { monitor, created } = this.store.upsertManualMonitor({ device: selected, auxiliaryCapabilities, name, continuityMinutes: continuity_minutes, minConfirmationSeconds: min_confirmation_seconds });
+      await this.store.save();
+      if (created) await this._watch(monitor);
+      await this._handleActivityEvents(monitor, this.engine.startNow(monitor));
+      return true;
+    });
+    action('stop_monitoring_device', async ({ device }) => {
+      const selected = await this.gateway.getDevice(this._deviceId(device));
+      if (!selected) throw new Error('Device not found.');
+      const monitor = Object.values(this.store.data.monitors).find((item) => item.deviceId === selected.id && item.capability === 'measure_power');
+      if (!monitor) throw new Error(`No monitor found for "${selected.name}". Use "Start monitoring device" first.`);
+      await this._handleActivityEvents(monitor, this.engine.stopNow(monitor));
+      return true;
+    });
     action('update_activity_monitor', async ({ monitor, threshold, continuity_minutes, min_confirmation_seconds }) => {
       const item = this._monitor(monitor);
       if (!Number.isFinite(Number(threshold)) || Number(threshold) < 0) throw new Error('The threshold must be greater than or equal to zero.');

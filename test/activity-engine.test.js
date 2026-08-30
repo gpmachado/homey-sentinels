@@ -197,6 +197,35 @@ test('median is robust to a single outlier, unlike average', () => {
 function stateMonitor(overrides) {
   return Object.assign(monitor({ threshold: undefined }), { mode: 'state' }, overrides);
 }
+function manualMonitor(overrides) {
+  return Object.assign(monitor({ threshold: null }), { mode: 'manual' }, overrides);
+}
+test('a manual monitor never transitions on its own — even a huge power reading is ignored until startNow/stopNow', () => {
+  const e = new ActivityEngine(); const m = manualMonitor();
+  e.processSample(m, { power: 5000, timestamp: 0 });
+  e.processSample(m, { power: 5000, timestamp: 60000 });
+  assert.equal(m.state, STANDBY);
+  assert.equal(m.totals.cycleCount, 0);
+  const startEvents = e.startNow(m, 120000);
+  assert.equal(startEvents[0].type, 'started');
+  assert.equal(m.state, ACTIVE);
+  // Still ignores power samples while active — a drop to 0 doesn't end the cycle on its own.
+  e.processSample(m, { power: 0, timestamp: 180000 });
+  assert.equal(m.state, ACTIVE);
+  const stopEvents = e.stopNow(m, 240000);
+  assert.equal(stopEvents[0].type, 'finished');
+  assert.equal(m.state, STANDBY);
+});
+test('a manual monitor still tracks power/current/energy into periods while active, for stats', () => {
+  const e = new ActivityEngine(); const m = manualMonitor();
+  e.processSample(m, { power: 5, energy: 1, timestamp: 0 });
+  e.startNow(m, 60000);
+  e.processSample(m, { power: 500, current: 4, energy: 1.05, timestamp: 120000 });
+  const events = e.stopNow(m, 180000);
+  assert.equal(events[0].type, 'finished');
+  assert.equal(m.cycles.length, 1);
+  assert.ok(Math.abs(m.cycles[0].energy - 0.05) < 1e-9);
+});
 test('a state monitor ignores threshold entirely — true is active, false is standby', () => {
   const e = new ActivityEngine(); const m = stateMonitor();
   e.processSample(m, { power: false, timestamp: 0 });

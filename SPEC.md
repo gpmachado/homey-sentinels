@@ -40,8 +40,18 @@ auto-detected on the device and tracked without separate configuration.
 
 - Cards: `add_activity_monitor`, `remove_activity_monitor`, `reset_activity_monitor`,
   `update_activity_monitor`, `get_activity_statistics`(+`_basic`), `start_activity`/
-  `stop_activity` (manual override for devices with no reliable numeric signal), triggers
-  `activity_started`/`activity_finished`, condition `is_active`.
+  `stop_activity` (manual override for an *existing* monitor with no reliable numeric signal),
+  `start_monitoring_device`/`stop_monitoring_device` (same override, but creates the monitor
+  on first run if it doesn't exist yet — one card instead of "Add activity monitor" then
+  "Start monitor"), triggers `activity_started`/`activity_finished`, condition `is_active`.
+- A monitor created via `start_monitoring_device` (or any monitor with `mode: 'manual'`) never
+  decides ACTIVE/STANDBY from its own power reading — `stateFor()` returns its current state
+  unchanged, so only `startNow`/`stopNow` ever move it. It still samples power/current/energy
+  into `periods` continuously, same as a threshold monitor — nothing here disables that, only
+  the transition decision. Meant to be driven by a native "Power becomes greater than X"
+  trigger, keeping the activation rule visible in the Flow instead of hidden in a threshold
+  config — for a device with no meaningful standby signal at all (a pump), vs. a device that
+  does have one (a freezer, a microwave), which should just use the regular threshold mode.
 - Optional `continuity_minutes` / `min_confirmation_seconds` filter noise: the longer of the
   two governs how long a drop below threshold must hold before a cycle is considered over.
 - Message wording (Settings → Monitors → Activity → "Edit messages") renders a `message`

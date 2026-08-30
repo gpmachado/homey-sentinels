@@ -5,19 +5,33 @@ state, incidents, and statistics. It never sends a command to a device — every
 read-only. There's nothing to configure at install time; every monitor is created through a
 Flow card, and managed afterwards from the app's Settings page.
 
-Five independent ways to watch something — pick whichever fits the device:
+## Which one do I need?
 
-| You want to know...                                  | Use              |
-|--------------------------------------------------------|------------------|
-| How long something drawing power ran, and how much energy it used | **Activity Monitor** |
-| How long a door/sensor stayed open, how many times      | **State Monitor** |
-| Whether voltage stayed in a safe range                  | **Voltage Monitor** |
-| How many times something happened (no duration)         | **Binary Counter** |
-| Whether several devices of the same kind all match      | **State Group**  |
+Five independent ways to watch something. Answer these in order — the first one that fits is
+the one to use:
+
+1. **Is it a boolean sensor** — a door/window contact, a motion sensor, anything that's simply
+   true/false? → **State Monitor**.
+2. **Do you just want to count how many times something happened**, with no duration to
+   track (a doorbell press, a button click)? → **Binary Counter**.
+3. **Are you comparing several devices of the same kind** — are all the doors closed, are all
+   the lights off? → **State Group**.
+4. **Is it a device that's on all the time**, cycling on its own with no single moment where a
+   person "turns it on" — a freezer, a fridge? → **Activity Monitor**, set up once with **"Add
+   activity monitor"**. One card, done — the compressor's own power cycling drives everything
+   automatically.
+5. **Is it a device with a distinct "on" moment, but the power reading during that on-time
+   isn't clean enough to trust on its own** — no indicator light, draws nothing while idle, or
+   you'd just rather decide "on" from something else you already trust (a native trigger, a
+   button)? → **Activity Monitor, driven manually**: one Flow with **"Start monitoring
+   device"** wired to whatever tells you it started, a second Flow with **"Stop monitoring
+   device"** wired to whatever tells you it stopped. Two Flows instead of one card, in
+   exchange for you deciding exactly what "on" means instead of a threshold guessing it.
+6. **Is it about voltage staying in range**, not power/duration? → **Voltage Monitor**.
 
 ## 1. Activity Monitor — power-based devices
 
-For anything with a meaningful power draw: a pump, a fridge, a coffee maker, a washing
+For anything with a meaningful, clean power draw when running: a fridge, a freezer, an oven.
 machine.
 
 1. Add a Flow with the action card **"Add activity monitor"**.
@@ -42,9 +56,17 @@ machine.
    that just finished — so "pump turned off %count% %count:time|times% today" needs no
    separate counter Flow.
 
-**No reliable power signal?** A pure on/off pump or switch might never show a clean threshold
-crossing. Use **"Start tracking activity now"** / **"Stop tracking activity now"** instead,
-driven by whatever Flow logic you already trust (a native "turned on" trigger, for example).
+**No reliable power/standby signal?** A pure on/off pump or switch might never show a clean
+threshold crossing — a microwave or freezer usually does (clear standby vs. running draw), so
+they stay on the regular threshold flow above; a pump often doesn't. For those, skip "Add
+activity monitor" and use **"Start monitor [[monitor]]"** / **"Stop monitor [[monitor]]"**
+(for a monitor you already created) or, in one step, **"Start monitoring device"** /
+**"Stop monitoring device"** (creates the monitor for that device on first run if it doesn't
+exist yet) — either way, driven by whatever Flow logic you already trust, typically a native
+"Power becomes greater than X" / "Power becomes less than X" trigger pair. The resulting
+monitor never decides active/standby from its own power reading; only these cards do — it
+still tracks power/current/energy the whole time, so "Stop" still reports full duration/energy
+tokens, same as a regular finished cycle.
 
 **Gotcha**: the threshold is in Watts. If the capability picker shows something like "Power
 Phase A" next to "Voltage Phase A" on a 3-phase device, make sure you picked the Watt one —

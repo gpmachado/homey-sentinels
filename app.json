@@ -2496,6 +2496,58 @@
       },
       {
         "title": {
+          "en": "Start monitoring device",
+          "pt": "Iniciar monitoramento do dispositivo"
+        },
+        "titleFormatted": {
+          "en": "Start monitoring device [[device]], name [[name]], continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s",
+          "pt": "Iniciar monitoramento do dispositivo [[device]], nome [[name]], continuidade [[continuity_minutes]] min, confirmação mínima [[min_confirmation_seconds]] s"
+        },
+        "hint": {
+          "en": "For an on/off-only device (a pump, a device with no reliable standby signal) — creates the monitor on first run if it doesn't exist yet, then starts it, in one step. Meant to be driven by a native \"Power becomes greater than X\" trigger (or any other Flow logic) instead of this app's own threshold engine. The resulting monitor never decides active/standby on its own — only this card and \"Stop monitoring device\" do.",
+          "pt": "Para um dispositivo puramente liga/desliga (uma bomba, um dispositivo sem sinal confiável de espera) — cria o monitor na primeira execução se ainda não existir, e já inicia, em um passo só. Pensado pra ser acionado por um trigger nativo \"Potência torna-se maior que X\" (ou qualquer outra lógica de Flow) em vez do motor de limiar deste app. O monitor resultante nunca decide ativo/espera sozinho — só este card e o \"Parar monitoramento do dispositivo\" fazem isso."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "name",
+            "type": "text",
+            "required": false,
+            "title": {
+              "en": "Monitor name (optional)",
+              "pt": "Nome do monitor (opcional)"
+            }
+          },
+          {
+            "name": "continuity_minutes",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Continuity window (minutes, optional, default 0)",
+              "pt": "Janela de continuidade (minutos, opcional, padrão 0)"
+            }
+          },
+          {
+            "name": "min_confirmation_seconds",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Minimum state confirmation (seconds, optional, default 0)",
+              "pt": "Confirmação mínima de estado (segundos, opcional, padrão 0)"
+            }
+          }
+        ],
+        "id": "start_monitoring_device"
+      },
+      {
+        "title": {
           "en": "Stop monitor",
           "pt": "Parar monitor"
         },
@@ -2518,6 +2570,31 @@
           }
         ],
         "id": "stop_activity"
+      },
+      {
+        "title": {
+          "en": "Stop monitoring device",
+          "pt": "Parar monitoramento do dispositivo"
+        },
+        "titleFormatted": {
+          "en": "Stop monitoring device [[device]]",
+          "pt": "Parar monitoramento do dispositivo [[device]]"
+        },
+        "hint": {
+          "en": "Closes the cycle started by \"Start monitoring device\" for this device — fires \"Activity finished\" with duration, energy and the rest of the usual tokens. Fails if no monitor exists yet for this device; run \"Start monitoring device\" first.",
+          "pt": "Encerra o ciclo iniciado por \"Iniciar monitoramento do dispositivo\" para este dispositivo — dispara \"Atividade finalizada\" com duração, energia e o resto dos tokens de sempre. Falha se ainda não existir monitor para este dispositivo; rode \"Iniciar monitoramento do dispositivo\" primeiro."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          }
+        ],
+        "id": "stop_monitoring_device"
       },
       {
         "title": {
