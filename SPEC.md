@@ -18,7 +18,7 @@ lib/
   message-template.js     %token% rendering with singular/plural support
   time.js                 Timezone-aware local-day helpers
 settings/index.html       Settings UI (tabs: Monitors, Availability, Groups)
-widgets/sentinela/        Dashboard widget (one instance = one monitor or group)
+widgets/sentinel/         Dashboard widget (one instance = one monitor or group)
 .homeycompose/            Source of truth for app.json (flow cards, capabilities, api routes)
 test/                     node:test unit tests for lib/
 ```

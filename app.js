@@ -75,7 +75,7 @@ class StatisticTrackerApp extends Homey.App {
     }
   }
   _registerWidgets() {
-    const widget = this.homey.dashboards.getWidget('sentinela');
+    const widget = this.homey.dashboards.getWidget('sentinel');
     widget.registerSettingAutocompleteListener('monitorId', async (query) => {
       const normalized = (query || '').toLowerCase();
       const activity = Object.values(this.store.data.monitors)

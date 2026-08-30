@@ -2330,7 +2330,7 @@
     ]
   },
   "widgets": {
-    "sentinela": {
+    "sentinel": {
       "name": {
         "en": "Sentinel"
       },
@@ -2350,7 +2350,7 @@
           "path": "/summary"
         }
       },
-      "id": "sentinela"
+      "id": "sentinel"
     }
   }
 }
