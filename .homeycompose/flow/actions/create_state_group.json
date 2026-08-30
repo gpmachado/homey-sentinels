@@ -1,18 +1,18 @@
 {
-  "title": { "en": "Create state group", "pt": "Criar grupo de estados" },
-  "titleFormatted": { "en": "Create state group [[name]] ([[type]]), expected: [[expected_state]]", "pt": "Criar grupo de estados [[name]] ([[type]]), esperado: [[expected_state]]" },
-  "hint": { "en": "For dynamic setup from a Flow. Groups are more easily created with checkboxes in the app's settings page.", "pt": "Para composição dinâmica via Flow. Grupos são criados de forma mais prática pela página de configurações do app, com checkboxes." },
+  "title": { "en": "Create state group" },
+  "titleFormatted": { "en": "Create state group [[name]] ([[type]]), expected: [[expected_state]]" },
+  "hint": { "en": "For dynamic setup from a Flow. Groups are more easily created with checkboxes in the app's settings page." },
   "args": [
-    { "name": "name", "type": "text", "title": { "en": "Group name", "pt": "Nome do grupo" } },
-    { "name": "type", "type": "dropdown", "title": { "en": "Group type", "pt": "Tipo do grupo" }, "values": [
-      { "id": "contact", "label": { "en": "Contact", "pt": "Contato" } },
-      { "id": "light", "label": { "en": "Light", "pt": "Luz" } },
-      { "id": "switch", "label": { "en": "Switch", "pt": "Interruptor" } },
-      { "id": "valve", "label": { "en": "Valve", "pt": "Válvula" } }
+    { "name": "name", "type": "text", "title": { "en": "Group name" } },
+    { "name": "type", "type": "dropdown", "title": { "en": "Group type" }, "values": [
+      { "id": "contact", "label": { "en": "Contact" } },
+      { "id": "light", "label": { "en": "Light" } },
+      { "id": "switch", "label": { "en": "Switch" } },
+      { "id": "valve", "label": { "en": "Valve" } }
     ] },
-    { "name": "expected_state", "type": "dropdown", "title": { "en": "Expected state", "pt": "Estado esperado" }, "values": [
-      { "id": "true", "label": { "en": "On / Open", "pt": "Ligado / Aberto" } },
-      { "id": "false", "label": { "en": "Off / Closed", "pt": "Desligado / Fechado" } }
+    { "name": "expected_state", "type": "dropdown", "title": { "en": "Expected state" }, "values": [
+      { "id": "true", "label": { "en": "On / Open" } },
+      { "id": "false", "label": { "en": "Off / Closed" } }
     ] }
   ]
 }

@@ -1,14 +1,14 @@
 {
-  "title": { "en": "Overvoltage detected", "pt": "Sobretensão detectada" },
-  "titleFormatted": { "en": "Overvoltage detected ([[monitor]])", "pt": "Sobretensão detectada ([[monitor]])" },
+  "title": { "en": "Overvoltage detected" },
+  "titleFormatted": { "en": "Overvoltage detected ([[monitor]])" },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor", "pt": "Monitor" }, "hint": { "en": "Which voltage monitor to watch.", "pt": "Qual monitor de tensão observar." } }
+    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor" }, "hint": { "en": "Which voltage monitor to watch." } }
   ],
   "tokens": [
-    { "name": "device", "type": "string", "title": { "en": "Device", "pt": "Dispositivo" } },
-    { "name": "monitor", "type": "string", "title": { "en": "Monitor", "pt": "Monitor" } },
-    { "name": "voltage", "type": "number", "title": { "en": "Voltage (V)", "pt": "Tensão (V)" } },
-    { "name": "timestamp", "type": "string", "title": { "en": "Timestamp", "pt": "Timestamp" } },
-    { "name": "message", "type": "string", "title": { "en": "Message", "pt": "Mensagem" } }
+    { "name": "device", "type": "string", "title": { "en": "Device" } },
+    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
+    { "name": "voltage", "type": "number", "title": { "en": "Voltage (V)" } },
+    { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } },
+    { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]
 }

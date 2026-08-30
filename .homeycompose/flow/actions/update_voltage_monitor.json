@@ -1,9 +1,9 @@
 {
-  "title": { "en": "Update voltage monitor", "pt": "Atualizar monitor de tensão" },
-  "titleFormatted": { "en": "Update voltage monitor [[monitor]] to range [[min_voltage]]-[[max_voltage]] V", "pt": "Atualizar monitor de tensão [[monitor]] para faixa [[min_voltage]]-[[max_voltage]] V" },
+  "title": { "en": "Update voltage monitor" },
+  "titleFormatted": { "en": "Update voltage monitor [[monitor]] to range [[min_voltage]]-[[max_voltage]] V" },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } },
-    { "name": "min_voltage", "type": "number", "title": { "en": "Minimum voltage (V)", "pt": "Tensão mínima (V)" } },
-    { "name": "max_voltage", "type": "number", "title": { "en": "Maximum voltage (V)", "pt": "Tensão máxima (V)" } }
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
+    { "name": "min_voltage", "type": "number", "title": { "en": "Minimum voltage (V)" } },
+    { "name": "max_voltage", "type": "number", "title": { "en": "Maximum voltage (V)" } }
   ]
 }

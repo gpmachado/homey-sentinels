@@ -1,7 +1,7 @@
 {
-  "title": { "en": "[[monitor]] !{{is active|is not active}}", "pt": "[[monitor]] !{{está ativo|não está ativo}}" },
-  "titleFormatted": { "en": "[[monitor]] !{{is active|is not active}}", "pt": "[[monitor]] !{{está ativo|não está ativo}}" },
+  "title": { "en": "[[monitor]] !{{is active|is not active}}" },
+  "titleFormatted": { "en": "[[monitor]] !{{is active|is not active}}" },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } }
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
   ]
 }

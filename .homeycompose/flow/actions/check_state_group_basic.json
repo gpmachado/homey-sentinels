@@ -1,13 +1,13 @@
 {
-  "title": { "en": "Check state group (standard flow)", "pt": "Verificar grupo de estados (flow padrão)" },
-  "titleFormatted": { "en": "Check state group [[group]], expected [[expected_state]]", "pt": "Verificar grupo de estados [[group]], esperado [[expected_state]]" },
-  "hint": { "en": "Same as 'Check state group' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.", "pt": "Igual a 'Verificar grupo de estados', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow." },
+  "title": { "en": "Check state group (standard flow)" },
+  "titleFormatted": { "en": "Check state group [[group]], expected [[expected_state]]" },
+  "hint": { "en": "Same as 'Check state group' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow." },
   "args": [
-    { "name": "group", "type": "autocomplete", "title": { "en": "Group", "pt": "Grupo" } },
-    { "name": "expected_state", "type": "dropdown", "required": false, "title": { "en": "Expected state override (optional)", "pt": "Estado esperado (substituir, opcional)" }, "values": [
-      { "id": "", "label": { "en": "Use group default", "pt": "Usar padrão do grupo" } },
-      { "id": "true", "label": { "en": "On / Open", "pt": "Ligado / Aberto" } },
-      { "id": "false", "label": { "en": "Off / Closed", "pt": "Desligado / Fechado" } }
+    { "name": "group", "type": "autocomplete", "title": { "en": "Group" } },
+    { "name": "expected_state", "type": "dropdown", "required": false, "title": { "en": "Expected state override (optional)" }, "values": [
+      { "id": "", "label": { "en": "Use group default" } },
+      { "id": "true", "label": { "en": "On / Open" } },
+      { "id": "false", "label": { "en": "Off / Closed" } }
     ] }
   ]
 }

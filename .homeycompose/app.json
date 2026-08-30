@@ -8,12 +8,10 @@
     "local"
   ],
   "name": {
-    "en": "Sentinels",
-    "pt": "Sentinelas"
+    "en": "Sentinels"
   },
   "description": {
-    "en": "Observes existing devices and turns capability updates into activity, cycles, energy and statistics. Read-only — it never controls the devices it monitors.",
-    "pt": "Observa dispositivos existentes e transforma atualizações de capabilities em atividade, ciclos, energia e estatísticas. Somente leitura — nunca controla os dispositivos monitorados."
+    "en": "Observes existing devices and turns capability updates into activity, cycles, energy and statistics. Read-only — it never controls the devices it monitors."
   },
   "category": [
     "tools"

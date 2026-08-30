@@ -1,14 +1,14 @@
 {
-  "title": { "en": "Log binary event", "pt": "Registrar evento binário" },
-  "titleFormatted": { "en": "Log binary event for [[counter]]", "pt": "Registrar evento binário para [[counter]]" },
-  "hint": { "en": "Call this from whatever Flow already reacts to the real occurrence (a native trigger — contact alarm, motion, button). The message token is built from the wording configured for this counter in Settings — no message field needed here.", "pt": "Chame a partir do Flow que já reage à ocorrência real (um trigger nativo — alarme de contato, movimento, botão). O token de mensagem é montado a partir do texto configurado para este contador no Settings — não precisa de campo de mensagem aqui." },
+  "title": { "en": "Log binary event" },
+  "titleFormatted": { "en": "Log binary event for [[counter]]" },
+  "hint": { "en": "Call this from whatever Flow already reacts to the real occurrence (a native trigger — contact alarm, motion, button). The message token is built from the wording configured for this counter in Settings — no message field needed here." },
   "args": [
-    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter", "pt": "Contador" } }
+    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter" } }
   ],
   "tokens": [
-    { "name": "event_count_today", "type": "number", "title": { "en": "Events today (including this one)", "pt": "Eventos hoje (incluindo este)" } },
-    { "name": "total_count", "type": "number", "title": { "en": "Total events (all time)", "pt": "Total de eventos (histórico)" } },
-    { "name": "last_event_at", "type": "string", "title": { "en": "This event's timestamp", "pt": "Timestamp deste evento" } },
-    { "name": "message", "type": "string", "title": { "en": "Message", "pt": "Mensagem" } }
+    { "name": "event_count_today", "type": "number", "title": { "en": "Events today (including this one)" } },
+    { "name": "total_count", "type": "number", "title": { "en": "Total events (all time)" } },
+    { "name": "last_event_at", "type": "string", "title": { "en": "This event's timestamp" } },
+    { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]
 }

@@ -1,8 +1,8 @@
 {
-  "title": { "en": "Log binary event (standard flow)", "pt": "Registrar evento binário (flow padrão)" },
-  "titleFormatted": { "en": "Log binary event for [[counter]]", "pt": "Registrar evento binário para [[counter]]" },
-  "hint": { "en": "Same as 'Log binary event' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.", "pt": "Igual a 'Registrar evento binário', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow." },
+  "title": { "en": "Log binary event (standard flow)" },
+  "titleFormatted": { "en": "Log binary event for [[counter]]" },
+  "hint": { "en": "Same as 'Log binary event' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow." },
   "args": [
-    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter", "pt": "Contador" } }
+    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter" } }
   ]
 }

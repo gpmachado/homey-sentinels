@@ -1,8 +1,8 @@
 {
-  "name": { "en": "Sentinel", "pt": "Sentinela" },
+  "name": { "en": "Sentinel" },
   "height": 252,
   "settings": [
-    { "id": "monitorId", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } }
+    { "id": "monitorId", "type": "autocomplete", "title": { "en": "Monitor" } }
   ],
   "api": {
     "getSummary": { "method": "GET", "path": "/summary" }

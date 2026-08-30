@@ -1,10 +1,10 @@
 {
-  "title": { "en": "Update activity monitor", "pt": "Atualizar monitor de atividade" },
-  "titleFormatted": { "en": "Update activity monitor [[monitor]] to threshold [[threshold]] W, continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s", "pt": "Atualizar monitor de atividade [[monitor]] para limiar [[threshold]] W, continuidade [[continuity_minutes]] min, confirmação mínima [[min_confirmation_seconds]] s" },
+  "title": { "en": "Update activity monitor" },
+  "titleFormatted": { "en": "Update activity monitor [[monitor]] to threshold [[threshold]] W, continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s" },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } },
-    { "name": "threshold", "type": "number", "title": { "en": "Activity threshold (W)", "pt": "Limiar de atividade (W)" } },
-    { "name": "continuity_minutes", "type": "number", "required": false, "title": { "en": "Continuity window (minutes, optional)", "pt": "Janela de continuidade (minutos, opcional)" } },
-    { "name": "min_confirmation_seconds", "type": "number", "required": false, "title": { "en": "Minimum state confirmation (seconds, optional)", "pt": "Confirmação mínima de estado (segundos, opcional)" } }
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
+    { "name": "threshold", "type": "number", "title": { "en": "Activity threshold (W)" } },
+    { "name": "continuity_minutes", "type": "number", "required": false, "title": { "en": "Continuity window (minutes, optional)" } },
+    { "name": "min_confirmation_seconds", "type": "number", "required": false, "title": { "en": "Minimum state confirmation (seconds, optional)" } }
   ]
 }

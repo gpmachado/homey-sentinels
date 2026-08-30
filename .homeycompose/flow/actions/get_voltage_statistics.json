@@ -1,22 +1,22 @@
 {
-  "title": { "en": "Get voltage statistics", "pt": "Obter estatísticas de tensão" },
-  "titleFormatted": { "en": "Get voltage statistics for [[monitor]], period: [[period]]", "pt": "Obter estatísticas de tensão de [[monitor]], período: [[period]]" },
+  "title": { "en": "Get voltage statistics" },
+  "titleFormatted": { "en": "Get voltage statistics for [[monitor]], period: [[period]]" },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } },
-    { "name": "period", "type": "dropdown", "title": { "en": "Period", "pt": "Período" }, "values": [
-      { "id": "day", "label": { "en": "Today", "pt": "Hoje" } },
-      { "id": "week", "label": { "en": "Last 7 days", "pt": "Últimos 7 dias" } },
-      { "id": "month", "label": { "en": "Last 30 days", "pt": "Últimos 30 dias" } },
-      { "id": "all", "label": { "en": "All history", "pt": "Todo o histórico" } }
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
+    { "name": "period", "type": "dropdown", "title": { "en": "Period" }, "values": [
+      { "id": "day", "label": { "en": "Today" } },
+      { "id": "week", "label": { "en": "Last 7 days" } },
+      { "id": "month", "label": { "en": "Last 30 days" } },
+      { "id": "all", "label": { "en": "All history" } }
     ] }
   ],
   "tokens": [
-    { "name": "average_voltage", "type": "number", "title": { "en": "Average voltage (V)", "pt": "Tensão média (V)" } },
-    { "name": "min_voltage", "type": "number", "title": { "en": "Minimum voltage (V)", "pt": "Tensão mínima (V)" } },
-    { "name": "max_voltage", "type": "number", "title": { "en": "Maximum voltage (V)", "pt": "Tensão máxima (V)" } },
-    { "name": "undervoltage_count", "type": "number", "title": { "en": "Undervoltage events", "pt": "Eventos de subtensão" } },
-    { "name": "undervoltage_duration", "type": "number", "title": { "en": "Undervoltage duration (seconds)", "pt": "Duração em subtensão (segundos)" } },
-    { "name": "overvoltage_count", "type": "number", "title": { "en": "Overvoltage events", "pt": "Eventos de sobretensão" } },
-    { "name": "overvoltage_duration", "type": "number", "title": { "en": "Overvoltage duration (seconds)", "pt": "Duração em sobretensão (segundos)" } }
+    { "name": "average_voltage", "type": "number", "title": { "en": "Average voltage (V)" } },
+    { "name": "min_voltage", "type": "number", "title": { "en": "Minimum voltage (V)" } },
+    { "name": "max_voltage", "type": "number", "title": { "en": "Maximum voltage (V)" } },
+    { "name": "undervoltage_count", "type": "number", "title": { "en": "Undervoltage events" } },
+    { "name": "undervoltage_duration", "type": "number", "title": { "en": "Undervoltage duration (seconds)" } },
+    { "name": "overvoltage_count", "type": "number", "title": { "en": "Overvoltage events" } },
+    { "name": "overvoltage_duration", "type": "number", "title": { "en": "Overvoltage duration (seconds)" } }
   ]
 }

@@ -1,8 +1,8 @@
 {
-  "title": { "en": "Reset voltage monitor statistics", "pt": "Resetar estatísticas do monitor de tensão" },
-  "titleFormatted": { "en": "Reset voltage monitor statistics for [[monitor]]", "pt": "Resetar estatísticas do monitor de tensão [[monitor]]" },
-  "hint": { "en": "Wipes readings, events and live state (e.g. after fixing a monitor that was bound to the wrong capability) — keeps the monitor itself, its device, capability, voltage range and message wording. To remove the monitor entirely instead, use \"Remove voltage monitor\".", "pt": "Apaga leituras, eventos e estado atual (por exemplo, após corrigir um monitor que estava ligado à capability errada) — mantém o monitor, seu dispositivo, capability, faixa de tensão e mensagens configuradas. Para remover o monitor por completo, use \"Remover monitor de tensão\"." },
+  "title": { "en": "Reset voltage monitor statistics" },
+  "titleFormatted": { "en": "Reset voltage monitor statistics for [[monitor]]" },
+  "hint": { "en": "Wipes readings, events and live state (e.g. after fixing a monitor that was bound to the wrong capability) — keeps the monitor itself, its device, capability, voltage range and message wording. To remove the monitor entirely instead, use \"Remove voltage monitor\"." },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } }
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
   ]
 }

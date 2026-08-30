@@ -1,12 +1,12 @@
 {
-  "title": { "en": "Add voltage monitor", "pt": "Adicionar monitor de tensão" },
-  "titleFormatted": { "en": "Add voltage monitor for [[device]], capability [[capability]], range [[min_voltage]]-[[max_voltage]] V, stabilization [[stabilization_minutes]] min, name [[name]]", "pt": "Adicionar monitor de tensão para [[device]], capability [[capability]], faixa [[min_voltage]]-[[max_voltage]] V, estabilização [[stabilization_minutes]] min, nome [[name]]" },
+  "title": { "en": "Add voltage monitor" },
+  "titleFormatted": { "en": "Add voltage monitor for [[device]], capability [[capability]], range [[min_voltage]]-[[max_voltage]] V, stabilization [[stabilization_minutes]] min, name [[name]]" },
   "args": [
-    { "name": "device", "type": "autocomplete", "title": { "en": "Device", "pt": "Dispositivo" } },
-    { "name": "capability", "type": "autocomplete", "required": false, "title": { "en": "Capability (optional, defaults to measure_voltage)", "pt": "Capability (opcional, padrão measure_voltage)" }, "placeholder": { "en": "measure_voltage", "pt": "measure_voltage" }, "hint": { "en": "Leave blank to use measure_voltage. Pick a phase-specific capability here if the device exposes one.", "pt": "Deixe em branco para usar measure_voltage. Escolha uma capability específica de fase aqui se o dispositivo tiver uma." } },
-    { "name": "min_voltage", "type": "number", "title": { "en": "Minimum voltage (V)", "pt": "Tensão mínima (V)" } },
-    { "name": "max_voltage", "type": "number", "title": { "en": "Maximum voltage (V)", "pt": "Tensão máxima (V)" } },
-    { "name": "stabilization_minutes", "type": "number", "required": false, "title": { "en": "Stabilization window (minutes, optional, default 5)", "pt": "Janela de estabilização (minutos, opcional, padrão 5)" }, "hint": { "en": "Readings during this window after creating the monitor only establish the reference and never fire an isolated event — avoids false alarms from an anomalous first reading.", "pt": "Leituras dentro dessa janela após criar o monitor só estabelecem a referência e nunca disparam um evento isolado — evita alarme falso vindo de uma primeira leitura anômala." } },
-    { "name": "name", "type": "text", "required": false, "title": { "en": "Monitor name (optional)", "pt": "Nome do monitor (opcional)" } }
+    { "name": "device", "type": "autocomplete", "title": { "en": "Device" } },
+    { "name": "capability", "type": "autocomplete", "required": false, "title": { "en": "Capability (optional, defaults to measure_voltage)" }, "placeholder": { "en": "measure_voltage" }, "hint": { "en": "Leave blank to use measure_voltage. Pick a phase-specific capability here if the device exposes one." } },
+    { "name": "min_voltage", "type": "number", "title": { "en": "Minimum voltage (V)" } },
+    { "name": "max_voltage", "type": "number", "title": { "en": "Maximum voltage (V)" } },
+    { "name": "stabilization_minutes", "type": "number", "required": false, "title": { "en": "Stabilization window (minutes, optional, default 5)" }, "hint": { "en": "Readings during this window after creating the monitor only establish the reference and never fire an isolated event — avoids false alarms from an anomalous first reading." } },
+    { "name": "name", "type": "text", "required": false, "title": { "en": "Monitor name (optional)" } }
   ]
 }

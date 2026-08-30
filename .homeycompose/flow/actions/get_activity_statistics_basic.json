@@ -1,14 +1,14 @@
 {
-  "title": { "en": "Get activity statistics (standard flow)", "pt": "Obter estatísticas de atividade (flow padrão)" },
-  "titleFormatted": { "en": "Get activity statistics for [[monitor]], period: [[period]]", "pt": "Obter estatísticas de atividade de [[monitor]], período: [[period]]" },
-  "hint": { "en": "Same as 'Get activity statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.", "pt": "Igual a 'Obter estatísticas de atividade', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow." },
+  "title": { "en": "Get activity statistics (standard flow)" },
+  "titleFormatted": { "en": "Get activity statistics for [[monitor]], period: [[period]]" },
+  "hint": { "en": "Same as 'Get activity statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow." },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } },
-    { "name": "period", "type": "dropdown", "title": { "en": "Period", "pt": "Período" }, "values": [
-      { "id": "day", "label": { "en": "Today", "pt": "Hoje" } },
-      { "id": "week", "label": { "en": "Last 7 days", "pt": "Últimos 7 dias" } },
-      { "id": "month", "label": { "en": "Last 30 days", "pt": "Últimos 30 dias" } },
-      { "id": "all", "label": { "en": "All history", "pt": "Todo o histórico" } }
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
+    { "name": "period", "type": "dropdown", "title": { "en": "Period" }, "values": [
+      { "id": "day", "label": { "en": "Today" } },
+      { "id": "week", "label": { "en": "Last 7 days" } },
+      { "id": "month", "label": { "en": "Last 30 days" } },
+      { "id": "all", "label": { "en": "All history" } }
     ] }
   ]
 }

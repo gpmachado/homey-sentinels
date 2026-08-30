@@ -1,20 +1,20 @@
 {
-  "title": { "en": "Activity finished", "pt": "Atividade finalizada" },
-  "titleFormatted": { "en": "Activity finished ([[monitor]])", "pt": "Atividade finalizada ([[monitor]])" },
+  "title": { "en": "Activity finished" },
+  "titleFormatted": { "en": "Activity finished ([[monitor]])" },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor", "pt": "Monitor" }, "hint": { "en": "Which activity monitor to watch.", "pt": "Qual monitor de atividade observar." } }
+    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor" }, "hint": { "en": "Which activity monitor to watch." } }
   ],
   "tokens": [
-    { "name": "device", "type": "string", "title": { "en": "Device", "pt": "Dispositivo" } },
-    { "name": "monitor", "type": "string", "title": { "en": "Monitor", "pt": "Monitor" } },
-    { "name": "duration", "type": "number", "title": { "en": "Duration (seconds)", "pt": "Duração (segundos)" } },
-    { "name": "duration_human", "type": "string", "title": { "en": "Duration", "pt": "Duração" } },
-    { "name": "energy", "type": "number", "title": { "en": "Energy (kWh)", "pt": "Energia (kWh)" } },
-    { "name": "average_power", "type": "number", "title": { "en": "Average power (W)", "pt": "Potência média (W)" } },
-    { "name": "max_power", "type": "number", "title": { "en": "Peak power (W)", "pt": "Potência máxima (W)" } },
-    { "name": "average_current", "type": "number", "title": { "en": "Average current (A)", "pt": "Corrente média (A)" } },
-    { "name": "max_current", "type": "number", "title": { "en": "Peak current (A)", "pt": "Corrente máxima (A)" } },
-    { "name": "count", "type": "number", "title": { "en": "Cycles today (including this one)", "pt": "Ciclos hoje (incluindo este)" } },
-    { "name": "message", "type": "string", "title": { "en": "Message", "pt": "Mensagem" } }
+    { "name": "device", "type": "string", "title": { "en": "Device" } },
+    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
+    { "name": "duration", "type": "number", "title": { "en": "Duration (seconds)" } },
+    { "name": "duration_human", "type": "string", "title": { "en": "Duration" } },
+    { "name": "energy", "type": "number", "title": { "en": "Energy (kWh)" } },
+    { "name": "average_power", "type": "number", "title": { "en": "Average power (W)" } },
+    { "name": "max_power", "type": "number", "title": { "en": "Peak power (W)" } },
+    { "name": "average_current", "type": "number", "title": { "en": "Average current (A)" } },
+    { "name": "max_current", "type": "number", "title": { "en": "Peak current (A)" } },
+    { "name": "count", "type": "number", "title": { "en": "Cycles today (including this one)" } },
+    { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]
 }

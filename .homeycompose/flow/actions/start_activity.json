@@ -1,8 +1,8 @@
 {
-  "title": { "en": "Start monitor", "pt": "Iniciar monitor" },
-  "titleFormatted": { "en": "Start monitor [[monitor]]", "pt": "Iniciar monitor [[monitor]]" },
-  "hint": { "en": "Manually starts the monitor's cycle right now, instead of waiting for its power threshold to be crossed. For devices with no meaningful power/standby signal (a pure on/off pump or switch) — drive it from a native trigger like \"Power becomes greater than X\", or any other Flow logic. Does nothing if the monitor is already active.", "pt": "Inicia manualmente o ciclo do monitor agora, em vez de esperar o limiar de potência ser cruzado. Para dispositivos sem sinal significativo de potência/espera (uma bomba ou interruptor puramente liga/desliga) — acione a partir de um trigger nativo como \"Potência torna-se maior que X\", ou qualquer outra lógica de Flow. Não faz nada se o monitor já estiver ativo." },
+  "title": { "en": "Start monitor" },
+  "titleFormatted": { "en": "Start monitor [[monitor]]" },
+  "hint": { "en": "Manually starts the monitor's cycle right now, instead of waiting for its power threshold to be crossed. For devices with no meaningful power/standby signal (a pure on/off pump or switch) — drive it from a native trigger like \"Power becomes greater than X\", or any other Flow logic. Does nothing if the monitor is already active." },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } }
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
   ]
 }

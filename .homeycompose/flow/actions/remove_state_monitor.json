@@ -1,7 +1,7 @@
 {
-  "title": { "en": "Remove state monitor", "pt": "Remover monitor de estado" },
-  "titleFormatted": { "en": "Remove state monitor [[monitor]]", "pt": "Remover monitor de estado [[monitor]]" },
+  "title": { "en": "Remove state monitor" },
+  "titleFormatted": { "en": "Remove state monitor [[monitor]]" },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } }
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
   ]
 }
