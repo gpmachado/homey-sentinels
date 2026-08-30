@@ -50,11 +50,12 @@ machine.
 3. Use **"Get activity statistics"** for a period (today/7 days/30 days/all) wherever you need
    the numbers without waiting for a trigger — cycle count, durations, energy, median cycle
    duration, and a week-over-week trend.
-4. Message wording for both triggers is written **once, in Settings** (Monitors tab → Activity
-   sub-tab → "Edit messages"), same token-insert pattern as Voltage Monitor below. The
-   "finished" message gets a `%count%` token — today's cycle count, already including the one
-   that just finished — so "pump turned off %count% %count:time|times% today" needs no
-   separate counter Flow.
+4. Message wording works out of the box — a new monitor already has a sensible default
+   (`"%monitor% turned on (%power% W)"` / `"%monitor% turned off — %duration_human%, %energy%
+   kWh (%count% today)"`), edit it if you want something different in Settings (Monitors tab →
+   Activity sub-tab → "Edit messages"), same token-insert pattern as Voltage Monitor below. The
+   "finished" message's `%count%` is today's cycle count, already including the one that just
+   finished.
 
 **No reliable power/standby signal?** A pure on/off pump or switch might never show a clean
 threshold crossing — a microwave or freezer usually does (clear standby vs. running draw), so
@@ -92,9 +93,9 @@ a plain on/off switch you don't have power data for.
 3. **"Get state statistics"** gives you session count, time spent as true *and* as false
    (`true_duration`/`false_duration`, plus their labels as tokens), median session duration,
    and the weekly trend.
-4. Message wording (Settings → Monitors → State sub-tab → "Edit messages") works the same way
-   as Activity Monitor's — use `%label%` for the state just entered, `%count%` (on "finished")
-   for today's session count.
+4. Message wording defaults to `"%monitor% is now %label%"` / `"%monitor% is now %label%
+   (%count% today)"` — works out of the box, editable in Settings → Monitors → State sub-tab →
+   "Edit messages", same idea as Activity Monitor's.
 
 ## 3. Voltage Monitor — over/undervoltage on a phase
 

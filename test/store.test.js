@@ -56,23 +56,23 @@ test('creates a monitor with a custom capability, defaulting to measure_power', 
   assert.equal(other.capability, 'measure_current');
 });
 
-test('activity monitor message templates default to empty and can be updated via updateMonitorMessages', async () => {
+test('activity monitor message templates come pre-filled with a working default, editable via updateMonitorMessages', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();
   const monitor = store.createMonitor({ device: { id: 'dev-1', name: 'Bomba' }, threshold: 100 });
-  assert.equal(monitor.messageTemplateStarted, '');
-  assert.equal(monitor.messageTemplateFinished, '');
+  assert.match(monitor.messageTemplateStarted, /%monitor%/);
+  assert.match(monitor.messageTemplateFinished, /%monitor%/);
   store.updateMonitorMessages(monitor, { messageTemplateFinished: '%monitor% desligou %count% vezes hoje' });
   assert.equal(monitor.messageTemplateFinished, '%monitor% desligou %count% vezes hoje');
   assert.equal(monitor.threshold, 100); // untouched by a messages-only update
 });
 
-test('state monitor message templates default to empty and can be updated via updateStateMonitorMessages', async () => {
+test('state monitor message templates come pre-filled with a working default, editable via updateStateMonitorMessages', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();
   const monitor = store.createStateMonitor({ device: { id: 'dev-1', name: 'Garage door' }, capability: 'alarm_contact' });
-  assert.equal(monitor.messageTemplateStarted, '');
-  assert.equal(monitor.messageTemplateFinished, '');
+  assert.match(monitor.messageTemplateStarted, /%monitor%/);
+  assert.match(monitor.messageTemplateFinished, /%monitor%/);
   store.updateStateMonitorMessages(monitor, { messageTemplateStarted: '%monitor% is now %label%' });
   assert.equal(monitor.messageTemplateStarted, '%monitor% is now %label%');
 });
