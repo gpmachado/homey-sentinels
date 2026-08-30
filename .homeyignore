@@ -1,0 +1,5 @@
+# Reference material and prototype — not part of the shipped app bundle
+analise/
+
+# OS
+.DS_Store

@@ -1,0 +1,14 @@
+{
+  "title": { "en": "State session started", "pt": "Sessão de estado iniciada" },
+  "titleFormatted": { "en": "State session started ([[monitor]])", "pt": "Sessão de estado iniciada ([[monitor]])" },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor", "pt": "Monitor" }, "hint": { "en": "Which state monitor to watch.", "pt": "Qual monitor de estado observar." } }
+  ],
+  "tokens": [
+    { "name": "device", "type": "string", "title": { "en": "Device", "pt": "Dispositivo" } },
+    { "name": "monitor", "type": "string", "title": { "en": "Monitor", "pt": "Monitor" } },
+    { "name": "label", "type": "string", "title": { "en": "State entered", "pt": "Estado que entrou" } },
+    { "name": "timestamp", "type": "string", "title": { "en": "Timestamp", "pt": "Timestamp" } },
+    { "name": "message", "type": "string", "title": { "en": "Message", "pt": "Mensagem" } }
+  ]
+}

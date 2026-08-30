@@ -1,0 +1,7 @@
+{
+  "title": { "en": "[[monitor]] !{{is within range|is out of range}}", "pt": "[[monitor]] !{{está na faixa normal|está fora da faixa}}" },
+  "titleFormatted": { "en": "[[monitor]] !{{is within range|is out of range}}", "pt": "[[monitor]] !{{está na faixa normal|está fora da faixa}}" },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } }
+  ]
+}

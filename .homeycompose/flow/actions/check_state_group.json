@@ -1,0 +1,20 @@
+{
+  "title": { "en": "Check state group", "pt": "Verificar grupo de estados" },
+  "titleFormatted": { "en": "Check state group [[group]], expected [[expected_state]]", "pt": "Verificar grupo de estados [[group]], esperado [[expected_state]]" },
+  "args": [
+    { "name": "group", "type": "autocomplete", "title": { "en": "Group", "pt": "Grupo" } },
+    { "name": "expected_state", "type": "dropdown", "required": false, "title": { "en": "Expected state override (optional)", "pt": "Estado esperado (substituir, opcional)" }, "values": [
+      { "id": "", "label": { "en": "Use group default", "pt": "Usar padrão do grupo" } },
+      { "id": "true", "label": { "en": "On / Open", "pt": "Ligado / Aberto" } },
+      { "id": "false", "label": { "en": "Off / Closed", "pt": "Desligado / Fechado" } }
+    ] }
+  ],
+  "tokens": [
+    { "name": "group_name", "type": "string", "title": { "en": "Group", "pt": "Grupo" } },
+    { "name": "checked_count", "type": "number", "title": { "en": "Checked", "pt": "Verificados" } },
+    { "name": "match_count", "type": "number", "title": { "en": "Matching", "pt": "Corretos" } },
+    { "name": "mismatch_count", "type": "number", "title": { "en": "Mismatches", "pt": "Divergências" } },
+    { "name": "mismatch_list", "type": "string", "title": { "en": "Mismatch list", "pt": "Lista de divergências" } },
+    { "name": "message", "type": "string", "title": { "en": "Message", "pt": "Mensagem" }, "example": { "en": "2 items open: Kitchen and Living Room.", "pt": "Há 2 itens abertos: Cozinha e Sala." } }
+  ]
+}

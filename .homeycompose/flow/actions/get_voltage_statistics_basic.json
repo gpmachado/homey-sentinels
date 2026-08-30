@@ -1,0 +1,14 @@
+{
+  "title": { "en": "Get voltage statistics (standard flow)", "pt": "Obter estatísticas de tensão (flow padrão)" },
+  "titleFormatted": { "en": "Get voltage statistics for [[monitor]], period: [[period]]", "pt": "Obter estatísticas de tensão de [[monitor]], período: [[period]]" },
+  "hint": { "en": "Same as 'Get voltage statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.", "pt": "Igual a 'Obter estatísticas de tensão', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow." },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } },
+    { "name": "period", "type": "dropdown", "title": { "en": "Period", "pt": "Período" }, "values": [
+      { "id": "day", "label": { "en": "Today", "pt": "Hoje" } },
+      { "id": "week", "label": { "en": "Last 7 days", "pt": "Últimos 7 dias" } },
+      { "id": "month", "label": { "en": "Last 30 days", "pt": "Últimos 30 dias" } },
+      { "id": "all", "label": { "en": "All history", "pt": "Todo o histórico" } }
+    ] }
+  ]
+}

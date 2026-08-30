@@ -1,0 +1,57 @@
+{
+  "id": "gpm.statistic.tracker",
+  "version": "1.0.0",
+  "compatibility": ">=12.4.0",
+  "sdk": 3,
+  "runtime": "nodejs",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Sentinels",
+    "pt": "Sentinelas"
+  },
+  "description": {
+    "en": "Observes existing devices and turns capability updates into activity, cycles, energy and statistics. Read-only — it never controls the devices it monitors.",
+    "pt": "Observa dispositivos existentes e transforma atualizações de capabilities em atividade, ciclos, energia e estatísticas. Somente leitura — nunca controla os dispositivos monitorados."
+  },
+  "category": [
+    "tools"
+  ],
+  "permissions": ["homey:manager:api"],
+  "api": {
+    "getDevices": { "method": "GET", "path": "/devices" },
+    "getGroups": { "method": "GET", "path": "/groups" },
+    "getMonitorsSummary": { "method": "GET", "path": "/monitors" },
+    "deleteMonitor": { "method": "DELETE", "path": "/monitors/:id" },
+    "resetMonitor": { "method": "POST", "path": "/monitors/:id/reset" },
+    "updateMonitorMessages": { "method": "PUT", "path": "/monitors/:id/messages" },
+    "getStateMonitorsSummary": { "method": "GET", "path": "/state-monitors" },
+    "deleteStateMonitor": { "method": "DELETE", "path": "/state-monitors/:id" },
+    "resetStateMonitor": { "method": "POST", "path": "/state-monitors/:id/reset" },
+    "updateStateMonitorMessages": { "method": "PUT", "path": "/state-monitors/:id/messages" },
+    "getVoltageMonitorsSummary": { "method": "GET", "path": "/voltage-monitors" },
+    "deleteVoltageMonitor": { "method": "DELETE", "path": "/voltage-monitors/:id" },
+    "resetVoltageMonitor": { "method": "POST", "path": "/voltage-monitors/:id/reset" },
+    "updateVoltageMonitorMessages": { "method": "PUT", "path": "/voltage-monitors/:id/messages" },
+    "getBinaryCountersSummary": { "method": "GET", "path": "/binary-counters" },
+    "deleteBinaryCounter": { "method": "DELETE", "path": "/binary-counters/:id" },
+    "resetBinaryCounter": { "method": "POST", "path": "/binary-counters/:id/reset" },
+    "updateBinaryCounterMessage": { "method": "PUT", "path": "/binary-counters/:id/message" },
+    "createGroup": { "method": "POST", "path": "/groups" },
+    "updateGroup": { "method": "PUT", "path": "/groups/:id" },
+    "deleteGroup": { "method": "DELETE", "path": "/groups/:id" },
+    "checkGroupStatus": { "method": "GET", "path": "/groups/:id/check" },
+    "getTimezone": { "method": "GET", "path": "/timezone" },
+    "setTimezone": { "method": "POST", "path": "/timezone" }
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Gabriel Pedrosa Machado",
+    "email": "g.machado@me.com"
+  }
+}

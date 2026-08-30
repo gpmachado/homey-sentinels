@@ -1,0 +1,17 @@
+{
+  "title": { "en": "Get binary event statistics", "pt": "Obter estatísticas de evento binário" },
+  "titleFormatted": { "en": "Get binary event statistics for [[counter]], period: [[period]]", "pt": "Obter estatísticas de evento binário de [[counter]], período: [[period]]" },
+  "args": [
+    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter", "pt": "Contador" } },
+    { "name": "period", "type": "dropdown", "title": { "en": "Period", "pt": "Período" }, "values": [
+      { "id": "day", "label": { "en": "Today", "pt": "Hoje" } },
+      { "id": "week", "label": { "en": "Last 7 days", "pt": "Últimos 7 dias" } },
+      { "id": "month", "label": { "en": "Last 30 days", "pt": "Últimos 30 dias" } },
+      { "id": "all", "label": { "en": "All history", "pt": "Todo o histórico" } }
+    ] }
+  ],
+  "tokens": [
+    { "name": "event_count", "type": "number", "title": { "en": "Events", "pt": "Eventos" } },
+    { "name": "last_event_at", "type": "string", "title": { "en": "Last event timestamp", "pt": "Timestamp do último evento" } }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "title": { "en": "Reset activity monitor statistics", "pt": "Resetar estatísticas do monitor de atividade" },
+  "titleFormatted": { "en": "Reset activity monitor statistics for [[monitor]]", "pt": "Resetar estatísticas do monitor de atividade [[monitor]]" },
+  "hint": { "en": "Wipes cycles, history and live state (e.g. after fixing a monitor that was recording wrong data) — keeps the monitor itself, its device, capability, threshold and settings. To remove the monitor entirely instead, use \"Remove activity monitor\".", "pt": "Apaga ciclos, histórico e estado atual (por exemplo, após corrigir um monitor que estava gravando dados errados) — mantém o monitor, seu dispositivo, capability, limiar e configurações. Para remover o monitor por completo, use \"Remover monitor de atividade\"." },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } }
+  ]
+}

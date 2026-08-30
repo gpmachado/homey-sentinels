@@ -1,0 +1,10 @@
+/env.json
+/node_modules/
+/.homeybuild/
+
+# Personal research/reference material and HomeyScript scratch files — not part of the app
+/analise/
+
+# OS
+.DS_Store
+**/.DS_Store

@@ -1,0 +1,7 @@
+{
+  "title": { "en": "Remove binary counter", "pt": "Remover contador binário" },
+  "titleFormatted": { "en": "Remove binary counter [[counter]]", "pt": "Remover contador binário [[counter]]" },
+  "args": [
+    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter", "pt": "Contador" } }
+  ]
+}

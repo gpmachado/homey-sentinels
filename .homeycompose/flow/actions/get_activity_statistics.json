@@ -1,0 +1,33 @@
+{
+  "title": { "en": "Get activity statistics", "pt": "Obter estatísticas de atividade" },
+  "titleFormatted": { "en": "Get activity statistics for [[monitor]], period: [[period]]", "pt": "Obter estatísticas de atividade de [[monitor]], período: [[period]]" },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } },
+    { "name": "period", "type": "dropdown", "title": { "en": "Period", "pt": "Período" }, "values": [
+      { "id": "day", "label": { "en": "Today", "pt": "Hoje" } },
+      { "id": "week", "label": { "en": "Last 7 days", "pt": "Últimos 7 dias" } },
+      { "id": "month", "label": { "en": "Last 30 days", "pt": "Últimos 30 dias" } },
+      { "id": "all", "label": { "en": "All history", "pt": "Todo o histórico" } }
+    ] }
+  ],
+  "tokens": [
+    { "name": "cycle_count", "type": "number", "title": { "en": "Cycles", "pt": "Ciclos" } },
+    { "name": "active_duration", "type": "number", "title": { "en": "Active duration (seconds)", "pt": "Tempo ativo (segundos)" } },
+    { "name": "standby_duration", "type": "number", "title": { "en": "Standby duration (seconds)", "pt": "Tempo em espera (segundos)" } },
+    { "name": "total_energy", "type": "number", "title": { "en": "Energy (kWh)", "pt": "Energia (kWh)" } },
+    { "name": "active_energy", "type": "number", "title": { "en": "Active energy (kWh)", "pt": "Energia ativa (kWh)" } },
+    { "name": "standby_energy", "type": "number", "title": { "en": "Standby energy (kWh)", "pt": "Energia em espera (kWh)" } },
+    { "name": "average_power", "type": "number", "title": { "en": "Average power while active (W)", "pt": "Potência média enquanto ativo (W)" } },
+    { "name": "max_power", "type": "number", "title": { "en": "Peak power (W)", "pt": "Potência máxima (W)" } },
+    { "name": "average_current", "type": "number", "title": { "en": "Average current while active (A)", "pt": "Corrente média enquanto ativo (A)" } },
+    { "name": "max_current", "type": "number", "title": { "en": "Peak current (A)", "pt": "Corrente máxima (A)" } },
+    { "name": "median_duration", "type": "number", "title": { "en": "Median cycle duration (seconds)", "pt": "Duração mediana do ciclo (segundos)" } },
+    { "name": "median_duration_human", "type": "string", "title": { "en": "Median cycle duration", "pt": "Duração mediana do ciclo" } },
+    { "name": "median_energy", "type": "number", "title": { "en": "Median energy per cycle (kWh)", "pt": "Energia mediana por ciclo (kWh)" } },
+    { "name": "energy_quality", "type": "string", "title": { "en": "Energy quality issue (meter_reset or blank)", "pt": "Problema de qualidade de energia (meter_reset ou vazio)" } },
+    { "name": "trend_active_duration_percent", "type": "number", "title": { "en": "Active time vs previous week (%)", "pt": "Tempo ativo vs semana anterior (%)" } },
+    { "name": "trend_cycle_count_percent", "type": "number", "title": { "en": "Cycles vs previous week (%)", "pt": "Ciclos vs semana anterior (%)" } },
+    { "name": "trend_energy_percent", "type": "number", "title": { "en": "Energy vs previous week (%)", "pt": "Energia vs semana anterior (%)" } },
+    { "name": "trend_summary", "type": "string", "title": { "en": "Weekly trend", "pt": "Tendência semanal" } }
+  ]
+}

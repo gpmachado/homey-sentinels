@@ -1,0 +1,8 @@
+{
+  "title": { "en": "Add binary counter", "pt": "Adicionar contador binário" },
+  "titleFormatted": { "en": "Add binary counter [[name]]", "pt": "Adicionar contador binário [[name]]" },
+  "hint": { "en": "For a fire-and-forget occurrence with no start/end pair — a doorbell press, a single motion pulse, a button click. Just tallies how many times it happened, no duration or energy. Run once to set it up (or wire it to a native trigger — running it again on the same name updates the existing counter instead of duplicating it), then use \"Log binary event\" wherever the real occurrence happens.", "pt": "Para uma ocorrência avulsa, sem par de início/fim — campainha, um pulso de movimento, um clique de botão. Só contabiliza quantas vezes aconteceu, sem duração ou energia. Rode uma vez pra configurar (ou ligue a um trigger nativo — rodar de novo com o mesmo nome atualiza o contador existente em vez de duplicar), depois use \"Registrar evento binário\" onde a ocorrência real acontece." },
+  "args": [
+    { "name": "name", "type": "autocomplete", "title": { "en": "Counter name", "pt": "Nome do contador" }, "placeholder": { "en": "e.g. Doorbell", "pt": "Ex.: Campainha" }, "hint": { "en": "Pick an existing counter to update it, or type a new name and pick \"Create new\" to make one.", "pt": "Escolha um contador existente para atualizá-lo, ou digite um nome novo e escolha \"Criar novo\" para criar um." } }
+  ]
+}

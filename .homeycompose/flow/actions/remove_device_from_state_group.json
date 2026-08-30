@@ -1,0 +1,8 @@
+{
+  "title": { "en": "Remove device from state group", "pt": "Remover dispositivo do grupo" },
+  "titleFormatted": { "en": "Remove [[device]] from state group [[group]]", "pt": "Remover [[device]] do grupo [[group]]" },
+  "args": [
+    { "name": "group", "type": "autocomplete", "title": { "en": "Group", "pt": "Grupo" } },
+    { "name": "device", "type": "autocomplete", "title": { "en": "Device", "pt": "Dispositivo" } }
+  ]
+}

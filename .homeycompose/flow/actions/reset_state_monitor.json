@@ -1,0 +1,8 @@
+{
+  "title": { "en": "Reset state monitor statistics", "pt": "Resetar estatísticas do monitor de estado" },
+  "titleFormatted": { "en": "Reset state monitor statistics for [[monitor]]", "pt": "Resetar estatísticas do monitor de estado [[monitor]]" },
+  "hint": { "en": "Wipes sessions, history and live state — keeps the monitor itself, its device, capability and settings. To remove the monitor entirely instead, use \"Remove state monitor\".", "pt": "Apaga sessões, histórico e estado atual — mantém o monitor, seu dispositivo, capability e configurações. Para remover o monitor por completo, use \"Remover monitor de estado\"." },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } }
+  ]
+}

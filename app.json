@@ -1,0 +1,2633 @@
+{
+  "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
+  "id": "gpm.statistic.tracker",
+  "version": "1.0.0",
+  "compatibility": ">=12.4.0",
+  "sdk": 3,
+  "runtime": "nodejs",
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Sentinels",
+    "pt": "Sentinelas"
+  },
+  "description": {
+    "en": "Observes existing devices and turns capability updates into activity, cycles, energy and statistics. Read-only — it never controls the devices it monitors.",
+    "pt": "Observa dispositivos existentes e transforma atualizações de capabilities em atividade, ciclos, energia e estatísticas. Somente leitura — nunca controla os dispositivos monitorados."
+  },
+  "category": [
+    "tools"
+  ],
+  "permissions": [
+    "homey:manager:api"
+  ],
+  "api": {
+    "getDevices": {
+      "method": "GET",
+      "path": "/devices"
+    },
+    "getGroups": {
+      "method": "GET",
+      "path": "/groups"
+    },
+    "getMonitorsSummary": {
+      "method": "GET",
+      "path": "/monitors"
+    },
+    "deleteMonitor": {
+      "method": "DELETE",
+      "path": "/monitors/:id"
+    },
+    "resetMonitor": {
+      "method": "POST",
+      "path": "/monitors/:id/reset"
+    },
+    "updateMonitorMessages": {
+      "method": "PUT",
+      "path": "/monitors/:id/messages"
+    },
+    "getStateMonitorsSummary": {
+      "method": "GET",
+      "path": "/state-monitors"
+    },
+    "deleteStateMonitor": {
+      "method": "DELETE",
+      "path": "/state-monitors/:id"
+    },
+    "resetStateMonitor": {
+      "method": "POST",
+      "path": "/state-monitors/:id/reset"
+    },
+    "updateStateMonitorMessages": {
+      "method": "PUT",
+      "path": "/state-monitors/:id/messages"
+    },
+    "getVoltageMonitorsSummary": {
+      "method": "GET",
+      "path": "/voltage-monitors"
+    },
+    "deleteVoltageMonitor": {
+      "method": "DELETE",
+      "path": "/voltage-monitors/:id"
+    },
+    "resetVoltageMonitor": {
+      "method": "POST",
+      "path": "/voltage-monitors/:id/reset"
+    },
+    "updateVoltageMonitorMessages": {
+      "method": "PUT",
+      "path": "/voltage-monitors/:id/messages"
+    },
+    "getBinaryCountersSummary": {
+      "method": "GET",
+      "path": "/binary-counters"
+    },
+    "deleteBinaryCounter": {
+      "method": "DELETE",
+      "path": "/binary-counters/:id"
+    },
+    "resetBinaryCounter": {
+      "method": "POST",
+      "path": "/binary-counters/:id/reset"
+    },
+    "updateBinaryCounterMessage": {
+      "method": "PUT",
+      "path": "/binary-counters/:id/message"
+    },
+    "createGroup": {
+      "method": "POST",
+      "path": "/groups"
+    },
+    "updateGroup": {
+      "method": "PUT",
+      "path": "/groups/:id"
+    },
+    "deleteGroup": {
+      "method": "DELETE",
+      "path": "/groups/:id"
+    },
+    "checkGroupStatus": {
+      "method": "GET",
+      "path": "/groups/:id/check"
+    },
+    "getTimezone": {
+      "method": "GET",
+      "path": "/timezone"
+    },
+    "setTimezone": {
+      "method": "POST",
+      "path": "/timezone"
+    }
+  },
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Gabriel Pedrosa Machado",
+    "email": "g.machado@me.com"
+  },
+  "flow": {
+    "triggers": [
+      {
+        "title": {
+          "en": "Activity finished",
+          "pt": "Atividade finalizada"
+        },
+        "titleFormatted": {
+          "en": "Activity finished ([[monitor]])",
+          "pt": "Atividade finalizada ([[monitor]])"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            },
+            "hint": {
+              "en": "Which activity monitor to watch.",
+              "pt": "Qual monitor de atividade observar."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "duration",
+            "type": "number",
+            "title": {
+              "en": "Duration (seconds)",
+              "pt": "Duração (segundos)"
+            }
+          },
+          {
+            "name": "duration_human",
+            "type": "string",
+            "title": {
+              "en": "Duration",
+              "pt": "Duração"
+            }
+          },
+          {
+            "name": "energy",
+            "type": "number",
+            "title": {
+              "en": "Energy (kWh)",
+              "pt": "Energia (kWh)"
+            }
+          },
+          {
+            "name": "average_power",
+            "type": "number",
+            "title": {
+              "en": "Average power (W)",
+              "pt": "Potência média (W)"
+            }
+          },
+          {
+            "name": "max_power",
+            "type": "number",
+            "title": {
+              "en": "Peak power (W)",
+              "pt": "Potência máxima (W)"
+            }
+          },
+          {
+            "name": "average_current",
+            "type": "number",
+            "title": {
+              "en": "Average current (A)",
+              "pt": "Corrente média (A)"
+            }
+          },
+          {
+            "name": "max_current",
+            "type": "number",
+            "title": {
+              "en": "Peak current (A)",
+              "pt": "Corrente máxima (A)"
+            }
+          },
+          {
+            "name": "count",
+            "type": "number",
+            "title": {
+              "en": "Cycles today (including this one)",
+              "pt": "Ciclos hoje (incluindo este)"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt": "Mensagem"
+            }
+          }
+        ],
+        "id": "activity_finished"
+      },
+      {
+        "title": {
+          "en": "Activity started",
+          "pt": "Atividade iniciada"
+        },
+        "titleFormatted": {
+          "en": "Activity started ([[monitor]])",
+          "pt": "Atividade iniciada ([[monitor]])"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            },
+            "hint": {
+              "en": "Which activity monitor to watch.",
+              "pt": "Qual monitor de atividade observar."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "power",
+            "type": "number",
+            "title": {
+              "en": "Power (W)",
+              "pt": "Potência (W)"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp",
+              "pt": "Timestamp"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt": "Mensagem"
+            }
+          }
+        ],
+        "id": "activity_started"
+      },
+      {
+        "title": {
+          "en": "State session finished",
+          "pt": "Sessão de estado finalizada"
+        },
+        "titleFormatted": {
+          "en": "State session finished ([[monitor]])",
+          "pt": "Sessão de estado finalizada ([[monitor]])"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            },
+            "hint": {
+              "en": "Which state monitor to watch.",
+              "pt": "Qual monitor de estado observar."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "duration",
+            "type": "number",
+            "title": {
+              "en": "Duration (seconds)",
+              "pt": "Duração (segundos)"
+            }
+          },
+          {
+            "name": "duration_human",
+            "type": "string",
+            "title": {
+              "en": "Duration",
+              "pt": "Duração"
+            }
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "title": {
+              "en": "State entered",
+              "pt": "Estado que entrou"
+            }
+          },
+          {
+            "name": "count",
+            "type": "number",
+            "title": {
+              "en": "Sessions today (including this one)",
+              "pt": "Sessões hoje (incluindo esta)"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp",
+              "pt": "Timestamp"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt": "Mensagem"
+            }
+          }
+        ],
+        "id": "state_finished"
+      },
+      {
+        "title": {
+          "en": "State session started",
+          "pt": "Sessão de estado iniciada"
+        },
+        "titleFormatted": {
+          "en": "State session started ([[monitor]])",
+          "pt": "Sessão de estado iniciada ([[monitor]])"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            },
+            "hint": {
+              "en": "Which state monitor to watch.",
+              "pt": "Qual monitor de estado observar."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "label",
+            "type": "string",
+            "title": {
+              "en": "State entered",
+              "pt": "Estado que entrou"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp",
+              "pt": "Timestamp"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt": "Mensagem"
+            }
+          }
+        ],
+        "id": "state_started"
+      },
+      {
+        "title": {
+          "en": "Overvoltage detected",
+          "pt": "Sobretensão detectada"
+        },
+        "titleFormatted": {
+          "en": "Overvoltage detected ([[monitor]])",
+          "pt": "Sobretensão detectada ([[monitor]])"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            },
+            "hint": {
+              "en": "Which voltage monitor to watch.",
+              "pt": "Qual monitor de tensão observar."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "voltage",
+            "type": "number",
+            "title": {
+              "en": "Voltage (V)",
+              "pt": "Tensão (V)"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp",
+              "pt": "Timestamp"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt": "Mensagem"
+            }
+          }
+        ],
+        "id": "voltage_overvoltage_detected"
+      },
+      {
+        "title": {
+          "en": "Voltage returned to normal",
+          "pt": "Tensão voltou ao normal"
+        },
+        "titleFormatted": {
+          "en": "Voltage returned to normal ([[monitor]])",
+          "pt": "Tensão voltou ao normal ([[monitor]])"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            },
+            "hint": {
+              "en": "Which voltage monitor to watch.",
+              "pt": "Qual monitor de tensão observar."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "event_type",
+            "type": "string",
+            "title": {
+              "en": "Previous event (UNDERVOLTAGE/OVERVOLTAGE)",
+              "pt": "Evento anterior (UNDERVOLTAGE/OVERVOLTAGE)"
+            }
+          },
+          {
+            "name": "duration",
+            "type": "number",
+            "title": {
+              "en": "Duration (seconds)",
+              "pt": "Duração (segundos)"
+            }
+          },
+          {
+            "name": "duration_human",
+            "type": "string",
+            "title": {
+              "en": "Duration",
+              "pt": "Duração"
+            }
+          },
+          {
+            "name": "voltage",
+            "type": "number",
+            "title": {
+              "en": "Voltage now (V)",
+              "pt": "Tensão agora (V)"
+            }
+          },
+          {
+            "name": "min_voltage",
+            "type": "number",
+            "title": {
+              "en": "Minimum voltage observed (V)",
+              "pt": "Tensão mínima observada (V)"
+            }
+          },
+          {
+            "name": "max_voltage",
+            "type": "number",
+            "title": {
+              "en": "Maximum voltage observed (V)",
+              "pt": "Tensão máxima observada (V)"
+            }
+          },
+          {
+            "name": "average_voltage",
+            "type": "number",
+            "title": {
+              "en": "Average voltage observed (V)",
+              "pt": "Tensão média observada (V)"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt": "Mensagem"
+            }
+          }
+        ],
+        "id": "voltage_returned_to_normal"
+      },
+      {
+        "title": {
+          "en": "Undervoltage detected",
+          "pt": "Subtensão detectada"
+        },
+        "titleFormatted": {
+          "en": "Undervoltage detected ([[monitor]])",
+          "pt": "Subtensão detectada ([[monitor]])"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            },
+            "hint": {
+              "en": "Which voltage monitor to watch.",
+              "pt": "Qual monitor de tensão observar."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "voltage",
+            "type": "number",
+            "title": {
+              "en": "Voltage (V)",
+              "pt": "Tensão (V)"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp",
+              "pt": "Timestamp"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt": "Mensagem"
+            }
+          }
+        ],
+        "id": "voltage_undervoltage_detected"
+      }
+    ],
+    "conditions": [
+      {
+        "title": {
+          "en": "[[monitor]] !{{is active|is not active}}",
+          "pt": "[[monitor]] !{{está ativo|não está ativo}}"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] !{{is active|is not active}}",
+          "pt": "[[monitor]] !{{está ativo|não está ativo}}"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "is_active"
+      },
+      {
+        "title": {
+          "en": "[[monitor]] !{{is active|is not active}}",
+          "pt": "[[monitor]] !{{está ativo|não está ativo}}"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] !{{is active|is not active}}",
+          "pt": "[[monitor]] !{{está ativo|não está ativo}}"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "is_state_active"
+      },
+      {
+        "title": {
+          "en": "[[monitor]] !{{is within range|is out of range}}",
+          "pt": "[[monitor]] !{{está na faixa normal|está fora da faixa}}"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] !{{is within range|is out of range}}",
+          "pt": "[[monitor]] !{{está na faixa normal|está fora da faixa}}"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "is_voltage_normal"
+      },
+      {
+        "title": {
+          "en": "[[group]] !{{has a mismatch|has no mismatch}}",
+          "pt": "[[group]] !{{tem divergência|não tem divergência}}"
+        },
+        "titleFormatted": {
+          "en": "[[group]] !{{has a mismatch|has no mismatch}}",
+          "pt": "[[group]] !{{tem divergência|não tem divergência}}"
+        },
+        "args": [
+          {
+            "name": "group",
+            "type": "autocomplete",
+            "title": {
+              "en": "Group",
+              "pt": "Grupo"
+            }
+          }
+        ],
+        "id": "state_group_has_mismatch"
+      }
+    ],
+    "actions": [
+      {
+        "title": {
+          "en": "Add activity monitor",
+          "pt": "Adicionar monitor de atividade"
+        },
+        "titleFormatted": {
+          "en": "Add activity monitor for [[device]], capability [[capability]], threshold [[threshold]] W, continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s, name [[name]]",
+          "pt": "Adicionar monitor de atividade para [[device]], capability [[capability]], limiar [[threshold]] W, continuidade [[continuity_minutes]] min, confirmação mínima [[min_confirmation_seconds]] s, nome [[name]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "capability",
+            "type": "autocomplete",
+            "required": false,
+            "title": {
+              "en": "Capability (optional, defaults to measure_power)",
+              "pt": "Capability (opcional, padrão measure_power)"
+            },
+            "placeholder": {
+              "en": "measure_power",
+              "pt": "measure_power"
+            },
+            "hint": {
+              "en": "Leave blank to use measure_power. Other relevant capabilities on this device (current, energy, voltage) are detected and tracked automatically — no need to add them here.",
+              "pt": "Deixe em branco para usar measure_power. Outras capabilities relevantes do dispositivo (corrente, energia, tensão) são detectadas e acompanhadas automaticamente — não precisa configurá-las aqui."
+            }
+          },
+          {
+            "name": "threshold",
+            "type": "number",
+            "title": {
+              "en": "Activity threshold (W)",
+              "pt": "Limiar de atividade (W)"
+            }
+          },
+          {
+            "name": "continuity_minutes",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Continuity window (minutes, optional, default 0)",
+              "pt": "Janela de continuidade (minutos, opcional, padrão 0)"
+            },
+            "hint": {
+              "en": "For variable-load devices (washer/dryer) whose power dips near zero between phases. A drop below the threshold doesn't end the session until it stays low for this long — the session's end is still backdated to the moment power actually dropped. 0 disables this (ends immediately on drop).",
+              "pt": "Para cargas variáveis (lava e seca) cuja potência cai perto de zero entre fases. Uma queda abaixo do limiar só encerra a sessão se continuar baixa por esse tempo — o fim da sessão continua marcado no momento real em que a potência caiu. 0 desativa (encerra na hora)."
+            }
+          },
+          {
+            "name": "min_confirmation_seconds",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Minimum state confirmation (seconds, optional, default 0)",
+              "pt": "Confirmação mínima de estado (segundos, opcional, padrão 0)"
+            },
+            "hint": {
+              "en": "Ignores brief flickers above or below the threshold that don't hold for at least this long, in both directions. Useful for noisy power readings. Whichever is longer between this and the continuity window governs when a session actually ends. 0 disables this.",
+              "pt": "Ignora oscilações rápidas acima ou abaixo do limiar que não se mantêm por pelo menos esse tempo, nos dois sentidos. Útil para leituras de potência instáveis. O fim da sessão respeita o maior valor entre esta confirmação e a janela de continuidade. 0 desativa."
+            }
+          },
+          {
+            "name": "name",
+            "type": "text",
+            "required": false,
+            "title": {
+              "en": "Monitor name (optional)",
+              "pt": "Nome do monitor (opcional)"
+            }
+          }
+        ],
+        "id": "add_activity_monitor"
+      },
+      {
+        "title": {
+          "en": "Add binary counter",
+          "pt": "Adicionar contador binário"
+        },
+        "titleFormatted": {
+          "en": "Add binary counter [[name]]",
+          "pt": "Adicionar contador binário [[name]]"
+        },
+        "hint": {
+          "en": "For a fire-and-forget occurrence with no start/end pair — a doorbell press, a single motion pulse, a button click. Just tallies how many times it happened, no duration or energy. Run once to set it up (or wire it to a native trigger — running it again on the same name updates the existing counter instead of duplicating it), then use \"Log binary event\" wherever the real occurrence happens.",
+          "pt": "Para uma ocorrência avulsa, sem par de início/fim — campainha, um pulso de movimento, um clique de botão. Só contabiliza quantas vezes aconteceu, sem duração ou energia. Rode uma vez pra configurar (ou ligue a um trigger nativo — rodar de novo com o mesmo nome atualiza o contador existente em vez de duplicar), depois use \"Registrar evento binário\" onde a ocorrência real acontece."
+        },
+        "args": [
+          {
+            "name": "name",
+            "type": "autocomplete",
+            "title": {
+              "en": "Counter name",
+              "pt": "Nome do contador"
+            },
+            "placeholder": {
+              "en": "e.g. Doorbell",
+              "pt": "Ex.: Campainha"
+            },
+            "hint": {
+              "en": "Pick an existing counter to update it, or type a new name and pick \"Create new\" to make one.",
+              "pt": "Escolha um contador existente para atualizá-lo, ou digite um nome novo e escolha \"Criar novo\" para criar um."
+            }
+          }
+        ],
+        "id": "add_binary_counter"
+      },
+      {
+        "title": {
+          "en": "Add device to state group",
+          "pt": "Adicionar dispositivo ao grupo"
+        },
+        "titleFormatted": {
+          "en": "Add [[device]] to state group [[group]]",
+          "pt": "Adicionar [[device]] ao grupo [[group]]"
+        },
+        "args": [
+          {
+            "name": "group",
+            "type": "autocomplete",
+            "title": {
+              "en": "Group",
+              "pt": "Grupo"
+            }
+          },
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          }
+        ],
+        "id": "add_device_to_state_group"
+      },
+      {
+        "title": {
+          "en": "Add state monitor",
+          "pt": "Adicionar monitor de estado"
+        },
+        "titleFormatted": {
+          "en": "Add state monitor for [[device]], capability [[capability]], label when true [[true_label]], label when false [[false_label]], continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s, name [[name]]",
+          "pt": "Adicionar monitor de estado para [[device]], capability [[capability]], nome quando verdadeiro [[true_label]], nome quando falso [[false_label]], continuidade [[continuity_minutes]] min, confirmação mínima [[min_confirmation_seconds]] s, nome [[name]]"
+        },
+        "hint": {
+          "en": "For a boolean capability with no meaningful numeric threshold — a door, a presence sensor, an on/off switch. Tracks time spent in BOTH states — no need to guess which raw value (true/false) means what, just name them. Not for power monitoring — use \"Add activity monitor\" for that.",
+          "pt": "Para uma capability booleana sem limiar numérico que faça sentido — porta, sensor de presença, interruptor. Acompanha o tempo nos DOIS estados — não precisa adivinhar o que o valor bruto (true/false) significa, só dar nome a eles. Não é para monitorar potência — use \"Add activity monitor\" pra isso."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "capability",
+            "type": "autocomplete",
+            "title": {
+              "en": "Capability",
+              "pt": "Capability"
+            },
+            "hint": {
+              "en": "Only boolean capabilities on this device are shown (contact, motion, on/off, etc.).",
+              "pt": "Só aparecem as capabilities booleanas deste dispositivo (contato, movimento, liga/desliga etc.)."
+            }
+          },
+          {
+            "name": "true_label",
+            "type": "text",
+            "required": false,
+            "title": {
+              "en": "Label when true (optional, default \"True\")",
+              "pt": "Nome quando verdadeiro (opcional, padrão \"True\")"
+            },
+            "placeholder": {
+              "en": "e.g. Open",
+              "pt": "Ex.: Aberto"
+            },
+            "hint": {
+              "en": "What the raw value true means for this device — check its current value against its current physical state if unsure. Used only for display, doesn't affect what gets tracked (both states are always tracked).",
+              "pt": "O que o valor bruto true significa nesse device — confira o valor atual contra o estado físico real se tiver dúvida. Só usado pra exibição, não muda o que é rastreado (os dois estados sempre são acompanhados)."
+            }
+          },
+          {
+            "name": "false_label",
+            "type": "text",
+            "required": false,
+            "title": {
+              "en": "Label when false (optional, default \"False\")",
+              "pt": "Nome quando falso (opcional, padrão \"False\")"
+            },
+            "placeholder": {
+              "en": "e.g. Closed",
+              "pt": "Ex.: Fechado"
+            }
+          },
+          {
+            "name": "continuity_minutes",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Continuity window (minutes, optional, default 0)",
+              "pt": "Janela de continuidade (minutos, opcional, padrão 0)"
+            },
+            "hint": {
+              "en": "A brief return to false doesn't end a true-session until it holds for this long — the session's end is still backdated to the moment it actually changed. 0 disables this (ends immediately).",
+              "pt": "Uma volta breve pra false só encerra a sessão de true se continuar assim por esse tempo — o fim da sessão continua marcado no momento real em que mudou. 0 desativa (encerra na hora)."
+            }
+          },
+          {
+            "name": "min_confirmation_seconds",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Minimum state confirmation (seconds, optional, default 0)",
+              "pt": "Confirmação mínima de estado (segundos, opcional, padrão 0)"
+            },
+            "hint": {
+              "en": "Ignores brief flickers that don't hold for at least this long, in both directions. Useful for a flaky sensor. 0 disables this.",
+              "pt": "Ignora oscilações rápidas que não se mantêm por pelo menos esse tempo, nos dois sentidos. Útil pra sensor instável. 0 desativa."
+            }
+          },
+          {
+            "name": "name",
+            "type": "text",
+            "required": false,
+            "title": {
+              "en": "Monitor name (optional)",
+              "pt": "Nome do monitor (opcional)"
+            }
+          }
+        ],
+        "id": "add_state_monitor"
+      },
+      {
+        "title": {
+          "en": "Add voltage monitor",
+          "pt": "Adicionar monitor de tensão"
+        },
+        "titleFormatted": {
+          "en": "Add voltage monitor for [[device]], capability [[capability]], range [[min_voltage]]-[[max_voltage]] V, stabilization [[stabilization_minutes]] min, name [[name]]",
+          "pt": "Adicionar monitor de tensão para [[device]], capability [[capability]], faixa [[min_voltage]]-[[max_voltage]] V, estabilização [[stabilization_minutes]] min, nome [[name]]"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          },
+          {
+            "name": "capability",
+            "type": "autocomplete",
+            "required": false,
+            "title": {
+              "en": "Capability (optional, defaults to measure_voltage)",
+              "pt": "Capability (opcional, padrão measure_voltage)"
+            },
+            "placeholder": {
+              "en": "measure_voltage",
+              "pt": "measure_voltage"
+            },
+            "hint": {
+              "en": "Leave blank to use measure_voltage. Pick a phase-specific capability here if the device exposes one.",
+              "pt": "Deixe em branco para usar measure_voltage. Escolha uma capability específica de fase aqui se o dispositivo tiver uma."
+            }
+          },
+          {
+            "name": "min_voltage",
+            "type": "number",
+            "title": {
+              "en": "Minimum voltage (V)",
+              "pt": "Tensão mínima (V)"
+            }
+          },
+          {
+            "name": "max_voltage",
+            "type": "number",
+            "title": {
+              "en": "Maximum voltage (V)",
+              "pt": "Tensão máxima (V)"
+            }
+          },
+          {
+            "name": "stabilization_minutes",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Stabilization window (minutes, optional, default 5)",
+              "pt": "Janela de estabilização (minutos, opcional, padrão 5)"
+            },
+            "hint": {
+              "en": "Readings during this window after creating the monitor only establish the reference and never fire an isolated event — avoids false alarms from an anomalous first reading.",
+              "pt": "Leituras dentro dessa janela após criar o monitor só estabelecem a referência e nunca disparam um evento isolado — evita alarme falso vindo de uma primeira leitura anômala."
+            }
+          },
+          {
+            "name": "name",
+            "type": "text",
+            "required": false,
+            "title": {
+              "en": "Monitor name (optional)",
+              "pt": "Nome do monitor (opcional)"
+            }
+          }
+        ],
+        "id": "add_voltage_monitor"
+      },
+      {
+        "title": {
+          "en": "Check state group",
+          "pt": "Verificar grupo de estados"
+        },
+        "titleFormatted": {
+          "en": "Check state group [[group]], expected [[expected_state]]",
+          "pt": "Verificar grupo de estados [[group]], esperado [[expected_state]]"
+        },
+        "args": [
+          {
+            "name": "group",
+            "type": "autocomplete",
+            "title": {
+              "en": "Group",
+              "pt": "Grupo"
+            }
+          },
+          {
+            "name": "expected_state",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Expected state override (optional)",
+              "pt": "Estado esperado (substituir, opcional)"
+            },
+            "values": [
+              {
+                "id": "",
+                "label": {
+                  "en": "Use group default",
+                  "pt": "Usar padrão do grupo"
+                }
+              },
+              {
+                "id": "true",
+                "label": {
+                  "en": "On / Open",
+                  "pt": "Ligado / Aberto"
+                }
+              },
+              {
+                "id": "false",
+                "label": {
+                  "en": "Off / Closed",
+                  "pt": "Desligado / Fechado"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "group_name",
+            "type": "string",
+            "title": {
+              "en": "Group",
+              "pt": "Grupo"
+            }
+          },
+          {
+            "name": "checked_count",
+            "type": "number",
+            "title": {
+              "en": "Checked",
+              "pt": "Verificados"
+            }
+          },
+          {
+            "name": "match_count",
+            "type": "number",
+            "title": {
+              "en": "Matching",
+              "pt": "Corretos"
+            }
+          },
+          {
+            "name": "mismatch_count",
+            "type": "number",
+            "title": {
+              "en": "Mismatches",
+              "pt": "Divergências"
+            }
+          },
+          {
+            "name": "mismatch_list",
+            "type": "string",
+            "title": {
+              "en": "Mismatch list",
+              "pt": "Lista de divergências"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt": "Mensagem"
+            },
+            "example": {
+              "en": "2 items open: Kitchen and Living Room.",
+              "pt": "Há 2 itens abertos: Cozinha e Sala."
+            }
+          }
+        ],
+        "id": "check_state_group"
+      },
+      {
+        "title": {
+          "en": "Check state group (standard flow)",
+          "pt": "Verificar grupo de estados (flow padrão)"
+        },
+        "titleFormatted": {
+          "en": "Check state group [[group]], expected [[expected_state]]",
+          "pt": "Verificar grupo de estados [[group]], esperado [[expected_state]]"
+        },
+        "hint": {
+          "en": "Same as 'Check state group' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.",
+          "pt": "Igual a 'Verificar grupo de estados', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow."
+        },
+        "args": [
+          {
+            "name": "group",
+            "type": "autocomplete",
+            "title": {
+              "en": "Group",
+              "pt": "Grupo"
+            }
+          },
+          {
+            "name": "expected_state",
+            "type": "dropdown",
+            "required": false,
+            "title": {
+              "en": "Expected state override (optional)",
+              "pt": "Estado esperado (substituir, opcional)"
+            },
+            "values": [
+              {
+                "id": "",
+                "label": {
+                  "en": "Use group default",
+                  "pt": "Usar padrão do grupo"
+                }
+              },
+              {
+                "id": "true",
+                "label": {
+                  "en": "On / Open",
+                  "pt": "Ligado / Aberto"
+                }
+              },
+              {
+                "id": "false",
+                "label": {
+                  "en": "Off / Closed",
+                  "pt": "Desligado / Fechado"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "check_state_group_basic"
+      },
+      {
+        "title": {
+          "en": "Create state group",
+          "pt": "Criar grupo de estados"
+        },
+        "titleFormatted": {
+          "en": "Create state group [[name]] ([[type]]), expected: [[expected_state]]",
+          "pt": "Criar grupo de estados [[name]] ([[type]]), esperado: [[expected_state]]"
+        },
+        "hint": {
+          "en": "For dynamic setup from a Flow. Groups are more easily created with checkboxes in the app's settings page.",
+          "pt": "Para composição dinâmica via Flow. Grupos são criados de forma mais prática pela página de configurações do app, com checkboxes."
+        },
+        "args": [
+          {
+            "name": "name",
+            "type": "text",
+            "title": {
+              "en": "Group name",
+              "pt": "Nome do grupo"
+            }
+          },
+          {
+            "name": "type",
+            "type": "dropdown",
+            "title": {
+              "en": "Group type",
+              "pt": "Tipo do grupo"
+            },
+            "values": [
+              {
+                "id": "contact",
+                "label": {
+                  "en": "Contact",
+                  "pt": "Contato"
+                }
+              },
+              {
+                "id": "light",
+                "label": {
+                  "en": "Light",
+                  "pt": "Luz"
+                }
+              },
+              {
+                "id": "switch",
+                "label": {
+                  "en": "Switch",
+                  "pt": "Interruptor"
+                }
+              },
+              {
+                "id": "valve",
+                "label": {
+                  "en": "Valve",
+                  "pt": "Válvula"
+                }
+              }
+            ]
+          },
+          {
+            "name": "expected_state",
+            "type": "dropdown",
+            "title": {
+              "en": "Expected state",
+              "pt": "Estado esperado"
+            },
+            "values": [
+              {
+                "id": "true",
+                "label": {
+                  "en": "On / Open",
+                  "pt": "Ligado / Aberto"
+                }
+              },
+              {
+                "id": "false",
+                "label": {
+                  "en": "Off / Closed",
+                  "pt": "Desligado / Fechado"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "create_state_group"
+      },
+      {
+        "title": {
+          "en": "Get activity statistics",
+          "pt": "Obter estatísticas de atividade"
+        },
+        "titleFormatted": {
+          "en": "Get activity statistics for [[monitor]], period: [[period]]",
+          "pt": "Obter estatísticas de atividade de [[monitor]], período: [[period]]"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period",
+              "pt": "Período"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today",
+                  "pt": "Hoje"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days",
+                  "pt": "Últimos 7 dias"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days",
+                  "pt": "Últimos 30 dias"
+                }
+              },
+              {
+                "id": "all",
+                "label": {
+                  "en": "All history",
+                  "pt": "Todo o histórico"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "cycle_count",
+            "type": "number",
+            "title": {
+              "en": "Cycles",
+              "pt": "Ciclos"
+            }
+          },
+          {
+            "name": "active_duration",
+            "type": "number",
+            "title": {
+              "en": "Active duration (seconds)",
+              "pt": "Tempo ativo (segundos)"
+            }
+          },
+          {
+            "name": "standby_duration",
+            "type": "number",
+            "title": {
+              "en": "Standby duration (seconds)",
+              "pt": "Tempo em espera (segundos)"
+            }
+          },
+          {
+            "name": "total_energy",
+            "type": "number",
+            "title": {
+              "en": "Energy (kWh)",
+              "pt": "Energia (kWh)"
+            }
+          },
+          {
+            "name": "active_energy",
+            "type": "number",
+            "title": {
+              "en": "Active energy (kWh)",
+              "pt": "Energia ativa (kWh)"
+            }
+          },
+          {
+            "name": "standby_energy",
+            "type": "number",
+            "title": {
+              "en": "Standby energy (kWh)",
+              "pt": "Energia em espera (kWh)"
+            }
+          },
+          {
+            "name": "average_power",
+            "type": "number",
+            "title": {
+              "en": "Average power while active (W)",
+              "pt": "Potência média enquanto ativo (W)"
+            }
+          },
+          {
+            "name": "max_power",
+            "type": "number",
+            "title": {
+              "en": "Peak power (W)",
+              "pt": "Potência máxima (W)"
+            }
+          },
+          {
+            "name": "average_current",
+            "type": "number",
+            "title": {
+              "en": "Average current while active (A)",
+              "pt": "Corrente média enquanto ativo (A)"
+            }
+          },
+          {
+            "name": "max_current",
+            "type": "number",
+            "title": {
+              "en": "Peak current (A)",
+              "pt": "Corrente máxima (A)"
+            }
+          },
+          {
+            "name": "median_duration",
+            "type": "number",
+            "title": {
+              "en": "Median cycle duration (seconds)",
+              "pt": "Duração mediana do ciclo (segundos)"
+            }
+          },
+          {
+            "name": "median_duration_human",
+            "type": "string",
+            "title": {
+              "en": "Median cycle duration",
+              "pt": "Duração mediana do ciclo"
+            }
+          },
+          {
+            "name": "median_energy",
+            "type": "number",
+            "title": {
+              "en": "Median energy per cycle (kWh)",
+              "pt": "Energia mediana por ciclo (kWh)"
+            }
+          },
+          {
+            "name": "energy_quality",
+            "type": "string",
+            "title": {
+              "en": "Energy quality issue (meter_reset or blank)",
+              "pt": "Problema de qualidade de energia (meter_reset ou vazio)"
+            }
+          },
+          {
+            "name": "trend_active_duration_percent",
+            "type": "number",
+            "title": {
+              "en": "Active time vs previous week (%)",
+              "pt": "Tempo ativo vs semana anterior (%)"
+            }
+          },
+          {
+            "name": "trend_cycle_count_percent",
+            "type": "number",
+            "title": {
+              "en": "Cycles vs previous week (%)",
+              "pt": "Ciclos vs semana anterior (%)"
+            }
+          },
+          {
+            "name": "trend_energy_percent",
+            "type": "number",
+            "title": {
+              "en": "Energy vs previous week (%)",
+              "pt": "Energia vs semana anterior (%)"
+            }
+          },
+          {
+            "name": "trend_summary",
+            "type": "string",
+            "title": {
+              "en": "Weekly trend",
+              "pt": "Tendência semanal"
+            }
+          }
+        ],
+        "id": "get_activity_statistics"
+      },
+      {
+        "title": {
+          "en": "Get activity statistics (standard flow)",
+          "pt": "Obter estatísticas de atividade (flow padrão)"
+        },
+        "titleFormatted": {
+          "en": "Get activity statistics for [[monitor]], period: [[period]]",
+          "pt": "Obter estatísticas de atividade de [[monitor]], período: [[period]]"
+        },
+        "hint": {
+          "en": "Same as 'Get activity statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.",
+          "pt": "Igual a 'Obter estatísticas de atividade', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period",
+              "pt": "Período"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today",
+                  "pt": "Hoje"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days",
+                  "pt": "Últimos 7 dias"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days",
+                  "pt": "Últimos 30 dias"
+                }
+              },
+              {
+                "id": "all",
+                "label": {
+                  "en": "All history",
+                  "pt": "Todo o histórico"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "get_activity_statistics_basic"
+      },
+      {
+        "title": {
+          "en": "Get binary event statistics",
+          "pt": "Obter estatísticas de evento binário"
+        },
+        "titleFormatted": {
+          "en": "Get binary event statistics for [[counter]], period: [[period]]",
+          "pt": "Obter estatísticas de evento binário de [[counter]], período: [[period]]"
+        },
+        "args": [
+          {
+            "name": "counter",
+            "type": "autocomplete",
+            "title": {
+              "en": "Counter",
+              "pt": "Contador"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period",
+              "pt": "Período"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today",
+                  "pt": "Hoje"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days",
+                  "pt": "Últimos 7 dias"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days",
+                  "pt": "Últimos 30 dias"
+                }
+              },
+              {
+                "id": "all",
+                "label": {
+                  "en": "All history",
+                  "pt": "Todo o histórico"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "event_count",
+            "type": "number",
+            "title": {
+              "en": "Events",
+              "pt": "Eventos"
+            }
+          },
+          {
+            "name": "last_event_at",
+            "type": "string",
+            "title": {
+              "en": "Last event timestamp",
+              "pt": "Timestamp do último evento"
+            }
+          }
+        ],
+        "id": "get_binary_event_statistics"
+      },
+      {
+        "title": {
+          "en": "Get binary event statistics (standard flow)",
+          "pt": "Obter estatísticas de evento binário (flow padrão)"
+        },
+        "titleFormatted": {
+          "en": "Get binary event statistics for [[counter]], period: [[period]]",
+          "pt": "Obter estatísticas de evento binário de [[counter]], período: [[period]]"
+        },
+        "hint": {
+          "en": "Same as 'Get binary event statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.",
+          "pt": "Igual a 'Obter estatísticas de evento binário', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow."
+        },
+        "args": [
+          {
+            "name": "counter",
+            "type": "autocomplete",
+            "title": {
+              "en": "Counter",
+              "pt": "Contador"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period",
+              "pt": "Período"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today",
+                  "pt": "Hoje"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days",
+                  "pt": "Últimos 7 dias"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days",
+                  "pt": "Últimos 30 dias"
+                }
+              },
+              {
+                "id": "all",
+                "label": {
+                  "en": "All history",
+                  "pt": "Todo o histórico"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "get_binary_event_statistics_basic"
+      },
+      {
+        "title": {
+          "en": "Get state statistics",
+          "pt": "Obter estatísticas de estado"
+        },
+        "titleFormatted": {
+          "en": "Get state statistics for [[monitor]], period: [[period]]",
+          "pt": "Obter estatísticas de estado de [[monitor]], período: [[period]]"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period",
+              "pt": "Período"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today",
+                  "pt": "Hoje"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days",
+                  "pt": "Últimos 7 dias"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days",
+                  "pt": "Últimos 30 dias"
+                }
+              },
+              {
+                "id": "all",
+                "label": {
+                  "en": "All history",
+                  "pt": "Todo o histórico"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "cycle_count",
+            "type": "number",
+            "title": {
+              "en": "Sessions",
+              "pt": "Sessões"
+            }
+          },
+          {
+            "name": "true_label",
+            "type": "string",
+            "title": {
+              "en": "Label for true",
+              "pt": "Nome do estado verdadeiro"
+            }
+          },
+          {
+            "name": "false_label",
+            "type": "string",
+            "title": {
+              "en": "Label for false",
+              "pt": "Nome do estado falso"
+            }
+          },
+          {
+            "name": "true_duration",
+            "type": "number",
+            "title": {
+              "en": "Duration as true (seconds)",
+              "pt": "Duração como verdadeiro (segundos)"
+            }
+          },
+          {
+            "name": "false_duration",
+            "type": "number",
+            "title": {
+              "en": "Duration as false (seconds)",
+              "pt": "Duração como falso (segundos)"
+            }
+          },
+          {
+            "name": "median_duration",
+            "type": "number",
+            "title": {
+              "en": "Median session duration (seconds)",
+              "pt": "Duração mediana da sessão (segundos)"
+            }
+          },
+          {
+            "name": "median_duration_human",
+            "type": "string",
+            "title": {
+              "en": "Median session duration",
+              "pt": "Duração mediana da sessão"
+            }
+          },
+          {
+            "name": "trend_active_duration_percent",
+            "type": "number",
+            "title": {
+              "en": "True time vs previous week (%)",
+              "pt": "Tempo verdadeiro vs semana anterior (%)"
+            }
+          },
+          {
+            "name": "trend_cycle_count_percent",
+            "type": "number",
+            "title": {
+              "en": "Sessions vs previous week (%)",
+              "pt": "Sessões vs semana anterior (%)"
+            }
+          },
+          {
+            "name": "trend_summary",
+            "type": "string",
+            "title": {
+              "en": "Weekly trend",
+              "pt": "Tendência semanal"
+            }
+          }
+        ],
+        "id": "get_state_statistics"
+      },
+      {
+        "title": {
+          "en": "Get state statistics (standard flow)",
+          "pt": "Obter estatísticas de estado (flow padrão)"
+        },
+        "titleFormatted": {
+          "en": "Get state statistics for [[monitor]], period: [[period]]",
+          "pt": "Obter estatísticas de estado de [[monitor]], período: [[period]]"
+        },
+        "hint": {
+          "en": "Same as 'Get state statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.",
+          "pt": "Igual a 'Obter estatísticas de estado', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period",
+              "pt": "Período"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today",
+                  "pt": "Hoje"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days",
+                  "pt": "Últimos 7 dias"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days",
+                  "pt": "Últimos 30 dias"
+                }
+              },
+              {
+                "id": "all",
+                "label": {
+                  "en": "All history",
+                  "pt": "Todo o histórico"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "get_state_statistics_basic"
+      },
+      {
+        "title": {
+          "en": "Get voltage statistics",
+          "pt": "Obter estatísticas de tensão"
+        },
+        "titleFormatted": {
+          "en": "Get voltage statistics for [[monitor]], period: [[period]]",
+          "pt": "Obter estatísticas de tensão de [[monitor]], período: [[period]]"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period",
+              "pt": "Período"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today",
+                  "pt": "Hoje"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days",
+                  "pt": "Últimos 7 dias"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days",
+                  "pt": "Últimos 30 dias"
+                }
+              },
+              {
+                "id": "all",
+                "label": {
+                  "en": "All history",
+                  "pt": "Todo o histórico"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "average_voltage",
+            "type": "number",
+            "title": {
+              "en": "Average voltage (V)",
+              "pt": "Tensão média (V)"
+            }
+          },
+          {
+            "name": "min_voltage",
+            "type": "number",
+            "title": {
+              "en": "Minimum voltage (V)",
+              "pt": "Tensão mínima (V)"
+            }
+          },
+          {
+            "name": "max_voltage",
+            "type": "number",
+            "title": {
+              "en": "Maximum voltage (V)",
+              "pt": "Tensão máxima (V)"
+            }
+          },
+          {
+            "name": "undervoltage_count",
+            "type": "number",
+            "title": {
+              "en": "Undervoltage events",
+              "pt": "Eventos de subtensão"
+            }
+          },
+          {
+            "name": "undervoltage_duration",
+            "type": "number",
+            "title": {
+              "en": "Undervoltage duration (seconds)",
+              "pt": "Duração em subtensão (segundos)"
+            }
+          },
+          {
+            "name": "overvoltage_count",
+            "type": "number",
+            "title": {
+              "en": "Overvoltage events",
+              "pt": "Eventos de sobretensão"
+            }
+          },
+          {
+            "name": "overvoltage_duration",
+            "type": "number",
+            "title": {
+              "en": "Overvoltage duration (seconds)",
+              "pt": "Duração em sobretensão (segundos)"
+            }
+          }
+        ],
+        "id": "get_voltage_statistics"
+      },
+      {
+        "title": {
+          "en": "Get voltage statistics (standard flow)",
+          "pt": "Obter estatísticas de tensão (flow padrão)"
+        },
+        "titleFormatted": {
+          "en": "Get voltage statistics for [[monitor]], period: [[period]]",
+          "pt": "Obter estatísticas de tensão de [[monitor]], período: [[period]]"
+        },
+        "hint": {
+          "en": "Same as 'Get voltage statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.",
+          "pt": "Igual a 'Obter estatísticas de tensão', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period",
+              "pt": "Período"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today",
+                  "pt": "Hoje"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days",
+                  "pt": "Últimos 7 dias"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days",
+                  "pt": "Últimos 30 dias"
+                }
+              },
+              {
+                "id": "all",
+                "label": {
+                  "en": "All history",
+                  "pt": "Todo o histórico"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "get_voltage_statistics_basic"
+      },
+      {
+        "title": {
+          "en": "Log binary event",
+          "pt": "Registrar evento binário"
+        },
+        "titleFormatted": {
+          "en": "Log binary event for [[counter]]",
+          "pt": "Registrar evento binário para [[counter]]"
+        },
+        "hint": {
+          "en": "Call this from whatever Flow already reacts to the real occurrence (a native trigger — contact alarm, motion, button). The message token is built from the wording configured for this counter in Settings — no message field needed here.",
+          "pt": "Chame a partir do Flow que já reage à ocorrência real (um trigger nativo — alarme de contato, movimento, botão). O token de mensagem é montado a partir do texto configurado para este contador no Settings — não precisa de campo de mensagem aqui."
+        },
+        "args": [
+          {
+            "name": "counter",
+            "type": "autocomplete",
+            "title": {
+              "en": "Counter",
+              "pt": "Contador"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "event_count_today",
+            "type": "number",
+            "title": {
+              "en": "Events today (including this one)",
+              "pt": "Eventos hoje (incluindo este)"
+            }
+          },
+          {
+            "name": "total_count",
+            "type": "number",
+            "title": {
+              "en": "Total events (all time)",
+              "pt": "Total de eventos (histórico)"
+            }
+          },
+          {
+            "name": "last_event_at",
+            "type": "string",
+            "title": {
+              "en": "This event's timestamp",
+              "pt": "Timestamp deste evento"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message",
+              "pt": "Mensagem"
+            }
+          }
+        ],
+        "id": "log_binary_event"
+      },
+      {
+        "title": {
+          "en": "Log binary event (standard flow)",
+          "pt": "Registrar evento binário (flow padrão)"
+        },
+        "titleFormatted": {
+          "en": "Log binary event for [[counter]]",
+          "pt": "Registrar evento binário para [[counter]]"
+        },
+        "hint": {
+          "en": "Same as 'Log binary event' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow.",
+          "pt": "Igual a 'Registrar evento binário', mas sem tokens de saída — por isso aparece também no Flow padrão. Cards com tokens só ficam visíveis no Advanced Flow."
+        },
+        "args": [
+          {
+            "name": "counter",
+            "type": "autocomplete",
+            "title": {
+              "en": "Counter",
+              "pt": "Contador"
+            }
+          }
+        ],
+        "id": "log_binary_event_basic"
+      },
+      {
+        "title": {
+          "en": "Remove activity monitor",
+          "pt": "Remover monitor de atividade"
+        },
+        "titleFormatted": {
+          "en": "Remove activity monitor [[monitor]]",
+          "pt": "Remover monitor de atividade [[monitor]]"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "remove_activity_monitor"
+      },
+      {
+        "title": {
+          "en": "Remove binary counter",
+          "pt": "Remover contador binário"
+        },
+        "titleFormatted": {
+          "en": "Remove binary counter [[counter]]",
+          "pt": "Remover contador binário [[counter]]"
+        },
+        "args": [
+          {
+            "name": "counter",
+            "type": "autocomplete",
+            "title": {
+              "en": "Counter",
+              "pt": "Contador"
+            }
+          }
+        ],
+        "id": "remove_binary_counter"
+      },
+      {
+        "title": {
+          "en": "Remove device from state group",
+          "pt": "Remover dispositivo do grupo"
+        },
+        "titleFormatted": {
+          "en": "Remove [[device]] from state group [[group]]",
+          "pt": "Remover [[device]] do grupo [[group]]"
+        },
+        "args": [
+          {
+            "name": "group",
+            "type": "autocomplete",
+            "title": {
+              "en": "Group",
+              "pt": "Grupo"
+            }
+          },
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device",
+              "pt": "Dispositivo"
+            }
+          }
+        ],
+        "id": "remove_device_from_state_group"
+      },
+      {
+        "title": {
+          "en": "Remove state monitor",
+          "pt": "Remover monitor de estado"
+        },
+        "titleFormatted": {
+          "en": "Remove state monitor [[monitor]]",
+          "pt": "Remover monitor de estado [[monitor]]"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "remove_state_monitor"
+      },
+      {
+        "title": {
+          "en": "Remove voltage monitor",
+          "pt": "Remover monitor de tensão"
+        },
+        "titleFormatted": {
+          "en": "Remove voltage monitor [[monitor]]",
+          "pt": "Remover monitor de tensão [[monitor]]"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "remove_voltage_monitor"
+      },
+      {
+        "title": {
+          "en": "Reset activity monitor statistics",
+          "pt": "Resetar estatísticas do monitor de atividade"
+        },
+        "titleFormatted": {
+          "en": "Reset activity monitor statistics for [[monitor]]",
+          "pt": "Resetar estatísticas do monitor de atividade [[monitor]]"
+        },
+        "hint": {
+          "en": "Wipes cycles, history and live state (e.g. after fixing a monitor that was recording wrong data) — keeps the monitor itself, its device, capability, threshold and settings. To remove the monitor entirely instead, use \"Remove activity monitor\".",
+          "pt": "Apaga ciclos, histórico e estado atual (por exemplo, após corrigir um monitor que estava gravando dados errados) — mantém o monitor, seu dispositivo, capability, limiar e configurações. Para remover o monitor por completo, use \"Remover monitor de atividade\"."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "reset_activity_monitor"
+      },
+      {
+        "title": {
+          "en": "Reset binary counter",
+          "pt": "Resetar contador binário"
+        },
+        "titleFormatted": {
+          "en": "Reset binary counter [[counter]]",
+          "pt": "Resetar contador binário [[counter]]"
+        },
+        "hint": {
+          "en": "Wipes the count and history — keeps the counter itself and its message wording. To remove the counter entirely instead, use \"Remove binary counter\".",
+          "pt": "Apaga a contagem e o histórico — mantém o contador e a mensagem configurada. Para remover o contador por completo, use \"Remover contador binário\"."
+        },
+        "args": [
+          {
+            "name": "counter",
+            "type": "autocomplete",
+            "title": {
+              "en": "Counter",
+              "pt": "Contador"
+            }
+          }
+        ],
+        "id": "reset_binary_counter"
+      },
+      {
+        "title": {
+          "en": "Reset state monitor statistics",
+          "pt": "Resetar estatísticas do monitor de estado"
+        },
+        "titleFormatted": {
+          "en": "Reset state monitor statistics for [[monitor]]",
+          "pt": "Resetar estatísticas do monitor de estado [[monitor]]"
+        },
+        "hint": {
+          "en": "Wipes sessions, history and live state — keeps the monitor itself, its device, capability and settings. To remove the monitor entirely instead, use \"Remove state monitor\".",
+          "pt": "Apaga sessões, histórico e estado atual — mantém o monitor, seu dispositivo, capability e configurações. Para remover o monitor por completo, use \"Remover monitor de estado\"."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "reset_state_monitor"
+      },
+      {
+        "title": {
+          "en": "Reset voltage monitor statistics",
+          "pt": "Resetar estatísticas do monitor de tensão"
+        },
+        "titleFormatted": {
+          "en": "Reset voltage monitor statistics for [[monitor]]",
+          "pt": "Resetar estatísticas do monitor de tensão [[monitor]]"
+        },
+        "hint": {
+          "en": "Wipes readings, events and live state (e.g. after fixing a monitor that was bound to the wrong capability) — keeps the monitor itself, its device, capability, voltage range and message wording. To remove the monitor entirely instead, use \"Remove voltage monitor\".",
+          "pt": "Apaga leituras, eventos e estado atual (por exemplo, após corrigir um monitor que estava ligado à capability errada) — mantém o monitor, seu dispositivo, capability, faixa de tensão e mensagens configuradas. Para remover o monitor por completo, use \"Remover monitor de tensão\"."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "reset_voltage_monitor"
+      },
+      {
+        "title": {
+          "en": "Start tracking activity now",
+          "pt": "Iniciar rastreio de atividade agora"
+        },
+        "titleFormatted": {
+          "en": "Start tracking activity now for [[monitor]]",
+          "pt": "Iniciar rastreio de atividade agora para [[monitor]]"
+        },
+        "hint": {
+          "en": "Manually starts the monitor's cycle right now, instead of waiting for its power threshold to be crossed. For devices with no meaningful power/standby signal (a pure on/off pump or switch) — drive it from a native trigger like \"Power becomes greater than X\", or any other Flow logic. Does nothing if the monitor is already active.",
+          "pt": "Inicia manualmente o ciclo do monitor agora, em vez de esperar o limiar de potência ser cruzado. Para dispositivos sem sinal significativo de potência/espera (uma bomba ou interruptor puramente liga/desliga) — acione a partir de um trigger nativo como \"Potência torna-se maior que X\", ou qualquer outra lógica de Flow. Não faz nada se o monitor já estiver ativo."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "start_activity"
+      },
+      {
+        "title": {
+          "en": "Stop tracking activity now",
+          "pt": "Parar rastreio de atividade agora"
+        },
+        "titleFormatted": {
+          "en": "Stop tracking activity now for [[monitor]]",
+          "pt": "Parar rastreio de atividade agora para [[monitor]]"
+        },
+        "hint": {
+          "en": "Manually ends the monitor's cycle right now, instead of waiting for its power threshold to be crossed — bypasses the continuity/confirmation windows too, since a manual command is never noise. Does nothing if the monitor is already in standby.",
+          "pt": "Encerra manualmente o ciclo do monitor agora, em vez de esperar o limiar de potência ser cruzado — também ignora as janelas de continuidade/confirmação, já que um comando manual nunca é ruído. Não faz nada se o monitor já estiver em espera."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          }
+        ],
+        "id": "stop_activity"
+      },
+      {
+        "title": {
+          "en": "Update activity monitor",
+          "pt": "Atualizar monitor de atividade"
+        },
+        "titleFormatted": {
+          "en": "Update activity monitor [[monitor]] to threshold [[threshold]] W, continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s",
+          "pt": "Atualizar monitor de atividade [[monitor]] para limiar [[threshold]] W, continuidade [[continuity_minutes]] min, confirmação mínima [[min_confirmation_seconds]] s"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "threshold",
+            "type": "number",
+            "title": {
+              "en": "Activity threshold (W)",
+              "pt": "Limiar de atividade (W)"
+            }
+          },
+          {
+            "name": "continuity_minutes",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Continuity window (minutes, optional)",
+              "pt": "Janela de continuidade (minutos, opcional)"
+            }
+          },
+          {
+            "name": "min_confirmation_seconds",
+            "type": "number",
+            "required": false,
+            "title": {
+              "en": "Minimum state confirmation (seconds, optional)",
+              "pt": "Confirmação mínima de estado (segundos, opcional)"
+            }
+          }
+        ],
+        "id": "update_activity_monitor"
+      },
+      {
+        "title": {
+          "en": "Update voltage monitor",
+          "pt": "Atualizar monitor de tensão"
+        },
+        "titleFormatted": {
+          "en": "Update voltage monitor [[monitor]] to range [[min_voltage]]-[[max_voltage]] V",
+          "pt": "Atualizar monitor de tensão [[monitor]] para faixa [[min_voltage]]-[[max_voltage]] V"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor",
+              "pt": "Monitor"
+            }
+          },
+          {
+            "name": "min_voltage",
+            "type": "number",
+            "title": {
+              "en": "Minimum voltage (V)",
+              "pt": "Tensão mínima (V)"
+            }
+          },
+          {
+            "name": "max_voltage",
+            "type": "number",
+            "title": {
+              "en": "Maximum voltage (V)",
+              "pt": "Tensão máxima (V)"
+            }
+          }
+        ],
+        "id": "update_voltage_monitor"
+      }
+    ]
+  },
+  "widgets": {
+    "sentinela": {
+      "name": {
+        "en": "Sentinel",
+        "pt": "Sentinela"
+      },
+      "height": 252,
+      "settings": [
+        {
+          "id": "monitorId",
+          "type": "autocomplete",
+          "title": {
+            "en": "Monitor",
+            "pt": "Monitor"
+          }
+        }
+      ],
+      "api": {
+        "getSummary": {
+          "method": "GET",
+          "path": "/summary"
+        }
+      },
+      "id": "sentinela"
+    }
+  }
+}

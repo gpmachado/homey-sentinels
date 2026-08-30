@@ -1,0 +1,25 @@
+{
+  "title": { "en": "Get state statistics", "pt": "Obter estatísticas de estado" },
+  "titleFormatted": { "en": "Get state statistics for [[monitor]], period: [[period]]", "pt": "Obter estatísticas de estado de [[monitor]], período: [[period]]" },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } },
+    { "name": "period", "type": "dropdown", "title": { "en": "Period", "pt": "Período" }, "values": [
+      { "id": "day", "label": { "en": "Today", "pt": "Hoje" } },
+      { "id": "week", "label": { "en": "Last 7 days", "pt": "Últimos 7 dias" } },
+      { "id": "month", "label": { "en": "Last 30 days", "pt": "Últimos 30 dias" } },
+      { "id": "all", "label": { "en": "All history", "pt": "Todo o histórico" } }
+    ] }
+  ],
+  "tokens": [
+    { "name": "cycle_count", "type": "number", "title": { "en": "Sessions", "pt": "Sessões" } },
+    { "name": "true_label", "type": "string", "title": { "en": "Label for true", "pt": "Nome do estado verdadeiro" } },
+    { "name": "false_label", "type": "string", "title": { "en": "Label for false", "pt": "Nome do estado falso" } },
+    { "name": "true_duration", "type": "number", "title": { "en": "Duration as true (seconds)", "pt": "Duração como verdadeiro (segundos)" } },
+    { "name": "false_duration", "type": "number", "title": { "en": "Duration as false (seconds)", "pt": "Duração como falso (segundos)" } },
+    { "name": "median_duration", "type": "number", "title": { "en": "Median session duration (seconds)", "pt": "Duração mediana da sessão (segundos)" } },
+    { "name": "median_duration_human", "type": "string", "title": { "en": "Median session duration", "pt": "Duração mediana da sessão" } },
+    { "name": "trend_active_duration_percent", "type": "number", "title": { "en": "True time vs previous week (%)", "pt": "Tempo verdadeiro vs semana anterior (%)" } },
+    { "name": "trend_cycle_count_percent", "type": "number", "title": { "en": "Sessions vs previous week (%)", "pt": "Sessões vs semana anterior (%)" } },
+    { "name": "trend_summary", "type": "string", "title": { "en": "Weekly trend", "pt": "Tendência semanal" } }
+  ]
+}

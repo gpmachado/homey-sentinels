@@ -1,0 +1,8 @@
+{
+  "title": { "en": "Reset binary counter", "pt": "Resetar contador binário" },
+  "titleFormatted": { "en": "Reset binary counter [[counter]]", "pt": "Resetar contador binário [[counter]]" },
+  "hint": { "en": "Wipes the count and history — keeps the counter itself and its message wording. To remove the counter entirely instead, use \"Remove binary counter\".", "pt": "Apaga a contagem e o histórico — mantém o contador e a mensagem configurada. Para remover o contador por completo, use \"Remover contador binário\"." },
+  "args": [
+    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter", "pt": "Contador" } }
+  ]
+}

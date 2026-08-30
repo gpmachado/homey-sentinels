@@ -1,0 +1,7 @@
+{
+  "title": { "en": "Remove voltage monitor", "pt": "Remover monitor de tensão" },
+  "titleFormatted": { "en": "Remove voltage monitor [[monitor]]", "pt": "Remover monitor de tensão [[monitor]]" },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor", "pt": "Monitor" } }
+  ]
+}

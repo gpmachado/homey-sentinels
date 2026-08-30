@@ -1,0 +1,924 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 16px; color: #1a1a1a; }
+    h1 { font-size: 18px; }
+    h2 { font-size: 15px; margin: 24px 0 8px; }
+    .groups { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
+    .group-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; }
+    .group-row .meta { color: #666; font-size: 12px; margin-top: 2px; }
+    form { border: 1px solid #ddd; border-radius: 6px; padding: 16px; max-width: 480px; }
+    label { display: block; margin-top: 12px; font-size: 13px; font-weight: 600; }
+    input[type=text], select { width: 100%; padding: 6px; margin-top: 4px; box-sizing: border-box; }
+    .device-list { max-height: 220px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; padding: 8px; margin-top: 4px; }
+    .device-list label { font-weight: normal; display: flex; align-items: center; gap: 6px; margin: 4px 0; }
+    .actions { margin-top: 16px; display: flex; gap: 8px; }
+    .hint { color: #888; font-size: 12px; margin-top: 4px; }
+    button { cursor: pointer; }
+    table { border-collapse: collapse; width: 100%; max-width: 720px; font-size: 13px; margin-bottom: 24px; }
+    th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid #eee; }
+    th { color: #666; font-weight: 600; font-size: 12px; }
+    .state-active { color: #1a7f37; font-weight: 600; }
+    .state-standby { color: #666; }
+    .unavailable-row { color: #b42318; }
+    .badge-ok { color: #1a7f37; }
+    .badge-nok { color: #b42318; font-weight: 600; }
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid #ddd; margin-bottom: 20px; }
+    .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 14px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tab-btn.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+    .tab-panel.hidden { display: none; }
+    .subtabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .subtab-btn { border: 1px solid #ddd; background: #fff; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #666; border-radius: 16px; cursor: pointer; font-family: inherit; }
+    .subtab-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .subtab-panel.hidden { display: none; }
+    .period-tabs { display: inline-flex; background-color: #f2f2f4; border-radius: 8px; padding: 2px; gap: 2px; margin-bottom: 12px; }
+    .period-btn { border: none; background: none; padding: 6px 14px; font-size: 12px; font-weight: 600; color: #7a7a85; border-radius: 6px; cursor: pointer; font-family: inherit; }
+    .period-btn.active { background-color: #fff; color: #1a1a1a; }
+    .sparkline { display: flex; align-items: flex-end; gap: 1px; height: 20px; width: 90px; }
+    .sparkline .bar { flex: 1; background-color: #1a7f37; opacity: 0.75; border-radius: 1px; min-height: 2px; }
+  </style>
+</head>
+<body>
+  <h1>Sentinels</h1>
+
+  <div class="tabs">
+    <button type="button" class="tab-btn active" data-tab="monitors">Monitors</button>
+    <button type="button" class="tab-btn" data-tab="availability">Availability</button>
+    <button type="button" class="tab-btn" data-tab="groups">Groups</button>
+  </div>
+
+  <div class="tab-panel" data-tab="monitors">
+    <div class="subtabs">
+      <button type="button" class="subtab-btn active" data-subtab="activity">Activity</button>
+      <button type="button" class="subtab-btn" data-subtab="state">State</button>
+      <button type="button" class="subtab-btn" data-subtab="voltage">Voltage</button>
+      <button type="button" class="subtab-btn" data-subtab="binary">Binary</button>
+    </div>
+    <div class="period-tabs">
+      <button type="button" class="period-btn active" data-period="day">Today</button>
+      <button type="button" class="period-btn" data-period="week">7 Days</button>
+      <button type="button" class="period-btn" data-period="month">30 Days</button>
+    </div>
+
+    <div class="subtab-panel" data-subtab="activity">
+      <table id="monitors-table">
+        <thead><tr><th>Name</th><th>Device</th><th>State</th><th>Cycles</th><th>Energy</th><th>Avg power</th><th>Trend</th><th></th><th></th><th></th></tr></thead>
+        <tbody id="monitors-body"><tr><td colspan="10" class="hint">Loading…</td></tr></tbody>
+      </table>
+
+      <form id="activity-message-form" class="hidden">
+        <h2 style="margin-top:0">Message wording — <span id="activity-message-form-name"></span></h2>
+        <p class="hint">Written once here, used automatically by that monitor's trigger cards' <code>message</code> token — no need to build the sentence again in every Flow.</p>
+
+        <label>Message — activity started</label>
+        <input type="text" id="activity-messageTemplateStarted" class="activity-token-target" placeholder="E.g., %monitor% turned on (%power% W).">
+        <label>Message — activity finished</label>
+        <input type="text" id="activity-messageTemplateFinished" class="activity-token-target" placeholder="E.g., %monitor% turned off %count% %count:time|times% today.">
+        <p class="hint">
+          Free text, in any language. Tap a token to insert it into the last-used message field:
+          <button type="button" class="activity-token-btn" data-token="%device%">%device%</button>
+          <button type="button" class="activity-token-btn" data-token="%monitor%">%monitor%</button>
+          <button type="button" class="activity-token-btn" data-token="%power%">%power%</button>
+          <button type="button" class="activity-token-btn" data-token="%duration_human%">%duration_human%</button>
+          <button type="button" class="activity-token-btn" data-token="%energy%">%energy%</button>
+          <button type="button" class="activity-token-btn" data-token="%average_power%">%average_power%</button>
+          <button type="button" class="activity-token-btn" data-token="%count%">%count%</button>
+          <button type="button" class="activity-token-btn" data-token="%count:time|times%">%count:time|times%</button>
+          — <code>%power%</code> only applies to "started", <code>%duration_human%</code>/<code>%energy%</code>/<code>%average_power%</code>/<code>%count%</code> only to "finished".
+        </p>
+
+        <div class="actions">
+          <button type="submit" id="activity-message-save-btn">Save</button>
+          <button type="button" id="activity-message-cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="subtab-panel hidden" data-subtab="state">
+      <table id="state-monitors-table">
+        <thead><tr><th>Name</th><th>Device</th><th>Capability</th><th>Current</th><th>Sessions</th><th>Duration</th><th>Trend</th><th></th><th></th><th></th></tr></thead>
+        <tbody id="state-monitors-body"><tr><td colspan="10" class="hint">Loading…</td></tr></tbody>
+      </table>
+
+      <form id="state-message-form" class="hidden">
+        <h2 style="margin-top:0">Message wording — <span id="state-message-form-name"></span></h2>
+        <p class="hint">Written once here, used automatically by that monitor's trigger cards' <code>message</code> token — no need to build the sentence again in every Flow.</p>
+
+        <label>Message — session started</label>
+        <input type="text" id="state-messageTemplateStarted" class="state-token-target" placeholder="E.g., %monitor% is now %label%.">
+        <label>Message — session finished</label>
+        <input type="text" id="state-messageTemplateFinished" class="state-token-target" placeholder="E.g., %monitor% is now %label% (%count% %count:time|times% today).">
+        <p class="hint">
+          Free text, in any language. Tap a token to insert it into the last-used message field:
+          <button type="button" class="state-token-btn" data-token="%device%">%device%</button>
+          <button type="button" class="state-token-btn" data-token="%monitor%">%monitor%</button>
+          <button type="button" class="state-token-btn" data-token="%label%">%label%</button>
+          <button type="button" class="state-token-btn" data-token="%duration_human%">%duration_human%</button>
+          <button type="button" class="state-token-btn" data-token="%count%">%count%</button>
+          <button type="button" class="state-token-btn" data-token="%count:time|times%">%count:time|times%</button>
+          — <code>%duration_human%</code>/<code>%count%</code> only apply to "finished".
+        </p>
+
+        <div class="actions">
+          <button type="submit" id="state-message-save-btn">Save</button>
+          <button type="button" id="state-message-cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="subtab-panel hidden" data-subtab="voltage">
+      <table id="voltage-monitors-table">
+        <thead><tr><th>Name</th><th>Device</th><th>Capability</th><th>State</th><th>Voltage now</th><th>Range</th><th>Events</th><th></th><th></th><th></th></tr></thead>
+        <tbody id="voltage-monitors-body"><tr><td colspan="10" class="hint">Loading…</td></tr></tbody>
+      </table>
+
+      <form id="voltage-message-form" class="hidden">
+        <h2 style="margin-top:0">Message wording — <span id="voltage-message-form-name"></span></h2>
+        <p class="hint">Written once here, used automatically by that monitor's trigger cards' <code>message</code> token — no need to build the sentence again in every Flow.</p>
+
+        <label>Message — undervoltage detected</label>
+        <input type="text" id="messageTemplateUndervoltage" class="voltage-token-target" placeholder="E.g., %monitor% is in undervoltage — %voltage% V.">
+        <label>Message — overvoltage detected</label>
+        <input type="text" id="messageTemplateOvervoltage" class="voltage-token-target" placeholder="E.g., %monitor% is in overvoltage — %voltage% V.">
+        <label>Message — returned to normal</label>
+        <input type="text" id="messageTemplateNormalized" class="voltage-token-target" placeholder="E.g., %monitor% normalized after %duration_human% (min %min_voltage% V, max %max_voltage% V).">
+        <p class="hint">
+          Free text, in any language. Tap a token to insert it into the last-used message field:
+          <button type="button" class="voltage-token-btn" data-token="%device%">%device%</button>
+          <button type="button" class="voltage-token-btn" data-token="%monitor%">%monitor%</button>
+          <button type="button" class="voltage-token-btn" data-token="%voltage%">%voltage%</button>
+          <button type="button" class="voltage-token-btn" data-token="%duration_human%">%duration_human%</button>
+          <button type="button" class="voltage-token-btn" data-token="%min_voltage%">%min_voltage%</button>
+          <button type="button" class="voltage-token-btn" data-token="%max_voltage%">%max_voltage%</button>
+          <button type="button" class="voltage-token-btn" data-token="%average_voltage%">%average_voltage%</button>
+        </p>
+
+        <div class="actions">
+          <button type="submit" id="voltage-message-save-btn">Save</button>
+          <button type="button" id="voltage-message-cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="subtab-panel hidden" data-subtab="binary">
+      <table id="binary-counters-table">
+        <thead><tr><th>Name</th><th>Events</th><th>Total</th><th>Last event</th><th></th><th></th><th></th></tr></thead>
+        <tbody id="binary-counters-body"><tr><td colspan="7" class="hint">Loading…</td></tr></tbody>
+      </table>
+
+      <form id="binary-message-form" class="hidden">
+        <h2 style="margin-top:0">Message wording — <span id="binary-message-form-name"></span></h2>
+        <p class="hint">Written once here, used automatically by "Log binary event"'s <code>message</code> token — no need to build the sentence again in every Flow.</p>
+
+        <label>Message</label>
+        <input type="text" id="binary-messageTemplate" placeholder="E.g., %counter% rang %count% %count:time|times% today.">
+        <p class="hint">
+          Free text, in any language. Tap a token to insert:
+          <button type="button" class="binary-token-btn" data-token="%counter%">%counter%</button>
+          <button type="button" class="binary-token-btn" data-token="%count%">%count%</button>
+          <button type="button" class="binary-token-btn" data-token="%total%">%total%</button>
+          <button type="button" class="binary-token-btn" data-token="%count:time|times%">%count:time|times%</button>
+          — the last token automatically switches singular/plural when count is exactly 1.
+        </p>
+
+        <div class="actions">
+          <button type="submit" id="binary-message-save-btn">Save</button>
+          <button type="button" id="binary-message-cancel-btn">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="tab-panel hidden" data-tab="availability">
+    <h2>Device availability</h2>
+    <p class="hint">All of Homey's devices, no configuration needed — last seen and current availability.</p>
+    <table id="availability-table">
+      <thead><tr><th>Name</th><th>Zone</th><th>Status</th><th>Last seen</th></tr></thead>
+      <tbody id="availability-body"><tr><td colspan="4" class="hint">Loading…</td></tr></tbody>
+    </table>
+  </div>
+
+  <div class="tab-panel hidden" data-tab="groups">
+    <p class="hint">Each group checks, on demand, whether two or more devices of the same logical type are in the expected state. The app never changes the devices listed here.</p>
+
+    <h2>Existing groups</h2>
+    <div id="groups" class="groups"></div>
+    <div class="actions">
+      <button type="button" id="add-group-btn">Add group</button>
+    </div>
+
+    <div id="group-form-wrapper" class="hidden">
+    <h2 id="form-title">New group</h2>
+    <form id="group-form">
+      <label>Name
+        <input type="text" id="name" required>
+      </label>
+      <label>Type
+        <select id="type">
+          <option value="contact">Contact (doors/windows)</option>
+          <option value="light">Light</option>
+          <option value="switch">Switch/plug</option>
+          <option value="valve">Valve</option>
+        </select>
+      </label>
+      <label>Default expected state
+        <select id="expectedState">
+          <option value="true">On / Open</option>
+          <option value="false">Off / Closed</option>
+        </select>
+      </label>
+      <label>Compatible devices
+        <div id="devices" class="device-list"></div>
+      </label>
+      <p class="hint" id="device-hint"></p>
+
+      <label>Conjunction (for lists with 2+ items)
+        <input type="text" id="conjunction" placeholder="and">
+      </label>
+      <p class="hint">E.g., "Kitchen <b>and</b> Living room". Leave blank to use "and".</p>
+
+      <div class="actions">
+        <button type="button" id="fill-wording-btn">Fill default wording for this type</button>
+      </div>
+
+      <label>Message — no mismatches</label>
+      <input type="text" id="messageTemplateZero" class="token-target" placeholder="E.g., All good in %group%.">
+      <label>Message — 1 mismatch</label>
+      <input type="text" id="messageTemplateOne" class="token-target" placeholder="E.g., %items% is a mismatch.">
+      <label>Message — 2 or more mismatches</label>
+      <input type="text" id="messageTemplateMany" class="token-target" placeholder="E.g., There are %count% %count:mismatch|mismatches%: %items%.">
+      <p class="hint">
+        Free text, in any language — doesn't depend on Homey's languages.
+        Tap a token to insert it into the last-used message field:
+        <button type="button" class="token-btn" data-token="%group%">%group%</button>
+        <button type="button" class="token-btn" data-token="%count%">%count%</button>
+        <button type="button" class="token-btn" data-token="%items%">%items%</button>
+        <button type="button" class="token-btn" data-token="%count:mismatch|mismatches%">%count:mismatch|mismatches%</button>
+        — the last token automatically switches singular/plural when count is exactly 1.
+      </p>
+
+      <div class="actions">
+        <button type="submit" id="save-btn">Save</button>
+        <button type="button" id="cancel-btn" style="display:none">Cancel edit</button>
+        <button type="button" id="delete-btn" style="display:none">Delete group</button>
+      </div>
+    </form>
+    </div>
+  </div>
+
+
+  <script type="text/javascript">
+    var CAPABILITY_BY_TYPE = { contact: 'alarm_contact', light: 'onoff', switch: 'onoff', valve: 'onoff' };
+    var allDevices = [];
+    var editingGroupId = null;
+
+    function onHomeyReady(Homey) {
+      Homey.ready();
+
+      var tabBtns = Array.prototype.slice.call(document.querySelectorAll('.tab-btn'));
+      var tabPanels = Array.prototype.slice.call(document.querySelectorAll('.tab-panel'));
+      tabBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          tabBtns.forEach(function (b) { b.classList.remove('active'); });
+          tabPanels.forEach(function (p) { p.classList.add('hidden'); });
+          btn.classList.add('active');
+          document.querySelector('.tab-panel[data-tab="' + btn.getAttribute('data-tab') + '"]').classList.remove('hidden');
+        });
+      });
+
+      var subtabBtns = Array.prototype.slice.call(document.querySelectorAll('.subtab-btn'));
+      var subtabPanels = Array.prototype.slice.call(document.querySelectorAll('.subtab-panel'));
+      subtabBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          subtabBtns.forEach(function (b) { b.classList.remove('active'); });
+          subtabPanels.forEach(function (p) { p.classList.add('hidden'); });
+          btn.classList.add('active');
+          document.querySelector('.subtab-panel[data-subtab="' + btn.getAttribute('data-subtab') + '"]').classList.remove('hidden');
+        });
+      });
+
+      var monitorPeriod = 'day';
+      var periodBtns = Array.prototype.slice.call(document.querySelectorAll('.period-btn'));
+      periodBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (btn.getAttribute('data-period') === monitorPeriod) return;
+          monitorPeriod = btn.getAttribute('data-period');
+          periodBtns.forEach(function (b) { b.classList.toggle('active', b === btn); });
+          api('GET', '/monitors?period=' + monitorPeriod).then(renderMonitors);
+          api('GET', '/state-monitors?period=' + monitorPeriod).then(renderStateMonitors);
+          api('GET', '/voltage-monitors?period=' + monitorPeriod).then(renderVoltageMonitors);
+          api('GET', '/binary-counters?period=' + monitorPeriod).then(renderBinaryCounters);
+        });
+      });
+
+      function formatEnergy(kwh) {
+        if (kwh === null || kwh === undefined || !isFinite(kwh)) return '—';
+        return kwh < 1 ? Math.round(kwh * 1000) + ' Wh' : kwh.toFixed(2) + ' kWh';
+      }
+
+      function formatDuration(seconds) {
+        if (seconds === null || seconds === undefined || !isFinite(seconds)) return '—';
+        var safeSeconds = Math.max(0, Math.round(seconds));
+        if (safeSeconds < 60) return safeSeconds + 's';
+        var minutes = Math.round(safeSeconds / 60);
+        if (minutes < 60) return minutes + ' min';
+        return Math.floor(minutes / 60) + 'h ' + (minutes % 60) + 'min';
+      }
+
+      // Monitor/device names are free text (typed into a Flow card's `name` arg, or a
+      // Homey device's own name) built straight into innerHTML template strings below —
+      // without this, a name like <img src=x onerror="..."> would execute in this page.
+      function escapeHtml(value) {
+        return String(value == null ? '' : value)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+
+      function renderSparkline(breakdown, field, formatter) {
+        field = field || 'energy';
+        formatter = formatter || formatEnergy;
+        if (!breakdown || !breakdown.length) return '';
+        var max = breakdown.reduce(function (m, day) { return Math.max(m, day[field] || 0); }, 0);
+        var bars = breakdown.map(function (day) {
+          var height = max > 0 ? Math.max(8, Math.round((day[field] / max) * 100)) : 8;
+          return '<div class="bar" style="height:' + height + '%" title="' + day.date + ': ' + formatter(day[field]) + '"></div>';
+        }).join('');
+        return '<div class="sparkline">' + bars + '</div>';
+      }
+
+      var groupsEl = document.getElementById('groups');
+      var devicesEl = document.getElementById('devices');
+      var form = document.getElementById('group-form');
+      var typeSelect = document.getElementById('type');
+      var cancelBtn = document.getElementById('cancel-btn');
+      var deleteBtn = document.getElementById('delete-btn');
+      var formTitle = document.getElementById('form-title');
+      var groupFormWrapper = document.getElementById('group-form-wrapper');
+      var addGroupBtn = document.getElementById('add-group-btn');
+      addGroupBtn.addEventListener('click', function () {
+        resetForm();
+        groupFormWrapper.classList.remove('hidden');
+        groupFormWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+
+      function api(method, path, body) {
+        return new Promise(function (resolve, reject) {
+          function callback(err, result) { if (err) return reject(err); resolve(result); }
+          if (body === undefined) Homey.api(method, path, callback);
+          else Homey.api(method, path, body, callback);
+        });
+      }
+
+      function checkedDeviceIds() {
+        return Array.prototype.slice.call(devicesEl.querySelectorAll('input[type=checkbox]:checked')).map(function (el) { return el.value; });
+      }
+
+      function setCheckedDeviceIds(ids) {
+        Array.prototype.forEach.call(devicesEl.querySelectorAll('input[type=checkbox]'), function (el) {
+          el.checked = ids.indexOf(el.value) !== -1;
+        });
+      }
+
+      function renderDeviceList() {
+        var capability = CAPABILITY_BY_TYPE[typeSelect.value];
+        var compatible = allDevices.filter(function (d) { return d.capabilities.indexOf(capability) !== -1; });
+        document.getElementById('device-hint').textContent = compatible.length
+          ? compatible.length + ' device(s) with capability ' + capability + '.'
+          : 'No device with capability ' + capability + ' was found.';
+        devicesEl.innerHTML = '';
+        compatible.forEach(function (device) {
+          var wrapper = document.createElement('label');
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = device.id;
+          wrapper.appendChild(checkbox);
+          wrapper.appendChild(document.createTextNode(device.name));
+          devicesEl.appendChild(wrapper);
+        });
+      }
+
+      var lastTokenTarget = document.getElementById('messageTemplateMany');
+      Array.prototype.forEach.call(document.querySelectorAll('.token-target'), function (el) {
+        el.addEventListener('focus', function () { lastTokenTarget = el; });
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('.token-btn'), function (btn) {
+        btn.addEventListener('click', function () {
+          var token = btn.getAttribute('data-token');
+          var start = lastTokenTarget.selectionStart || lastTokenTarget.value.length;
+          var end = lastTokenTarget.selectionEnd || lastTokenTarget.value.length;
+          lastTokenTarget.value = lastTokenTarget.value.slice(0, start) + token + lastTokenTarget.value.slice(end);
+          lastTokenTarget.focus();
+        });
+      });
+
+      // "No mismatches" reads naturally when the expected state is the everyday-normal one
+      // (lights off, doors closed) — the common case. Keyed by type + expected state so the
+      // wording still makes sense if someone flips it (e.g. a group that expects lights ON).
+      var MESSAGE_WORDING_PRESETS = {
+        'light:false': { zero: 'All lights are off.', one: '%item% is on.', many: '%count% lights on: %items%.' },
+        'light:true': { zero: 'All lights are on.', one: '%item% is off.', many: '%count% lights off: %items%.' },
+        'switch:false': { zero: 'All switches are off.', one: '%item% is on.', many: '%count% switches on: %items%.' },
+        'switch:true': { zero: 'All switches are on.', one: '%item% is off.', many: '%count% switches off: %items%.' },
+        'contact:false': { zero: 'All doors and windows are closed.', one: '%item% is open.', many: '%count% doors/windows open: %items%.' },
+        'contact:true': { zero: 'All doors and windows are open.', one: '%item% is closed.', many: '%count% doors/windows closed: %items%.' },
+        'valve:false': { zero: 'All valves are closed.', one: '%item% is open.', many: '%count% valves open: %items%.' },
+        'valve:true': { zero: 'All valves are open.', one: '%item% is closed.', many: '%count% valves closed: %items%.' }
+      };
+      document.getElementById('fill-wording-btn').addEventListener('click', function () {
+        var preset = MESSAGE_WORDING_PRESETS[typeSelect.value + ':' + document.getElementById('expectedState').value];
+        if (!preset) return;
+        var zero = document.getElementById('messageTemplateZero');
+        var one = document.getElementById('messageTemplateOne');
+        var many = document.getElementById('messageTemplateMany');
+        var apply = function () { zero.value = preset.zero; one.value = preset.one; many.value = preset.many; };
+        if (zero.value || one.value || many.value) {
+          confirmAction('This will overwrite the current message wording. Continue?', apply);
+        } else {
+          apply();
+        }
+      });
+
+      function resetForm() {
+        editingGroupId = null;
+        form.reset();
+        formTitle.textContent = 'New group';
+        cancelBtn.style.display = 'none';
+        deleteBtn.style.display = 'none';
+        groupFormWrapper.classList.add('hidden');
+        renderDeviceList();
+      }
+
+      function renderGroups(groups) {
+        groupsEl.innerHTML = '';
+        if (!groups.length) {
+          groupsEl.innerHTML = '<p class="hint">No groups created yet.</p>';
+          return;
+        }
+        groups.forEach(function (group) {
+          var row = document.createElement('div');
+          row.className = 'group-row';
+          var info = document.createElement('div');
+          var title = document.createElement('strong');
+          title.textContent = group.name;
+          var meta = document.createElement('div');
+          meta.className = 'meta';
+          meta.textContent = group.type + ' · ' + group.devices.length + ' device(s) · expected: ' + (group.expectedState ? 'on/open' : 'off/closed');
+          var status = document.createElement('div');
+          status.className = 'meta';
+          status.textContent = 'Status not checked yet';
+          info.appendChild(title);
+          info.appendChild(meta);
+          info.appendChild(status);
+          var buttons = document.createElement('div');
+          buttons.style.display = 'flex';
+          buttons.style.gap = '6px';
+          var checkBtn = document.createElement('button');
+          checkBtn.type = 'button';
+          checkBtn.textContent = 'Check now';
+          checkBtn.onclick = function () {
+            checkBtn.disabled = true;
+            api('GET', '/groups/' + group.id + '/check').then(function (result) {
+              checkBtn.disabled = false;
+              status.innerHTML = (result.mismatchCount === 0
+                ? '<span class="badge-ok">' + result.matchCount + '/' + result.checkedCount + ' matching</span>'
+                : '<span class="badge-nok">' + result.mismatchCount + ' mismatch(es)</span> — ' + escapeHtml(result.mismatchList.split('\n').join(', ')));
+            }).catch(function (error) {
+              checkBtn.disabled = false;
+              Homey.alert(error.message || String(error));
+            });
+          };
+          var editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.textContent = 'Edit';
+          editBtn.onclick = function () { startEdit(group); };
+          buttons.appendChild(checkBtn);
+          buttons.appendChild(editBtn);
+          row.appendChild(info);
+          row.appendChild(buttons);
+          groupsEl.appendChild(row);
+        });
+      }
+
+      function startEdit(group) {
+        editingGroupId = group.id;
+        formTitle.textContent = 'Editing: ' + group.name;
+        groupFormWrapper.classList.remove('hidden');
+        groupFormWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        document.getElementById('name').value = group.name;
+        typeSelect.value = group.type;
+        document.getElementById('expectedState').value = String(group.expectedState);
+        renderDeviceList();
+        setCheckedDeviceIds(group.devices.map(function (d) { return d.id; }));
+        document.getElementById('conjunction').value = group.conjunction || '';
+        document.getElementById('messageTemplateZero').value = group.messageTemplateZero || '';
+        document.getElementById('messageTemplateOne').value = group.messageTemplateOne || '';
+        document.getElementById('messageTemplateMany').value = group.messageTemplateMany || '';
+        cancelBtn.style.display = '';
+        deleteBtn.style.display = '';
+        window.scrollTo(0, document.body.scrollHeight);
+      }
+
+      function formatLastSeen(iso) {
+        if (!iso) return 'never';
+        var date = new Date(iso);
+        if (isNaN(date.getTime())) return 'never';
+        return date.toLocaleString();
+      }
+
+      function confirmAction(message, onConfirmed) {
+        Homey.confirm(message, null, function (err, confirmed) {
+          if (err || !confirmed) return;
+          onConfirmed();
+        });
+      }
+
+      function actionButtonCell(label, onClick) {
+        var td = document.createElement('td');
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = label;
+        btn.addEventListener('click', onClick);
+        td.appendChild(btn);
+        return td;
+      }
+      function deleteButtonCell(onClick) { return actionButtonCell('Delete', onClick); }
+
+      function renderMonitors(monitors) {
+        var body = document.getElementById('monitors-body');
+        if (!monitors.length) { body.innerHTML = '<tr><td colspan="10" class="hint">No activity monitors created yet.</td></tr>'; return; }
+        body.innerHTML = '';
+        monitors.forEach(function (monitor) {
+          var row = document.createElement('tr');
+          var stateClass = monitor.state === 'ACTIVE' ? 'state-active' : 'state-standby';
+          var stateLabel = monitor.state === 'ACTIVE' ? 'Active' : 'Standby';
+          var avgPower = monitor.averagePower !== null && monitor.averagePower !== undefined ? Math.round(monitor.averagePower) + ' W' : '—';
+          var energyCell = formatEnergy(monitor.energy) + (monitor.energyQuality === 'meter_reset' ? ' <span class="badge-nok" title="A meter reset was detected in this period — energy may be understated.">reset</span>' : '');
+          row.innerHTML = '<td>' + escapeHtml(monitor.name) + '</td><td>' + escapeHtml(monitor.deviceName) + '</td>' +
+            '<td class="' + stateClass + '">' + stateLabel + '</td><td>' + monitor.cycleCount + '</td>' +
+            '<td>' + energyCell + '</td><td>' + avgPower + '</td>' +
+            '<td>' + renderSparkline(monitor.dailyBreakdown) + '</td>';
+          row.appendChild(actionButtonCell('Edit messages', function () { openActivityMessageForm(monitor); }));
+          row.appendChild(actionButtonCell('Reset stats', function () {
+            confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
+              api('POST', '/monitors/' + monitor.id + '/reset')
+                .then(function () { return api('GET', '/monitors?period=' + monitorPeriod); })
+                .then(renderMonitors)
+                .catch(function (error) { Homey.alert(error.message || String(error)); });
+            });
+          }));
+          row.appendChild(deleteButtonCell(function () {
+            confirmAction('Delete monitor "' + monitor.name + '"?', function () {
+              api('DELETE', '/monitors/' + monitor.id)
+                .then(function () { return api('GET', '/monitors?period=' + monitorPeriod); })
+                .then(renderMonitors)
+                .catch(function (error) { Homey.alert(error.message || String(error)); });
+            });
+          }));
+          body.appendChild(row);
+        });
+      }
+
+      function renderStateMonitors(monitors) {
+        var body = document.getElementById('state-monitors-body');
+        if (!monitors.length) { body.innerHTML = '<tr><td colspan="10" class="hint">No state monitors created yet.</td></tr>'; return; }
+        body.innerHTML = '';
+        monitors.forEach(function (monitor) {
+          var row = document.createElement('tr');
+          var stateClass = monitor.state === 'ACTIVE' ? 'state-active' : 'state-standby';
+          var stateLabel = monitor.state === 'ACTIVE' ? monitor.trueLabel : monitor.falseLabel;
+          var durationCell = escapeHtml(monitor.trueLabel) + ' ' + formatDuration(monitor.trueDuration) + ' · ' + escapeHtml(monitor.falseLabel) + ' ' + formatDuration(monitor.falseDuration);
+          row.innerHTML = '<td>' + escapeHtml(monitor.name) + '</td><td>' + escapeHtml(monitor.deviceName) + '</td><td>' + escapeHtml(monitor.capability) + '</td>' +
+            '<td class="' + stateClass + '">' + escapeHtml(stateLabel) + '</td><td>' + monitor.cycleCount + '</td>' +
+            '<td>' + durationCell + '</td>' +
+            '<td>' + renderSparkline(monitor.dailyBreakdown, 'trueDuration', formatDuration) + '</td>';
+          row.appendChild(actionButtonCell('Edit messages', function () { openStateMessageForm(monitor); }));
+          row.appendChild(actionButtonCell('Reset stats', function () {
+            confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
+              api('POST', '/state-monitors/' + monitor.id + '/reset')
+                .then(function () { return api('GET', '/state-monitors?period=' + monitorPeriod); })
+                .then(renderStateMonitors)
+                .catch(function (error) { Homey.alert(error.message || String(error)); });
+            });
+          }));
+          row.appendChild(deleteButtonCell(function () {
+            confirmAction('Delete monitor "' + monitor.name + '"?', function () {
+              api('DELETE', '/state-monitors/' + monitor.id)
+                .then(function () { return api('GET', '/state-monitors?period=' + monitorPeriod); })
+                .then(renderStateMonitors)
+                .catch(function (error) { Homey.alert(error.message || String(error)); });
+            });
+          }));
+          body.appendChild(row);
+        });
+      }
+
+      function renderVoltageMonitors(monitors) {
+        var body = document.getElementById('voltage-monitors-body');
+        if (!monitors.length) { body.innerHTML = '<tr><td colspan="10" class="hint">No voltage monitors created yet.</td></tr>'; return; }
+        body.innerHTML = '';
+        monitors.forEach(function (monitor) {
+          var row = document.createElement('tr');
+          var stateClass = monitor.state === 'NORMAL' ? 'state-active' : 'unavailable-row';
+          var range = (monitor.minVoltage !== null && monitor.maxVoltage !== null)
+            ? monitor.minVoltage.toFixed(1) + '–' + monitor.maxVoltage.toFixed(1) + ' V' : '—';
+          var events = (monitor.undervoltageCount || 0) + ' under · ' + (monitor.overvoltageCount || 0) + ' over';
+          row.innerHTML = '<td>' + escapeHtml(monitor.name) + '</td><td>' + escapeHtml(monitor.deviceName) + '</td><td>' + escapeHtml(monitor.capability) + '</td>' +
+            '<td class="' + stateClass + '">' + monitor.state + '</td>' +
+            '<td>' + (monitor.currentVoltage !== null ? monitor.currentVoltage.toFixed(1) + ' V' : '—') + '</td>' +
+            '<td>' + range + '</td><td>' + events + '</td>';
+          row.appendChild(actionButtonCell('Edit messages', function () { openVoltageMessageForm(monitor); }));
+          row.appendChild(actionButtonCell('Reset stats', function () {
+            confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
+              api('POST', '/voltage-monitors/' + monitor.id + '/reset')
+                .then(function () { return api('GET', '/voltage-monitors?period=' + monitorPeriod); })
+                .then(renderVoltageMonitors)
+                .catch(function (error) { Homey.alert(error.message || String(error)); });
+            });
+          }));
+          row.appendChild(deleteButtonCell(function () {
+            confirmAction('Delete voltage monitor "' + monitor.name + '"?', function () {
+              api('DELETE', '/voltage-monitors/' + monitor.id)
+                .then(function () { return api('GET', '/voltage-monitors?period=' + monitorPeriod); })
+                .then(renderVoltageMonitors)
+                .catch(function (error) { Homey.alert(error.message || String(error)); });
+            });
+          }));
+          body.appendChild(row);
+        });
+      }
+
+      var voltageMessageForm = document.getElementById('voltage-message-form');
+      var editingVoltageMonitorId = null;
+      var lastVoltageTokenTarget = document.getElementById('messageTemplateNormalized');
+      Array.prototype.forEach.call(document.querySelectorAll('.voltage-token-target'), function (el) {
+        el.addEventListener('focus', function () { lastVoltageTokenTarget = el; });
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('.voltage-token-btn'), function (btn) {
+        btn.addEventListener('click', function () {
+          var token = btn.getAttribute('data-token');
+          var start = lastVoltageTokenTarget.selectionStart || lastVoltageTokenTarget.value.length;
+          var end = lastVoltageTokenTarget.selectionEnd || lastVoltageTokenTarget.value.length;
+          lastVoltageTokenTarget.value = lastVoltageTokenTarget.value.slice(0, start) + token + lastVoltageTokenTarget.value.slice(end);
+          lastVoltageTokenTarget.focus();
+        });
+      });
+
+      function openVoltageMessageForm(monitor) {
+        editingVoltageMonitorId = monitor.id;
+        document.getElementById('voltage-message-form-name').textContent = monitor.name;
+        document.getElementById('messageTemplateUndervoltage').value = monitor.messageTemplateUndervoltage || '';
+        document.getElementById('messageTemplateOvervoltage').value = monitor.messageTemplateOvervoltage || '';
+        document.getElementById('messageTemplateNormalized').value = monitor.messageTemplateNormalized || '';
+        voltageMessageForm.classList.remove('hidden');
+        voltageMessageForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      document.getElementById('voltage-message-cancel-btn').addEventListener('click', function () {
+        editingVoltageMonitorId = null;
+        voltageMessageForm.classList.add('hidden');
+      });
+      voltageMessageForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!editingVoltageMonitorId) return;
+        var payload = {
+          messageTemplateUndervoltage: document.getElementById('messageTemplateUndervoltage').value,
+          messageTemplateOvervoltage: document.getElementById('messageTemplateOvervoltage').value,
+          messageTemplateNormalized: document.getElementById('messageTemplateNormalized').value
+        };
+        api('PUT', '/voltage-monitors/' + editingVoltageMonitorId + '/messages', payload).then(function () {
+          voltageMessageForm.classList.add('hidden');
+          editingVoltageMonitorId = null;
+          return api('GET', '/voltage-monitors?period=' + monitorPeriod);
+        }).then(renderVoltageMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
+
+      var activityMessageForm = document.getElementById('activity-message-form');
+      var editingActivityMonitorId = null;
+      var lastActivityTokenTarget = document.getElementById('activity-messageTemplateFinished');
+      Array.prototype.forEach.call(document.querySelectorAll('.activity-token-target'), function (el) {
+        el.addEventListener('focus', function () { lastActivityTokenTarget = el; });
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('.activity-token-btn'), function (btn) {
+        btn.addEventListener('click', function () {
+          var token = btn.getAttribute('data-token');
+          var start = lastActivityTokenTarget.selectionStart || lastActivityTokenTarget.value.length;
+          var end = lastActivityTokenTarget.selectionEnd || lastActivityTokenTarget.value.length;
+          lastActivityTokenTarget.value = lastActivityTokenTarget.value.slice(0, start) + token + lastActivityTokenTarget.value.slice(end);
+          lastActivityTokenTarget.focus();
+        });
+      });
+      function openActivityMessageForm(monitor) {
+        editingActivityMonitorId = monitor.id;
+        document.getElementById('activity-message-form-name').textContent = monitor.name;
+        document.getElementById('activity-messageTemplateStarted').value = monitor.messageTemplateStarted || '';
+        document.getElementById('activity-messageTemplateFinished').value = monitor.messageTemplateFinished || '';
+        activityMessageForm.classList.remove('hidden');
+        activityMessageForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      document.getElementById('activity-message-cancel-btn').addEventListener('click', function () {
+        editingActivityMonitorId = null;
+        activityMessageForm.classList.add('hidden');
+      });
+      activityMessageForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!editingActivityMonitorId) return;
+        var payload = {
+          messageTemplateStarted: document.getElementById('activity-messageTemplateStarted').value,
+          messageTemplateFinished: document.getElementById('activity-messageTemplateFinished').value
+        };
+        api('PUT', '/monitors/' + editingActivityMonitorId + '/messages', payload).then(function () {
+          activityMessageForm.classList.add('hidden');
+          editingActivityMonitorId = null;
+          return api('GET', '/monitors?period=' + monitorPeriod);
+        }).then(renderMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
+
+      var stateMessageForm = document.getElementById('state-message-form');
+      var editingStateMonitorId = null;
+      var lastStateTokenTarget = document.getElementById('state-messageTemplateFinished');
+      Array.prototype.forEach.call(document.querySelectorAll('.state-token-target'), function (el) {
+        el.addEventListener('focus', function () { lastStateTokenTarget = el; });
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('.state-token-btn'), function (btn) {
+        btn.addEventListener('click', function () {
+          var token = btn.getAttribute('data-token');
+          var start = lastStateTokenTarget.selectionStart || lastStateTokenTarget.value.length;
+          var end = lastStateTokenTarget.selectionEnd || lastStateTokenTarget.value.length;
+          lastStateTokenTarget.value = lastStateTokenTarget.value.slice(0, start) + token + lastStateTokenTarget.value.slice(end);
+          lastStateTokenTarget.focus();
+        });
+      });
+      function openStateMessageForm(monitor) {
+        editingStateMonitorId = monitor.id;
+        document.getElementById('state-message-form-name').textContent = monitor.name;
+        document.getElementById('state-messageTemplateStarted').value = monitor.messageTemplateStarted || '';
+        document.getElementById('state-messageTemplateFinished').value = monitor.messageTemplateFinished || '';
+        stateMessageForm.classList.remove('hidden');
+        stateMessageForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      document.getElementById('state-message-cancel-btn').addEventListener('click', function () {
+        editingStateMonitorId = null;
+        stateMessageForm.classList.add('hidden');
+      });
+      stateMessageForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!editingStateMonitorId) return;
+        var payload = {
+          messageTemplateStarted: document.getElementById('state-messageTemplateStarted').value,
+          messageTemplateFinished: document.getElementById('state-messageTemplateFinished').value
+        };
+        api('PUT', '/state-monitors/' + editingStateMonitorId + '/messages', payload).then(function () {
+          stateMessageForm.classList.add('hidden');
+          editingStateMonitorId = null;
+          return api('GET', '/state-monitors?period=' + monitorPeriod);
+        }).then(renderStateMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
+
+      function renderBinaryCounters(counters) {
+        var body = document.getElementById('binary-counters-body');
+        if (!counters.length) { body.innerHTML = '<tr><td colspan="7" class="hint">No binary counters created yet. Use the "Add binary counter" Flow action to create one.</td></tr>'; return; }
+        body.innerHTML = '';
+        counters.forEach(function (counter) {
+          var row = document.createElement('tr');
+          row.innerHTML = '<td>' + escapeHtml(counter.name) + '</td><td>' + formatNumberOrDash(counter.eventCount) + '</td>' +
+            '<td>' + formatNumberOrDash(counter.totalCount) + '</td><td>' + formatLastSeen(counter.lastEventAt) + '</td>';
+          row.appendChild(actionButtonCell('Edit message', function () { openBinaryMessageForm(counter); }));
+          row.appendChild(actionButtonCell('Reset stats', function () {
+            confirmAction('Reset statistics for "' + counter.name + '"? This keeps the counter and its message, only the count/history is wiped.', function () {
+              api('POST', '/binary-counters/' + counter.id + '/reset')
+                .then(function () { return api('GET', '/binary-counters?period=' + monitorPeriod); })
+                .then(renderBinaryCounters)
+                .catch(function (error) { Homey.alert(error.message || String(error)); });
+            });
+          }));
+          row.appendChild(deleteButtonCell(function () {
+            confirmAction('Delete binary counter "' + counter.name + '"?', function () {
+              api('DELETE', '/binary-counters/' + counter.id)
+                .then(function () { return api('GET', '/binary-counters?period=' + monitorPeriod); })
+                .then(renderBinaryCounters)
+                .catch(function (error) { Homey.alert(error.message || String(error)); });
+            });
+          }));
+          body.appendChild(row);
+        });
+      }
+      function formatNumberOrDash(value) { return value === null || value === undefined ? '—' : String(value); }
+
+      var binaryMessageForm = document.getElementById('binary-message-form');
+      var editingBinaryCounterId = null;
+      var binaryMessageInput = document.getElementById('binary-messageTemplate');
+      Array.prototype.forEach.call(document.querySelectorAll('.binary-token-btn'), function (btn) {
+        btn.addEventListener('click', function () {
+          var token = btn.getAttribute('data-token');
+          var start = binaryMessageInput.selectionStart || binaryMessageInput.value.length;
+          var end = binaryMessageInput.selectionEnd || binaryMessageInput.value.length;
+          binaryMessageInput.value = binaryMessageInput.value.slice(0, start) + token + binaryMessageInput.value.slice(end);
+          binaryMessageInput.focus();
+        });
+      });
+      function openBinaryMessageForm(counter) {
+        editingBinaryCounterId = counter.id;
+        document.getElementById('binary-message-form-name').textContent = counter.name;
+        binaryMessageInput.value = counter.messageTemplate || '';
+        binaryMessageForm.classList.remove('hidden');
+        binaryMessageForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+      document.getElementById('binary-message-cancel-btn').addEventListener('click', function () {
+        editingBinaryCounterId = null;
+        binaryMessageForm.classList.add('hidden');
+      });
+      binaryMessageForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        if (!editingBinaryCounterId) return;
+        api('PUT', '/binary-counters/' + editingBinaryCounterId + '/message', { messageTemplate: binaryMessageInput.value }).then(function () {
+          binaryMessageForm.classList.add('hidden');
+          editingBinaryCounterId = null;
+          return api('GET', '/binary-counters?period=' + monitorPeriod);
+        }).then(renderBinaryCounters).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
+
+      function renderAvailability(devices) {
+        var body = document.getElementById('availability-body');
+        if (!devices.length) { body.innerHTML = '<tr><td colspan="4" class="hint">No devices found.</td></tr>'; return; }
+        var sorted = devices.slice().sort(function (a, b) {
+          if (a.available !== b.available) return a.available ? 1 : -1;
+          return (a.lastSeenAt || '').localeCompare(b.lastSeenAt || '');
+        });
+        body.innerHTML = '';
+        sorted.forEach(function (device) {
+          var row = document.createElement('tr');
+          if (!device.available) row.className = 'unavailable-row';
+          var status = device.available ? '<span class="badge-ok">Available</span>' : '<span class="badge-nok">Unavailable' + (device.unavailableMessage ? ' — ' + escapeHtml(device.unavailableMessage) : '') + '</span>';
+          row.innerHTML = '<td>' + escapeHtml(device.name) + '</td><td>' + escapeHtml(device.zoneName || '') + '</td><td>' + status + '</td><td>' + formatLastSeen(device.lastSeenAt) + '</td>';
+          body.appendChild(row);
+        });
+      }
+
+      function loadAll() {
+        return Promise.all([
+          api('GET', '/devices'), api('GET', '/groups'), api('GET', '/monitors?period=' + monitorPeriod), api('GET', '/voltage-monitors?period=' + monitorPeriod),
+          api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod)
+        ]).then(function (results) {
+          allDevices = results[0];
+          renderDeviceList();
+          renderGroups(results[1]);
+          renderMonitors(results[2]);
+          renderVoltageMonitors(results[3]);
+          renderBinaryCounters(results[4]);
+          renderStateMonitors(results[5]);
+          renderAvailability(results[0]);
+        });
+      }
+
+      typeSelect.addEventListener('change', function () {
+        var previouslyChecked = checkedDeviceIds();
+        renderDeviceList();
+        setCheckedDeviceIds(previouslyChecked);
+      });
+
+      cancelBtn.addEventListener('click', resetForm);
+
+      deleteBtn.addEventListener('click', function () {
+        if (!editingGroupId) return;
+        Homey.confirm('Delete this group?', null, function (err, confirmed) {
+          if (err || !confirmed) return;
+          api('DELETE', '/groups/' + editingGroupId).then(function () {
+            resetForm();
+            return loadAll();
+          }).catch(function (error) { Homey.alert(error.message || String(error)); });
+        });
+      });
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var deviceIds = checkedDeviceIds();
+        if (deviceIds.length < 2) {
+          Homey.alert('Select at least two devices.');
+          return;
+        }
+        var payload = {
+          name: document.getElementById('name').value,
+          type: typeSelect.value,
+          expectedState: document.getElementById('expectedState').value === 'true',
+          deviceIds: deviceIds,
+          conjunction: document.getElementById('conjunction').value || 'and',
+          messageTemplateZero: document.getElementById('messageTemplateZero').value,
+          messageTemplateOne: document.getElementById('messageTemplateOne').value,
+          messageTemplateMany: document.getElementById('messageTemplateMany').value
+        };
+        var request = editingGroupId
+          ? api('PUT', '/groups/' + editingGroupId, payload)
+          : api('POST', '/groups', payload);
+        request.then(function () {
+          resetForm();
+          return loadAll();
+        }).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
+
+      loadAll().catch(function (error) { Homey.alert(error.message || String(error)); });
+    }
+  </script>
+</body>
+</html>

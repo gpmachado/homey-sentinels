@@ -1,0 +1,278 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    #wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: var(--homey-su-4, 16px);
+      gap: var(--homey-su-2, 8px);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    #name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--homey-text-color, #16161a);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    #device {
+      font-size: 12px;
+      color: var(--homey-text-color-light, #7a7a85);
+      margin-top: -4px;
+    }
+    #status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      width: fit-content;
+      background-color: var(--homey-line-color-light, #f2f2f4);
+      color: var(--homey-text-color-light, #7a7a85);
+    }
+    #status .dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--homey-line-color, #cfcfd4); }
+    #status.is-good { background-color: var(--homey-background-color-green, #d9f2e3); color: var(--homey-text-color-green, #1e8e5a); }
+    #status.is-good .dot { background-color: var(--homey-icon-color-green, #1e8e5a); }
+    #status.is-bad { background-color: var(--homey-background-color-red, #f9d9d9); color: var(--homey-text-color-red, #b42318); }
+    #status.is-bad .dot { background-color: var(--homey-icon-color-red, #b42318); }
+    #live-timer { font-size: 12px; font-weight: 600; color: var(--homey-text-color-green, #1e8e5a); font-variant-numeric: tabular-nums; }
+    #periods { display: flex; background-color: var(--homey-line-color-light, #f2f2f4); border-radius: 8px; padding: 2px; gap: 2px; }
+    #periods.hidden { display: none; }
+    #periods button {
+      flex: 1; border: none; background: none; padding: 5px 4px; font-size: 11px; font-weight: 600;
+      color: var(--homey-text-color-light, #7a7a85); border-radius: 6px; cursor: pointer; font-family: inherit;
+    }
+    #periods button.active { background-color: var(--homey-background-color, #fff); color: var(--homey-text-color, #16161a); }
+    #stats { display: flex; gap: var(--homey-su-4, 16px); margin-top: 4px; }
+    .stat-value { font-size: 18px; font-weight: 700; color: var(--homey-text-color, #16161a); font-variant-numeric: tabular-nums; }
+    .stat-label { font-size: 11px; color: var(--homey-text-color-light, #7a7a85); }
+    #chart { display: flex; align-items: flex-end; gap: 2px; height: 28px; margin-top: 6px; }
+    #chart.hidden { display: none; }
+    #chart .chart-bar { flex: 1; background-color: var(--homey-icon-color-green, #1e8e5a); opacity: 0.8; border-radius: 1px; min-height: 2px; }
+    #hint { font-size: 13px; color: var(--homey-text-color-light, #7a7a85); }
+    #message { font-size: 12px; color: var(--homey-text-color-light, #7a7a85); margin-top: 6px; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    .hidden { display: none; }
+    #wrap.stale { opacity: 0.5; transition: opacity 0.3s; }
+  </style>
+</head>
+
+<body>
+  <div id="wrap">
+    <div id="hint" class="hidden">Configure a monitor in the widget settings.</div>
+    <div id="content">
+      <div id="name">—</div>
+      <div id="device"></div>
+      <div id="status"><span class="dot"></span><span id="status-label">—</span></div>
+      <div id="live-timer" class="hidden"></div>
+      <div id="periods">
+        <button type="button" data-period="day" class="active">Today</button>
+        <button type="button" data-period="week">7 Days</button>
+        <button type="button" data-period="month">30 Days</button>
+      </div>
+      <div id="stats">
+        <div>
+          <div class="stat-value" id="stat1-value">—</div>
+          <div class="stat-label" id="stat1-label"></div>
+        </div>
+        <div>
+          <div class="stat-value" id="stat2-value">—</div>
+          <div class="stat-label" id="stat2-label"></div>
+        </div>
+      </div>
+      <div id="chart" class="hidden"></div>
+      <div id="message" class="hidden"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    function onHomeyReady(Homey) {
+      var $wrap = document.getElementById('wrap');
+      var $hint = document.getElementById('hint');
+      var $content = document.getElementById('content');
+      var $name = document.getElementById('name');
+      var $device = document.getElementById('device');
+      var $status = document.getElementById('status');
+      var $statusLabel = document.getElementById('status-label');
+      var $liveTimer = document.getElementById('live-timer');
+      var $periods = document.getElementById('periods');
+      var $chart = document.getElementById('chart');
+      var $message = document.getElementById('message');
+      var hasLoadedOnce = false;
+      var sinceMs = null; // when set, a per-second client-side ticker keeps #live-timer live between polls
+      var period = 'day';
+
+      function formatNumber(value, decimals) {
+        if (value === null || value === undefined || !isFinite(value)) return '—';
+        return Number(value).toFixed(decimals === undefined ? 0 : decimals);
+      }
+
+      // Energy is always in kWh from the API — a fraction of a kWh (a fridge's daily cycle,
+      // say) reads better as Wh, matching the app's own log formatting.
+      function formatEnergy(kwh) {
+        if (kwh === null || kwh === undefined || !isFinite(kwh)) return '—';
+        return kwh < 1 ? Math.round(kwh * 1000) + ' Wh' : kwh.toFixed(2) + ' kWh';
+      }
+
+      function formatDuration(seconds) {
+        if (seconds === null || seconds === undefined || !isFinite(seconds)) return '—';
+        var safeSeconds = Math.max(0, Math.round(seconds));
+        if (safeSeconds < 60) return safeSeconds + 's';
+        var minutes = Math.round(safeSeconds / 60);
+        if (minutes < 60) return minutes + ' min';
+        return Math.floor(minutes / 60) + 'h ' + (minutes % 60) + 'min';
+      }
+
+      function formatHMS(totalSeconds) {
+        var s = Math.max(0, Math.floor(totalSeconds));
+        var h = Math.floor(s / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var sec = s % 60;
+        var pad = function (n) { return String(n).padStart(2, '0'); };
+        return (h > 0 ? h + ':' : '') + pad(m) + ':' + pad(sec);
+      }
+
+      function tickLiveTimer() {
+        if (sinceMs === null) return;
+        $liveTimer.innerText = formatHMS((Date.now() - sinceMs) / 1000);
+      }
+      setInterval(tickLiveTimer, 1000);
+
+      function renderChart(breakdown, field, formatter) {
+        field = field || 'energy';
+        formatter = formatter || formatEnergy;
+        if (!breakdown || !breakdown.length) { $chart.classList.add('hidden'); $chart.innerHTML = ''; return; }
+        var max = breakdown.reduce(function (m, day) { return Math.max(m, day[field] || 0); }, 0);
+        $chart.innerHTML = '';
+        breakdown.forEach(function (day) {
+          var bar = document.createElement('div');
+          bar.className = 'chart-bar';
+          bar.style.height = (max > 0 ? Math.max(6, (day[field] / max) * 100) : 6) + '%';
+          bar.title = day.date + ': ' + formatter(day[field]);
+          $chart.appendChild(bar);
+        });
+        $chart.classList.remove('hidden');
+      }
+
+      function render(summary, hintText) {
+        if (!summary) {
+          $content.classList.add('hidden');
+          $hint.classList.remove('hidden');
+          if (hintText) $hint.innerText = hintText;
+          return;
+        }
+        hasLoadedOnce = true;
+        $wrap.classList.remove('stale');
+        $content.classList.remove('hidden');
+        $hint.classList.add('hidden');
+        $name.innerText = summary.name;
+        $device.innerText = summary.deviceName;
+
+        var periodLabel = summary.period === 'week' ? '7 days' : summary.period === 'month' ? '30 days' : 'today';
+        $periods.classList.toggle('hidden', summary.kind === 'group');
+        $message.classList.toggle('hidden', summary.kind !== 'group' || !summary.message);
+        if (summary.kind === 'group') {
+          renderChart(null);
+          var allMatch = summary.mismatchCount === 0;
+          $status.className = allMatch ? 'is-good' : 'is-bad';
+          $statusLabel.innerText = allMatch ? 'All match' : summary.mismatchCount + ' mismatch' + (summary.mismatchCount === 1 ? '' : 'es');
+          sinceMs = null;
+          document.getElementById('stat1-value').innerText = summary.matchCount + ' / ' + summary.checkedCount;
+          document.getElementById('stat1-label').innerText = 'Matching';
+          document.getElementById('stat2-value').innerText = formatNumber(summary.mismatchCount);
+          document.getElementById('stat2-label').innerText = 'Mismatches';
+          $message.innerText = summary.message || '';
+        } else if (summary.kind === 'activity') {
+          var isActive = summary.state === 'ACTIVE';
+          $status.className = isActive ? 'is-good' : '';
+          $statusLabel.innerText = isActive ? 'Active' : 'Standby';
+          sinceMs = (isActive && summary.activeSince) ? summary.activeSince : null;
+          document.getElementById('stat1-value').innerText = formatNumber(summary.cycleCount);
+          document.getElementById('stat1-label').innerText = 'Cycles (' + periodLabel + ')';
+          if (summary.period === 'day') {
+            document.getElementById('stat2-value').innerText = summary.averagePower !== null ? formatNumber(summary.averagePower) + ' W' : '—';
+            document.getElementById('stat2-label').innerText = summary.averageCurrent !== null ? 'Power (' + formatNumber(summary.averageCurrent, 1) + ' A)' : 'Average power';
+          } else {
+            document.getElementById('stat2-value').innerText = formatEnergy(summary.energy);
+            document.getElementById('stat2-label').innerText = 'Energy (' + periodLabel + ')';
+          }
+          renderChart(summary.dailyBreakdown);
+        } else if (summary.kind === 'state') {
+          var isSessionActive = summary.state === 'ACTIVE';
+          $status.className = isSessionActive ? 'is-good' : '';
+          $statusLabel.innerText = isSessionActive ? summary.trueLabel : summary.falseLabel;
+          sinceMs = (isSessionActive && summary.activeSince) ? summary.activeSince : null;
+          document.getElementById('stat1-value').innerText = formatNumber(summary.cycleCount);
+          document.getElementById('stat1-label').innerText = 'Sessions (' + periodLabel + ')';
+          document.getElementById('stat2-value').innerText = formatDuration(summary.trueDuration);
+          document.getElementById('stat2-label').innerText = summary.trueLabel + ' time (' + periodLabel + ')';
+          renderChart(summary.dailyBreakdown, 'trueDuration', formatDuration);
+        } else if (summary.kind === 'voltage') {
+          renderChart(null);
+          var isNormal = summary.state === 'NORMAL';
+          $status.className = isNormal ? 'is-good' : 'is-bad';
+          $statusLabel.innerText = isNormal ? 'Normal' : (summary.state === 'UNDERVOLTAGE' ? 'Undervoltage' : 'Overvoltage');
+          sinceMs = (!isNormal && summary.eventSince) ? summary.eventSince : null;
+          document.getElementById('stat1-value').innerText = summary.currentVoltage !== null ? formatNumber(summary.currentVoltage, 1) + ' V' : '—';
+          document.getElementById('stat1-label').innerText = 'Voltage now';
+          if (summary.period === 'day') {
+            document.getElementById('stat2-value').innerText = (summary.minVoltage !== null && summary.maxVoltage !== null)
+              ? formatNumber(summary.minVoltage, 1) + '–' + formatNumber(summary.maxVoltage, 1) + ' V' : '—';
+            document.getElementById('stat2-label').innerText = 'Range (' + periodLabel + ')';
+          } else {
+            var under = summary.undervoltageCount || 0;
+            var over = summary.overvoltageCount || 0;
+            document.getElementById('stat2-value').innerText = formatNumber(under + over);
+            document.getElementById('stat2-label').innerText = under + ' under · ' + over + ' over (' + periodLabel + ')';
+          }
+        }
+        $liveTimer.classList.toggle('hidden', sinceMs === null);
+        if (sinceMs !== null) tickLiveTimer();
+      }
+
+      async function load() {
+        // Homey sometimes stores the widget setting's full autocomplete result
+        // ({name, data:{id}}), not just the id string — unwrap it either way.
+        var raw = Homey.getSettings().monitorId;
+        var id = raw && typeof raw === 'object' ? (raw.data ? raw.data.id : raw.id) : raw;
+        if (!id) { render(null, 'Configure a monitor in the widget settings.'); return; }
+        try {
+          var summary = await Homey.api('GET', '/summary?id=' + encodeURIComponent(id) + '&period=' + encodeURIComponent(period));
+          render(summary);
+        } catch (error) {
+          // Distinguish "never loaded yet" from "was showing data, briefly unreachable" —
+          // a transient network blip or Homey restart shouldn't flash the "not configured"
+          // message over a widget that's actually configured and was just working a moment
+          // ago; keep the last known values visible, just dimmed, until the next poll succeeds.
+          if (hasLoadedOnce) $wrap.classList.add('stale');
+          else render(null, 'No connection to Homey…');
+        }
+      }
+
+      Array.prototype.slice.call($periods.querySelectorAll('button')).forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          if (btn.getAttribute('data-period') === period) return;
+          period = btn.getAttribute('data-period');
+          Array.prototype.slice.call($periods.querySelectorAll('button')).forEach(function (b) { b.classList.toggle('active', b === btn); });
+          load();
+        });
+      });
+
+      Homey.on('settings.set', load);
+      load().finally(function () { Homey.ready(); });
+      setInterval(load, 30000);
+    }
+  </script>
+</body>
+
+</html>
