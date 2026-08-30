@@ -2471,12 +2471,12 @@
       },
       {
         "title": {
-          "en": "Start tracking activity now",
-          "pt": "Iniciar rastreio de atividade agora"
+          "en": "Start monitor",
+          "pt": "Iniciar monitor"
         },
         "titleFormatted": {
-          "en": "Start tracking activity now for [[monitor]]",
-          "pt": "Iniciar rastreio de atividade agora para [[monitor]]"
+          "en": "Start monitor [[monitor]]",
+          "pt": "Iniciar monitor [[monitor]]"
         },
         "hint": {
           "en": "Manually starts the monitor's cycle right now, instead of waiting for its power threshold to be crossed. For devices with no meaningful power/standby signal (a pure on/off pump or switch) — drive it from a native trigger like \"Power becomes greater than X\", or any other Flow logic. Does nothing if the monitor is already active.",
@@ -2496,12 +2496,12 @@
       },
       {
         "title": {
-          "en": "Stop tracking activity now",
-          "pt": "Parar rastreio de atividade agora"
+          "en": "Stop monitor",
+          "pt": "Parar monitor"
         },
         "titleFormatted": {
-          "en": "Stop tracking activity now for [[monitor]]",
-          "pt": "Parar rastreio de atividade agora para [[monitor]]"
+          "en": "Stop monitor [[monitor]]",
+          "pt": "Parar monitor [[monitor]]"
         },
         "hint": {
           "en": "Manually ends the monitor's cycle right now, instead of waiting for its power threshold to be crossed — bypasses the continuity/confirmation windows too, since a manual command is never noise. Does nothing if the monitor is already in standby.",
