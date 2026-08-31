@@ -18,6 +18,20 @@ const AUXILIARY_CAPABILITY_CANDIDATES = ['measure_current', 'meter_power', 'meas
 // calculation. Below it, median_duration/median_energy come back null ("still learning")
 // instead of a number that looks more authoritative than a sample of 1-2 cycles deserves.
 const MEDIAN_MIN_CYCLES = 5;
+// Single source of truth for State Group's type→capability mapping — was previously duplicated
+// (and already drifting: _checkGroup only special-cased 'contact', everything else fell through
+// to 'onoff', silently wrong for any new type added there without updating both places).
+// `invert: true` means the capability's raw true/false is the OPPOSITE of what "On / Open" /
+// "Off / Closed" means to the user — garagedoor_closed reports true when the door is CLOSED,
+// so without inverting, picking "Open" as the expected state would silently check for closed
+// (the exact polarity footgun already fixed once for State Monitor's old active_value picker).
+const GROUP_TYPES = {
+  contact: { capability: 'alarm_contact', invert: false },
+  light: { capability: 'onoff', invert: false },
+  switch: { capability: 'onoff', invert: false },
+  valve: { capability: 'onoff', invert: false },
+  garage: { capability: 'garagedoor_closed', invert: true }
+};
 // Homey rejects a "number" Flow token whose value is null/undefined ("Invalid Token") —
 // average()/maximum() legitimately return null for "no data yet". Only coerce at this
 // Flow-token boundary; getWidgetSummary keeps reading the raw null to render "—" instead of "0".
@@ -231,17 +245,29 @@ class StatisticTrackerApp extends Homey.App {
         device.name.toLowerCase().includes(normalized)
       ).map((device) => ({ name: device.name, description: device.zoneName || undefined, data: { id: device.id, name: device.name } }));
     });
-    ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor', 'add_device_to_state_group', 'remove_device_from_state_group', 'start_monitoring_device', 'stop_monitoring_device'].forEach((id) => deviceAutocomplete(id));
+    ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor', 'add_device_to_state_group', 'remove_device_from_state_group', 'start_monitoring_device'].forEach((id) => deviceAutocomplete(id));
+    // "Stop monitoring device" has to find an *already-started* manual monitor — searching raw
+    // device names alone hides it the moment "Start monitoring device" was given a custom name
+    // (confirmed live: created as device "Poço Energy Meter" with custom name "Bomba
+    // Hidraulica", searching "Bomba" in Stop's picker found nothing). Matches against the
+    // monitor's own name as well as its underlying device name, but still resolves to the
+    // device id/name shape the action handler expects.
+    this.homey.flow.getActionCard('stop_monitoring_device').registerArgumentAutocompleteListener('device', async (query) => {
+      const normalized = (query || '').toLowerCase();
+      return Object.values(this.store.data.monitors)
+        .filter((m) => m.mode === 'manual' && (m.name.toLowerCase().includes(normalized) || m.deviceName.toLowerCase().includes(normalized)))
+        .map((m) => ({ name: m.name, description: m.name !== m.deviceName ? m.deviceName : undefined, data: { id: m.deviceId, name: m.deviceName } }));
+    });
     ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor'].forEach((id) => this._registerCapabilityAutocomplete(id));
-    ['remove_activity_monitor', 'reset_activity_monitor', 'update_activity_monitor', 'get_activity_statistics', 'get_activity_statistics_basic', 'start_activity', 'stop_activity'].forEach((id) => this._monitorActionAutocomplete(id));
+    ['remove_activity_monitor', 'reset_activity_monitor', 'update_activity_monitor', 'get_activity_statistics'].forEach((id) => this._monitorActionAutocomplete(id));
     this._monitorConditionAutocomplete('is_active');
-    ['remove_state_monitor', 'reset_state_monitor', 'get_state_statistics', 'get_state_statistics_basic'].forEach((id) => this._stateMonitorActionAutocomplete(id));
+    ['remove_state_monitor', 'reset_state_monitor', 'get_state_statistics'].forEach((id) => this._stateMonitorActionAutocomplete(id));
     this._stateMonitorConditionAutocomplete('is_state_active');
-    ['add_device_to_state_group', 'remove_device_from_state_group', 'check_state_group', 'check_state_group_basic'].forEach((id) => this._groupActionAutocomplete(id));
+    ['add_device_to_state_group', 'remove_device_from_state_group', 'check_state_group'].forEach((id) => this._groupActionAutocomplete(id));
     this._groupConditionAutocomplete('state_group_has_mismatch');
-    ['remove_voltage_monitor', 'reset_voltage_monitor', 'update_voltage_monitor', 'get_voltage_statistics', 'get_voltage_statistics_basic'].forEach((id) => this._voltageMonitorActionAutocomplete(id));
+    ['remove_voltage_monitor', 'reset_voltage_monitor', 'update_voltage_monitor', 'get_voltage_statistics'].forEach((id) => this._voltageMonitorActionAutocomplete(id));
     this.homey.flow.getConditionCard('is_voltage_normal').registerArgumentAutocompleteListener('monitor', async (query) => this._voltageMonitorResults(query));
-    ['log_binary_event', 'log_binary_event_basic', 'remove_binary_counter', 'reset_binary_counter', 'get_binary_event_statistics', 'get_binary_event_statistics_basic'].forEach((id) => this._binaryCounterActionAutocomplete(id));
+    ['log_binary_event', 'remove_binary_counter', 'reset_binary_counter', 'get_binary_event_statistics'].forEach((id) => this._binaryCounterActionAutocomplete(id));
     // Unlike the other binary-counter cards (which only ever pick an existing one), this one
     // also has to let the user type a brand new name — so the exact-match case gets offered
     // as "create new" instead of forcing a pick from existing counters alone.
@@ -252,47 +278,43 @@ class StatisticTrackerApp extends Homey.App {
       return results;
     });
 
-    action('add_activity_monitor', async ({ device, capability, threshold, name, continuity_minutes, min_confirmation_seconds }) => {
+    // No continuity/confirmation window here — those start at 0 for a freshly created monitor
+    // and are only worth tuning after noticing an actual problem (fragmented or noisy cycles),
+    // at which point "Update activity monitor" already covers it. Keeping them off "Add" keeps
+    // the common case (most devices never need either) simple.
+    action('add_activity_monitor', async ({ device, capability, threshold, name }) => {
       const selected = await this.gateway.getDevice(this._deviceId(device));
       const capabilityId = capability?.id || capability?.data?.id || 'measure_power';
       if (!selected?.capabilities.includes(capabilityId)) throw new Error(`The device doesn't have the ${capabilityId} capability.`);
       const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => cap !== capabilityId && selected.capabilities.includes(cap));
-      const { monitor, created } = this.store.upsertMonitor({ device: selected, threshold, name, capability: capabilityId, auxiliaryCapabilities, continuityMinutes: continuity_minutes, minConfirmationSeconds: min_confirmation_seconds });
+      const { monitor, created } = this.store.upsertMonitor({ device: selected, threshold, name, capability: capabilityId, auxiliaryCapabilities });
       await this.store.save();
       if (created) await this._watch(monitor);
       return true;
     });
     action('remove_activity_monitor', async ({ monitor }) => { await this.removeMonitor(this._monitor(monitor)); return true; });
     action('reset_activity_monitor', async ({ monitor }) => { await this.resetMonitorStats(this._monitor(monitor)); return true; });
-    // For a device with no meaningful power/standby signal (a pure on/off pump or switch) —
-    // lets the user's own Flow logic (a native "Power becomes greater than X" trigger, an
-    // on/off capability change, anything) drive the cycle directly instead of relying on this
-    // app's own threshold engine, which only understands a single numeric capability.
-    action('start_activity', async ({ monitor }) => { const item = this._monitor(monitor); await this._handleActivityEvents(item, this.engine.startNow(item)); return true; });
-    action('stop_activity', async ({ monitor }) => { const item = this._monitor(monitor); await this._handleActivityEvents(item, this.engine.stopNow(item)); return true; });
     // One card handles both "create the monitor if it doesn't exist yet" and "start it" — for
     // wiring a brand new on/off-only device (a pump, a device with no reliable standby signal)
     // in a single Flow off a native "Power becomes greater than X" trigger, instead of needing
     // "Add activity monitor" run separately first. The resulting monitor is mode 'manual' — it
     // never decides ACTIVE/STANDBY on its own, only this card and its Stop counterpart do.
-    action('start_monitoring_device', async ({ device, name, continuity_minutes, min_confirmation_seconds }) => {
+    action('start_monitoring_device', async ({ device, name }) => {
       const selected = await this.gateway.getDevice(this._deviceId(device));
       if (!selected) throw new Error('Device not found.');
       if (!selected.capabilities.includes('measure_power')) throw new Error(`"${selected.name}" doesn't have a measure_power capability.`);
       const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => selected.capabilities.includes(cap));
-      const { monitor, created } = this.store.upsertManualMonitor({ device: selected, auxiliaryCapabilities, name, continuityMinutes: continuity_minutes, minConfirmationSeconds: min_confirmation_seconds });
+      const { monitor, created } = this.store.upsertManualMonitor({ device: selected, auxiliaryCapabilities, name });
       await this.store.save();
       if (created) await this._watch(monitor);
-      await this._handleActivityEvents(monitor, this.engine.startNow(monitor));
-      return true;
+      return (await this._handleActivityEvents(monitor, this.engine.startNow(monitor))) || this._startedSnapshot(monitor);
     });
     action('stop_monitoring_device', async ({ device }) => {
       const selected = await this.gateway.getDevice(this._deviceId(device));
       if (!selected) throw new Error('Device not found.');
       const monitor = Object.values(this.store.data.monitors).find((item) => item.deviceId === selected.id && item.capability === 'measure_power');
       if (!monitor) throw new Error(`No monitor found for "${selected.name}". Use "Start monitoring device" first.`);
-      await this._handleActivityEvents(monitor, this.engine.stopNow(monitor));
-      return true;
+      return (await this._handleActivityEvents(monitor, this.engine.stopNow(monitor))) || this._finishedSnapshot(monitor);
     });
     action('update_activity_monitor', async ({ monitor, threshold, continuity_minutes, min_confirmation_seconds }) => {
       const item = this._monitor(monitor);
@@ -320,17 +342,12 @@ class StatisticTrackerApp extends Homey.App {
         energy_quality: stats.energy_quality || ''
       };
     });
-    action('get_activity_statistics_basic', async ({ monitor, period }) => { this._statistics(this._monitor(monitor), period); return true; });
     action('create_state_group', async ({ name, type, expected_state }) => { this.store.createGroup({ name, type, expectedState: expected_state }); await this.store.save(); return true; });
     action('add_device_to_state_group', async ({ group, device }) => { const item = this._group(group); const selected = await this.gateway.getDevice(this._deviceId(device)); this._assertGroupDevice(item, selected); if (!item.devices.some((d) => d.id === selected.id)) item.devices.push({ id: selected.id, name: selected.name }); await this.store.save(); return true; });
     action('remove_device_from_state_group', async ({ group, device }) => { const item = this._group(group); const id = this._deviceId(device); item.devices = item.devices.filter((d) => d.id !== id); await this.store.save(); return true; });
     action('check_state_group', async ({ group, expected_state }) => {
       const result = await this._checkGroup(this._group(group), expected_state);
       return { group_name: result.groupName, checked_count: result.checkedCount, match_count: result.matchCount, mismatch_count: result.mismatchCount, mismatch_list: result.mismatchList, message: result.message };
-    });
-    action('check_state_group_basic', async ({ group, expected_state }) => {
-      await this._checkGroup(this._group(group), expected_state);
-      return true;
     });
     condition('is_active', async ({ monitor }) => this._monitor(monitor).state === ACTIVE);
     condition('state_group_has_mismatch', async ({ group }) => (await this._checkGroup(this._group(group))).mismatchCount > 0);
@@ -362,10 +379,12 @@ class StatisticTrackerApp extends Homey.App {
       return true;
     });
     action('get_voltage_statistics', async ({ monitor, period }) => this._voltageStatistics(this._voltageMonitor(monitor), period));
-    action('get_voltage_statistics_basic', async ({ monitor, period }) => { this._voltageStatistics(this._voltageMonitor(monitor), period); return true; });
     condition('is_voltage_normal', async ({ monitor }) => this._voltageMonitor(monitor).state === NORMAL);
 
-    action('add_state_monitor', async ({ device, capability, true_label, false_label, name, continuity_minutes, min_confirmation_seconds }) => {
+    // No continuity/confirmation window here (and no "Update state monitor" card exists to
+    // tune it later, unlike Activity Monitor) — every real use case so far is a plain
+    // door/motion/on-off sensor with no flakiness to debounce. Add one if that ever changes.
+    action('add_state_monitor', async ({ device, capability, true_label, false_label, name }) => {
       const selected = await this.gateway.getDevice(this._deviceId(device));
       if (!selected) throw new Error('Device not found.');
       const capabilityId = capability?.id || capability?.data?.id || capability;
@@ -377,7 +396,7 @@ class StatisticTrackerApp extends Homey.App {
         const title = selected.capabilitiesObj?.[capabilityId]?.title || capabilityId;
         throw new Error(`"${title}" isn't a boolean capability. Pick one like a contact, motion, or on/off sensor.`);
       }
-      const { monitor, created } = this.store.upsertStateMonitor({ device: selected, capability: capabilityId, trueLabel: true_label, falseLabel: false_label, name, continuityMinutes: continuity_minutes, minConfirmationSeconds: min_confirmation_seconds });
+      const { monitor, created } = this.store.upsertStateMonitor({ device: selected, capability: capabilityId, trueLabel: true_label, falseLabel: false_label, name });
       await this.store.save();
       if (created) await this._watchState(monitor);
       return true;
@@ -388,7 +407,6 @@ class StatisticTrackerApp extends Homey.App {
       const stats = this._stateStatistics(this._stateMonitor(monitor), period);
       return { ...stats, median_duration: num(stats.median_duration), median_duration_human: stats.median_duration_human || '' };
     });
-    action('get_state_statistics_basic', async ({ monitor, period }) => { this._stateStatistics(this._stateMonitor(monitor), period); return true; });
     condition('is_state_active', async ({ monitor }) => this._stateMonitor(monitor).state === ACTIVE);
 
     action('add_binary_counter', async ({ name: rawName }) => {
@@ -412,19 +430,12 @@ class StatisticTrackerApp extends Homey.App {
         message: renderMessage(item.messageTemplate, data)
       };
     });
-    action('log_binary_event_basic', async ({ counter }) => {
-      const item = this._binaryCounter(counter);
-      this.store.recordBinaryEvent(item, Date.now(), this._getTimezone());
-      await this.store.save();
-      return true;
-    });
     action('remove_binary_counter', async ({ counter }) => { await this.removeBinaryCounter(this._binaryCounter(counter)); return true; });
     action('reset_binary_counter', async ({ counter }) => { await this.resetBinaryCounterStats(this._binaryCounter(counter)); return true; });
     action('get_binary_event_statistics', async ({ counter, period }) => {
       const stats = this._binaryEventStatistics(this._binaryCounter(counter), period);
       return { ...stats, last_event_at: stats.last_event_at || '' };
     });
-    action('get_binary_event_statistics_basic', async ({ counter, period }) => { this._binaryEventStatistics(this._binaryCounter(counter), period); return true; });
   }
 
   _monitorResults(query) { const normalized = (query || '').toLowerCase(); return Object.values(this.store.data.monitors).filter((m) => m.name.toLowerCase().includes(normalized)).map((m) => ({ name: m.name, description: m.deviceName, data: { id: m.id } })); }
@@ -527,8 +538,14 @@ class StatisticTrackerApp extends Homey.App {
     const events = this.engine.finalizePendingStandby(monitor, Date.now());
     await this._handleActivityEvents(monitor, events);
   }
+  // Returns the data for whichever 'started'/'finished' event actually fired (or null for a
+  // pure 'continuity_pending' tick) — callers driving a manual start/stop (start_monitoring_device
+  // / stop_monitoring_device) reuse this as their own action-card tokens, so the same power/
+  // energy/current/message data is available in the same Flow without a second Flow listening
+  // on "Activity started"/"Activity finished".
   async _handleActivityEvents(monitor, events) {
     await this.store.save();
+    let result = null;
     for (const event of events) {
       if (event.type === 'continuity_pending') {
         this.homey.setTimeout(() => this._resolveContinuity(monitor).catch((error) => this.error('Failed to resolve continuity window', monitor.name, error)), standbyGraceSeconds(monitor) * 1000);
@@ -540,8 +557,9 @@ class StatisticTrackerApp extends Homey.App {
       const base = { device: monitor.deviceName, monitor: monitor.name, power: num(event.power), timestamp: new Date(event.timestamp).toISOString() };
       if (event.type === 'started') {
         this.log(`[${monitor.name}] started (${num(event.power)} W)`);
-        const startedData = { ...base };
-        await this.cards.started.trigger({ ...startedData, message: renderMessage(monitor.messageTemplateStarted, startedData) }, { monitorId: monitor.id });
+        const startedData = { ...base, message: renderMessage(monitor.messageTemplateStarted, base) };
+        await this.cards.started.trigger(startedData, { monitorId: monitor.id });
+        result = startedData;
       }
       if (event.type === 'finished') {
         this.log(`[${monitor.name}] finished (duration=${event.duration_human}, energy=${formatEnergy(num(event.energy))}, avg power=${num(event.average_power).toFixed(0)} W)`);
@@ -553,9 +571,27 @@ class StatisticTrackerApp extends Homey.App {
           average_power: num(event.average_power), max_power: num(event.max_power), average_current: num(event.average_current), max_current: num(event.max_current),
           count: this._statistics(monitor, 'day').cycle_count
         };
-        await this.cards.finished.trigger({ ...finishedData, message: renderMessage(monitor.messageTemplateFinished, finishedData) }, { monitorId: monitor.id });
+        finishedData.message = renderMessage(monitor.messageTemplateFinished, finishedData);
+        await this.cards.finished.trigger(finishedData, { monitorId: monitor.id });
+        result = finishedData;
       }
     }
+    return result;
+  }
+  // Fallback tokens for start_monitoring_device/stop_monitoring_device when startNow/stopNow
+  // was a no-op (monitor already in that state) — _handleActivityEvents returns null then,
+  // but the action card still declares tokens and must always return a value for them.
+  _startedSnapshot(monitor) {
+    const base = { device: monitor.deviceName, monitor: monitor.name, power: num(monitor.lastSample?.power ?? null), timestamp: new Date().toISOString() };
+    return { ...base, message: renderMessage(monitor.messageTemplateStarted, base) };
+  }
+  _finishedSnapshot(monitor) {
+    const base = { device: monitor.deviceName, monitor: monitor.name, power: num(monitor.lastSample?.power ?? null), timestamp: new Date().toISOString() };
+    const data = {
+      ...base, duration: 0, duration_human: humanDuration(0), energy: 0, average_power: 0, max_power: 0, average_current: 0, max_current: 0,
+      count: this._statistics(monitor, 'day').cycle_count
+    };
+    return { ...data, message: renderMessage(monitor.messageTemplateFinished, data) };
   }
   // Same engine, same cycle/duration/grace-window machinery as _watch/_sample above — a state
   // monitor just feeds the raw boolean straight in instead of comparing a numeric power sample
@@ -824,15 +860,15 @@ class StatisticTrackerApp extends Homey.App {
     return { activeDuration, cycleCount, energy, summary: `This week vs. previous: activity ${label(activeDuration)}, cycles ${label(cycleCount)}, energy ${label(energy)}.` };
   }
   _assertGroupDevice(group, device) {
-    const capabilities = { contact: 'alarm_contact', light: 'onoff', switch: 'onoff', valve: 'onoff' };
-    if (!device || !device.capabilities.includes(capabilities[group.type])) throw new Error(`This device isn't compatible with the ${group.type} group.`);
+    if (!device || !device.capabilities.includes(GROUP_TYPES[group.type]?.capability)) throw new Error(`This device isn't compatible with the ${group.type} group.`);
   }
   async _checkGroup(group, expectedOverride) {
     if (group.devices.length < 2) throw new Error('A group needs at least two devices.');
     const expected = expectedOverride === undefined || expectedOverride === '' ? group.expectedState : (expectedOverride === true || expectedOverride === 'true');
     const devices = await Promise.all(group.devices.map(({ id }) => this.gateway.getDevice(id)));
-    const capability = group.type === 'contact' ? 'alarm_contact' : 'onoff';
-    const mismatches = devices.filter((device) => !device || Boolean(device.capabilitiesObj?.[capability]?.value) !== expected).map((device, index) => device?.name || group.devices[index].name);
+    const { capability, invert } = GROUP_TYPES[group.type];
+    const target = invert ? !expected : expected;
+    const mismatches = devices.filter((device) => !device || Boolean(device.capabilitiesObj?.[capability]?.value) !== target).map((device, index) => device?.name || group.devices[index].name);
     const items = formatList(mismatches, group.conjunction || 'and');
     const template = mismatches.length === 0 ? group.messageTemplateZero : mismatches.length === 1 ? group.messageTemplateOne : group.messageTemplateMany;
     const message = renderMessage(template, { group: group.name, count: mismatches.length, items });

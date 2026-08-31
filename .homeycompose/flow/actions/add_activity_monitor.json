@@ -1,12 +1,11 @@
 {
   "title": { "en": "Add activity monitor" },
-  "titleFormatted": { "en": "Add activity monitor for [[device]], capability [[capability]], threshold [[threshold]] W, continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s, name [[name]]" },
+  "titleFormatted": { "en": "Add activity monitor for [[device]], capability [[capability]], threshold [[threshold]] W, name [[name]]" },
+  "hint": { "en": "Continuity window and minimum confirmation start at 0 (off) here — tune them later with \"Update activity monitor\" if you notice fragmented or noisy cycles." },
   "args": [
     { "name": "device", "type": "autocomplete", "title": { "en": "Device" } },
     { "name": "capability", "type": "autocomplete", "required": false, "title": { "en": "Capability (optional, defaults to measure_power)" }, "placeholder": { "en": "measure_power" }, "hint": { "en": "Leave blank to use measure_power. Other relevant capabilities on this device (current, energy, voltage) are detected and tracked automatically — no need to add them here." } },
     { "name": "threshold", "type": "number", "title": { "en": "Activity threshold (W)" } },
-    { "name": "continuity_minutes", "type": "number", "required": false, "title": { "en": "Continuity window (minutes, optional, default 0)" }, "hint": { "en": "For variable-load devices (washer/dryer) whose power dips near zero between phases. A drop below the threshold doesn't end the session until it stays low for this long — the session's end is still backdated to the moment power actually dropped. 0 disables this (ends immediately on drop)." } },
-    { "name": "min_confirmation_seconds", "type": "number", "required": false, "title": { "en": "Minimum state confirmation (seconds, optional, default 0)" }, "hint": { "en": "Ignores brief flickers above or below the threshold that don't hold for at least this long, in both directions. Useful for noisy power readings. Whichever is longer between this and the continuity window governs when a session actually ends. 0 disables this." } },
     { "name": "name", "type": "text", "required": false, "title": { "en": "Monitor name (optional)" } }
   ]
 }

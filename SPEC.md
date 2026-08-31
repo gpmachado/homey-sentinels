@@ -39,11 +39,10 @@ and current. Auxiliary capabilities (`measure_current`, `meter_power`, `measure_
 auto-detected on the device and tracked without separate configuration.
 
 - Cards: `add_activity_monitor`, `remove_activity_monitor`, `reset_activity_monitor`,
-  `update_activity_monitor`, `get_activity_statistics`(+`_basic`), `start_activity`/
-  `stop_activity` (manual override for an *existing* monitor with no reliable numeric signal),
-  `start_monitoring_device`/`stop_monitoring_device` (same override, but creates the monitor
-  on first run if it doesn't exist yet — one card instead of "Add activity monitor" then
-  "Start monitor"), triggers `activity_started`/`activity_finished`, condition `is_active`.
+  `update_activity_monitor`, `get_activity_statistics`, `start_monitoring_device`/
+  `stop_monitoring_device` (manual override for a device with no reliable numeric signal —
+  creates the monitor on first run if it doesn't exist yet, and starts/stops it, in one card),
+  triggers `activity_started`/`activity_finished`, condition `is_active`.
 - A monitor created via `start_monitoring_device` (or any monitor with `mode: 'manual'`) never
   decides ACTIVE/STANDBY from its own power reading — `stateFor()` returns its current state
   unchanged, so only `startNow`/`stopNow` ever move it. It still samples power/current/energy
@@ -52,8 +51,10 @@ auto-detected on the device and tracked without separate configuration.
   trigger, keeping the activation rule visible in the Flow instead of hidden in a threshold
   config — for a device with no meaningful standby signal at all (a pump), vs. a device that
   does have one (a freezer, a microwave), which should just use the regular threshold mode.
-- Optional `continuity_minutes` / `min_confirmation_seconds` filter noise: the longer of the
-  two governs how long a drop below threshold must hold before a cycle is considered over.
+- `continuity_minutes` / `min_confirmation_seconds` filter noise (the longer of the two governs
+  how long a drop below threshold must hold before a cycle is considered over) — not exposed on
+  `add_activity_monitor` (both start at 0, the common case), only on `update_activity_monitor`,
+  to keep the create-time card simple.
 - Message wording (Settings → Monitors → Activity → "Edit messages") renders a `message`
   token on both triggers. `activity_finished`'s message data includes `count` — today's cycle
   count, already inclusive of the cycle that just finished — enabling a one-card message like
@@ -75,8 +76,11 @@ purely cosmetic — both directions are tracked and reported side by side
 in the first place.
 
 - Cards: `add_state_monitor`, `remove_state_monitor`, `reset_state_monitor`,
-  `get_state_statistics`(+`_basic`), triggers `state_started`/`state_finished` (each carries a
-  `label` token — `trueLabel` on start, `falseLabel` on finish), condition `is_state_active`.
+  `get_state_statistics`, triggers `state_started`/`state_finished` (each carries a
+  `label` token — `trueLabel` on start, `falseLabel` on finish), condition `is_state_active`
+  (displayed as "is true"/"is not true", matching the family's true/false vocabulary and
+  disambiguating it from Activity Monitor's `is_active` condition in the Flow card picker —
+  the two used to render with identical text).
 - Message wording (Settings → Monitors → State → "Edit messages") works the same way as
   Activity Monitor's — a rendered `message` token per trigger, `count` (today's session count)
   available on `state_finished`.
@@ -86,6 +90,9 @@ in the first place.
 - Tokens are duration/count only — no power/energy/current, since those aren't meaningful here.
 - Duration formatting shows seconds below one minute (`humanDuration`) — a door session is
   frequently shorter than a minute, unlike a power cycle.
+- No `continuity_minutes`/`min_confirmation_seconds` on `add_state_monitor` and no
+  `update_state_monitor` card exists — every real use case so far is a plain sensor with
+  nothing to debounce. The store/engine still support both fields if that changes.
 
 ### 2.3 Voltage Monitor (`store.data.voltageMonitors`)
 
@@ -94,7 +101,7 @@ outside the range is one **incident** (episode), not one row per sample — min/
 voltage and duration are reported for the whole episode on return to normal.
 
 - Cards: `add_voltage_monitor`, `remove_voltage_monitor`, `reset_voltage_monitor`,
-  `update_voltage_monitor`, `get_voltage_statistics`(+`_basic`), triggers
+  `update_voltage_monitor`, `get_voltage_statistics`, triggers
   `voltage_undervoltage_detected`/`voltage_overvoltage_detected`/`voltage_returned_to_normal`,
   condition `is_voltage_normal`.
 - `stabilization_minutes` suppresses events right after creation (a fresh reading needs a
@@ -112,19 +119,28 @@ like) calls "Log binary event" to tally it. Just a count, no duration or energy.
 
 - Cards: `add_binary_counter` (upserts by name — the "Counter name" field is an autocomplete
   that offers existing counters or a "Create new" option, not free text, so a typo can't
-  silently create a duplicate), `log_binary_event`(+`_basic`), `remove_binary_counter`,
-  `reset_binary_counter`, `get_binary_event_statistics`(+`_basic`).
+  silently create a duplicate), `log_binary_event`, `remove_binary_counter`,
+  `reset_binary_counter`, `get_binary_event_statistics`.
 - Message wording lives in Settings, rendered by `log_binary_event`'s own tokens
   (`%counter%`, `%count%`, `%total%`, `%count:word|word%`).
 
 ### 2.5 State Group (`store.data.groups`)
 
 Checks, **on demand only**, whether two or more devices of the same logical type
-(contact/light/switch/valve) are all in an expected state. No continuous subscription and no
-history — every check reads the devices live. `Devices` never get modified.
+(contact/light/switch/valve/garage) are all in an expected state. No continuous subscription
+and no history — every check reads the devices live. `Devices` never get modified.
 
 - Cards: `create_state_group`, `add_device_to_state_group`, `remove_device_from_state_group`,
-  `check_state_group`(+`_basic`), condition `state_group_has_mismatch`.
+  `check_state_group`, condition `state_group_has_mismatch`.
+- Type→capability mapping lives once, in `app.js`'s `GROUP_TYPES` (`contact`→`alarm_contact`,
+  `light`/`switch`/`valve`→`onoff`, `garage`→`garagedoor_closed`) — shared by device
+  compatibility checks and the live comparison, so there's one place to get it right instead of
+  two that can drift out of sync (they already had, before this was unified).
+- `garagedoor_closed` reports `true` for *closed*, the opposite direction from `alarm_contact`/
+  `onoff` — `GROUP_TYPES.garage.invert` flips the comparison so "expected: On / Open" still
+  means what it says from the user's side, without exposing that polarity anywhere. Same
+  footgun class as the old State Monitor `active_value` picker, handled once here instead of
+  per-group.
 - Message wording (zero/one/many mismatches) uses `%group%`, `%count%`, `%items%`,
   `%count:word|word%`.
 - **Known gap**: no per-device open-count or time-with-any-mismatch history exists. Adding
@@ -142,8 +158,8 @@ Activity and State monitors share one `ActivityEngine` class:
   continuity and confirmation grace windows (the longer of the two governs).
 - A gap between samples longer than `MAX_GAP_SECONDS` (4h) is discarded rather than counted —
   it usually means Homey or the device was offline, not that the previous state genuinely held.
-- `startNow`/`stopNow` are manual overrides (used by `start_activity`/`stop_activity`) that
-  bypass grace windows — but first call `_closePreTransitionGap()` to correctly attribute the
+- `startNow`/`stopNow` are manual overrides (used by `start_monitoring_device`/
+  `stop_monitoring_device`) that bypass grace windows — but first call `_closePreTransitionGap()` to correctly attribute the
   time since the last real sample to the state that was *actually* true throughout it. Without
   this, the next real sample after a manual override would retroactively tag a potentially
   large stale gap with the new state — confirmed live as a 2–3x inflation of active
@@ -202,14 +218,17 @@ capability update (a door open/close) was silently dropped before ever reaching 
 
 Homey only shows an action card with output tokens (`get_activity_statistics`,
 `get_voltage_statistics`, `get_binary_event_statistics`, `get_state_statistics`,
-`check_state_group`) in **Advanced Flow** — the standard Flow editor's `THEN` cards don't
-expose returned tokens to later cards. Each of these has a `_basic` sibling with no output
-tokens, usable in a standard Flow when you just need the action to run (e.g. logging) without
-using its result.
+`check_state_group`, `log_binary_event`, `start_monitoring_device`, `stop_monitoring_device`)
+in **Advanced Flow** — the standard Flow editor's `THEN` cards don't expose returned tokens to
+later cards. Deliberately no token-free "basic" sibling for any of these: checked a dozen
+real-world Homey apps (see `analise/modelos/`, gitignored) with token-bearing action cards —
+none of them ship a duplicate card just to stay usable in standard Flow, they all just require
+Advanced Flow for that card. Matching that keeps the card picker from doubling in size for a
+pattern nobody else uses.
 
 ## 8. Testing
 
-`npm test` runs `node:test` against everything in `lib/` (67 tests as of this writing:
+`npm test` runs `node:test` against everything in `lib/` (75 tests as of this writing:
 activity engine, voltage engine, store persistence/retention, message templates, time
 helpers). `homey app validate --level debug` checks the compose sources build into a valid
 `app.json`. Neither exercises `settings/index.html`, the widget, or live device I/O — those

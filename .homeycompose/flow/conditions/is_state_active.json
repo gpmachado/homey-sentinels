@@ -1,6 +1,6 @@
 {
-  "title": { "en": "[[monitor]] !{{is active|is not active}}" },
-  "titleFormatted": { "en": "[[monitor]] !{{is active|is not active}}" },
+  "title": { "en": "[[monitor]] !{{is true|is not true}}" },
+  "titleFormatted": { "en": "[[monitor]] !{{is true|is not true}}" },
   "args": [
     { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
   ]

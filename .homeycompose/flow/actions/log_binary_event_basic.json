@@ -1,8 +1,0 @@
-{
-  "title": { "en": "Log binary event (standard flow)" },
-  "titleFormatted": { "en": "Log binary event for [[counter]]" },
-  "hint": { "en": "Same as 'Log binary event' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow." },
-  "args": [
-    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter" } }
-  ]
-}

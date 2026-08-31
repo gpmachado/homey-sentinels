@@ -40,10 +40,11 @@ machine.
      related capabilities (current, energy, voltage) on the same device, no need to add them.
    - **Activity threshold (W)**: the wattage above which the device counts as active. For a
      pump this might be 50W; for a fridge compressor, 20W.
-   - **Continuity window** / **minimum confirmation**: leave at 0 unless the device's power
-     dips briefly between phases (a washer) or the reading is noisy — see the card's own hint
-     for what each one does.
-   - Run this Flow once (e.g. on "Homey started", or manually) to create the monitor.
+   - Run this Flow once (e.g. on "Homey started", or manually) to create the monitor. It starts
+     with no continuity/confirmation delay — if you later notice a device's power dips briefly
+     between phases (a washer) and fragments into multiple cycles, or a noisy reading creates
+     false starts, use **"Update activity monitor"** to add a continuity window or minimum
+     confirmation without recreating the monitor.
 2. Build Flows off **"Activity started"** / **"Activity finished"** — pick the monitor in the
    card's dropdown (required, so you always know which one you're reacting to). "Finished"
    carries duration, energy, and average/peak power/current as tokens.
@@ -60,14 +61,16 @@ machine.
 **No reliable power/standby signal?** A pure on/off pump or switch might never show a clean
 threshold crossing — a microwave or freezer usually does (clear standby vs. running draw), so
 they stay on the regular threshold flow above; a pump often doesn't. For those, skip "Add
-activity monitor" and use **"Start monitor [[monitor]]"** / **"Stop monitor [[monitor]]"**
-(for a monitor you already created) or, in one step, **"Start monitoring device"** /
-**"Stop monitoring device"** (creates the monitor for that device on first run if it doesn't
-exist yet) — either way, driven by whatever Flow logic you already trust, typically a native
+activity monitor" entirely and use **"Start monitoring device"** / **"Stop monitoring device"**
+instead — no separate creation step, the first "Start" run creates the monitor for that device
+if it doesn't exist yet. Driven by whatever Flow logic you already trust, typically a native
 "Power becomes greater than X" / "Power becomes less than X" trigger pair. The resulting
-monitor never decides active/standby from its own power reading; only these cards do — it
+monitor never decides active/standby from its own power reading; only these two cards do — it
 still tracks power/current/energy the whole time, so "Stop" still reports full duration/energy
-tokens, same as a regular finished cycle.
+tokens, same as a regular finished cycle. Both cards carry their own tokens (`message`, `power`
+on Start; `duration`, `energy`, `average_power`/`max_power`, `average_current`/`max_current`,
+`message` on Stop) usable right in the same Flow, in Advanced Flow mode — no separate Flow
+listening on "Activity started"/"Activity finished" required.
 
 **Gotcha**: the threshold is in Watts. If the capability picker shows something like "Power
 Phase A" next to "Voltage Phase A" on a 3-phase device, make sure you picked the Watt one —
@@ -138,7 +141,7 @@ For "are all the doors closed", "are all the lights off" — any check across tw
 devices of the same logical type.
 
 1. In Settings → Groups tab, click **Add group** (or use the **"Create state group"** Flow
-   card) — give it a name, a type (contact/light/switch/valve), and pick which devices belong
+   card) — give it a name, a type (contact/light/switch/valve/garage door), and pick which devices belong
    to it (at least two, all compatible with the chosen type).
 2. Use **"Check state group"** in a Flow whenever you want the live result — it reads every
    device in the group right then, there's no background subscription or history. Tokens:
@@ -182,6 +185,7 @@ chart. A group widget shows live matched/mismatch counts and the rendered messag
 - **Binary Counter's name field is an identity, not a label** — don't insert a live device tag
   there.
 - **Token-returning cards need Advanced Flow** — `get_activity_statistics`,
-  `get_voltage_statistics`, `get_binary_event_statistics`, `get_state_statistics`, and
-  `check_state_group` only expose their tokens in the Advanced Flow editor. Each has a
-  `_basic` version (no tokens) that also works in a standard Flow.
+  `get_voltage_statistics`, `get_binary_event_statistics`, `get_state_statistics`,
+  `check_state_group`, `log_binary_event`, `start_monitoring_device`, and
+  `stop_monitoring_device` only appear as selectable cards in the Advanced Flow editor; Homey
+  hides any action card with output tokens from the standard editor entirely.

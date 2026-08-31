@@ -8,7 +8,8 @@
       { "id": "contact", "label": { "en": "Contact" } },
       { "id": "light", "label": { "en": "Light" } },
       { "id": "switch", "label": { "en": "Switch" } },
-      { "id": "valve", "label": { "en": "Valve" } }
+      { "id": "valve", "label": { "en": "Valve" } },
+      { "id": "garage", "label": { "en": "Garage door" } }
     ] },
     { "name": "expected_state", "type": "dropdown", "title": { "en": "Expected state" }, "values": [
       { "id": "true", "label": { "en": "On / Open" } },

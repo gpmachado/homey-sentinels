@@ -663,10 +663,10 @@
       },
       {
         "title": {
-          "en": "[[monitor]] !{{is active|is not active}}"
+          "en": "[[monitor]] !{{is true|is not true}}"
         },
         "titleFormatted": {
-          "en": "[[monitor]] !{{is active|is not active}}"
+          "en": "[[monitor]] !{{is true|is not true}}"
         },
         "args": [
           {
@@ -722,7 +722,10 @@
           "en": "Add activity monitor"
         },
         "titleFormatted": {
-          "en": "Add activity monitor for [[device]], capability [[capability]], threshold [[threshold]] W, continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s, name [[name]]"
+          "en": "Add activity monitor for [[device]], capability [[capability]], threshold [[threshold]] W, name [[name]]"
+        },
+        "hint": {
+          "en": "Continuity window and minimum confirmation start at 0 (off) here — tune them later with \"Update activity monitor\" if you notice fragmented or noisy cycles."
         },
         "args": [
           {
@@ -751,28 +754,6 @@
             "type": "number",
             "title": {
               "en": "Activity threshold (W)"
-            }
-          },
-          {
-            "name": "continuity_minutes",
-            "type": "number",
-            "required": false,
-            "title": {
-              "en": "Continuity window (minutes, optional, default 0)"
-            },
-            "hint": {
-              "en": "For variable-load devices (washer/dryer) whose power dips near zero between phases. A drop below the threshold doesn't end the session until it stays low for this long — the session's end is still backdated to the moment power actually dropped. 0 disables this (ends immediately on drop)."
-            }
-          },
-          {
-            "name": "min_confirmation_seconds",
-            "type": "number",
-            "required": false,
-            "title": {
-              "en": "Minimum state confirmation (seconds, optional, default 0)"
-            },
-            "hint": {
-              "en": "Ignores brief flickers above or below the threshold that don't hold for at least this long, in both directions. Useful for noisy power readings. Whichever is longer between this and the continuity window governs when a session actually ends. 0 disables this."
             }
           },
           {
@@ -843,7 +824,7 @@
           "en": "Add state monitor"
         },
         "titleFormatted": {
-          "en": "Add state monitor for [[device]], capability [[capability]], label when true [[true_label]], label when false [[false_label]], continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s, name [[name]]"
+          "en": "Add state monitor for [[device]], capability [[capability]], label when true [[true_label]], label when false [[false_label]], name [[name]]"
         },
         "hint": {
           "en": "For a boolean capability with no meaningful numeric threshold — a door, a presence sensor, an on/off switch. Tracks time spent in BOTH states — no need to guess which raw value (true/false) means what, just name them. Not for power monitoring — use \"Add activity monitor\" for that."
@@ -889,28 +870,6 @@
             },
             "placeholder": {
               "en": "e.g. Closed"
-            }
-          },
-          {
-            "name": "continuity_minutes",
-            "type": "number",
-            "required": false,
-            "title": {
-              "en": "Continuity window (minutes, optional, default 0)"
-            },
-            "hint": {
-              "en": "A brief return to false doesn't end a true-session until it holds for this long — the session's end is still backdated to the moment it actually changed. 0 disables this (ends immediately)."
-            }
-          },
-          {
-            "name": "min_confirmation_seconds",
-            "type": "number",
-            "required": false,
-            "title": {
-              "en": "Minimum state confirmation (seconds, optional, default 0)"
-            },
-            "hint": {
-              "en": "Ignores brief flickers that don't hold for at least this long, in both directions. Useful for a flaky sensor. 0 disables this."
             }
           },
           {
@@ -1084,55 +1043,6 @@
       },
       {
         "title": {
-          "en": "Check state group (standard flow)"
-        },
-        "titleFormatted": {
-          "en": "Check state group [[group]], expected [[expected_state]]"
-        },
-        "hint": {
-          "en": "Same as 'Check state group' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow."
-        },
-        "args": [
-          {
-            "name": "group",
-            "type": "autocomplete",
-            "title": {
-              "en": "Group"
-            }
-          },
-          {
-            "name": "expected_state",
-            "type": "dropdown",
-            "required": false,
-            "title": {
-              "en": "Expected state override (optional)"
-            },
-            "values": [
-              {
-                "id": "",
-                "label": {
-                  "en": "Use group default"
-                }
-              },
-              {
-                "id": "true",
-                "label": {
-                  "en": "On / Open"
-                }
-              },
-              {
-                "id": "false",
-                "label": {
-                  "en": "Off / Closed"
-                }
-              }
-            ]
-          }
-        ],
-        "id": "check_state_group_basic"
-      },
-      {
-        "title": {
           "en": "Create state group"
         },
         "titleFormatted": {
@@ -1178,6 +1088,12 @@
                 "id": "valve",
                 "label": {
                   "en": "Valve"
+                }
+              },
+              {
+                "id": "garage",
+                "label": {
+                  "en": "Garage door"
                 }
               }
             ]
@@ -1387,60 +1303,6 @@
       },
       {
         "title": {
-          "en": "Get activity statistics (standard flow)"
-        },
-        "titleFormatted": {
-          "en": "Get activity statistics for [[monitor]], period: [[period]]"
-        },
-        "hint": {
-          "en": "Same as 'Get activity statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow."
-        },
-        "args": [
-          {
-            "name": "monitor",
-            "type": "autocomplete",
-            "title": {
-              "en": "Monitor"
-            }
-          },
-          {
-            "name": "period",
-            "type": "dropdown",
-            "title": {
-              "en": "Period"
-            },
-            "values": [
-              {
-                "id": "day",
-                "label": {
-                  "en": "Today"
-                }
-              },
-              {
-                "id": "week",
-                "label": {
-                  "en": "Last 7 days"
-                }
-              },
-              {
-                "id": "month",
-                "label": {
-                  "en": "Last 30 days"
-                }
-              },
-              {
-                "id": "all",
-                "label": {
-                  "en": "All history"
-                }
-              }
-            ]
-          }
-        ],
-        "id": "get_activity_statistics_basic"
-      },
-      {
-        "title": {
           "en": "Get binary event statistics"
         },
         "titleFormatted": {
@@ -1505,60 +1367,6 @@
           }
         ],
         "id": "get_binary_event_statistics"
-      },
-      {
-        "title": {
-          "en": "Get binary event statistics (standard flow)"
-        },
-        "titleFormatted": {
-          "en": "Get binary event statistics for [[counter]], period: [[period]]"
-        },
-        "hint": {
-          "en": "Same as 'Get binary event statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow."
-        },
-        "args": [
-          {
-            "name": "counter",
-            "type": "autocomplete",
-            "title": {
-              "en": "Counter"
-            }
-          },
-          {
-            "name": "period",
-            "type": "dropdown",
-            "title": {
-              "en": "Period"
-            },
-            "values": [
-              {
-                "id": "day",
-                "label": {
-                  "en": "Today"
-                }
-              },
-              {
-                "id": "week",
-                "label": {
-                  "en": "Last 7 days"
-                }
-              },
-              {
-                "id": "month",
-                "label": {
-                  "en": "Last 30 days"
-                }
-              },
-              {
-                "id": "all",
-                "label": {
-                  "en": "All history"
-                }
-              }
-            ]
-          }
-        ],
-        "id": "get_binary_event_statistics_basic"
       },
       {
         "title": {
@@ -1685,60 +1493,6 @@
       },
       {
         "title": {
-          "en": "Get state statistics (standard flow)"
-        },
-        "titleFormatted": {
-          "en": "Get state statistics for [[monitor]], period: [[period]]"
-        },
-        "hint": {
-          "en": "Same as 'Get state statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow."
-        },
-        "args": [
-          {
-            "name": "monitor",
-            "type": "autocomplete",
-            "title": {
-              "en": "Monitor"
-            }
-          },
-          {
-            "name": "period",
-            "type": "dropdown",
-            "title": {
-              "en": "Period"
-            },
-            "values": [
-              {
-                "id": "day",
-                "label": {
-                  "en": "Today"
-                }
-              },
-              {
-                "id": "week",
-                "label": {
-                  "en": "Last 7 days"
-                }
-              },
-              {
-                "id": "month",
-                "label": {
-                  "en": "Last 30 days"
-                }
-              },
-              {
-                "id": "all",
-                "label": {
-                  "en": "All history"
-                }
-              }
-            ]
-          }
-        ],
-        "id": "get_state_statistics_basic"
-      },
-      {
-        "title": {
           "en": "Get voltage statistics"
         },
         "titleFormatted": {
@@ -1841,60 +1595,6 @@
       },
       {
         "title": {
-          "en": "Get voltage statistics (standard flow)"
-        },
-        "titleFormatted": {
-          "en": "Get voltage statistics for [[monitor]], period: [[period]]"
-        },
-        "hint": {
-          "en": "Same as 'Get voltage statistics' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow."
-        },
-        "args": [
-          {
-            "name": "monitor",
-            "type": "autocomplete",
-            "title": {
-              "en": "Monitor"
-            }
-          },
-          {
-            "name": "period",
-            "type": "dropdown",
-            "title": {
-              "en": "Period"
-            },
-            "values": [
-              {
-                "id": "day",
-                "label": {
-                  "en": "Today"
-                }
-              },
-              {
-                "id": "week",
-                "label": {
-                  "en": "Last 7 days"
-                }
-              },
-              {
-                "id": "month",
-                "label": {
-                  "en": "Last 30 days"
-                }
-              },
-              {
-                "id": "all",
-                "label": {
-                  "en": "All history"
-                }
-              }
-            ]
-          }
-        ],
-        "id": "get_voltage_statistics_basic"
-      },
-      {
-        "title": {
           "en": "Log binary event"
         },
         "titleFormatted": {
@@ -1943,27 +1643,6 @@
           }
         ],
         "id": "log_binary_event"
-      },
-      {
-        "title": {
-          "en": "Log binary event (standard flow)"
-        },
-        "titleFormatted": {
-          "en": "Log binary event for [[counter]]"
-        },
-        "hint": {
-          "en": "Same as 'Log binary event' but without output tokens, so it's selectable in a standard Flow — Homey only shows action cards with tokens in Advanced Flow."
-        },
-        "args": [
-          {
-            "name": "counter",
-            "type": "autocomplete",
-            "title": {
-              "en": "Counter"
-            }
-          }
-        ],
-        "id": "log_binary_event_basic"
       },
       {
         "title": {
@@ -2148,31 +1827,10 @@
       },
       {
         "title": {
-          "en": "Start monitor"
-        },
-        "titleFormatted": {
-          "en": "Start monitor [[monitor]]"
-        },
-        "hint": {
-          "en": "Manually starts the monitor's cycle right now, instead of waiting for its power threshold to be crossed. For devices with no meaningful power/standby signal (a pure on/off pump or switch) — drive it from a native trigger like \"Power becomes greater than X\", or any other Flow logic. Does nothing if the monitor is already active."
-        },
-        "args": [
-          {
-            "name": "monitor",
-            "type": "autocomplete",
-            "title": {
-              "en": "Monitor"
-            }
-          }
-        ],
-        "id": "start_activity"
-      },
-      {
-        "title": {
           "en": "Start monitoring device"
         },
         "titleFormatted": {
-          "en": "Start monitoring device [[device]], name [[name]], continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s"
+          "en": "Start monitoring device [[device]], name [[name]]"
         },
         "hint": {
           "en": "For an on/off-only device (a pump, a device with no reliable standby signal) — creates the monitor on first run if it doesn't exist yet, then starts it, in one step. Meant to be driven by a native \"Power becomes greater than X\" trigger (or any other Flow logic) instead of this app's own threshold engine. The resulting monitor never decides active/standby on its own — only this card and \"Stop monitoring device\" do."
@@ -2192,46 +1850,46 @@
             "title": {
               "en": "Monitor name (optional)"
             }
-          },
+          }
+        ],
+        "tokens": [
           {
-            "name": "continuity_minutes",
-            "type": "number",
-            "required": false,
+            "name": "device",
+            "type": "string",
             "title": {
-              "en": "Continuity window (minutes, optional, default 0)"
+              "en": "Device"
             }
           },
           {
-            "name": "min_confirmation_seconds",
-            "type": "number",
-            "required": false,
+            "name": "monitor",
+            "type": "string",
             "title": {
-              "en": "Minimum state confirmation (seconds, optional, default 0)"
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "power",
+            "type": "number",
+            "title": {
+              "en": "Power (W)"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message"
             }
           }
         ],
         "id": "start_monitoring_device"
-      },
-      {
-        "title": {
-          "en": "Stop monitor"
-        },
-        "titleFormatted": {
-          "en": "Stop monitor [[monitor]]"
-        },
-        "hint": {
-          "en": "Manually ends the monitor's cycle right now, instead of waiting for its power threshold to be crossed — bypasses the continuity/confirmation windows too, since a manual command is never noise. Does nothing if the monitor is already in standby."
-        },
-        "args": [
-          {
-            "name": "monitor",
-            "type": "autocomplete",
-            "title": {
-              "en": "Monitor"
-            }
-          }
-        ],
-        "id": "stop_activity"
       },
       {
         "title": {
@@ -2249,6 +1907,85 @@
             "type": "autocomplete",
             "title": {
               "en": "Device"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "duration",
+            "type": "number",
+            "title": {
+              "en": "Duration (seconds)"
+            }
+          },
+          {
+            "name": "duration_human",
+            "type": "string",
+            "title": {
+              "en": "Duration"
+            }
+          },
+          {
+            "name": "energy",
+            "type": "number",
+            "title": {
+              "en": "Energy (kWh)"
+            }
+          },
+          {
+            "name": "average_power",
+            "type": "number",
+            "title": {
+              "en": "Average power (W)"
+            }
+          },
+          {
+            "name": "max_power",
+            "type": "number",
+            "title": {
+              "en": "Peak power (W)"
+            }
+          },
+          {
+            "name": "average_current",
+            "type": "number",
+            "title": {
+              "en": "Average current (A)"
+            }
+          },
+          {
+            "name": "max_current",
+            "type": "number",
+            "title": {
+              "en": "Peak current (A)"
+            }
+          },
+          {
+            "name": "count",
+            "type": "number",
+            "title": {
+              "en": "Cycles today (including this one)"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message"
             }
           }
         ],

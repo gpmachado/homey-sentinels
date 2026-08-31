@@ -4,5 +4,18 @@
   "hint": { "en": "Closes the cycle started by \"Start monitoring device\" for this device — fires \"Activity finished\" with duration, energy and the rest of the usual tokens. Fails if no monitor exists yet for this device; run \"Start monitoring device\" first." },
   "args": [
     { "name": "device", "type": "autocomplete", "title": { "en": "Device" } }
+  ],
+  "tokens": [
+    { "name": "device", "type": "string", "title": { "en": "Device" } },
+    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
+    { "name": "duration", "type": "number", "title": { "en": "Duration (seconds)" } },
+    { "name": "duration_human", "type": "string", "title": { "en": "Duration" } },
+    { "name": "energy", "type": "number", "title": { "en": "Energy (kWh)" } },
+    { "name": "average_power", "type": "number", "title": { "en": "Average power (W)" } },
+    { "name": "max_power", "type": "number", "title": { "en": "Peak power (W)" } },
+    { "name": "average_current", "type": "number", "title": { "en": "Average current (A)" } },
+    { "name": "max_current", "type": "number", "title": { "en": "Peak current (A)" } },
+    { "name": "count", "type": "number", "title": { "en": "Cycles today (including this one)" } },
+    { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]
 }

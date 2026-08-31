@@ -222,6 +222,7 @@
           <option value="light">Light</option>
           <option value="switch">Switch/plug</option>
           <option value="valve">Valve</option>
+          <option value="garage">Garage door</option>
         </select>
       </label>
       <label>Default expected state
@@ -231,6 +232,7 @@
         </select>
       </label>
       <label>Compatible devices
+        <input type="text" id="device-filter" placeholder="Filter by name...">
         <div id="devices" class="device-list"></div>
       </label>
       <p class="hint" id="device-hint"></p>
@@ -271,7 +273,7 @@
 
 
   <script type="text/javascript">
-    var CAPABILITY_BY_TYPE = { contact: 'alarm_contact', light: 'onoff', switch: 'onoff', valve: 'onoff' };
+    var CAPABILITY_BY_TYPE = { contact: 'alarm_contact', light: 'onoff', switch: 'onoff', valve: 'onoff', garage: 'garagedoor_closed' };
     var allDevices = [];
     var editingGroupId = null;
 
@@ -351,6 +353,8 @@
 
       var groupsEl = document.getElementById('groups');
       var devicesEl = document.getElementById('devices');
+      var deviceFilterEl = document.getElementById('device-filter');
+      deviceFilterEl.addEventListener('input', applyDeviceFilter);
       var form = document.getElementById('group-form');
       var typeSelect = document.getElementById('type');
       var cancelBtn = document.getElementById('cancel-btn');
@@ -391,12 +395,24 @@
         devicesEl.innerHTML = '';
         compatible.forEach(function (device) {
           var wrapper = document.createElement('label');
+          wrapper.dataset.name = device.name.toLowerCase();
           var checkbox = document.createElement('input');
           checkbox.type = 'checkbox';
           checkbox.value = device.id;
           wrapper.appendChild(checkbox);
           wrapper.appendChild(document.createTextNode(device.name));
           devicesEl.appendChild(wrapper);
+        });
+        applyDeviceFilter();
+      }
+
+      // Filters by hiding rather than removing — a device checked before typing a filter (or
+      // one that scrolls out of view while a search is active) must stay checked underneath,
+      // not lose its state just because it's momentarily not shown.
+      function applyDeviceFilter() {
+        var query = deviceFilterEl.value.trim().toLowerCase();
+        Array.prototype.forEach.call(devicesEl.children, function (wrapper) {
+          wrapper.style.display = !query || wrapper.dataset.name.indexOf(query) !== -1 ? '' : 'none';
         });
       }
 
@@ -425,7 +441,9 @@
         'contact:false': { zero: 'All doors and windows are closed.', one: '%item% is open.', many: '%count% doors/windows open: %items%.' },
         'contact:true': { zero: 'All doors and windows are open.', one: '%item% is closed.', many: '%count% doors/windows closed: %items%.' },
         'valve:false': { zero: 'All valves are closed.', one: '%item% is open.', many: '%count% valves open: %items%.' },
-        'valve:true': { zero: 'All valves are open.', one: '%item% is closed.', many: '%count% valves closed: %items%.' }
+        'valve:true': { zero: 'All valves are open.', one: '%item% is closed.', many: '%count% valves closed: %items%.' },
+        'garage:false': { zero: 'All garage doors are closed.', one: '%item% is open.', many: '%count% garage doors open: %items%.' },
+        'garage:true': { zero: 'All garage doors are open.', one: '%item% is closed.', many: '%count% garage doors closed: %items%.' }
       };
       document.getElementById('fill-wording-btn').addEventListener('click', function () {
         var preset = MESSAGE_WORDING_PRESETS[typeSelect.value + ':' + document.getElementById('expectedState').value];

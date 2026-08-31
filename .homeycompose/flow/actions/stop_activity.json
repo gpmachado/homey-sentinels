@@ -1,8 +1,0 @@
-{
-  "title": { "en": "Stop monitor" },
-  "titleFormatted": { "en": "Stop monitor [[monitor]]" },
-  "hint": { "en": "Manually ends the monitor's cycle right now, instead of waiting for its power threshold to be crossed — bypasses the continuity/confirmation windows too, since a manual command is never noise. Does nothing if the monitor is already in standby." },
-  "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
-  ]
-}

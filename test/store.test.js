@@ -90,6 +90,19 @@ test('upsertManualMonitor creates a mode "manual" monitor with no threshold, and
   assert.equal(first, second);
 });
 
+test('upsertManualMonitor adopting a pre-existing threshold monitor forces it into mode "manual"', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const thresholdMonitor = store.createMonitor({ device: { id: 'dev-1', name: 'Poço' }, threshold: 50 });
+  assert.equal(thresholdMonitor.mode, undefined);
+  const { monitor: adopted, created } = store.upsertManualMonitor({ device: { id: 'dev-1', name: 'Poço' }, name: 'Bomba Hidraulica' });
+  assert.equal(created, false);
+  assert.equal(adopted.id, thresholdMonitor.id);
+  assert.equal(adopted.mode, 'manual');
+  assert.equal(adopted.threshold, null);
+  assert.equal(adopted.name, 'Bomba Hidraulica');
+});
+
 test('allows a device to be monitored on two different capabilities but not the same one twice', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();
@@ -116,6 +129,18 @@ test('upsertMonitor updates the threshold and minConfirmationSeconds in place in
   assert.equal(updated.id, created.id);
   assert.equal(updated.threshold, 80);
   assert.equal(updated.minConfirmationSeconds, 20);
+});
+
+test('upsertMonitor adopting a pre-existing manual monitor puts it back into threshold mode', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const { monitor: manual } = store.upsertManualMonitor({ device: { id: 'dev-1', name: 'Poço' } });
+  assert.equal(manual.mode, 'manual');
+  const { monitor: adopted, created } = store.upsertMonitor({ device: { id: 'dev-1', name: 'Poço' }, threshold: 50 });
+  assert.equal(created, false);
+  assert.equal(adopted.id, manual.id);
+  assert.equal(adopted.mode, undefined);
+  assert.equal(adopted.threshold, 50);
 });
 
 test('creates a group with an initial device list and rejects a group without a name', async () => {
