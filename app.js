@@ -249,17 +249,28 @@ class StatisticTrackerApp extends Homey.App {
       ).map((device) => ({ name: device.name, description: device.zoneName || undefined, data: { id: device.id, name: device.name } }));
     });
     ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor', 'add_device_to_state_group', 'remove_device_from_state_group', 'start_monitoring_device'].forEach((id) => deviceAutocomplete(id));
-    // "Stop monitoring device" has to find an *already-started* manual monitor — searching raw
-    // device names alone hides it the moment "Start monitoring device" was given a custom name
-    // (confirmed live: created as device "Poço Energy Meter" with custom name "Bomba
-    // Hidraulica", searching "Bomba" in Stop's picker found nothing). Matches against the
-    // monitor's own name as well as its underlying device name, but still resolves to the
-    // device id/name shape the action handler expects.
+    // Lists every Homey device (like Start's own picker), not just ones with an
+    // already-started manual monitor — restricting to existing monitors forced building the
+    // Stop half of a Flow to wait until Start had actually run once in production, just to
+    // "generate" the monitor first. A device that was already started shows under its custom
+    // monitor name (and still matches on that name, not just the device's own — confirmed
+    // live: created as device "Poço Energy Meter" with custom name "Bomba Hidraulica",
+    // searching "Bomba" found nothing when this only searched existing monitors' names). One
+    // never started shows under its plain device name; the action handler itself is still the
+    // one place that enforces "must be started first", with a clear error either way.
     this.homey.flow.getActionCard('stop_monitoring_device').registerArgumentAutocompleteListener('device', async (query) => {
       const normalized = (query || '').toLowerCase();
-      return Object.values(this.store.data.monitors)
-        .filter((m) => m.mode === 'manual' && (m.name.toLowerCase().includes(normalized) || m.deviceName.toLowerCase().includes(normalized)))
-        .map((m) => ({ name: m.name, description: m.name !== m.deviceName ? m.deviceName : undefined, data: { id: m.deviceId, name: m.deviceName } }));
+      const monitorByDeviceId = new Map(
+        Object.values(this.store.data.monitors).filter((m) => m.mode === 'manual').map((m) => [m.deviceId, m])
+      );
+      return (await this.gateway.listDevices())
+        .map((device) => ({ device, monitor: monitorByDeviceId.get(device.id) }))
+        .filter(({ device, monitor }) => (monitor ? monitor.name : device.name).toLowerCase().includes(normalized) || device.name.toLowerCase().includes(normalized))
+        .map(({ device, monitor }) => ({
+          name: monitor ? monitor.name : device.name,
+          description: monitor ? (monitor.name !== monitor.deviceName ? monitor.deviceName : undefined) : device.zoneName || undefined,
+          data: { id: device.id, name: device.name }
+        }));
     });
     ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor'].forEach((id) => this._registerCapabilityAutocomplete(id));
     ['remove_activity_monitor', 'reset_activity_monitor', 'update_activity_monitor', 'get_activity_statistics'].forEach((id) => this._monitorActionAutocomplete(id));
