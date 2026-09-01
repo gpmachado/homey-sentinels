@@ -4,44 +4,91 @@
   <meta charset="utf-8">
   <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 16px; color: #1a1a1a; }
-    h1 { font-size: 18px; }
+    :root {
+      --color-bg: #f6f6f8;
+      --color-card: #ffffff;
+      --color-border: #e6e6ea;
+      --color-text: #1a1a1a;
+      --color-muted: #70707a;
+      --color-accent: #2f6fed;
+      --color-accent-bg: #eaf1ff;
+      --color-success: #1a7f37;
+      --color-success-bg: #e7f6ea;
+      --color-danger: #b42318;
+      --color-danger-bg: #fdecea;
+    }
+    * { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 16px; color: var(--color-text); background: var(--color-bg); }
+    .container { max-width: 720px; margin: 0 auto; }
+    h1 { font-size: 18px; margin: 0 0 16px; }
     h2 { font-size: 15px; margin: 24px 0 8px; }
-    .groups { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; }
-    .group-row { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; }
-    .group-row .meta { color: #666; font-size: 12px; margin-top: 2px; }
-    form { border: 1px solid #ddd; border-radius: 6px; padding: 16px; max-width: 480px; }
+    form { border: 1px solid var(--color-border); border-radius: 10px; padding: 16px; max-width: 480px; background: var(--color-card); }
     label { display: block; margin-top: 12px; font-size: 13px; font-weight: 600; }
-    input[type=text], select { width: 100%; padding: 6px; margin-top: 4px; box-sizing: border-box; }
-    .device-list { max-height: 220px; overflow-y: auto; border: 1px solid #eee; border-radius: 4px; padding: 8px; margin-top: 4px; }
+    input[type=text], select { width: 100%; padding: 6px; margin-top: 4px; box-sizing: border-box; border: 1px solid var(--color-border); border-radius: 6px; }
+    .device-list { max-height: 220px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: 4px; padding: 8px; margin-top: 4px; }
     .device-list label { font-weight: normal; display: flex; align-items: center; gap: 6px; margin: 4px 0; }
     .actions { margin-top: 16px; display: flex; gap: 8px; }
-    .hint { color: #888; font-size: 12px; margin-top: 4px; }
+    .hint { color: var(--color-muted); font-size: 12px; margin-top: 4px; }
     button { cursor: pointer; }
-    table { border-collapse: collapse; width: 100%; max-width: 720px; font-size: 13px; margin-bottom: 24px; }
-    th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid #eee; }
-    th { color: #666; font-weight: 600; font-size: 12px; }
-    .state-active { color: #1a7f37; font-weight: 600; }
-    .state-standby { color: #666; }
-    .unavailable-row { color: #b42318; }
-    .badge-ok { color: #1a7f37; }
-    .badge-nok { color: #b42318; font-weight: 600; }
-    .tabs { display: flex; gap: 4px; border-bottom: 1px solid #ddd; margin-bottom: 20px; }
-    .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 14px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
-    .tab-btn.active { color: #1a1a1a; border-bottom-color: #1a1a1a; }
+    .hidden { display: none; }
+
+    /* Row-based entity lists (monitors, counters, devices) — replaces wide multi-column
+       tables that forced the whole settings tab to scroll sideways. Each item is one row:
+       name + status badge on top, secondary stats folded into one wrapping meta line
+       underneath, actions pinned to the right. Same idea used by comparable Homey apps
+       (device lists, watchdogs) for this exact "many similar items, several stats each" shape. */
+    .entity-list { display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-card); overflow: hidden; margin-bottom: 24px; }
+    .entity-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 10px 14px; border-bottom: 1px solid var(--color-border); }
+    .entity-list .entity-row:last-child { border-bottom: none; }
+    .entity-main { flex: 1 1 220px; min-width: 0; }
+    .entity-name { font-weight: 600; font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; overflow-wrap: anywhere; }
+    .entity-meta { color: var(--color-muted); font-size: 12px; margin-top: 3px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
+    .entity-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; margin-left: auto; }
+    .entity-empty { padding: 16px 14px; color: var(--color-muted); font-size: 13px; }
+
+    .btn-link { border: none; background: none; color: var(--color-accent); font-size: 12px; font-weight: 600; padding: 6px 8px; cursor: pointer; border-radius: 6px; font-family: inherit; white-space: nowrap; }
+    .btn-link:hover { background: var(--color-accent-bg); }
+    .btn-link.btn-danger { color: var(--color-danger); }
+    .btn-link.btn-danger:hover { background: var(--color-danger-bg); }
+
+    /* Small colored pill for state — replaces plain colored text so "Active"/"Standby"/
+       problem states are readable at a glance instead of blending into the row. */
+    .badge, .badge-ok, .badge-nok {
+      display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 999px;
+      font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .02em;
+    }
+    .badge-active, .badge-ok { background: var(--color-success-bg); color: var(--color-success); }
+    .badge-standby { background: #eee; color: var(--color-muted); }
+    .badge-danger, .badge-nok { background: var(--color-danger-bg); color: var(--color-danger); }
+    /* Highlighted stat, e.g. a suggested threshold — normal-case (not a state badge) so it
+       reads as a value, not a status. */
+    .chip { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 6px; font-weight: 600; text-transform: none; letter-spacing: normal; font-size: 11px; }
+    .chip-accent { background: var(--color-accent-bg); color: var(--color-accent); }
+
+    .groups { display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: 10px; background: var(--color-card); overflow: hidden; margin-bottom: 24px; }
+    .group-row { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; padding: 10px 14px; border-bottom: 1px solid var(--color-border); }
+    .groups .group-row:last-child { border-bottom: none; }
+    .group-row .meta { color: var(--color-muted); font-size: 12px; margin-top: 2px; }
+
+    .unavailable-row .entity-name { color: var(--color-danger); }
+
+    .tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--color-border); margin-bottom: 20px; }
+    .tab-btn { background: none; border: none; padding: 10px 16px; font-size: 14px; font-weight: 600; color: var(--color-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tab-btn.active { color: var(--color-text); border-bottom-color: var(--color-accent); }
     .tab-panel.hidden { display: none; }
     .subtabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .subtab-btn { border: 1px solid #ddd; background: #fff; padding: 6px 12px; font-size: 13px; font-weight: 600; color: #666; border-radius: 16px; cursor: pointer; font-family: inherit; }
-    .subtab-btn.active { background: #1a1a1a; color: #fff; border-color: #1a1a1a; }
+    .subtab-btn { border: 1px solid var(--color-border); background: var(--color-card); padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--color-muted); border-radius: 16px; cursor: pointer; font-family: inherit; }
+    .subtab-btn.active { background: var(--color-accent); color: #fff; border-color: var(--color-accent); }
     .subtab-panel.hidden { display: none; }
-    .period-tabs { display: inline-flex; background-color: #f2f2f4; border-radius: 8px; padding: 2px; gap: 2px; margin-bottom: 12px; }
+    .period-tabs { display: inline-flex; background-color: #ececf0; border-radius: 8px; padding: 2px; gap: 2px; margin-bottom: 12px; }
     .period-btn { border: none; background: none; padding: 6px 14px; font-size: 12px; font-weight: 600; color: #7a7a85; border-radius: 6px; cursor: pointer; font-family: inherit; }
-    .period-btn.active { background-color: #fff; color: #1a1a1a; }
-    .sparkline { display: flex; align-items: flex-end; gap: 1px; height: 20px; width: 90px; }
-    .sparkline .bar { flex: 1; background-color: #1a7f37; opacity: 0.75; border-radius: 1px; min-height: 2px; }
+    .period-btn.active { background-color: #fff; color: var(--color-text); }
+    .sparkline { display: inline-flex; align-items: flex-end; gap: 1px; height: 16px; width: 64px; }
+    .sparkline .bar { flex: 1; background-color: var(--color-success); opacity: 0.75; border-radius: 1px; min-height: 2px; }
   </style>
 </head>
 <body>
+<div class="container">
   <h1>Sentinels</h1>
 
   <div class="tabs">
@@ -59,15 +106,12 @@
     </div>
     <div class="period-tabs">
       <button type="button" class="period-btn active" data-period="day">Today</button>
-      <button type="button" class="period-btn" data-period="week">7 Days</button>
-      <button type="button" class="period-btn" data-period="month">30 Days</button>
+      <button type="button" class="period-btn" data-period="week">Week</button>
+      <button type="button" class="period-btn" data-period="month">Month</button>
     </div>
 
     <div class="subtab-panel" data-subtab="activity">
-      <table id="monitors-table">
-        <thead><tr><th>Name</th><th>Device</th><th>State</th><th>Cycles</th><th>Energy</th><th>Avg power</th><th>Trend</th><th></th><th></th><th></th></tr></thead>
-        <tbody id="monitors-body"><tr><td colspan="10" class="hint">Loading…</td></tr></tbody>
-      </table>
+      <div class="entity-list" id="monitors-body"><div class="entity-empty">Loading…</div></div>
 
       <form id="activity-message-form" class="hidden">
         <h2 style="margin-top:0">Message wording — <span id="activity-message-form-name"></span></h2>
@@ -98,10 +142,7 @@
     </div>
 
     <div class="subtab-panel hidden" data-subtab="state">
-      <table id="state-monitors-table">
-        <thead><tr><th>Name</th><th>Device</th><th>Capability</th><th>Current</th><th>Sessions</th><th>Duration</th><th>Trend</th><th></th><th></th><th></th></tr></thead>
-        <tbody id="state-monitors-body"><tr><td colspan="10" class="hint">Loading…</td></tr></tbody>
-      </table>
+      <div class="entity-list" id="state-monitors-body"><div class="entity-empty">Loading…</div></div>
 
       <form id="state-message-form" class="hidden">
         <h2 style="margin-top:0">Message wording — <span id="state-message-form-name"></span></h2>
@@ -130,10 +171,7 @@
     </div>
 
     <div class="subtab-panel hidden" data-subtab="voltage">
-      <table id="voltage-monitors-table">
-        <thead><tr><th>Name</th><th>Device</th><th>Capability</th><th>State</th><th>Voltage now</th><th>Range</th><th>Events</th><th></th><th></th><th></th></tr></thead>
-        <tbody id="voltage-monitors-body"><tr><td colspan="10" class="hint">Loading…</td></tr></tbody>
-      </table>
+      <div class="entity-list" id="voltage-monitors-body"><div class="entity-empty">Loading…</div></div>
 
       <form id="voltage-message-form" class="hidden">
         <h2 style="margin-top:0">Message wording — <span id="voltage-message-form-name"></span></h2>
@@ -164,10 +202,7 @@
     </div>
 
     <div class="subtab-panel hidden" data-subtab="binary">
-      <table id="binary-counters-table">
-        <thead><tr><th>Name</th><th>Events</th><th>Total</th><th>Last event</th><th></th><th></th><th></th></tr></thead>
-        <tbody id="binary-counters-body"><tr><td colspan="7" class="hint">Loading…</td></tr></tbody>
-      </table>
+      <div class="entity-list" id="binary-counters-body"><div class="entity-empty">Loading…</div></div>
 
       <form id="binary-message-form" class="hidden">
         <h2 style="margin-top:0">Message wording — <span id="binary-message-form-name"></span></h2>
@@ -195,10 +230,7 @@
   <div class="tab-panel hidden" data-tab="availability">
     <h2>Device availability</h2>
     <p class="hint">All of Homey's devices, no configuration needed — last seen and current availability.</p>
-    <table id="availability-table">
-      <thead><tr><th>Name</th><th>Zone</th><th>Status</th><th>Last seen</th></tr></thead>
-      <tbody id="availability-body"><tr><td colspan="4" class="hint">Loading…</td></tr></tbody>
-    </table>
+    <div class="entity-list" id="availability-body"><div class="entity-empty">Loading…</div></div>
   </div>
 
   <div class="tab-panel hidden" data-tab="groups">
@@ -270,6 +302,7 @@
     </form>
     </div>
   </div>
+</div>
 
 
   <script type="text/javascript">
@@ -348,7 +381,42 @@
           var height = max > 0 ? Math.max(8, Math.round((day[field] / max) * 100)) : 8;
           return '<div class="bar" style="height:' + height + '%" title="' + day.date + ': ' + formatter(day[field]) + '"></div>';
         }).join('');
-        return '<div class="sparkline">' + bars + '</div>';
+        return '<div class="sparkline" title="Daily trend">' + bars + '</div>';
+      }
+
+      // Shared by every entity list (monitors, counters, availability): the top line (name +
+      // state badge) and one wrapping meta line of secondary stats, joined with " · " — the
+      // same "fold everything into a sentence instead of a column" idea used by comparable
+      // Homey apps for lists of many similar items.
+      function entityRow(nameHtml, metaBits, sparklineHtml) {
+        var row = document.createElement('div');
+        row.className = 'entity-row';
+        var main = document.createElement('div');
+        main.className = 'entity-main';
+        main.innerHTML = '<div class="entity-name">' + nameHtml + '</div>' +
+          '<div class="entity-meta">' + metaBits.filter(Boolean).join(' · ') + (sparklineHtml || '') + '</div>';
+        row.appendChild(main);
+        return row;
+      }
+
+      function actionLink(label, onClick, danger) {
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn-link' + (danger ? ' btn-danger' : '');
+        btn.textContent = label;
+        btn.addEventListener('click', onClick);
+        return btn;
+      }
+
+      function entityActions(buttons) {
+        var wrap = document.createElement('div');
+        wrap.className = 'entity-actions';
+        buttons.forEach(function (btn) { wrap.appendChild(btn); });
+        return wrap;
+      }
+
+      function renderEmptyList(container, message) {
+        container.innerHTML = '<div class="entity-empty">' + message + '</div>';
       }
 
       var groupsEl = document.getElementById('groups');
@@ -479,6 +547,7 @@
           var row = document.createElement('div');
           row.className = 'group-row';
           var info = document.createElement('div');
+          info.className = 'entity-main';
           var title = document.createElement('strong');
           title.textContent = group.name;
           var meta = document.createElement('div');
@@ -490,13 +559,8 @@
           info.appendChild(title);
           info.appendChild(meta);
           info.appendChild(status);
-          var buttons = document.createElement('div');
-          buttons.style.display = 'flex';
-          buttons.style.gap = '6px';
-          var checkBtn = document.createElement('button');
-          checkBtn.type = 'button';
-          checkBtn.textContent = 'Check now';
-          checkBtn.onclick = function () {
+          var buttons = entityActions([]);
+          var checkBtn = actionLink('Check now', function () {
             checkBtn.disabled = true;
             api('GET', '/groups/' + group.id + '/check').then(function (result) {
               checkBtn.disabled = false;
@@ -507,11 +571,8 @@
               checkBtn.disabled = false;
               Homey.alert(error.message || String(error));
             });
-          };
-          var editBtn = document.createElement('button');
-          editBtn.type = 'button';
-          editBtn.textContent = 'Edit';
-          editBtn.onclick = function () { startEdit(group); };
+          });
+          var editBtn = actionLink('Edit', function () { startEdit(group); });
           buttons.appendChild(checkBtn);
           buttons.appendChild(editBtn);
           row.appendChild(info);
@@ -553,118 +614,129 @@
         });
       }
 
-      function actionButtonCell(label, onClick) {
-        var td = document.createElement('td');
-        var btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = label;
-        btn.addEventListener('click', onClick);
-        td.appendChild(btn);
-        return td;
-      }
-      function deleteButtonCell(onClick) { return actionButtonCell('Delete', onClick); }
-
       function renderMonitors(monitors) {
-        var body = document.getElementById('monitors-body');
-        if (!monitors.length) { body.innerHTML = '<tr><td colspan="10" class="hint">No activity monitors created yet.</td></tr>'; return; }
-        body.innerHTML = '';
+        var container = document.getElementById('monitors-body');
+        container.innerHTML = '';
+        if (!monitors.length) { renderEmptyList(container, 'No activity monitors created yet.'); return; }
         monitors.forEach(function (monitor) {
-          var row = document.createElement('tr');
-          var stateClass = monitor.state === 'ACTIVE' ? 'state-active' : 'state-standby';
-          var stateLabel = monitor.state === 'ACTIVE' ? 'Active' : 'Standby';
+          var isActive = monitor.state === 'ACTIVE';
           var avgPower = monitor.averagePower !== null && monitor.averagePower !== undefined ? Math.round(monitor.averagePower) + ' W' : '—';
-          var energyCell = formatEnergy(monitor.energy) + (monitor.energyQuality === 'meter_reset' ? ' <span class="badge-nok" title="A meter reset was detected in this period — energy may be understated.">reset</span>' : '');
-          row.innerHTML = '<td>' + escapeHtml(monitor.name) + '</td><td>' + escapeHtml(monitor.deviceName) + '</td>' +
-            '<td class="' + stateClass + '">' + stateLabel + '</td><td>' + monitor.cycleCount + '</td>' +
-            '<td>' + energyCell + '</td><td>' + avgPower + '</td>' +
-            '<td>' + renderSparkline(monitor.dailyBreakdown) + '</td>';
-          row.appendChild(actionButtonCell('Edit messages', function () { openActivityMessageForm(monitor); }));
-          row.appendChild(actionButtonCell('Reset stats', function () {
-            confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
-              api('POST', '/monitors/' + monitor.id + '/reset')
-                .then(function () { return api('GET', '/monitors?period=' + monitorPeriod); })
-                .then(renderMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }));
-          row.appendChild(deleteButtonCell(function () {
-            confirmAction('Delete monitor "' + monitor.name + '"?', function () {
-              api('DELETE', '/monitors/' + monitor.id)
-                .then(function () { return api('GET', '/monitors?period=' + monitorPeriod); })
-                .then(renderMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }));
-          body.appendChild(row);
+          var suggestion = monitor.suggestedThreshold;
+          var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + (isActive ? 'Active' : 'Standby') + '</span>';
+          var metaBits = [
+            escapeHtml(monitor.deviceName),
+            monitor.cycleCount + ' cycle' + (monitor.cycleCount === 1 ? '' : 's'),
+            formatEnergy(monitor.energy) + (monitor.energyQuality === 'meter_reset' ? ' <span class="badge badge-danger" title="A meter reset was detected in this period — energy may be understated.">reset</span>' : ''),
+            'avg ' + avgPower,
+            suggestion ? '<span class="chip chip-accent" title="Based on ' + suggestion.sampleCount + ' power samples, split between ' + Math.round(suggestion.low) + ' W and ' + Math.round(suggestion.high) + ' W">suggested ~' + Math.round(suggestion.threshold) + ' W</span>' : null
+          ];
+          var row = entityRow(nameHtml, metaBits, renderSparkline(monitor.dailyBreakdown));
+          // Messages/Reset/Delete only make sense against "today" — they'd otherwise act on
+          // the monitor itself while the row is showing a week/month rollup, which reads as
+          // if the action applied to that whole period instead of the monitor as a whole.
+          if (monitorPeriod === 'day') {
+            row.appendChild(entityActions([
+              actionLink('Messages', function () { openActivityMessageForm(monitor); }),
+              actionLink('Reset', function () {
+                confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
+                  api('POST', '/monitors/' + monitor.id + '/reset')
+                    .then(function () { return api('GET', '/monitors?period=' + monitorPeriod); })
+                    .then(renderMonitors)
+                    .catch(function (error) { Homey.alert(error.message || String(error)); });
+                });
+              }),
+              actionLink('Delete', function () {
+                confirmAction('Delete monitor "' + monitor.name + '"?', function () {
+                  api('DELETE', '/monitors/' + monitor.id)
+                    .then(function () { return api('GET', '/monitors?period=' + monitorPeriod); })
+                    .then(renderMonitors)
+                    .catch(function (error) { Homey.alert(error.message || String(error)); });
+                });
+              }, true)
+            ]));
+          }
+          container.appendChild(row);
         });
       }
 
       function renderStateMonitors(monitors) {
-        var body = document.getElementById('state-monitors-body');
-        if (!monitors.length) { body.innerHTML = '<tr><td colspan="10" class="hint">No state monitors created yet.</td></tr>'; return; }
-        body.innerHTML = '';
+        var container = document.getElementById('state-monitors-body');
+        container.innerHTML = '';
+        if (!monitors.length) { renderEmptyList(container, 'No state monitors created yet.'); return; }
         monitors.forEach(function (monitor) {
-          var row = document.createElement('tr');
-          var stateClass = monitor.state === 'ACTIVE' ? 'state-active' : 'state-standby';
-          var stateLabel = monitor.state === 'ACTIVE' ? monitor.trueLabel : monitor.falseLabel;
-          var durationCell = escapeHtml(monitor.trueLabel) + ' ' + formatDuration(monitor.trueDuration) + ' · ' + escapeHtml(monitor.falseLabel) + ' ' + formatDuration(monitor.falseDuration);
-          row.innerHTML = '<td>' + escapeHtml(monitor.name) + '</td><td>' + escapeHtml(monitor.deviceName) + '</td><td>' + escapeHtml(monitor.capability) + '</td>' +
-            '<td class="' + stateClass + '">' + escapeHtml(stateLabel) + '</td><td>' + monitor.cycleCount + '</td>' +
-            '<td>' + durationCell + '</td>' +
-            '<td>' + renderSparkline(monitor.dailyBreakdown, 'trueDuration', formatDuration) + '</td>';
-          row.appendChild(actionButtonCell('Edit messages', function () { openStateMessageForm(monitor); }));
-          row.appendChild(actionButtonCell('Reset stats', function () {
-            confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
-              api('POST', '/state-monitors/' + monitor.id + '/reset')
-                .then(function () { return api('GET', '/state-monitors?period=' + monitorPeriod); })
-                .then(renderStateMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }));
-          row.appendChild(deleteButtonCell(function () {
-            confirmAction('Delete monitor "' + monitor.name + '"?', function () {
-              api('DELETE', '/state-monitors/' + monitor.id)
-                .then(function () { return api('GET', '/state-monitors?period=' + monitorPeriod); })
-                .then(renderStateMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }));
-          body.appendChild(row);
+          var isActive = monitor.state === 'ACTIVE';
+          var stateLabel = isActive ? monitor.trueLabel : monitor.falseLabel;
+          var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + escapeHtml(stateLabel) + '</span>';
+          var metaBits = [
+            escapeHtml(monitor.deviceName),
+            monitor.cycleCount + ' session' + (monitor.cycleCount === 1 ? '' : 's'),
+            escapeHtml(monitor.trueLabel) + ' ' + formatDuration(monitor.trueDuration),
+            escapeHtml(monitor.falseLabel) + ' ' + formatDuration(monitor.falseDuration)
+          ];
+          var row = entityRow(nameHtml, metaBits, renderSparkline(monitor.dailyBreakdown, 'trueDuration', formatDuration));
+          if (monitorPeriod === 'day') {
+            row.appendChild(entityActions([
+              actionLink('Messages', function () { openStateMessageForm(monitor); }),
+              actionLink('Reset', function () {
+                confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
+                  api('POST', '/state-monitors/' + monitor.id + '/reset')
+                    .then(function () { return api('GET', '/state-monitors?period=' + monitorPeriod); })
+                    .then(renderStateMonitors)
+                    .catch(function (error) { Homey.alert(error.message || String(error)); });
+                });
+              }),
+              actionLink('Delete', function () {
+                confirmAction('Delete monitor "' + monitor.name + '"?', function () {
+                  api('DELETE', '/state-monitors/' + monitor.id)
+                    .then(function () { return api('GET', '/state-monitors?period=' + monitorPeriod); })
+                    .then(renderStateMonitors)
+                    .catch(function (error) { Homey.alert(error.message || String(error)); });
+                });
+              }, true)
+            ]));
+          }
+          container.appendChild(row);
         });
       }
 
       function renderVoltageMonitors(monitors) {
-        var body = document.getElementById('voltage-monitors-body');
-        if (!monitors.length) { body.innerHTML = '<tr><td colspan="10" class="hint">No voltage monitors created yet.</td></tr>'; return; }
-        body.innerHTML = '';
+        var container = document.getElementById('voltage-monitors-body');
+        container.innerHTML = '';
+        if (!monitors.length) { renderEmptyList(container, 'No voltage monitors created yet.'); return; }
         monitors.forEach(function (monitor) {
-          var row = document.createElement('tr');
-          var stateClass = monitor.state === 'NORMAL' ? 'state-active' : 'unavailable-row';
+          var isNormal = monitor.state === 'NORMAL';
           var range = (monitor.minVoltage !== null && monitor.maxVoltage !== null)
             ? monitor.minVoltage.toFixed(1) + '–' + monitor.maxVoltage.toFixed(1) + ' V' : '—';
-          var events = (monitor.undervoltageCount || 0) + ' under · ' + (monitor.overvoltageCount || 0) + ' over';
-          row.innerHTML = '<td>' + escapeHtml(monitor.name) + '</td><td>' + escapeHtml(monitor.deviceName) + '</td><td>' + escapeHtml(monitor.capability) + '</td>' +
-            '<td class="' + stateClass + '">' + monitor.state + '</td>' +
-            '<td>' + (monitor.currentVoltage !== null ? monitor.currentVoltage.toFixed(1) + ' V' : '—') + '</td>' +
-            '<td>' + range + '</td><td>' + events + '</td>';
-          row.appendChild(actionButtonCell('Edit messages', function () { openVoltageMessageForm(monitor); }));
-          row.appendChild(actionButtonCell('Reset stats', function () {
-            confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
-              api('POST', '/voltage-monitors/' + monitor.id + '/reset')
-                .then(function () { return api('GET', '/voltage-monitors?period=' + monitorPeriod); })
-                .then(renderVoltageMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }));
-          row.appendChild(deleteButtonCell(function () {
-            confirmAction('Delete voltage monitor "' + monitor.name + '"?', function () {
-              api('DELETE', '/voltage-monitors/' + monitor.id)
-                .then(function () { return api('GET', '/voltage-monitors?period=' + monitorPeriod); })
-                .then(renderVoltageMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }));
-          body.appendChild(row);
+          var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isNormal ? 'badge-active' : 'badge-danger') + '">' + escapeHtml(monitor.state) + '</span>';
+          var metaBits = [
+            escapeHtml(monitor.deviceName),
+            (monitor.currentVoltage !== null ? monitor.currentVoltage.toFixed(1) + ' V now' : 'no reading'),
+            'range ' + range,
+            (monitor.undervoltageCount || 0) + ' under · ' + (monitor.overvoltageCount || 0) + ' over'
+          ];
+          var row = entityRow(nameHtml, metaBits);
+          if (monitorPeriod === 'day') {
+            row.appendChild(entityActions([
+              actionLink('Messages', function () { openVoltageMessageForm(monitor); }),
+              actionLink('Reset', function () {
+                confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
+                  api('POST', '/voltage-monitors/' + monitor.id + '/reset')
+                    .then(function () { return api('GET', '/voltage-monitors?period=' + monitorPeriod); })
+                    .then(renderVoltageMonitors)
+                    .catch(function (error) { Homey.alert(error.message || String(error)); });
+                });
+              }),
+              actionLink('Delete', function () {
+                confirmAction('Delete voltage monitor "' + monitor.name + '"?', function () {
+                  api('DELETE', '/voltage-monitors/' + monitor.id)
+                    .then(function () { return api('GET', '/voltage-monitors?period=' + monitorPeriod); })
+                    .then(renderVoltageMonitors)
+                    .catch(function (error) { Homey.alert(error.message || String(error)); });
+                });
+              }, true)
+            ]));
+          }
+          container.appendChild(row);
         });
       }
 
@@ -795,31 +867,38 @@
       });
 
       function renderBinaryCounters(counters) {
-        var body = document.getElementById('binary-counters-body');
-        if (!counters.length) { body.innerHTML = '<tr><td colspan="7" class="hint">No binary counters created yet. Use the "Add binary counter" Flow action to create one.</td></tr>'; return; }
-        body.innerHTML = '';
+        var container = document.getElementById('binary-counters-body');
+        container.innerHTML = '';
+        if (!counters.length) { renderEmptyList(container, 'No binary counters created yet. Use the "Add binary counter" Flow action to create one.'); return; }
         counters.forEach(function (counter) {
-          var row = document.createElement('tr');
-          row.innerHTML = '<td>' + escapeHtml(counter.name) + '</td><td>' + formatNumberOrDash(counter.eventCount) + '</td>' +
-            '<td>' + formatNumberOrDash(counter.totalCount) + '</td><td>' + formatLastSeen(counter.lastEventAt) + '</td>';
-          row.appendChild(actionButtonCell('Edit message', function () { openBinaryMessageForm(counter); }));
-          row.appendChild(actionButtonCell('Reset stats', function () {
-            confirmAction('Reset statistics for "' + counter.name + '"? This keeps the counter and its message, only the count/history is wiped.', function () {
-              api('POST', '/binary-counters/' + counter.id + '/reset')
-                .then(function () { return api('GET', '/binary-counters?period=' + monitorPeriod); })
-                .then(renderBinaryCounters)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }));
-          row.appendChild(deleteButtonCell(function () {
-            confirmAction('Delete binary counter "' + counter.name + '"?', function () {
-              api('DELETE', '/binary-counters/' + counter.id)
-                .then(function () { return api('GET', '/binary-counters?period=' + monitorPeriod); })
-                .then(renderBinaryCounters)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }));
-          body.appendChild(row);
+          var metaBits = [
+            formatNumberOrDash(counter.eventCount) + ' event' + (counter.eventCount === 1 ? '' : 's'),
+            'total ' + formatNumberOrDash(counter.totalCount),
+            'last ' + formatLastSeen(counter.lastEventAt)
+          ];
+          var row = entityRow(escapeHtml(counter.name), metaBits);
+          if (monitorPeriod === 'day') {
+          row.appendChild(entityActions([
+            actionLink('Message', function () { openBinaryMessageForm(counter); }),
+            actionLink('Reset', function () {
+              confirmAction('Reset statistics for "' + counter.name + '"? This keeps the counter and its message, only the count/history is wiped.', function () {
+                api('POST', '/binary-counters/' + counter.id + '/reset')
+                  .then(function () { return api('GET', '/binary-counters?period=' + monitorPeriod); })
+                  .then(renderBinaryCounters)
+                  .catch(function (error) { Homey.alert(error.message || String(error)); });
+              });
+            }),
+            actionLink('Delete', function () {
+              confirmAction('Delete binary counter "' + counter.name + '"?', function () {
+                api('DELETE', '/binary-counters/' + counter.id)
+                  .then(function () { return api('GET', '/binary-counters?period=' + monitorPeriod); })
+                  .then(renderBinaryCounters)
+                  .catch(function (error) { Homey.alert(error.message || String(error)); });
+              });
+            }, true)
+          ]));
+          }
+          container.appendChild(row);
         });
       }
       function formatNumberOrDash(value) { return value === null || value === undefined ? '—' : String(value); }
@@ -858,19 +937,23 @@
       });
 
       function renderAvailability(devices) {
-        var body = document.getElementById('availability-body');
-        if (!devices.length) { body.innerHTML = '<tr><td colspan="4" class="hint">No devices found.</td></tr>'; return; }
+        var container = document.getElementById('availability-body');
+        if (!devices.length) { renderEmptyList(container, 'No devices found.'); return; }
         var sorted = devices.slice().sort(function (a, b) {
           if (a.available !== b.available) return a.available ? 1 : -1;
           return (a.lastSeenAt || '').localeCompare(b.lastSeenAt || '');
         });
-        body.innerHTML = '';
+        container.innerHTML = '';
         sorted.forEach(function (device) {
-          var row = document.createElement('tr');
-          if (!device.available) row.className = 'unavailable-row';
-          var status = device.available ? '<span class="badge-ok">Available</span>' : '<span class="badge-nok">Unavailable' + (device.unavailableMessage ? ' — ' + escapeHtml(device.unavailableMessage) : '') + '</span>';
-          row.innerHTML = '<td>' + escapeHtml(device.name) + '</td><td>' + escapeHtml(device.zoneName || '') + '</td><td>' + status + '</td><td>' + formatLastSeen(device.lastSeenAt) + '</td>';
-          body.appendChild(row);
+          var nameHtml = escapeHtml(device.name) + ' <span class="badge ' + (device.available ? 'badge-active' : 'badge-danger') + '">' + (device.available ? 'Available' : 'Unavailable') + '</span>';
+          var metaBits = [
+            escapeHtml(device.zoneName || ''),
+            'last seen ' + formatLastSeen(device.lastSeenAt),
+            !device.available && device.unavailableMessage ? escapeHtml(device.unavailableMessage) : null
+          ];
+          var row = entityRow(nameHtml, metaBits);
+          if (!device.available) row.classList.add('unavailable-row');
+          container.appendChild(row);
         });
       }
 
