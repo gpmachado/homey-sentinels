@@ -199,10 +199,16 @@
           sinceMs = (isActive && summary.activeSince) ? summary.activeSince : null;
           document.getElementById('stat1-value').innerText = formatNumber(summary.cycleCount);
           document.getElementById('stat1-label').innerText = 'Cycles (' + periodLabel + ')';
-          if (summary.period === 'day') {
-            document.getElementById('stat2-value').innerText = summary.averagePower !== null ? formatNumber(summary.averagePower) + ' W' : '—';
+          if (summary.period === 'day' && summary.averagePower !== null) {
+            document.getElementById('stat2-value').innerText = formatNumber(summary.averagePower) + ' W';
             document.getElementById('stat2-label').innerText = summary.averageCurrent !== null ? 'Power (' + formatNumber(summary.averageCurrent, 1) + ' A)' : 'Average power';
           } else {
+            // No finished cycle yet today (still mid-session, or never crossed the threshold)
+            // — averagePower is only ever computed from finished cycles, so falling back to
+            // '—' here would hide energy that's genuinely being tracked right now (confirmed
+            // live: a freezer active 9h+ with zero finished cycles showed "0 / —" all day
+            // despite 0.71 kWh already accumulated). Energy accrues continuously regardless of
+            // cycle completion, so it's always safe to show once there's no cycle stat to show instead.
             document.getElementById('stat2-value').innerText = formatEnergy(summary.energy);
             document.getElementById('stat2-label').innerText = 'Energy (' + periodLabel + ')';
           }

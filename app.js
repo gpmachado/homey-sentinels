@@ -18,6 +18,9 @@ const AUXILIARY_CAPABILITY_CANDIDATES = ['measure_current', 'meter_power', 'meas
 // calculation. Below it, median_duration/median_energy come back null ("still learning")
 // instead of a number that looks more authoritative than a sample of 1-2 cycles deserves.
 const MEDIAN_MIN_CYCLES = 5;
+// Below this many raw power samples, a "gap" in the distribution is as likely to be sampling
+// noise as a real standby/active split — too little history to suggest a threshold from yet.
+const THRESHOLD_SUGGESTION_MIN_SAMPLES = 30;
 // Single source of truth for State Group's type→capability mapping — was previously duplicated
 // (and already drifting: _checkGroup only special-cased 'contact', everything else fell through
 // to 'onoff', silently wrong for any new type added there without updating both places).
@@ -729,7 +732,15 @@ class StatisticTrackerApp extends Homey.App {
     const standby = periods.filter((item) => item.state !== ACTIVE);
     const overlapSeconds = (item) => Math.max(0, Math.min(item.endedAt, end) - Math.max(item.startedAt, start)) / 1000;
     const sum = (items, field) => items.reduce((total, item) => total + (field === 'seconds' ? overlapSeconds(item) : (item[field] || 0)), 0);
-    const cycles = (monitor.cycles || []).filter((cycle) => cycle.startedAt >= start && cycle.startedAt < end);
+    // Filtered by when the cycle ENDED, not started — a session that started before local
+    // midnight and finished today (an AC left running overnight) must count as today's cycle.
+    // Filtering by startedAt instead silently dropped it from every period's cycle_count/
+    // average_power/max_power forever (it never started "today", so "today" always excluded
+    // it, and by the time "yesterday" is queried the window has already moved on) — confirmed
+    // live: a unit active since before midnight showed 0 cycles / no average power for the
+    // entire day even after it turned off. periods[] doesn't have this problem since it's
+    // filtered by overlap and prorated across the midnight split (see splitPeriodByLocalDay).
+    const cycles = (monitor.cycles || []).filter((cycle) => cycle.endedAt > start && cycle.endedAt <= end);
     // Sourced from cycles (never pruned/condensed), not periods (condensed after ~7 days) —
     // keeps power/current stats accurate for "month"/"all" queries regardless of how much of
     // the raw period detail behind them has already been folded into daily summaries.
@@ -766,6 +777,33 @@ class StatisticTrackerApp extends Homey.App {
       energy_quality: hadMeterReset ? 'meter_reset' : null
     };
   }
+  // Finds a threshold by locating the widest gap in the monitor's raw power sample history —
+  // works well for appliances with a clearly separated standby draw (clock/display
+  // electronics, a few watts) and active draw (heating element/motor, much higher), which is
+  // the common shape a device like this actually has. `minClusterSize` samples are required
+  // on both sides of the split so a single outlier reading can't be mistaken for "the gap".
+  // Reports the observed low/high bounds alongside the suggestion so the user can judge how
+  // convincing the gap really is, instead of trusting a bare number.
+  _suggestedThreshold(monitor) {
+    const values = (monitor.periods || []).map((period) => period.power).filter(Number.isFinite).sort((a, b) => a - b);
+    if (values.length < THRESHOLD_SUGGESTION_MIN_SAMPLES) return null;
+    const minClusterSize = Math.max(3, Math.floor(values.length * 0.1));
+    let bestGap = -1;
+    let bestIndex = -1;
+    for (let i = minClusterSize; i < values.length - minClusterSize; i += 1) {
+      const gap = values[i] - values[i - 1];
+      if (gap > bestGap) { bestGap = gap; bestIndex = i; }
+    }
+    if (bestIndex === -1 || bestGap <= 0) return null;
+    const low = values[bestIndex - 1];
+    const high = values[bestIndex];
+    // Geometric mean lands the suggestion proportionally inside the gap rather than at its
+    // arithmetic midpoint — standby and active are often an order of magnitude apart (5 W vs
+    // 1000 W), where a straight average (502 W) would sit absurdly close to full load instead
+    // of comfortably above standby noise.
+    const threshold = Math.sqrt(Math.max(low, 0.1) * high);
+    return { threshold: Math.round(threshold * 10) / 10, low, high, sampleCount: values.length };
+  }
   // Backs the Settings page's Monitors tab — the same period/energy/daily-breakdown detail
   // the widget shows, but for every activity monitor at once in one table (no need to set up
   // a widget per device just to see this).
@@ -776,7 +814,9 @@ class StatisticTrackerApp extends Homey.App {
       return {
         id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, state: monitor.state,
         period, cycleCount: stats.cycle_count, energy: stats.total_energy, averagePower: stats.average_power, energyQuality: stats.energy_quality,
-        dailyBreakdown: period === 'day' ? null : this._dailyBreakdown(monitor, period === 'week' ? 7 : 30)
+        dailyBreakdown: period === 'day' ? null : this._dailyBreakdown(monitor, period === 'week' ? 7 : 30),
+        messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished,
+        suggestedThreshold: this._suggestedThreshold(monitor)
       };
     });
   }
@@ -790,7 +830,8 @@ class StatisticTrackerApp extends Homey.App {
         id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, capability: monitor.capability, state: monitor.state,
         trueLabel: monitor.trueLabel, falseLabel: monitor.falseLabel,
         period, cycleCount: stats.cycle_count, trueDuration: stats.true_duration, falseDuration: stats.false_duration,
-        dailyBreakdown: period === 'day' ? null : this._stateDailyBreakdown(monitor, period === 'week' ? 7 : 30)
+        dailyBreakdown: period === 'day' ? null : this._stateDailyBreakdown(monitor, period === 'week' ? 7 : 30),
+        messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished
       };
     });
   }
