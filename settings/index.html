@@ -675,7 +675,11 @@
             escapeHtml(monitor.deviceName),
             monitor.cycleCount + ' session' + (monitor.cycleCount === 1 ? '' : 's'),
             escapeHtml(monitor.trueLabel) + ' ' + formatDuration(monitor.trueDuration),
-            escapeHtml(monitor.falseLabel) + ' ' + formatDuration(monitor.falseDuration)
+            escapeHtml(monitor.falseLabel) + ' ' + formatDuration(monitor.falseDuration),
+            // Only present when this monitor also tracks an auxiliary power capability — a
+            // plain door/motion monitor's row stays exactly as it was.
+            monitor.energy !== undefined ? formatEnergy(monitor.energy) : null,
+            monitor.averagePower !== null && monitor.averagePower !== undefined ? 'avg ' + Math.round(monitor.averagePower) + ' W' : null
           ];
           var row = entityRow(nameHtml, metaBits, renderSparkline(monitor.dailyBreakdown, 'trueDuration', formatDuration));
           if (monitorPeriod === 'day') {

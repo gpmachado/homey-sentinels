@@ -11,6 +11,12 @@
     { "name": "duration_human", "type": "string", "title": { "en": "Duration" } },
     { "name": "label", "type": "string", "title": { "en": "State entered" } },
     { "name": "count", "type": "number", "title": { "en": "Sessions today (including this one)" } },
+    { "name": "energy", "type": "number", "title": { "en": "Energy (kWh)" } },
+    { "name": "energy_today", "type": "number", "title": { "en": "Energy today (kWh)" } },
+    { "name": "average_power", "type": "number", "title": { "en": "Average power (W)" } },
+    { "name": "max_power", "type": "number", "title": { "en": "Peak power (W)" } },
+    { "name": "average_current", "type": "number", "title": { "en": "Average current (A)" } },
+    { "name": "max_current", "type": "number", "title": { "en": "Peak current (A)" } },
     { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } },
     { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]

@@ -8,6 +8,7 @@
     { "name": "device", "type": "string", "title": { "en": "Device" } },
     { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
     { "name": "label", "type": "string", "title": { "en": "State entered" } },
+    { "name": "power", "type": "number", "title": { "en": "Power (W)" } },
     { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } },
     { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]

@@ -251,3 +251,22 @@ test('a state monitor records a full session with duration, same as a power moni
   assert.equal(m.cycles.length, 1);
   assert.equal(m.totals.cycleCount, 1);
 });
+test('wattage, when given, is what gets stored/averaged for stats instead of the raw ACTIVE/STANDBY signal', () => {
+  const e = new ActivityEngine(); const m = stateMonitor();
+  e.processSample(m, { power: false, wattage: 3, timestamp: 0 });
+  e.processSample(m, { power: true, wattage: 1200, timestamp: 60000 }); // started
+  e.processSample(m, { power: true, wattage: 1400, timestamp: 120000 });
+  const events = e.processSample(m, { power: false, wattage: 4, timestamp: 180000 }); // finished
+  assert.equal(events[0].type, 'finished');
+  // Real watts from `wattage`, not Number(true)=1/Number(false)=0 from the boolean `power`.
+  assert.equal(m.cycles[0].averagePower, 1300);
+  assert.equal(m.cycles[0].maxPower, 1400);
+});
+test('wattage omitted behaves identically to before — stats fall back to the raw power value', () => {
+  const e = new ActivityEngine(); const m = monitor();
+  e.processSample(m, { power: 10, timestamp: 0 });
+  e.processSample(m, { power: 100, timestamp: 60000 }); // started (threshold 50)
+  const events = e.processSample(m, { power: 10, timestamp: 120000 }); // finished
+  assert.equal(events[0].type, 'finished');
+  assert.equal(m.cycles[0].averagePower, 100);
+});

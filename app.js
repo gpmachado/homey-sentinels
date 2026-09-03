@@ -12,7 +12,11 @@ const DEVICE_CACHE_REFRESH_MS = 5 * 60 * 1000;
 const HISTORY_CONSOLIDATION_MS = 6 * 60 * 60 * 1000;
 // Auxiliary capabilities are detected automatically from whatever the device exposes —
 // the user only picks the device (and, if needed, overrides the primary capability).
-const AUXILIARY_CAPABILITY_CANDIDATES = ['measure_current', 'meter_power', 'measure_voltage'];
+// measure_power is here for state monitors' benefit (see add_state_monitor) — it's normally
+// an activity monitor's own primary capability, so this only ever fires as "auxiliary" when
+// the primary capability is something else (an activity monitor on measure_current, or any
+// state monitor at all, whose primary is never a power reading).
+const AUXILIARY_CAPABILITY_CANDIDATES = ['measure_power', 'measure_current', 'meter_power', 'measure_voltage'];
 // Below this many cycles, a median duration/energy is technically defined but not
 // meaningful yet as "typical" — same floor the reference app used for its health
 // calculation. Below it, median_duration/median_energy come back null ("still learning")
@@ -437,19 +441,26 @@ class StatisticTrackerApp extends Homey.App {
     // No continuity/confirmation window here (and no "Update state monitor" card exists to
     // tune it later, unlike Activity Monitor) — every real use case so far is a plain
     // door/motion/on-off sensor with no flakiness to debounce. Add one if that ever changes.
-    action('add_state_monitor', async ({ device, capability, true_label, false_label, name }) => {
+    action('add_state_monitor', async ({ device, capability, true_label, false_label, name, active_values }) => {
       const selected = await this.gateway.getDevice(this._deviceId(device));
       if (!selected) throw new Error('Device not found.');
       const capabilityId = capability?.id || capability?.data?.id || capability;
       if (!capabilityId) throw new Error('Select a capability.');
-      // Mirrors the add_voltage_monitor guard: a numeric capability has no true/false state to
-      // watch for, and the picker above already filters to boolean ones — this just catches
-      // whatever slips through if it somehow doesn't.
-      if (selected.capabilitiesObj?.[capabilityId]?.type !== 'boolean') {
+      // Mirrors the add_voltage_monitor guard: the picker above already filters to boolean/
+      // enum capabilities — this just catches whatever slips through if it somehow doesn't.
+      const capabilityType = selected.capabilitiesObj?.[capabilityId]?.type;
+      if (capabilityType !== 'boolean' && capabilityType !== 'enum') {
         const title = selected.capabilitiesObj?.[capabilityId]?.title || capabilityId;
-        throw new Error(`"${title}" isn't a boolean capability. Pick one like a contact, motion, or on/off sensor.`);
+        throw new Error(`"${title}" isn't a boolean or multi-state capability. Pick one like a contact, motion, on/off sensor, or an appliance's own state.`);
       }
-      const { monitor, created } = this.store.upsertStateMonitor({ device: selected, capability: capabilityId, trueLabel: true_label, falseLabel: false_label, name });
+      const activeValues = active_values ? active_values.split(',').map((v) => v.trim()).filter(Boolean) : null;
+      // An enum has more than two states — plain true/false has no meaning for it, so this
+      // has to be told explicitly which value(s) count as active instead of guessing.
+      if (capabilityType === 'enum' && !activeValues?.length) {
+        throw new Error('This capability has multiple states — specify which value(s) count as active (e.g. "Running, Rinse").');
+      }
+      const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => cap !== capabilityId && selected.capabilities.includes(cap));
+      const { monitor, created } = this.store.upsertStateMonitor({ device: selected, capability: capabilityId, trueLabel: true_label, falseLabel: false_label, name, activeValues, auxiliaryCapabilities });
       await this.store.save();
       if (created) await this._watchState(monitor);
       return true;
@@ -458,7 +469,11 @@ class StatisticTrackerApp extends Homey.App {
     action('reset_state_monitor', async ({ monitor }) => { await this.resetStateMonitorStats(this._stateMonitor(monitor)); return true; });
     action('get_state_statistics', async ({ monitor, period }) => {
       const stats = this._stateStatistics(this._stateMonitor(monitor), period);
-      return { ...stats, median_duration: num(stats.median_duration), median_duration_human: stats.median_duration_human || '' };
+      return {
+        ...stats, median_duration: num(stats.median_duration), median_duration_human: stats.median_duration_human || '',
+        energy: num(stats.energy), average_power: num(stats.average_power), max_power: num(stats.max_power),
+        average_current: num(stats.average_current), max_current: num(stats.max_current)
+      };
     });
     condition('is_state_active', async ({ monitor }) => this._stateMonitor(monitor).state === ACTIVE);
 
@@ -517,11 +532,15 @@ class StatisticTrackerApp extends Homey.App {
       // from ever being selectable in the first place, instead of only catching it after the
       // fact in the action handler.
       // Same idea for add_state_monitor: it only makes sense against a boolean capability
-      // (alarm_contact, alarm_motion, onoff) — a numeric one has no "active value" to mirror.
+      // (alarm_contact, alarm_motion, onoff) or a multi-value one (an appliance's own state) —
+      // a plain number has no "active value" to mirror. A multi-value capability isn't always
+      // typed 'enum' in practice — confirmed live: a community ThinQ app exposes its washer's
+      // state as a plain 'string' capability ("Power Off"/"Running"/...), not a declared enum —
+      // so both types are accepted here.
       const eligible = cardId === 'add_voltage_monitor'
         ? device.capabilities.filter((cap) => cap.startsWith('measure_voltage'))
         : cardId === 'add_state_monitor'
-        ? device.capabilities.filter((cap) => device.capabilitiesObj?.[cap]?.type === 'boolean')
+        ? device.capabilities.filter((cap) => ['boolean', 'enum', 'string'].includes(device.capabilitiesObj?.[cap]?.type))
         : device.capabilities;
       // Search and display by the capability's friendly title (e.g. "Voltage Phase A") as well
       // as its raw id (e.g. measure_voltage.phase_a) — a user typing "phase A" only matches the
@@ -673,16 +692,25 @@ class StatisticTrackerApp extends Homey.App {
     return { ...data, message: renderMessage(monitor.messageTemplateFinished, data) };
   }
   // Same engine, same cycle/duration/grace-window machinery as _watch/_sample above — a state
-  // monitor just feeds the raw boolean straight in instead of comparing a numeric power sample
-  // against a threshold (see activity-engine.js's stateFor()). No auxiliary capabilities: current
-  // and energy don't mean anything for a door or a presence sensor.
+  // monitor decides ACTIVE/STANDBY from its own reliable signal (a boolean, or specific
+  // activeValues on an enum) instead of comparing a numeric power sample against a threshold
+  // (see activity-engine.js's stateFor()). auxiliaryCapabilities (empty for a plain door/motion
+  // sensor) optionally layers real power/energy/current tracking on top of that signal.
   async _watchState(monitor) {
-    await this.gateway.subscribeCapabilities(monitor.id, monitor.deviceId, monitor.capability, [], async (value, timestamp) => this._sampleState(monitor, value, timestamp));
+    await this.gateway.subscribeCapabilities(monitor.id, monitor.deviceId, monitor.capability, monitor.auxiliaryCapabilities || [], async (value, timestamp, device) => this._sampleState(monitor, value, timestamp, device));
   }
-  async _sampleState(monitor, value, timestamp) {
-    // Raw true is always ACTIVE — no more "which value means active" choice to get backwards.
-    // trueLabel/falseLabel are purely cosmetic, only used when rendering the log/tokens below.
-    const events = this.engine.processSample(monitor, { power: Boolean(value), timestamp });
+  async _sampleState(monitor, value, timestamp, device) {
+    // activeValues unset (every plain boolean monitor) — raw true is always ACTIVE, same as
+    // before. Set — an enum capability like an appliance's own state ("Power Off"/"Running"),
+    // matched case/whitespace-insensitively so a slightly different casing typed at setup time
+    // doesn't silently never match. trueLabel/falseLabel stay purely cosmetic either way.
+    const isActive = monitor.activeValues?.length
+      ? monitor.activeValues.some((v) => v.trim().toLowerCase() === String(value).trim().toLowerCase())
+      : Boolean(value);
+    const wattage = device?.capabilitiesObj?.measure_power?.value;
+    const energy = device?.capabilitiesObj?.meter_power?.value;
+    const current = device?.capabilitiesObj?.measure_current?.value;
+    const events = this.engine.processSample(monitor, { power: isActive, wattage, energy, current, timestamp });
     await this._handleStateEvents(monitor, events);
   }
   async _resolveStateContinuity(monitor) {
@@ -697,14 +725,24 @@ class StatisticTrackerApp extends Homey.App {
         continue;
       }
       const base = { device: monitor.deviceName, monitor: monitor.name, timestamp: new Date(event.timestamp).toISOString() };
+      // Only present when an auxiliary power capability is actually being tracked — a plain
+      // door/motion monitor's tokens stay exactly as they were (no "Power: 0 W" noise).
+      const tracksPower = monitor.auxiliaryCapabilities?.length > 0;
       if (event.type === 'started') {
         this.log(`[${monitor.name}] started (${monitor.trueLabel})`);
-        const startedData = { ...base, label: monitor.trueLabel };
+        const startedData = { ...base, label: monitor.trueLabel, ...(tracksPower ? { power: num(event.power) } : {}) };
         await this.stateCards.started.trigger({ ...startedData, message: renderMessage(monitor.messageTemplateStarted, startedData) }, { monitorId: monitor.id });
       }
       if (event.type === 'finished') {
         this.log(`[${monitor.name}] finished (duration=${event.duration_human}, now ${monitor.falseLabel})`);
-        const finishedData = { ...base, duration: event.duration, duration_human: event.duration_human, label: monitor.falseLabel, count: this._stateStatistics(monitor, 'day').cycle_count };
+        const dayStats = this._stateStatistics(monitor, 'day');
+        const finishedData = {
+          ...base, duration: event.duration, duration_human: event.duration_human, label: monitor.falseLabel, count: dayStats.cycle_count,
+          ...(tracksPower ? {
+            energy: num(event.energy), average_power: num(event.average_power), max_power: num(event.max_power),
+            average_current: num(event.average_current), max_current: num(event.max_current), energy_today: num(dayStats.energy)
+          } : {})
+        };
         await this.stateCards.finished.trigger({ ...finishedData, message: renderMessage(monitor.messageTemplateFinished, finishedData) }, { monitorId: monitor.id });
       }
     }
@@ -806,16 +844,24 @@ class StatisticTrackerApp extends Homey.App {
     return { ...current, trend_active_duration_percent: trend.activeDuration.percent, trend_cycle_count_percent: trend.cycleCount.percent, trend_energy_percent: trend.energy.percent, trend_summary: trend.summary };
   }
   // Same underlying period/cycle math as _statistics — a state monitor is just an activity
-  // monitor with no power/energy signal — but only the fields that mean something for a
-  // boolean capability are surfaced, so a door's stats card doesn't show "Peak power: 0 W".
+  // monitor with no power/energy signal by default — but only the fields that mean something
+  // for a boolean capability are surfaced, so a door's stats card doesn't show "Peak power: 0
+  // W". When an auxiliary power capability IS being tracked (see _sampleState), periods/cycles
+  // already carry real wattage/energy — _statistics() computes average_power/total_energy from
+  // them with no changes needed there, this just decides whether to surface them.
   _stateStatistics(monitor, period = 'all') {
     const stats = this._statistics(monitor, period);
+    const tracksPower = monitor.auxiliaryCapabilities?.length > 0;
     return {
       cycle_count: stats.cycle_count, true_duration: stats.active_duration, false_duration: stats.standby_duration,
       true_label: monitor.trueLabel, false_label: monitor.falseLabel,
       median_duration: stats.median_duration, median_duration_human: stats.median_duration_human,
       trend_active_duration_percent: stats.trend_active_duration_percent, trend_cycle_count_percent: stats.trend_cycle_count_percent,
-      trend_summary: stats.trend_summary
+      trend_summary: stats.trend_summary,
+      ...(tracksPower ? {
+        energy: stats.total_energy, average_power: stats.average_power, max_power: stats.max_power,
+        average_current: stats.average_current, max_current: stats.max_current
+      } : {})
     };
   }
   _periodStatistics(monitor, start, end) {
@@ -925,7 +971,8 @@ class StatisticTrackerApp extends Homey.App {
     });
   }
   // Same idea as getMonitorsSummary, for the state monitors table — trimmed to duration/count
-  // fields, same as _stateStatistics, since energy/power don't mean anything here.
+  // fields by default, same as _stateStatistics, since energy/power don't mean anything for a
+  // plain boolean capability. Included when the monitor has an auxiliary power capability.
   getStateMonitorsSummary(rawPeriod) {
     const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
     return Object.values(this.store.data.stateMonitors).map((monitor) => {
@@ -934,6 +981,7 @@ class StatisticTrackerApp extends Homey.App {
         id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, capability: monitor.capability, state: monitor.state,
         trueLabel: monitor.trueLabel, falseLabel: monitor.falseLabel,
         period, cycleCount: stats.cycle_count, trueDuration: stats.true_duration, falseDuration: stats.false_duration,
+        energy: stats.energy, averagePower: stats.average_power,
         dailyBreakdown: period === 'day' ? null : this._stateDailyBreakdown(monitor, period === 'week' ? 7 : 30),
         messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished
       };

@@ -20,6 +20,11 @@
     { "name": "median_duration_human", "type": "string", "title": { "en": "Median session duration" } },
     { "name": "trend_active_duration_percent", "type": "number", "title": { "en": "True time vs previous week (%)" } },
     { "name": "trend_cycle_count_percent", "type": "number", "title": { "en": "Sessions vs previous week (%)" } },
-    { "name": "trend_summary", "type": "string", "title": { "en": "Weekly trend" } }
+    { "name": "trend_summary", "type": "string", "title": { "en": "Weekly trend" } },
+    { "name": "energy", "type": "number", "title": { "en": "Energy (kWh)" } },
+    { "name": "average_power", "type": "number", "title": { "en": "Average power (W)" } },
+    { "name": "max_power", "type": "number", "title": { "en": "Peak power (W)" } },
+    { "name": "average_current", "type": "number", "title": { "en": "Average current (A)" } },
+    { "name": "max_current", "type": "number", "title": { "en": "Peak current (A)" } }
   ]
 }

@@ -463,6 +463,40 @@ test('resetStateMonitor wipes cycles/periods/totals/live state but keeps device,
   assert.equal(monitor.capability, 'alarm_contact');
   assert.equal(monitor.trueLabel, 'Open');
   assert.equal(monitor.falseLabel, 'Closed');
+  assert.equal(monitor.totals.activeEnergy, 0);
+  assert.equal(monitor.totals.standbyEnergy, 0);
+});
+
+test('createStateMonitor with activeValues stores them; without, defaults to null (plain boolean behavior)', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const enumMonitor = store.createStateMonitor({ device: { id: 'dev-1', name: 'Washer' }, capability: 'DEVICE-state', activeValues: ['Running', 'Rinse'] });
+  assert.deepEqual(enumMonitor.activeValues, ['Running', 'Rinse']);
+  const boolMonitor = store.createStateMonitor({ device: { id: 'dev-2', name: 'Garage door' }, capability: 'alarm_contact' });
+  assert.equal(boolMonitor.activeValues, null);
+});
+
+test('createStateMonitor stores auxiliaryCapabilities as given, defaulting to an empty array', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const withPower = store.createStateMonitor({ device: { id: 'dev-1', name: 'Washer' }, capability: 'DEVICE-state', activeValues: ['Running'], auxiliaryCapabilities: ['measure_power', 'meter_power'] });
+  assert.deepEqual(withPower.auxiliaryCapabilities, ['measure_power', 'meter_power']);
+  const plain = store.createStateMonitor({ device: { id: 'dev-2', name: 'Garage door' }, capability: 'alarm_contact' });
+  assert.deepEqual(plain.auxiliaryCapabilities, []);
+});
+
+test('upsertStateMonitor updates activeValues in place without resetting live state, and leaves it untouched when omitted', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const { monitor: created } = store.upsertStateMonitor({ device: { id: 'dev-1', name: 'Washer' }, capability: 'DEVICE-state', activeValues: ['Running'] });
+  created.state = 'ACTIVE'; created.cycles = [{ startedAt: 0, endedAt: 1000, duration: 1 }];
+  const { monitor: updated, created: wasCreatedAgain } = store.upsertStateMonitor({ device: { id: 'dev-1', name: 'Washer' }, capability: 'DEVICE-state', activeValues: ['Running', 'Rinse'] });
+  assert.equal(wasCreatedAgain, false);
+  assert.deepEqual(updated.activeValues, ['Running', 'Rinse']);
+  assert.equal(updated.state, 'ACTIVE'); // live state untouched by the upsert
+  assert.equal(updated.cycles.length, 1);
+  const { monitor: unchanged } = store.upsertStateMonitor({ device: { id: 'dev-1', name: 'Washer' }, capability: 'DEVICE-state' });
+  assert.deepEqual(unchanged.activeValues, ['Running', 'Rinse']); // omitted on this call — left as-is
 });
 
 test('consolidateHistory folds a state monitor\'s periods into a daily summary, same as an activity monitor', async () => {

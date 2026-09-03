@@ -1,11 +1,12 @@
 {
   "title": { "en": "Add state monitor" },
-  "titleFormatted": { "en": "Add state monitor for [[device]], capability [[capability]], label when true [[true_label]], label when false [[false_label]], name [[name]]" },
-  "hint": { "en": "For a boolean capability with no meaningful numeric threshold — a door, a presence sensor, an on/off switch. Tracks time spent in BOTH states — no need to guess which raw value (true/false) means what, just name them. Not for power monitoring — use \"Add activity monitor\" for that." },
+  "titleFormatted": { "en": "Add state monitor for [[device]], capability [[capability]], active value(s) [[active_values]], label when true [[true_label]], label when false [[false_label]], name [[name]]" },
+  "hint": { "en": "For a device with a reliable ACTIVE/STANDBY signal of its own — a door, a presence sensor, an on/off switch, or an appliance's own multi-value state (e.g. \"Power Off\"/\"Running\") instead of guessing from a power threshold. Tracks time spent in BOTH states. If the device also has a power/energy capability, it's tracked automatically alongside the state signal." },
   "args": [
     { "name": "device", "type": "autocomplete", "title": { "en": "Device" } },
-    { "name": "capability", "type": "autocomplete", "title": { "en": "Capability" }, "hint": { "en": "Only boolean capabilities on this device are shown (contact, motion, on/off, etc.)." } },
-    { "name": "true_label", "type": "text", "required": false, "title": { "en": "Label when true (optional, default \"True\")" }, "placeholder": { "en": "e.g. Open" }, "hint": { "en": "What the raw value true means for this device — check its current value against its current physical state if unsure. Used only for display, doesn't affect what gets tracked (both states are always tracked)." } },
+    { "name": "capability", "type": "autocomplete", "title": { "en": "Capability" }, "hint": { "en": "Boolean and multi-value capabilities on this device are shown (contact, motion, on/off, an appliance's own state, etc.)." } },
+    { "name": "active_values", "type": "text", "required": false, "title": { "en": "Active value(s) (only for a multi-value capability)" }, "placeholder": { "en": "e.g. Running, Rinse" }, "hint": { "en": "Comma-separated list of the raw values that count as active for a multi-value capability (check the device's advanced settings for its exact value names). Leave blank for a plain true/false capability — required otherwise." } },
+    { "name": "true_label", "type": "text", "required": false, "title": { "en": "Label when true (optional, default \"True\")" }, "placeholder": { "en": "e.g. Open" }, "hint": { "en": "What the raw value true (or an active_values match) means for this device — check its current value against its current physical state if unsure. Used only for display, doesn't affect what gets tracked (both states are always tracked)." } },
     { "name": "false_label", "type": "text", "required": false, "title": { "en": "Label when false (optional, default \"False\")" }, "placeholder": { "en": "e.g. Closed" } },
     { "name": "name", "type": "text", "required": false, "title": { "en": "Monitor name (optional)" } }
   ]
