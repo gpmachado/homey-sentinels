@@ -195,7 +195,10 @@
         } else if (summary.kind === 'activity') {
           var isActive = summary.state === 'ACTIVE';
           $status.className = isActive ? 'is-good' : '';
-          $statusLabel.innerText = isActive ? 'Active' : 'Standby';
+          // Created without a threshold — still learning the device's own standby/active power
+          // split (see app.js's _maybeAutoCalibrate). Cycles/energy legitimately read 0 the
+          // whole time, so this replaces "Standby" to avoid reading as broken/stuck.
+          $statusLabel.innerText = summary.calibrating ? 'Calibrating' : (isActive ? 'Active' : 'Standby');
           sinceMs = (isActive && summary.activeSince) ? summary.activeSince : null;
           document.getElementById('stat1-value').innerText = formatNumber(summary.cycleCount);
           document.getElementById('stat1-label').innerText = 'Cycles (' + periodLabel + ')';
@@ -241,6 +244,18 @@
             document.getElementById('stat2-value').innerText = formatNumber(under + over);
             document.getElementById('stat2-label').innerText = under + ' under · ' + over + ' over (' + periodLabel + ')';
           }
+        } else if (summary.kind === 'binary') {
+          // No active/standby concept for a plain tally — the dot stays neutral instead of
+          // green/red, and there's no live-since timer since events are instantaneous, not
+          // sessions with a duration.
+          $status.className = '';
+          $statusLabel.innerText = 'Counter';
+          sinceMs = null;
+          document.getElementById('stat1-value').innerText = formatNumber(summary.eventCount);
+          document.getElementById('stat1-label').innerText = 'Events (' + periodLabel + ')';
+          document.getElementById('stat2-value').innerText = formatNumber(summary.totalCount);
+          document.getElementById('stat2-label').innerText = 'Total events';
+          renderChart(summary.dailyBreakdown, 'count', formatNumber);
         }
         $liveTimer.classList.toggle('hidden', sinceMs === null);
         if (sinceMs !== null) tickLiveTimer();

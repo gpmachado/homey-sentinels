@@ -187,6 +187,13 @@
             }
           },
           {
+            "name": "energy_today",
+            "type": "number",
+            "title": {
+              "en": "Energy today (kWh)"
+            }
+          },
+          {
             "name": "average_power",
             "type": "number",
             "title": {
@@ -428,6 +435,75 @@
           }
         ],
         "id": "state_started"
+      },
+      {
+        "title": {
+          "en": "Threshold calibrated"
+        },
+        "titleFormatted": {
+          "en": "Threshold calibrated ([[monitor]])"
+        },
+        "hint": {
+          "en": "Fires once, the first time a monitor created without a threshold finishes auto-calibrating from its own power history."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor"
+            },
+            "hint": {
+              "en": "Which activity monitor to watch."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "threshold",
+            "type": "number",
+            "title": {
+              "en": "Threshold (W)"
+            }
+          },
+          {
+            "name": "standby_power",
+            "type": "number",
+            "title": {
+              "en": "Observed standby power (W)"
+            }
+          },
+          {
+            "name": "active_power",
+            "type": "number",
+            "title": {
+              "en": "Observed active power (W)"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message"
+            }
+          }
+        ],
+        "id": "threshold_calibrated"
       },
       {
         "title": {
@@ -725,7 +801,7 @@
           "en": "Add activity monitor for [[device]], capability [[capability]], threshold [[threshold]] W, name [[name]]"
         },
         "hint": {
-          "en": "Continuity window and minimum confirmation start at 0 (off) here — tune them later with \"Update activity monitor\" if you notice fragmented or noisy cycles."
+          "en": "Continuity window and minimum confirmation start at 0 (off) here — tune them later with \"Update activity monitor\" if you notice fragmented or noisy cycles. Leave the threshold blank to auto-calibrate it instead: the monitor watches the device's power draw and sets its own threshold once it has enough history, firing \"Threshold calibrated\" when it does."
         },
         "args": [
           {
@@ -752,8 +828,12 @@
           {
             "name": "threshold",
             "type": "number",
+            "required": false,
             "title": {
-              "en": "Activity threshold (W)"
+              "en": "Activity threshold (W, optional)"
+            },
+            "hint": {
+              "en": "Leave blank to auto-calibrate from the device's own power history instead of guessing a value."
             }
           },
           {

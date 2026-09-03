@@ -10,6 +10,7 @@
     { "name": "duration", "type": "number", "title": { "en": "Duration (seconds)" } },
     { "name": "duration_human", "type": "string", "title": { "en": "Duration" } },
     { "name": "energy", "type": "number", "title": { "en": "Energy (kWh)" } },
+    { "name": "energy_today", "type": "number", "title": { "en": "Energy today (kWh)" } },
     { "name": "average_power", "type": "number", "title": { "en": "Average power (W)" } },
     { "name": "max_power", "type": "number", "title": { "en": "Peak power (W)" } },
     { "name": "average_current", "type": "number", "title": { "en": "Average current (A)" } },

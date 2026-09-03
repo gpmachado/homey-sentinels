@@ -1,11 +1,11 @@
 {
   "title": { "en": "Add activity monitor" },
   "titleFormatted": { "en": "Add activity monitor for [[device]], capability [[capability]], threshold [[threshold]] W, name [[name]]" },
-  "hint": { "en": "Continuity window and minimum confirmation start at 0 (off) here — tune them later with \"Update activity monitor\" if you notice fragmented or noisy cycles." },
+  "hint": { "en": "Continuity window and minimum confirmation start at 0 (off) here — tune them later with \"Update activity monitor\" if you notice fragmented or noisy cycles. Leave the threshold blank to auto-calibrate it instead: the monitor watches the device's power draw and sets its own threshold once it has enough history, firing \"Threshold calibrated\" when it does." },
   "args": [
     { "name": "device", "type": "autocomplete", "title": { "en": "Device" } },
     { "name": "capability", "type": "autocomplete", "required": false, "title": { "en": "Capability (optional, defaults to measure_power)" }, "placeholder": { "en": "measure_power" }, "hint": { "en": "Leave blank to use measure_power. Other relevant capabilities on this device (current, energy, voltage) are detected and tracked automatically — no need to add them here." } },
-    { "name": "threshold", "type": "number", "title": { "en": "Activity threshold (W)" } },
+    { "name": "threshold", "type": "number", "required": false, "title": { "en": "Activity threshold (W, optional)" }, "hint": { "en": "Leave blank to auto-calibrate from the device's own power history instead of guessing a value." } },
     { "name": "name", "type": "text", "required": false, "title": { "en": "Monitor name (optional)" } }
   ]
 }

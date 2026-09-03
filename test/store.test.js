@@ -56,6 +56,35 @@ test('creates a monitor with a custom capability, defaulting to measure_power', 
   assert.equal(other.capability, 'measure_current');
 });
 
+test('createMonitor without a threshold falls back to DEFAULT_ACTIVITY_THRESHOLD and flags the monitor as calibrating', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const monitor = store.createMonitor({ device: { id: 'dev-1', name: 'Forno' } });
+  assert.equal(monitor.threshold, 40);
+  assert.equal(monitor.calibrating, true);
+});
+
+test('createMonitor with an explicit threshold is not flagged as calibrating', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const monitor = store.createMonitor({ device: { id: 'dev-1', name: 'Bomba' }, threshold: 100 });
+  assert.equal(monitor.threshold, 100);
+  assert.equal(monitor.calibrating, false);
+});
+
+test('upsertMonitor re-run without a threshold does not reset an already-calibrated monitor back to calibrating', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const { monitor: created } = store.upsertMonitor({ device: { id: 'dev-1', name: 'Forno' } });
+  assert.equal(created.calibrating, true);
+  created.threshold = 250;
+  created.calibrating = false; // simulates _maybeAutoCalibrate finding a real value
+  const { monitor: updated, created: wasCreatedAgain } = store.upsertMonitor({ device: { id: 'dev-1', name: 'Forno' } });
+  assert.equal(wasCreatedAgain, false);
+  assert.equal(updated.threshold, 250);
+  assert.equal(updated.calibrating, false);
+});
+
 test('activity monitor message templates come pre-filled with a working default, editable via updateMonitorMessages', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();

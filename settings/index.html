@@ -60,6 +60,7 @@
     .badge-active, .badge-ok { background: var(--color-success-bg); color: var(--color-success); }
     .badge-standby { background: #eee; color: var(--color-muted); }
     .badge-danger, .badge-nok { background: var(--color-danger-bg); color: var(--color-danger); }
+    .badge-calibrating { background: var(--color-accent-bg); color: var(--color-accent); }
     /* Highlighted stat, e.g. a suggested threshold — normal-case (not a state badge) so it
        reads as a value, not a status. */
     .chip { display: inline-flex; align-items: center; padding: 1px 6px; border-radius: 6px; font-weight: 600; text-transform: none; letter-spacing: normal; font-size: 11px; }
@@ -622,7 +623,10 @@
           var isActive = monitor.state === 'ACTIVE';
           var avgPower = monitor.averagePower !== null && monitor.averagePower !== undefined ? Math.round(monitor.averagePower) + ' W' : '—';
           var suggestion = monitor.suggestedThreshold;
-          var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + (isActive ? 'Active' : 'Standby') + '</span>';
+          var stateBadge = monitor.calibrating
+            ? '<span class="badge badge-calibrating" title="Using a default 40 W threshold until enough history confirms this device\'s real standby/active power split.">Calibrating</span>'
+            : '<span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + (isActive ? 'Active' : 'Standby') + '</span>';
+          var nameHtml = escapeHtml(monitor.name) + ' ' + stateBadge;
           var metaBits = [
             escapeHtml(monitor.deviceName),
             monitor.cycleCount + ' cycle' + (monitor.cycleCount === 1 ? '' : 's'),

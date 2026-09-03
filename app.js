@@ -4,7 +4,7 @@ const Homey = require('homey');
 const SentinelStore = require('./lib/store');
 const HomeyDeviceGateway = require('./lib/homey-device-gateway');
 const { ACTIVE, ActivityEngine, average, maximum, median, humanDuration, standbyGraceSeconds } = require('./lib/activity-engine');
-const { NORMAL, UNDERVOLTAGE, OVERVOLTAGE, VoltageEngine } = require('./lib/voltage-engine');
+const { NORMAL, UNDERVOLTAGE, OVERVOLTAGE, VoltageEngine, stabilizationGraceSeconds } = require('./lib/voltage-engine');
 const { renderMessage, formatList } = require('./lib/message-template');
 const { startOfLocalDay, localDateKey, isValidTimeZone } = require('./lib/time');
 
@@ -21,6 +21,15 @@ const MEDIAN_MIN_CYCLES = 5;
 // Below this many raw power samples, a "gap" in the distribution is as likely to be sampling
 // noise as a real standby/active split — too little history to suggest a threshold from yet.
 const THRESHOLD_SUGGESTION_MIN_SAMPLES = 30;
+// The widest gap available isn't necessarily a real standby/active split — if a monitor has
+// never actually seen its device turn on yet, every sample so far sits in the standby band,
+// and the "widest gap" found is just jitter inside that band (confirmed live: an oven idling
+// at ~8 W with no cooking session yet calibrated a ~5 W threshold from noise alone, then
+// immediately false-triggered "started" off ordinary standby readings). Every real
+// standby/active pair seen in practice — a coffee machine's ~5 W vs ~500 W, a dishwasher's
+// ~60 W vs ~1000 W, an oven's ~8 W vs ~1400 W — clears 15x+, so requiring the gap to span at
+// least this ratio filters out same-band noise without rejecting any real appliance.
+const THRESHOLD_SUGGESTION_MIN_GAP_RATIO = 4;
 // Single source of truth for State Group's type→capability mapping — was previously duplicated
 // (and already drifting: _checkGroup only special-cased 'contact', everything else fell through
 // to 'onoff', silently wrong for any new type added there without updating both places).
@@ -54,7 +63,8 @@ class StatisticTrackerApp extends Homey.App {
     this.gateway = new HomeyDeviceGateway(this.homey);
     this.cards = {
       started: this.homey.flow.getTriggerCard('activity_started'),
-      finished: this.homey.flow.getTriggerCard('activity_finished')
+      finished: this.homey.flow.getTriggerCard('activity_finished'),
+      calibrated: this.homey.flow.getTriggerCard('threshold_calibrated')
     };
     this.stateCards = {
       started: this.homey.flow.getTriggerCard('state_started'),
@@ -107,7 +117,10 @@ class StatisticTrackerApp extends Homey.App {
       const groups = Object.values(this.store.data.groups)
         .filter((g) => g.name.toLowerCase().includes(normalized))
         .map((g) => ({ name: g.name, description: `Group · ${g.devices.length} device(s)`, data: { id: g.id } }));
-      return [...activity, ...voltage, ...state, ...groups];
+      const binary = Object.values(this.store.data.binaryCounters)
+        .filter((c) => c.name.toLowerCase().includes(normalized))
+        .map((c) => ({ name: c.name, description: 'Binary counter', data: { id: c.id } }));
+      return [...activity, ...voltage, ...state, ...groups, ...binary];
     });
   }
 
@@ -122,6 +135,7 @@ class StatisticTrackerApp extends Homey.App {
       return {
         kind: 'activity', name: activityMonitor.name, deviceName: activityMonitor.deviceName, state: activityMonitor.state,
         activeSince: activityMonitor.state === ACTIVE ? activityMonitor.activeSince : null,
+        calibrating: !!activityMonitor.calibrating,
         period, cycleCount: stats.cycle_count, energy: stats.total_energy, averagePower: stats.average_power, averageCurrent: stats.average_current,
         dailyBreakdown: period === 'day' ? null : this._dailyBreakdown(activityMonitor, period === 'week' ? 7 : 30)
       };
@@ -157,6 +171,15 @@ class StatisticTrackerApp extends Homey.App {
         kind: 'group', name: group.name, deviceName: `${group.devices.length} device(s)`,
         checkedCount: result.checkedCount, matchCount: result.matchCount, mismatchCount: result.mismatchCount,
         mismatchList: result.mismatchList, message: result.message
+      };
+    }
+    const binaryCounter = this.store.data.binaryCounters[id];
+    if (binaryCounter) {
+      const stats = this._binaryEventStatistics(binaryCounter, period);
+      return {
+        kind: 'binary', name: binaryCounter.name, deviceName: 'Binary counter',
+        period, eventCount: stats.event_count, totalCount: binaryCounter.totalCount, lastEventAt: stats.last_event_at,
+        dailyBreakdown: period === 'day' ? null : this._binaryDailyBreakdown(binaryCounter, period === 'week' ? 7 : 30)
       };
     }
     return null;
@@ -237,6 +260,7 @@ class StatisticTrackerApp extends Homey.App {
     };
     registerTriggerFilter(this.cards.started, (q) => this._monitorResults(q));
     registerTriggerFilter(this.cards.finished, (q) => this._monitorResults(q));
+    registerTriggerFilter(this.cards.calibrated, (q) => this._monitorResults(q));
     registerTriggerFilter(this.voltageCards.undervoltage, (q) => this._voltageMonitorResults(q));
     registerTriggerFilter(this.voltageCards.overvoltage, (q) => this._voltageMonitorResults(q));
     registerTriggerFilter(this.voltageCards.normalized, (q) => this._voltageMonitorResults(q));
@@ -304,6 +328,10 @@ class StatisticTrackerApp extends Homey.App {
       const { monitor, created } = this.store.upsertMonitor({ device: selected, threshold, name, capability: capabilityId, auxiliaryCapabilities });
       await this.store.save();
       if (created) await this._watch(monitor);
+      // Same reasoning as add_voltage_monitor above: an existing monitor's threshold just
+      // changed (or was re-run idempotently) — re-check it against the last known reading
+      // right away instead of waiting for the device's next real push.
+      else if (monitor.lastSample) await this._sample(monitor, monitor.lastSample.power, Date.now());
       return true;
     });
     action('remove_activity_monitor', async ({ monitor }) => { await this.removeMonitor(this._monitor(monitor)); return true; });
@@ -334,6 +362,7 @@ class StatisticTrackerApp extends Homey.App {
       const item = this._monitor(monitor);
       if (!Number.isFinite(Number(threshold)) || Number(threshold) < 0) throw new Error('The threshold must be greater than or equal to zero.');
       item.threshold = Number(threshold);
+      item.calibrating = false;
       if (continuity_minutes !== undefined && continuity_minutes !== '') {
         if (!Number.isFinite(Number(continuity_minutes)) || Number(continuity_minutes) < 0) throw new Error('The continuity window must be greater than or equal to zero.');
         item.continuityMinutes = Number(continuity_minutes);
@@ -342,7 +371,9 @@ class StatisticTrackerApp extends Homey.App {
         if (!Number.isFinite(Number(min_confirmation_seconds)) || Number(min_confirmation_seconds) < 0) throw new Error('The minimum confirmation must be greater than or equal to zero.');
         item.minConfirmationSeconds = Number(min_confirmation_seconds);
       }
-      await this.store.save(); return true;
+      await this.store.save();
+      if (item.lastSample) await this._sample(item, item.lastSample.power, Date.now());
+      return true;
     });
     // Homey rejects a "number" token with a null/undefined value ("Invalid Token"), which
     // average()/maximum() return for a period with zero cycles (e.g. "Today" before the
@@ -383,13 +414,21 @@ class StatisticTrackerApp extends Homey.App {
       const { monitor, created } = this.store.upsertVoltageMonitor({ device: selected, capability: capabilityId, minVoltage: min_voltage, maxVoltage: max_voltage, name, stabilizationMinutes: stabilization_minutes });
       await this.store.save();
       if (created) await this._watchVoltage(monitor);
+      // An existing monitor's range just changed — re-evaluate it against the last known
+      // reading right away instead of silently waiting for the device's next real push (which,
+      // for a stable value, might be minutes away). Confirmed live: repeatedly editing
+      // max_voltage on an already-subscribed monitor never fired the trigger until a genuinely
+      // new sample happened to arrive on its own.
+      else if (monitor.lastSample) await this._voltageSample(monitor, monitor.lastSample.voltage, Date.now());
       return true;
     });
     action('remove_voltage_monitor', async ({ monitor }) => { await this.removeVoltageMonitor(this._voltageMonitor(monitor)); return true; });
     action('reset_voltage_monitor', async ({ monitor }) => { await this.resetVoltageMonitorStats(this._voltageMonitor(monitor)); return true; });
     action('update_voltage_monitor', async ({ monitor, min_voltage, max_voltage }) => {
-      this.store.updateVoltageMonitor(this._voltageMonitor(monitor), { minVoltage: min_voltage, maxVoltage: max_voltage });
+      const item = this._voltageMonitor(monitor);
+      this.store.updateVoltageMonitor(item, { minVoltage: min_voltage, maxVoltage: max_voltage });
       await this.store.save();
+      if (item.lastSample) await this._voltageSample(item, item.lastSample.voltage, Date.now());
       return true;
     });
     action('get_voltage_statistics', async ({ monitor, period }) => this._voltageStatistics(this._voltageMonitor(monitor), period));
@@ -544,6 +583,30 @@ class StatisticTrackerApp extends Homey.App {
     const current = device?.capabilitiesObj?.measure_current?.value;
     const events = this.engine.processSample(monitor, { power, timestamp, energy, current });
     await this._handleActivityEvents(monitor, events);
+    // Only a plain threshold monitor (no mode) still refining its DEFAULT_ACTIVITY_THRESHOLD
+    // fallback auto-calibrates — 'state' mirrors a boolean and 'manual' never looks at a
+    // threshold at all, see stateFor() in activity-engine.js.
+    if (monitor.calibrating && !monitor.mode) await this._maybeAutoCalibrate(monitor);
+  }
+  // Lets "Add activity monitor" work from just a device — no Watts guess needed. A monitor
+  // created without a threshold starts immediately usable at DEFAULT_ACTIVITY_THRESHOLD
+  // (SentinelStore) instead of sitting inert, flagged `calibrating` while it collects raw power
+  // samples until there's enough history for _suggestedThreshold to find a confident
+  // standby/active gap — then replaces the fallback and fires "Threshold calibrated" once so
+  // the user knows what value was picked, reusing the exact same gap-detection already backing
+  // the Settings page's passive suggestion.
+  async _maybeAutoCalibrate(monitor) {
+    const suggestion = this._suggestedThreshold(monitor);
+    if (!suggestion) return;
+    monitor.threshold = suggestion.threshold;
+    monitor.calibrating = false;
+    await this.store.save();
+    const base = {
+      device: monitor.deviceName, monitor: monitor.name, threshold: suggestion.threshold,
+      standby_power: suggestion.low, active_power: suggestion.high
+    };
+    const data = { ...base, message: `${monitor.name} calibrated: threshold set to ~${Math.round(suggestion.threshold)} W (standby ~${Math.round(suggestion.low)} W, active ~${Math.round(suggestion.high)} W).` };
+    await this.cards.calibrated.trigger(data, { monitorId: monitor.id });
   }
   // A continuity grace window (see activity-engine.js's 'continuity_pending') needs a real timer:
   // if power drops and simply stays there, no further capability update will ever arrive to let
@@ -580,10 +643,11 @@ class StatisticTrackerApp extends Homey.App {
         // Today's cycle count already includes this cycle — _finalizeStandby pushed it to
         // cycles[] before this event was raised, so "%count%" reads naturally as "this is the
         // Nth time today" in a message like "pump turned off %count% %count:time|times% today".
+        const dayStats = this._statistics(monitor, 'day');
         const finishedData = {
           ...base, duration: event.duration, duration_human: event.duration_human, energy: num(event.energy),
           average_power: num(event.average_power), max_power: num(event.max_power), average_current: num(event.average_current), max_current: num(event.max_current),
-          count: this._statistics(monitor, 'day').cycle_count
+          count: dayStats.cycle_count, energy_today: num(dayStats.total_energy)
         };
         finishedData.message = renderMessage(monitor.messageTemplateFinished, finishedData);
         await this.cards.finished.trigger(finishedData, { monitorId: monitor.id });
@@ -601,9 +665,10 @@ class StatisticTrackerApp extends Homey.App {
   }
   _finishedSnapshot(monitor) {
     const base = { device: monitor.deviceName, monitor: monitor.name, power: num(monitor.lastSample?.power ?? null), timestamp: new Date().toISOString() };
+    const dayStats = this._statistics(monitor, 'day');
     const data = {
       ...base, duration: 0, duration_human: humanDuration(0), energy: 0, average_power: 0, max_power: 0, average_current: 0, max_current: 0,
-      count: this._statistics(monitor, 'day').cycle_count
+      count: dayStats.cycle_count, energy_today: num(dayStats.total_energy)
     };
     return { ...data, message: renderMessage(monitor.messageTemplateFinished, data) };
   }
@@ -648,15 +713,31 @@ class StatisticTrackerApp extends Homey.App {
     await this.gateway.subscribeCapabilities(monitor.id, monitor.deviceId, monitor.capability, [], async (voltage, timestamp) => this._voltageSample(monitor, voltage, timestamp));
   }
   async _voltageSample(monitor, voltage, timestamp) {
-    const events = this.voltageEngine.processSample(monitor, { voltage, timestamp }); await this.store.save();
+    const events = this.voltageEngine.processSample(monitor, { voltage, timestamp });
+    await this._handleVoltageEvents(monitor, events);
+  }
+  // A return-to-normal grace window (see voltage-engine.js's 'continuity_pending') needs a
+  // real timer: if the voltage genuinely settles and simply stays there, no further capability
+  // update will ever arrive to let processSample notice the window expired on its own — same
+  // rationale as _resolveContinuity for activity monitors.
+  async _resolveVoltageContinuity(monitor) {
+    const events = this.voltageEngine.finalizePendingNormal(monitor, Date.now());
+    await this._handleVoltageEvents(monitor, events);
+  }
+  async _handleVoltageEvents(monitor, events) {
+    await this.store.save();
     for (const event of events) {
-      const base = { device: monitor.deviceName, monitor: monitor.name, voltage, timestamp: new Date(timestamp).toISOString() };
+      if (event.type === 'continuity_pending') {
+        this.homey.setTimeout(() => this._resolveVoltageContinuity(monitor).catch((error) => this.error('Failed to resolve voltage continuity window', monitor.name, error)), stabilizationGraceSeconds(monitor) * 1000);
+        continue;
+      }
+      const base = { device: monitor.deviceName, monitor: monitor.name, voltage: event.voltage, timestamp: new Date(event.timestamp).toISOString() };
       if (event.type === 'started' && event.eventType === UNDERVOLTAGE) {
-        this.log(`[${monitor.name}] undervoltage (${voltage} V)`);
+        this.log(`[${monitor.name}] undervoltage (${event.voltage} V)`);
         await this.voltageCards.undervoltage.trigger({ ...base, message: renderMessage(monitor.messageTemplateUndervoltage, base) }, { monitorId: monitor.id });
       }
       if (event.type === 'started' && event.eventType === OVERVOLTAGE) {
-        this.log(`[${monitor.name}] overvoltage (${voltage} V)`);
+        this.log(`[${monitor.name}] overvoltage (${event.voltage} V)`);
         await this.voltageCards.overvoltage.trigger({ ...base, message: renderMessage(monitor.messageTemplateOvervoltage, base) }, { monitorId: monitor.id });
       }
       if (event.type === 'normalized') {
@@ -796,7 +877,12 @@ class StatisticTrackerApp extends Homey.App {
   // Reports the observed low/high bounds alongside the suggestion so the user can judge how
   // convincing the gap really is, instead of trusting a bare number.
   _suggestedThreshold(monitor) {
-    const values = (monitor.periods || []).map((period) => period.power).filter(Number.isFinite).sort((a, b) => a - b);
+    const periods = monitor.periods || [];
+    // Cheap length check before the sort below — called on every sample while a monitor is
+    // still calibrating (see _maybeAutoCalibrate), so skipping the sort for the common
+    // below-the-minimum case matters more here than it did as a Settings-page-load-only call.
+    if (periods.length < THRESHOLD_SUGGESTION_MIN_SAMPLES) return null;
+    const values = periods.map((period) => period.power).filter(Number.isFinite).sort((a, b) => a - b);
     if (values.length < THRESHOLD_SUGGESTION_MIN_SAMPLES) return null;
     const minClusterSize = Math.max(3, Math.floor(values.length * 0.1));
     let bestGap = -1;
@@ -808,6 +894,9 @@ class StatisticTrackerApp extends Homey.App {
     if (bestIndex === -1 || bestGap <= 0) return null;
     const low = values[bestIndex - 1];
     const high = values[bestIndex];
+    // Reject a gap that's real but not convincingly a standby/active split — see
+    // THRESHOLD_SUGGESTION_MIN_GAP_RATIO's comment above.
+    if (high < Math.max(low, 0.1) * THRESHOLD_SUGGESTION_MIN_GAP_RATIO) return null;
     // Geometric mean lands the suggestion proportionally inside the gap rather than at its
     // arithmetic midpoint — standby and active are often an order of magnitude apart (5 W vs
     // 1000 W), where a straight average (502 W) would sit absurdly close to full load instead
@@ -827,6 +916,10 @@ class StatisticTrackerApp extends Homey.App {
         period, cycleCount: stats.cycle_count, energy: stats.total_energy, averagePower: stats.average_power, energyQuality: stats.energy_quality,
         dailyBreakdown: period === 'day' ? null : this._dailyBreakdown(monitor, period === 'week' ? 7 : 30),
         messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished,
+        // Still on the DEFAULT_ACTIVITY_THRESHOLD fallback, not a confirmed calibration — the
+        // widget/Settings badge shows this instead of "Standby"/"Active" so it's clear the
+        // threshold is still a guess, not yet confirmed from this device's own history.
+        calibrating: !!monitor.calibrating,
         suggestedThreshold: this._suggestedThreshold(monitor)
       };
     });
@@ -880,6 +973,21 @@ class StatisticTrackerApp extends Homey.App {
       const stats = this._binaryEventStatistics(counter, period);
       return { id: counter.id, name: counter.name, period, eventCount: stats.event_count, totalCount: counter.totalCount, lastEventAt: stats.last_event_at, messageTemplate: counter.messageTemplate };
     });
+  }
+  // Same idea again, for the widget's binary-counter sparkline — reads straight off
+  // dailyCounts (already one bucket per calendar day, see recordBinaryEvent) instead of
+  // recomputing anything, padding in a zero for any day with no event.
+  _binaryDailyBreakdown(counter, days) {
+    const timeZone = this._getTimezone();
+    const now = Date.now();
+    const todayStart = startOfLocalDay(new Date(now), timeZone).getTime();
+    const result = [];
+    for (let i = days - 1; i >= 0; i -= 1) {
+      const dateKey = localDateKey(new Date(todayStart - i * 24 * 60 * 60 * 1000), timeZone);
+      const day = (counter.dailyCounts || []).find((d) => d.date === dateKey);
+      result.push({ date: dateKey, count: day ? day.count : 0 });
+    }
+    return result;
   }
   // One energy total per calendar day for the last `days` days (oldest first), for the
   // widget's sparkline. Reuses _periodStatistics per day rather than a separate aggregation
