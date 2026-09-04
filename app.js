@@ -17,6 +17,12 @@ const HISTORY_CONSOLIDATION_MS = 6 * 60 * 60 * 1000;
 // the primary capability is something else (an activity monitor on measure_current, or any
 // state monitor at all, whose primary is never a power reading).
 const AUXILIARY_CAPABILITY_CANDIDATES = ['measure_power', 'measure_current', 'meter_power', 'measure_voltage'];
+// A calibrating monitor re-attempts _suggestedThreshold on every sample — cheap for a device
+// that reports every few minutes, but a device cycling rapidly (a heating element's thermostat
+// clicking on/off) can push many samples per second, each re-sorting the whole periods[]
+// array. Confirmed live: this hit Homey's own CPU limit and crashed the app. A per-monitor
+// cooldown bounds the sort to at most once per this interval, regardless of sample rate.
+const CALIBRATION_RETRY_MS = 60 * 1000;
 // Below this many cycles, a median duration/energy is technically defined but not
 // meaningful yet as "typical" — same floor the reference app used for its health
 // calculation. Below it, median_duration/median_energy come back null ("still learning")
@@ -62,6 +68,10 @@ class StatisticTrackerApp extends Homey.App {
   async onInit() {
     this.store = new SentinelStore(this.homey.settings);
     await this.store.load();
+    // In-memory only, deliberately not persisted — a per-monitor cooldown so a burst of rapid
+    // samples (a device cycling its heating element on/off) can't re-run _suggestedThreshold's
+    // sort over the whole periods[] array on every single one of them while still calibrating.
+    this._lastCalibrationAttempt = new Map();
     this.engine = new ActivityEngine();
     this.voltageEngine = new VoltageEngine();
     this.gateway = new HomeyDeviceGateway(this.homey);
@@ -99,11 +109,34 @@ class StatisticTrackerApp extends Homey.App {
 
   _consolidateHistory() {
     try {
+      // Runs at startup and every 6h — logging its cost is the only way to tell whether a
+      // synchronous pass over a monitor's raw periods (7 days of them, uncapped in count — a
+      // device sampling every few seconds can mean tens of thousands) is itself long enough to
+      // trip Homey's CPU watchdog, versus some other cause entirely.
+      const periodCountBefore = this._totalPeriodCount();
+      // Above this, name the worst offenders directly — cheaper than waiting for another
+      // crash-and-report round trip to find out which monitor is actually the problem.
+      if (periodCountBefore > 20000) this._logLargestPeriodCounts();
+      const startedAt = Date.now();
       this.store.consolidateHistory(this._getTimezone());
+      const durationMs = Date.now() - startedAt;
+      const periodCountAfter = this._totalPeriodCount();
+      this.log(`Consolidated history in ${durationMs}ms (periods ${periodCountBefore} -> ${periodCountAfter})`);
       this.store.save().catch((error) => this.error('Failed to save after consolidating history', error));
     } catch (error) {
       this.error('Failed to consolidate history', error);
     }
+  }
+  _totalPeriodCount() {
+    const collections = [this.store.data.monitors, this.store.data.stateMonitors, this.store.data.voltageMonitors];
+    return collections.reduce((total, collection) => total + Object.values(collection).reduce((sum, monitor) => sum + (monitor.periods?.length || 0), 0), 0);
+  }
+  _logLargestPeriodCounts() {
+    const collections = { activity: this.store.data.monitors, state: this.store.data.stateMonitors, voltage: this.store.data.voltageMonitors };
+    const all = Object.entries(collections).flatMap(([kind, collection]) =>
+      Object.values(collection).map((monitor) => ({ kind, name: monitor.name, count: monitor.periods?.length || 0 })));
+    const top = all.sort((a, b) => b.count - a.count).slice(0, 5);
+    this.log('Largest raw period counts:', top.map((m) => `${m.name} (${m.kind}): ${m.count}`).join(', '));
   }
   _registerWidgets() {
     const widget = this.homey.dashboards.getWidget('sentinel');
@@ -192,6 +225,7 @@ class StatisticTrackerApp extends Homey.App {
   // both need the exact same unsubscribe-then-forget sequence, not just a store update.
   async removeMonitor(item) {
     this.gateway.unsubscribeCapabilities(item.id, item.deviceId, item.capability, item.auxiliaryCapabilities);
+    this._lastCalibrationAttempt.delete(item.id);
     delete this.store.data.monitors[item.id];
     await this.store.save();
   }
@@ -615,11 +649,18 @@ class StatisticTrackerApp extends Homey.App {
   // the user knows what value was picked, reusing the exact same gap-detection already backing
   // the Settings page's passive suggestion.
   async _maybeAutoCalibrate(monitor) {
+    const now = Date.now();
+    const lastAttempt = this._lastCalibrationAttempt.get(monitor.id);
+    if (lastAttempt && now - lastAttempt < CALIBRATION_RETRY_MS) return;
+    this._lastCalibrationAttempt.set(monitor.id, now);
+    const periodCount = (monitor.periods || []).length;
+    this.log(`[${monitor.name}] checking for a calibration threshold (${periodCount} power samples so far)`);
     const suggestion = this._suggestedThreshold(monitor);
     if (!suggestion) return;
     monitor.threshold = suggestion.threshold;
     monitor.calibrating = false;
     await this.store.save();
+    this.log(`[${monitor.name}] calibrated: threshold ${suggestion.threshold} W (standby ~${suggestion.low} W, active ~${suggestion.high} W, ${suggestion.sampleCount} samples)`);
     const base = {
       device: monitor.deviceName, monitor: monitor.name, threshold: suggestion.threshold,
       standby_power: suggestion.low, active_power: suggestion.high
