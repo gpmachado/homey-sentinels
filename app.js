@@ -1001,7 +1001,16 @@ class StatisticTrackerApp extends Homey.App {
     if (periods.length < THRESHOLD_SUGGESTION_MIN_SAMPLES) return null;
     const values = periods.map((period) => period.power).filter(Number.isFinite).sort((a, b) => a - b);
     if (values.length < THRESHOLD_SUGGESTION_MIN_SAMPLES) return null;
-    const minClusterSize = Math.max(3, Math.floor(values.length * 0.1));
+    // A flat 10% share excluded the real gap entirely for a lopsided duty cycle — confirmed
+    // live: a freezer whose compressor runs most of the time has a "standby" cluster (the
+    // brief off periods) well under 10% of its sample history, so the search below never even
+    // considered the boundary between it and the "active" cluster, and picked some meaningless
+    // split deep inside the active cluster instead (a threshold landing right next to the
+    // freezer's own normal running wattage). A small, capped minimum still guards against a
+    // single outlier looking like a cluster, without scaling up indefinitely for a device
+    // that's active far more often than idle — verified against a simulated duty cycle down to
+    // 2% idle samples (10x more skewed than the freezer case that exposed this).
+    const minClusterSize = Math.max(3, Math.min(10, Math.floor(values.length * 0.02)));
     let bestGap = -1;
     let bestIndex = -1;
     for (let i = minClusterSize; i < values.length - minClusterSize; i += 1) {
