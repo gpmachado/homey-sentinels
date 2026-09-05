@@ -796,12 +796,15 @@ class StatisticTrackerApp extends Homey.App {
         continue;
       }
       const base = { device: monitor.deviceName, monitor: monitor.name, timestamp: new Date(event.timestamp).toISOString() };
-      // Only present when an auxiliary power capability is actually being tracked — a plain
-      // door/motion monitor's tokens stay exactly as they were (no "Power: 0 W" noise).
-      const tracksPower = monitor.auxiliaryCapabilities?.length > 0;
+      // Every declared Flow token must always get a value — Homey rejects the trigger
+      // otherwise ("Invalid value for token X. Expected number but got undefined"), confirmed
+      // live for every plain door/motion monitor the moment these tokens were added, since
+      // they have no auxiliary power capability at all and event.power/energy are undefined.
+      // num() already defaults a non-finite value to 0, same convention used everywhere else
+      // these numbers reach a Flow token.
       if (event.type === 'started') {
         this.log(`[${monitor.name}] started (${monitor.trueLabel})`);
-        const startedData = { ...base, label: monitor.trueLabel, ...(tracksPower ? { power: num(event.power) } : {}) };
+        const startedData = { ...base, label: monitor.trueLabel, power: num(event.power) };
         await this.stateCards.started.trigger({ ...startedData, message: renderMessage(monitor.messageTemplateStarted, startedData) }, { monitorId: monitor.id });
       }
       if (event.type === 'finished') {
@@ -809,10 +812,8 @@ class StatisticTrackerApp extends Homey.App {
         const dayStats = this._stateStatistics(monitor, 'day');
         const finishedData = {
           ...base, duration: event.duration, duration_human: event.duration_human, label: monitor.falseLabel, count: dayStats.cycle_count,
-          ...(tracksPower ? {
-            energy: num(event.energy), average_power: num(event.average_power), max_power: num(event.max_power),
-            average_current: num(event.average_current), max_current: num(event.max_current), energy_today: num(dayStats.energy)
-          } : {})
+          energy: num(event.energy), average_power: num(event.average_power), max_power: num(event.max_power),
+          average_current: num(event.average_current), max_current: num(event.max_current), energy_today: num(dayStats.energy)
         };
         await this.stateCards.finished.trigger({ ...finishedData, message: renderMessage(monitor.messageTemplateFinished, finishedData) }, { monitorId: monitor.id });
       }
