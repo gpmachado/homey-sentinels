@@ -8,6 +8,15 @@ const { NORMAL, UNDERVOLTAGE, OVERVOLTAGE, VoltageEngine, stabilizationGraceSeco
 const { renderMessage, formatList } = require('./lib/message-template');
 const { startOfLocalDay, localDateKey, isValidTimeZone } = require('./lib/time');
 
+// Regenerated on every commit (see scripts/write-build-info.js, .git/hooks/post-commit) — the
+// app's own version stays 1.0.0 across every dev iteration, so without this a pasted log has no
+// way to tell which commit actually produced it (confirmed live: a full day of crash logs
+// turned out to be from a build several commits stale, because `homey app run -r` was never
+// restarted after the fix landed). Missing entirely on a machine that never ran the stamp
+// script — falls back to null fields, logged as "unknown" rather than throwing.
+let buildInfo = null;
+try { buildInfo = require('./build-info.json'); } catch (error) { /* not stamped yet */ }
+
 const DEVICE_CACHE_REFRESH_MS = 5 * 60 * 1000;
 const HISTORY_CONSOLIDATION_MS = 6 * 60 * 60 * 1000;
 // Auxiliary capabilities are detected automatically from whatever the device exposes —
@@ -101,7 +110,8 @@ class StatisticTrackerApp extends Homey.App {
     };
     this._registerFlowCards();
     this._registerWidgets();
-    this.log('Sentinels started — observation only, no device control.');
+    const buildTag = buildInfo ? `${buildInfo.commit}${buildInfo.dirty ? '+dirty' : ''} (${buildInfo.subject || 'no subject'}, ${buildInfo.commitDate || 'unknown date'})` : 'unstamped — run `npm run stamp`';
+    this.log(`Sentinels started — observation only, no device control. [build ${buildTag}]`);
 
     // Device/network work happens in the background, on purpose: onInit must resolve and
     // the Flow cards above must be registered even if HomeyAPI is slow or unreachable —

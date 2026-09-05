@@ -2,6 +2,10 @@
 /node_modules/
 /.homeybuild/
 
+# Regenerated on every commit by .git/hooks/post-commit (see scripts/write-build-info.js) —
+# not meaningful to version, always reflects the current HEAD.
+/build-info.json
+
 # Personal research/reference material and HomeyScript scratch files — not part of the app
 /analise/
 

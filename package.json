@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\""
+    "test": "node --test \"test/**/*.test.js\"",
+    "stamp": "node scripts/write-build-info.js"
   },
   "dependencies": {
     "homey-api": "^3.19.3"
