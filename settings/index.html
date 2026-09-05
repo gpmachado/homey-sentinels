@@ -112,7 +112,34 @@
     </div>
 
     <div class="subtab-panel" data-subtab="activity">
+      <div class="actions"><button type="button" id="add-activity-monitor-btn">Add monitor</button></div>
       <div class="entity-list" id="monitors-body"><div class="entity-empty">Loading…</div></div>
+
+      <div id="activity-add-form-wrapper" class="hidden">
+      <h2>New activity monitor</h2>
+      <form id="activity-add-form">
+        <label>Zone
+          <select id="activity-add-zone"></select>
+        </label>
+        <label>Device
+          <select id="activity-add-device" required></select>
+        </label>
+        <label>Capability
+          <select id="activity-add-capability" required></select>
+        </label>
+        <label>Name (optional)
+          <input type="text" id="activity-add-name" placeholder="Defaults to the device name">
+        </label>
+        <label>Activity threshold, in Watts (optional)
+          <input type="text" id="activity-add-threshold" placeholder="Leave blank to auto-calibrate">
+        </label>
+        <p class="hint">Leave the threshold blank and the monitor starts at a working default, then auto-calibrates itself from the device's own power history once it has enough samples.</p>
+        <div class="actions">
+          <button type="submit">Save</button>
+          <button type="button" id="activity-add-cancel-btn">Cancel</button>
+        </div>
+      </form>
+      </div>
 
       <form id="activity-message-form" class="hidden">
         <h2 style="margin-top:0">Message wording — <span id="activity-message-form-name"></span></h2>
@@ -143,7 +170,40 @@
     </div>
 
     <div class="subtab-panel hidden" data-subtab="state">
+      <div class="actions"><button type="button" id="add-state-monitor-btn">Add monitor</button></div>
       <div class="entity-list" id="state-monitors-body"><div class="entity-empty">Loading…</div></div>
+
+      <div id="state-add-form-wrapper" class="hidden">
+      <h2>New state monitor</h2>
+      <form id="state-add-form">
+        <label>Zone
+          <select id="state-add-zone"></select>
+        </label>
+        <label>Device
+          <select id="state-add-device" required></select>
+        </label>
+        <label>Capability
+          <select id="state-add-capability" required></select>
+        </label>
+        <label id="state-add-active-values-wrap" class="hidden">Active value(s)
+          <input type="text" id="state-add-active-values" placeholder="e.g. Running, Rinse">
+        </label>
+        <p class="hint hidden" id="state-add-active-values-hint">This capability has multiple states — list which value(s) count as active, comma-separated.</p>
+        <label>Label when true (optional)
+          <input type="text" id="state-add-true-label" placeholder="e.g. Open">
+        </label>
+        <label>Label when false (optional)
+          <input type="text" id="state-add-false-label" placeholder="e.g. Closed">
+        </label>
+        <label>Name (optional)
+          <input type="text" id="state-add-name" placeholder="Defaults to the device name">
+        </label>
+        <div class="actions">
+          <button type="submit">Save</button>
+          <button type="button" id="state-add-cancel-btn">Cancel</button>
+        </div>
+      </form>
+      </div>
 
       <form id="state-message-form" class="hidden">
         <h2 style="margin-top:0">Message wording — <span id="state-message-form-name"></span></h2>
@@ -172,7 +232,39 @@
     </div>
 
     <div class="subtab-panel hidden" data-subtab="voltage">
+      <div class="actions"><button type="button" id="add-voltage-monitor-btn">Add monitor</button></div>
       <div class="entity-list" id="voltage-monitors-body"><div class="entity-empty">Loading…</div></div>
+
+      <div id="voltage-add-form-wrapper" class="hidden">
+      <h2>New voltage monitor</h2>
+      <form id="voltage-add-form">
+        <label>Zone
+          <select id="voltage-add-zone"></select>
+        </label>
+        <label>Device
+          <select id="voltage-add-device" required></select>
+        </label>
+        <label>Capability
+          <select id="voltage-add-capability" required></select>
+        </label>
+        <label>Name (optional)
+          <input type="text" id="voltage-add-name" placeholder="Defaults to the device name">
+        </label>
+        <label>Min voltage
+          <input type="text" id="voltage-add-min" required>
+        </label>
+        <label>Max voltage
+          <input type="text" id="voltage-add-max" required>
+        </label>
+        <label>Stabilization window, in minutes (optional)
+          <input type="text" id="voltage-add-stabilization" placeholder="Defaults to 1">
+        </label>
+        <div class="actions">
+          <button type="submit">Save</button>
+          <button type="button" id="voltage-add-cancel-btn">Cancel</button>
+        </div>
+      </form>
+      </div>
 
       <form id="voltage-message-form" class="hidden">
         <h2 style="margin-top:0">Message wording — <span id="voltage-message-form-name"></span></h2>
@@ -203,7 +295,21 @@
     </div>
 
     <div class="subtab-panel hidden" data-subtab="binary">
+      <div class="actions"><button type="button" id="add-binary-counter-btn">Add counter</button></div>
       <div class="entity-list" id="binary-counters-body"><div class="entity-empty">Loading…</div></div>
+
+      <div id="binary-add-form-wrapper" class="hidden">
+      <h2>New binary counter</h2>
+      <form id="binary-add-form">
+        <label>Counter name
+          <input type="text" id="binary-add-name" required>
+        </label>
+        <div class="actions">
+          <button type="submit">Save</button>
+          <button type="button" id="binary-add-cancel-btn">Cancel</button>
+        </div>
+      </form>
+      </div>
 
       <form id="binary-message-form" class="hidden">
         <h2 style="margin-top:0">Message wording — <span id="binary-message-form-name"></span></h2>
@@ -965,6 +1071,210 @@
           container.appendChild(row);
         });
       }
+
+      // Shared by the three "Add monitor" forms below — same device-then-capability picker
+      // idea as the Flow cards' own autocomplete, just backed by the already-cached
+      // `allDevices` list instead of a live query.
+      function byDeviceName(a, b) { return a.name.localeCompare(b.name); }
+      function findDevice(id) { return allDevices.filter(function (d) { return d.id === id; })[0]; }
+      function eligibleCapabilities(device, kind) {
+        if (!device) return [];
+        var caps = device.capabilities || [];
+        if (kind === 'voltage') return caps.filter(function (c) { return c.indexOf('measure_voltage') === 0; });
+        if (kind === 'state') return caps.filter(function (c) {
+          var type = device.capabilitiesObj && device.capabilitiesObj[c] && device.capabilitiesObj[c].type;
+          return type === 'boolean' || type === 'enum' || type === 'string';
+        });
+        return caps;
+      }
+      // A flat, alphabetical device list gets unwieldy fast on a real setup (50+ devices) —
+      // same problem gpm.linked.switches' own device picker solved with a zone filter above
+      // the device list itself. `getDevices()` only gives us each device's resolved zoneName
+      // (no zoneId), so filtering matches on that string directly — fine, since it's what's
+      // actually shown to the user anyway.
+      function populateZoneSelect(selectEl) {
+        var current = selectEl.value;
+        selectEl.innerHTML = '';
+        var allOpt = document.createElement('option');
+        allOpt.value = '';
+        allOpt.textContent = 'All zones';
+        selectEl.appendChild(allOpt);
+        var seen = {};
+        allDevices.forEach(function (d) { if (d.zoneName) seen[d.zoneName] = true; });
+        Object.keys(seen).sort().forEach(function (zone) {
+          var opt = document.createElement('option');
+          opt.value = zone;
+          opt.textContent = zone;
+          selectEl.appendChild(opt);
+        });
+        selectEl.value = current || '';
+      }
+      function populateDeviceSelect(selectEl, zoneName) {
+        selectEl.innerHTML = '';
+        allDevices.slice()
+          .filter(function (device) { return !zoneName || device.zoneName === zoneName; })
+          .sort(byDeviceName)
+          .forEach(function (device) {
+            var opt = document.createElement('option');
+            opt.value = device.id;
+            opt.textContent = device.name + (device.zoneName ? ' (' + device.zoneName + ')' : '');
+            selectEl.appendChild(opt);
+          });
+      }
+      function populateCapabilitySelect(selectEl, device, kind, preselect) {
+        selectEl.innerHTML = '';
+        eligibleCapabilities(device, kind).forEach(function (cap) {
+          var opt = document.createElement('option');
+          opt.value = cap;
+          var title = device.capabilitiesObj && device.capabilitiesObj[cap] && device.capabilitiesObj[cap].title;
+          opt.textContent = (title || cap) + ' (' + cap + ')';
+          selectEl.appendChild(opt);
+        });
+        if (preselect) selectEl.value = preselect;
+      }
+
+      // --- Add activity monitor ---
+      var activityAddWrapper = document.getElementById('activity-add-form-wrapper');
+      var activityAddForm = document.getElementById('activity-add-form');
+      var activityAddZone = document.getElementById('activity-add-zone');
+      var activityAddDevice = document.getElementById('activity-add-device');
+      var activityAddCapability = document.getElementById('activity-add-capability');
+      function refreshActivityCapabilities() {
+        populateCapabilitySelect(activityAddCapability, findDevice(activityAddDevice.value), 'activity', 'measure_power');
+      }
+      function refreshActivityDevices() {
+        populateDeviceSelect(activityAddDevice, activityAddZone.value);
+        refreshActivityCapabilities();
+      }
+      activityAddZone.addEventListener('change', refreshActivityDevices);
+      activityAddDevice.addEventListener('change', refreshActivityCapabilities);
+      document.getElementById('add-activity-monitor-btn').addEventListener('click', function () {
+        activityAddForm.reset();
+        populateZoneSelect(activityAddZone);
+        refreshActivityDevices();
+        activityAddWrapper.classList.remove('hidden');
+        activityAddWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+      document.getElementById('activity-add-cancel-btn').addEventListener('click', function () { activityAddWrapper.classList.add('hidden'); });
+      activityAddForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var payload = {
+          deviceId: activityAddDevice.value,
+          capability: activityAddCapability.value,
+          name: document.getElementById('activity-add-name').value,
+          threshold: document.getElementById('activity-add-threshold').value
+        };
+        api('POST', '/monitors', payload).then(function () {
+          activityAddWrapper.classList.add('hidden');
+          return api('GET', '/monitors?period=' + monitorPeriod);
+        }).then(renderMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
+
+      // --- Add voltage monitor ---
+      var voltageAddWrapper = document.getElementById('voltage-add-form-wrapper');
+      var voltageAddForm = document.getElementById('voltage-add-form');
+      var voltageAddZone = document.getElementById('voltage-add-zone');
+      var voltageAddDevice = document.getElementById('voltage-add-device');
+      var voltageAddCapability = document.getElementById('voltage-add-capability');
+      function refreshVoltageCapabilities() {
+        populateCapabilitySelect(voltageAddCapability, findDevice(voltageAddDevice.value), 'voltage');
+      }
+      function refreshVoltageDevices() {
+        populateDeviceSelect(voltageAddDevice, voltageAddZone.value);
+        refreshVoltageCapabilities();
+      }
+      voltageAddZone.addEventListener('change', refreshVoltageDevices);
+      voltageAddDevice.addEventListener('change', refreshVoltageCapabilities);
+      document.getElementById('add-voltage-monitor-btn').addEventListener('click', function () {
+        voltageAddForm.reset();
+        populateZoneSelect(voltageAddZone);
+        refreshVoltageDevices();
+        voltageAddWrapper.classList.remove('hidden');
+        voltageAddWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+      document.getElementById('voltage-add-cancel-btn').addEventListener('click', function () { voltageAddWrapper.classList.add('hidden'); });
+      voltageAddForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var payload = {
+          deviceId: voltageAddDevice.value,
+          capability: voltageAddCapability.value,
+          name: document.getElementById('voltage-add-name').value,
+          minVoltage: document.getElementById('voltage-add-min').value,
+          maxVoltage: document.getElementById('voltage-add-max').value,
+          stabilizationMinutes: document.getElementById('voltage-add-stabilization').value
+        };
+        api('POST', '/voltage-monitors', payload).then(function () {
+          voltageAddWrapper.classList.add('hidden');
+          return api('GET', '/voltage-monitors?period=' + monitorPeriod);
+        }).then(renderVoltageMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
+
+      // --- Add state monitor ---
+      var stateAddWrapper = document.getElementById('state-add-form-wrapper');
+      var stateAddForm = document.getElementById('state-add-form');
+      var stateAddZone = document.getElementById('state-add-zone');
+      var stateAddDevice = document.getElementById('state-add-device');
+      var stateAddCapability = document.getElementById('state-add-capability');
+      var stateAddActiveValuesWrap = document.getElementById('state-add-active-values-wrap');
+      var stateAddActiveValuesHint = document.getElementById('state-add-active-values-hint');
+      function refreshStateActiveValuesVisibility() {
+        var device = findDevice(stateAddDevice.value);
+        var type = device && device.capabilitiesObj && device.capabilitiesObj[stateAddCapability.value] && device.capabilitiesObj[stateAddCapability.value].type;
+        var needsActiveValues = type === 'enum' || type === 'string';
+        stateAddActiveValuesWrap.classList.toggle('hidden', !needsActiveValues);
+        stateAddActiveValuesHint.classList.toggle('hidden', !needsActiveValues);
+      }
+      function refreshStateCapabilities() {
+        populateCapabilitySelect(stateAddCapability, findDevice(stateAddDevice.value), 'state');
+        refreshStateActiveValuesVisibility();
+      }
+      function refreshStateDevices() {
+        populateDeviceSelect(stateAddDevice, stateAddZone.value);
+        refreshStateCapabilities();
+      }
+      stateAddZone.addEventListener('change', refreshStateDevices);
+      stateAddDevice.addEventListener('change', refreshStateCapabilities);
+      stateAddCapability.addEventListener('change', refreshStateActiveValuesVisibility);
+      document.getElementById('add-state-monitor-btn').addEventListener('click', function () {
+        stateAddForm.reset();
+        populateZoneSelect(stateAddZone);
+        refreshStateDevices();
+        stateAddWrapper.classList.remove('hidden');
+        stateAddWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+      document.getElementById('state-add-cancel-btn').addEventListener('click', function () { stateAddWrapper.classList.add('hidden'); });
+      stateAddForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        var payload = {
+          deviceId: stateAddDevice.value,
+          capability: stateAddCapability.value,
+          trueLabel: document.getElementById('state-add-true-label').value,
+          falseLabel: document.getElementById('state-add-false-label').value,
+          name: document.getElementById('state-add-name').value,
+          activeValues: document.getElementById('state-add-active-values').value
+        };
+        api('POST', '/state-monitors', payload).then(function () {
+          stateAddWrapper.classList.add('hidden');
+          return api('GET', '/state-monitors?period=' + monitorPeriod);
+        }).then(renderStateMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
+
+      // --- Add binary counter ---
+      var binaryAddWrapper = document.getElementById('binary-add-form-wrapper');
+      var binaryAddForm = document.getElementById('binary-add-form');
+      document.getElementById('add-binary-counter-btn').addEventListener('click', function () {
+        binaryAddForm.reset();
+        binaryAddWrapper.classList.remove('hidden');
+        binaryAddWrapper.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+      document.getElementById('binary-add-cancel-btn').addEventListener('click', function () { binaryAddWrapper.classList.add('hidden'); });
+      binaryAddForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        api('POST', '/binary-counters', { name: document.getElementById('binary-add-name').value }).then(function () {
+          binaryAddWrapper.classList.add('hidden');
+          return api('GET', '/binary-counters?period=' + monitorPeriod);
+        }).then(renderBinaryCounters).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
 
       function loadAll() {
         return Promise.all([

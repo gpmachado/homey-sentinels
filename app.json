@@ -34,6 +34,10 @@
       "method": "GET",
       "path": "/monitors"
     },
+    "createActivityMonitor": {
+      "method": "POST",
+      "path": "/monitors"
+    },
     "deleteMonitor": {
       "method": "DELETE",
       "path": "/monitors/:id"
@@ -48,6 +52,10 @@
     },
     "getStateMonitorsSummary": {
       "method": "GET",
+      "path": "/state-monitors"
+    },
+    "createStateMonitor": {
+      "method": "POST",
       "path": "/state-monitors"
     },
     "deleteStateMonitor": {
@@ -66,6 +74,10 @@
       "method": "GET",
       "path": "/voltage-monitors"
     },
+    "createVoltageMonitor": {
+      "method": "POST",
+      "path": "/voltage-monitors"
+    },
     "deleteVoltageMonitor": {
       "method": "DELETE",
       "path": "/voltage-monitors/:id"
@@ -80,6 +92,10 @@
     },
     "getBinaryCountersSummary": {
       "method": "GET",
+      "path": "/binary-counters"
+    },
+    "createBinaryCounter": {
+      "method": "POST",
       "path": "/binary-counters"
     },
     "deleteBinaryCounter": {

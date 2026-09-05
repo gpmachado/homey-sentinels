@@ -10,6 +10,9 @@ module.exports = {
   async getMonitorsSummary({ homey, query }) {
     return homey.app.getMonitorsSummary(query.period);
   },
+  async createActivityMonitor({ homey, body }) {
+    return homey.app._createActivityMonitor({ deviceId: body.deviceId, capability: body.capability, threshold: body.threshold, name: body.name });
+  },
   async deleteMonitor({ homey, params }) {
     const item = homey.app.store.data.monitors[params.id];
     if (!item) throw new Error('Monitor not found.');
@@ -32,6 +35,9 @@ module.exports = {
   },
   async getVoltageMonitorsSummary({ homey, query }) {
     return homey.app.getVoltageMonitorsSummary(query.period);
+  },
+  async createVoltageMonitor({ homey, body }) {
+    return homey.app._createVoltageMonitor({ deviceId: body.deviceId, capability: body.capability, minVoltage: body.minVoltage, maxVoltage: body.maxVoltage, name: body.name, stabilizationMinutes: body.stabilizationMinutes });
   },
   async deleteVoltageMonitor({ homey, params }) {
     const item = homey.app.store.data.voltageMonitors[params.id];
@@ -56,6 +62,9 @@ module.exports = {
   async getStateMonitorsSummary({ homey, query }) {
     return homey.app.getStateMonitorsSummary(query.period);
   },
+  async createStateMonitor({ homey, body }) {
+    return homey.app._createStateMonitor({ deviceId: body.deviceId, capability: body.capability, trueLabel: body.trueLabel, falseLabel: body.falseLabel, name: body.name, activeValues: body.activeValues });
+  },
   async deleteStateMonitor({ homey, params }) {
     const item = homey.app.store.data.stateMonitors[params.id];
     if (!item) throw new Error('State monitor not found.');
@@ -78,6 +87,11 @@ module.exports = {
   },
   async getBinaryCountersSummary({ homey, query }) {
     return homey.app.getBinaryCountersSummary(query.period);
+  },
+  async createBinaryCounter({ homey, body }) {
+    const counter = homey.app.store.upsertBinaryCounter({ name: body.name });
+    await homey.app.store.save();
+    return counter;
   },
   async deleteBinaryCounter({ homey, params }) {
     const item = homey.app.store.data.binaryCounters[params.id];

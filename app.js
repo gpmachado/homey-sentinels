@@ -389,17 +389,7 @@ class StatisticTrackerApp extends Homey.App {
     // at which point "Update activity monitor" already covers it. Keeping them off "Add" keeps
     // the common case (most devices never need either) simple.
     action('add_activity_monitor', async ({ device, capability, threshold, name }) => {
-      const selected = await this.gateway.getDevice(this._deviceId(device));
-      const capabilityId = capability?.id || capability?.data?.id || 'measure_power';
-      if (!selected?.capabilities.includes(capabilityId)) throw new Error(`The device doesn't have the ${capabilityId} capability.`);
-      const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => cap !== capabilityId && selected.capabilities.includes(cap));
-      const { monitor, created } = this.store.upsertMonitor({ device: selected, threshold, name, capability: capabilityId, auxiliaryCapabilities });
-      await this.store.save();
-      if (created) await this._watch(monitor);
-      // Same reasoning as add_voltage_monitor above: an existing monitor's threshold just
-      // changed (or was re-run idempotently) — re-check it against the last known reading
-      // right away instead of waiting for the device's next real push.
-      else if (monitor.lastSample) await this._sample(monitor, monitor.lastSample.power, Date.now());
+      await this._createActivityMonitor({ deviceId: this._deviceId(device), capability: capability?.id || capability?.data?.id, threshold, name });
       return true;
     });
     action('remove_activity_monitor', async ({ monitor }) => { await this.removeMonitor(this._monitor(monitor)); return true; });
@@ -466,28 +456,7 @@ class StatisticTrackerApp extends Homey.App {
     condition('state_group_has_mismatch', async ({ group }) => (await this._checkGroup(this._group(group))).mismatchCount > 0);
 
     action('add_voltage_monitor', async ({ device, capability, min_voltage, max_voltage, name, stabilization_minutes }) => {
-      const selected = await this.gateway.getDevice(this._deviceId(device));
-      const capabilityId = capability?.id || capability?.data?.id || 'measure_voltage';
-      if (!selected?.capabilities.includes(capabilityId)) throw new Error(`The device doesn't have the ${capabilityId} capability.`);
-      // A device with a multi-phase meter often lists "Power Phase A" right next to "Voltage
-      // Phase A" in the capability picker — easy to misclick, and nothing else here would ever
-      // catch it: the min/max range is just numbers to the engine either way, so a Watts
-      // reading compared against a Volts threshold silently produces false alarms instead of
-      // an error. Confirmed live: a real device configured this way threw a false "overvoltage"
-      // whenever the appliance's wattage exceeded the voltage threshold.
-      if (!capabilityId.startsWith('measure_voltage')) {
-        const title = selected.capabilitiesObj?.[capabilityId]?.title || capabilityId;
-        throw new Error(`"${title}" isn't a voltage capability. Pick one whose id starts with measure_voltage (e.g. "Voltage Phase A").`);
-      }
-      const { monitor, created } = this.store.upsertVoltageMonitor({ device: selected, capability: capabilityId, minVoltage: min_voltage, maxVoltage: max_voltage, name, stabilizationMinutes: stabilization_minutes });
-      await this.store.save();
-      if (created) await this._watchVoltage(monitor);
-      // An existing monitor's range just changed — re-evaluate it against the last known
-      // reading right away instead of silently waiting for the device's next real push (which,
-      // for a stable value, might be minutes away). Confirmed live: repeatedly editing
-      // max_voltage on an already-subscribed monitor never fired the trigger until a genuinely
-      // new sample happened to arrive on its own.
-      else if (monitor.lastSample) await this._voltageSample(monitor, monitor.lastSample.voltage, Date.now());
+      await this._createVoltageMonitor({ deviceId: this._deviceId(device), capability: capability?.id || capability?.data?.id, minVoltage: min_voltage, maxVoltage: max_voltage, name, stabilizationMinutes: stabilization_minutes });
       return true;
     });
     action('remove_voltage_monitor', async ({ monitor }) => { await this.removeVoltageMonitor(this._voltageMonitor(monitor)); return true; });
@@ -506,27 +475,7 @@ class StatisticTrackerApp extends Homey.App {
     // tune it later, unlike Activity Monitor) — every real use case so far is a plain
     // door/motion/on-off sensor with no flakiness to debounce. Add one if that ever changes.
     action('add_state_monitor', async ({ device, capability, true_label, false_label, name, active_values }) => {
-      const selected = await this.gateway.getDevice(this._deviceId(device));
-      if (!selected) throw new Error('Device not found.');
-      const capabilityId = capability?.id || capability?.data?.id || capability;
-      if (!capabilityId) throw new Error('Select a capability.');
-      // Mirrors the add_voltage_monitor guard: the picker above already filters to boolean/
-      // enum capabilities — this just catches whatever slips through if it somehow doesn't.
-      const capabilityType = selected.capabilitiesObj?.[capabilityId]?.type;
-      if (capabilityType !== 'boolean' && capabilityType !== 'enum') {
-        const title = selected.capabilitiesObj?.[capabilityId]?.title || capabilityId;
-        throw new Error(`"${title}" isn't a boolean or multi-state capability. Pick one like a contact, motion, on/off sensor, or an appliance's own state.`);
-      }
-      const activeValues = active_values ? active_values.split(',').map((v) => v.trim()).filter(Boolean) : null;
-      // An enum has more than two states — plain true/false has no meaning for it, so this
-      // has to be told explicitly which value(s) count as active instead of guessing.
-      if (capabilityType === 'enum' && !activeValues?.length) {
-        throw new Error('This capability has multiple states — specify which value(s) count as active (e.g. "Running, Rinse").');
-      }
-      const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => cap !== capabilityId && selected.capabilities.includes(cap));
-      const { monitor, created } = this.store.upsertStateMonitor({ device: selected, capability: capabilityId, trueLabel: true_label, falseLabel: false_label, name, activeValues, auxiliaryCapabilities });
-      await this.store.save();
-      if (created) await this._watchState(monitor);
+      await this._createStateMonitor({ deviceId: this._deviceId(device), capability: capability?.id || capability?.data?.id || capability, trueLabel: true_label, falseLabel: false_label, name, activeValues: active_values });
       return true;
     });
     action('remove_state_monitor', async ({ monitor }) => { await this.removeStateMonitor(this._stateMonitor(monitor)); return true; });
@@ -570,6 +519,64 @@ class StatisticTrackerApp extends Homey.App {
     });
   }
 
+  // Shared by the "Add activity monitor" Flow card and the Settings "Add monitor" form — same
+  // validation and creation path either way, so the two can never silently drift apart.
+  async _createActivityMonitor({ deviceId, capability, threshold, name }) {
+    const selected = await this.gateway.getDevice(deviceId);
+    const capabilityId = capability || 'measure_power';
+    if (!selected?.capabilities.includes(capabilityId)) throw new Error(`The device doesn't have the ${capabilityId} capability.`);
+    const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => cap !== capabilityId && selected.capabilities.includes(cap));
+    const { monitor, created } = this.store.upsertMonitor({ device: selected, threshold, name, capability: capabilityId, auxiliaryCapabilities });
+    await this.store.save();
+    if (created) await this._watch(monitor);
+    // An existing monitor's threshold just changed (or was re-run idempotently) — re-check it
+    // against the last known reading right away instead of waiting for the device's next real
+    // push.
+    else if (monitor.lastSample) await this._sample(monitor, monitor.lastSample.power, Date.now());
+    return monitor;
+  }
+  async _createVoltageMonitor({ deviceId, capability, minVoltage, maxVoltage, name, stabilizationMinutes }) {
+    const selected = await this.gateway.getDevice(deviceId);
+    const capabilityId = capability || 'measure_voltage';
+    if (!selected?.capabilities.includes(capabilityId)) throw new Error(`The device doesn't have the ${capabilityId} capability.`);
+    // A device with a multi-phase meter often lists "Power Phase A" right next to "Voltage
+    // Phase A" — nothing else here would catch a mixup, since the min/max range is just numbers
+    // to the engine either way. Confirmed live: a real device configured this way threw a false
+    // "overvoltage" whenever the appliance's wattage exceeded the voltage threshold.
+    if (!capabilityId.startsWith('measure_voltage')) {
+      const title = selected.capabilitiesObj?.[capabilityId]?.title || capabilityId;
+      throw new Error(`"${title}" isn't a voltage capability. Pick one whose id starts with measure_voltage (e.g. "Voltage Phase A").`);
+    }
+    const { monitor, created } = this.store.upsertVoltageMonitor({ device: selected, capability: capabilityId, minVoltage, maxVoltage, name, stabilizationMinutes });
+    await this.store.save();
+    if (created) await this._watchVoltage(monitor);
+    else if (monitor.lastSample) await this._voltageSample(monitor, monitor.lastSample.voltage, Date.now());
+    return monitor;
+  }
+  async _createStateMonitor({ deviceId, capability, trueLabel, falseLabel, name, activeValues: rawActiveValues }) {
+    const selected = await this.gateway.getDevice(deviceId);
+    if (!selected) throw new Error('Device not found.');
+    const capabilityId = capability;
+    if (!capabilityId) throw new Error('Select a capability.');
+    const capabilityType = selected.capabilitiesObj?.[capabilityId]?.type;
+    if (capabilityType !== 'boolean' && capabilityType !== 'enum' && capabilityType !== 'string') {
+      const title = selected.capabilitiesObj?.[capabilityId]?.title || capabilityId;
+      throw new Error(`"${title}" isn't a boolean or multi-state capability. Pick one like a contact, motion, on/off sensor, or an appliance's own state.`);
+    }
+    const activeValues = Array.isArray(rawActiveValues)
+      ? rawActiveValues.map((v) => String(v).trim()).filter(Boolean)
+      : (rawActiveValues ? String(rawActiveValues).split(',').map((v) => v.trim()).filter(Boolean) : null);
+    // An enum/string has more than two states — plain true/false has no meaning for it, so this
+    // has to be told explicitly which value(s) count as active instead of guessing.
+    if (capabilityType !== 'boolean' && !activeValues?.length) {
+      throw new Error('This capability has multiple states — specify which value(s) count as active (e.g. "Running, Rinse").');
+    }
+    const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => cap !== capabilityId && selected.capabilities.includes(cap));
+    const { monitor, created } = this.store.upsertStateMonitor({ device: selected, capability: capabilityId, trueLabel, falseLabel, name, activeValues, auxiliaryCapabilities });
+    await this.store.save();
+    if (created) await this._watchState(monitor);
+    return monitor;
+  }
   _monitorResults(query) { const normalized = (query || '').toLowerCase(); return Object.values(this.store.data.monitors).filter((m) => m.name.toLowerCase().includes(normalized)).map((m) => ({ name: m.name, description: m.deviceName, data: { id: m.id } })); }
   _groupResults(query) { const normalized = (query || '').toLowerCase(); return Object.values(this.store.data.groups).filter((g) => g.name.toLowerCase().includes(normalized)).map((g) => ({ name: g.name, description: g.type, data: { id: g.id } })); }
   _voltageMonitorResults(query) { const normalized = (query || '').toLowerCase(); return Object.values(this.store.data.voltageMonitors).filter((m) => m.name.toLowerCase().includes(normalized)).map((m) => ({ name: m.name, description: m.deviceName, data: { id: m.id } })); }
