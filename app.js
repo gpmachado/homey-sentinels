@@ -17,6 +17,15 @@ const HISTORY_CONSOLIDATION_MS = 6 * 60 * 60 * 1000;
 // the primary capability is something else (an activity monitor on measure_current, or any
 // state monitor at all, whose primary is never a power reading).
 const AUXILIARY_CAPABILITY_CANDIDATES = ['measure_power', 'measure_current', 'meter_power', 'measure_voltage'];
+// Every raw capability sample across every monitor used to call store.save() synchronously —
+// each one serializing and writing the ENTIRE settings blob (all monitors' periods/cycles
+// combined, now 30k+ entries). Confirmed live: as that data volume grew, a burst of
+// near-simultaneous samples (several monitors reporting close together) pushed cumulative save
+// cost past Homey's CPU watchdog and crashed the app. Coalescing rapid saves into one write
+// every this long fixes the scaling problem — store.save() always persists the current
+// `this.data` wholesale, so any number of mutations before the timer fires are captured by
+// that one eventual write regardless.
+const SAVE_DEBOUNCE_MS = 3000;
 // A calibrating monitor re-attempts _suggestedThreshold on every sample — cheap for a device
 // that reports every few minutes, but a device cycling rapidly (a heating element's thermostat
 // clicking on/off) can push many samples per second, each re-sorting the whole periods[]
@@ -72,6 +81,7 @@ class StatisticTrackerApp extends Homey.App {
     // samples (a device cycling its heating element on/off) can't re-run _suggestedThreshold's
     // sort over the whole periods[] array on every single one of them while still calibrating.
     this._lastCalibrationAttempt = new Map();
+    this._saveTimer = null;
     this.engine = new ActivityEngine();
     this.voltageEngine = new VoltageEngine();
     this.gateway = new HomeyDeviceGateway(this.homey);
@@ -107,6 +117,26 @@ class StatisticTrackerApp extends Homey.App {
     Object.values(this.store.data.stateMonitors).forEach((monitor) => this._watchState(monitor).catch((error) => this.error('Failed to resume state monitor', monitor.name, error)));
   }
 
+  // Coalesces rapid-fire saves from the sample hot path (see SAVE_DEBOUNCE_MS above) — any
+  // number of calls while one is already pending just ride along on that same upcoming write,
+  // since store.save() always persists the full current state regardless of what changed.
+  _scheduleSave() {
+    if (this._saveTimer) return;
+    this._saveTimer = this.homey.setTimeout(() => {
+      this._saveTimer = null;
+      this.store.save().catch((error) => this.error('Failed to save (debounced)', error));
+    }, SAVE_DEBOUNCE_MS);
+  }
+  // Flushes a still-pending debounced save immediately — without this, an app update/restart
+  // landing inside the debounce window would silently drop whatever samples arrived since the
+  // last write.
+  async onUninit() {
+    if (this._saveTimer) {
+      this.homey.clearTimeout(this._saveTimer);
+      this._saveTimer = null;
+      await this.store.save().catch((error) => this.error('Failed to save on shutdown', error));
+    }
+  }
   _consolidateHistory() {
     try {
       // Runs at startup and every 6h — logging its cost is the only way to tell whether a
@@ -681,7 +711,7 @@ class StatisticTrackerApp extends Homey.App {
   // energy/current/message data is available in the same Flow without a second Flow listening
   // on "Activity started"/"Activity finished".
   async _handleActivityEvents(monitor, events) {
-    await this.store.save();
+    this._scheduleSave();
     let result = null;
     for (const event of events) {
       if (event.type === 'continuity_pending') {
@@ -759,7 +789,7 @@ class StatisticTrackerApp extends Homey.App {
     await this._handleStateEvents(monitor, events);
   }
   async _handleStateEvents(monitor, events) {
-    await this.store.save();
+    this._scheduleSave();
     for (const event of events) {
       if (event.type === 'continuity_pending') {
         this.homey.setTimeout(() => this._resolveStateContinuity(monitor).catch((error) => this.error('Failed to resolve continuity window', monitor.name, error)), standbyGraceSeconds(monitor) * 1000);
@@ -804,7 +834,7 @@ class StatisticTrackerApp extends Homey.App {
     await this._handleVoltageEvents(monitor, events);
   }
   async _handleVoltageEvents(monitor, events) {
-    await this.store.save();
+    this._scheduleSave();
     for (const event of events) {
       if (event.type === 'continuity_pending') {
         this.homey.setTimeout(() => this._resolveVoltageContinuity(monitor).catch((error) => this.error('Failed to resolve voltage continuity window', monitor.name, error)), stabilizationGraceSeconds(monitor) * 1000);
@@ -999,7 +1029,7 @@ class StatisticTrackerApp extends Homey.App {
     return Object.values(this.store.data.monitors).map((monitor) => {
       const stats = this._statistics(monitor, period);
       return {
-        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, state: monitor.state,
+        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, state: monitor.state, threshold: monitor.threshold,
         period, cycleCount: stats.cycle_count, energy: stats.total_energy, averagePower: stats.average_power, energyQuality: stats.energy_quality,
         dailyBreakdown: period === 'day' ? null : this._dailyBreakdown(monitor, period === 'week' ? 7 : 30),
         messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished,
