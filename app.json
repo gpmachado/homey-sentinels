@@ -148,6 +148,83 @@
     "triggers": [
       {
         "title": {
+          "en": "Cycle unusually long"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] finishes a cycle at least [[multiplier]]x its usual duration"
+        },
+        "hint": {
+          "en": "Compares the cycle that just finished to the median of this monitor's own history — needs a handful of completed cycles first to have a meaningful median. Simpler and more predictable than statistical anomaly detection (μ±2σ), which struggles with the same skewed, multi-modal duration distributions real appliances produce."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "multiplier",
+            "type": "number",
+            "title": {
+              "en": "Multiplier"
+            },
+            "min": 1,
+            "placeholder": {
+              "en": "e.g. 3"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "duration",
+            "type": "number",
+            "title": {
+              "en": "This cycle's duration (seconds)"
+            }
+          },
+          {
+            "name": "duration_human",
+            "type": "string",
+            "title": {
+              "en": "This cycle's duration"
+            }
+          },
+          {
+            "name": "median_duration",
+            "type": "number",
+            "title": {
+              "en": "Usual (median) duration (seconds)"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message"
+            }
+          }
+        ],
+        "id": "activity_cycle_unusually_long"
+      },
+      {
+        "title": {
           "en": "Cycle count reached"
         },
         "titleFormatted": {
@@ -1542,6 +1619,35 @@
       },
       {
         "title": {
+          "en": "Export data as JSON"
+        },
+        "titleFormatted": {
+          "en": "Export all Sentinels data as JSON"
+        },
+        "hint": {
+          "en": "Returns the entire store — every monitor's configuration, history and stats — as one JSON string token. Meant for a backup/inspection flow (e.g. an HTTP request or a file-writing app), not a plain notification — check the size token first if you're about to put it somewhere with a size limit."
+        },
+        "args": [],
+        "tokens": [
+          {
+            "name": "json",
+            "type": "string",
+            "title": {
+              "en": "JSON"
+            }
+          },
+          {
+            "name": "size_bytes",
+            "type": "number",
+            "title": {
+              "en": "Size (bytes)"
+            }
+          }
+        ],
+        "id": "export_data"
+      },
+      {
+        "title": {
           "en": "Generate text report"
         },
         "titleFormatted": {
@@ -1842,6 +1948,77 @@
           }
         ],
         "id": "get_binary_event_statistics"
+      },
+      {
+        "title": {
+          "en": "Get group statistics"
+        },
+        "titleFormatted": {
+          "en": "Get group statistics for [[group]], period: [[period]]"
+        },
+        "hint": {
+          "en": "A group has no continuous per-device history (see \"[Group] has a mismatch\"'s own limitation) — but the app polls every group every few minutes and keeps a light daily tally of how often and for how long it found a mismatch, which this reads."
+        },
+        "args": [
+          {
+            "name": "group",
+            "type": "autocomplete",
+            "title": {
+              "en": "Group"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "mismatch_seconds",
+            "type": "number",
+            "title": {
+              "en": "Time with a mismatch (seconds)"
+            }
+          },
+          {
+            "name": "mismatch_duration_human",
+            "type": "string",
+            "title": {
+              "en": "Time with a mismatch"
+            }
+          },
+          {
+            "name": "check_count",
+            "type": "number",
+            "title": {
+              "en": "Checks performed"
+            }
+          }
+        ],
+        "id": "get_group_statistics"
       },
       {
         "title": {

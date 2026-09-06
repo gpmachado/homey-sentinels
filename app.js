@@ -30,6 +30,12 @@ const AUXILIARY_CAPABILITY_CANDIDATES = ['measure_power', 'measure_current', 'me
 // every monitor, capped rather than time-retained since its only purpose is "what just
 // happened", not historical analysis (that's what each monitor's own statistics are for).
 const EVENT_LOG_MAX = 50;
+// Groups have no per-device subscription (see _checkGroup) — a light periodic poll instead of
+// a full live-subscription rewrite gets 80% of the value (a daily "how much of today was this
+// group mismatched" stat) for a fraction of the complexity. 5 minutes matches
+// DEVICE_CACHE_REFRESH_MS's own cadence — frequent enough to be useful, infrequent enough that
+// even several groups' worth of getDevice() calls per tick stays negligible.
+const GROUP_POLL_INTERVAL_MS = 5 * 60 * 1000;
 // Every raw capability sample across every monitor used to call store.save() synchronously —
 // each one serializing and writing the ENTIRE settings blob (all monitors' periods/cycles
 // combined, now 30k+ entries). Confirmed live: as that data volume grew, a burst of
@@ -102,7 +108,8 @@ class StatisticTrackerApp extends Homey.App {
       started: this.homey.flow.getTriggerCard('activity_started'),
       finished: this.homey.flow.getTriggerCard('activity_finished'),
       calibrated: this.homey.flow.getTriggerCard('threshold_calibrated'),
-      cyclesReached: this.homey.flow.getTriggerCard('activity_cycles_reached')
+      cyclesReached: this.homey.flow.getTriggerCard('activity_cycles_reached'),
+      unusuallyLong: this.homey.flow.getTriggerCard('activity_cycle_unusually_long')
     };
     this.stateCards = {
       started: this.homey.flow.getTriggerCard('state_started'),
@@ -130,6 +137,8 @@ class StatisticTrackerApp extends Homey.App {
     this._scheduleWithBackoff('System timezone refresh', () => this.gateway.refreshSystemTimezone(), DEVICE_CACHE_REFRESH_MS);
     this._consolidateHistory();
     this.homey.setInterval(() => this._consolidateHistory(), HISTORY_CONSOLIDATION_MS);
+    this._pollGroups().catch((error) => this.error('Failed to poll groups', error));
+    this._scheduleWithBackoff('Group mismatch polling', () => this._pollGroups(), GROUP_POLL_INTERVAL_MS);
     Object.values(this.store.data.monitors).forEach((monitor) => this._watch(monitor).catch((error) => this.error('Failed to resume monitor', monitor.name, error)));
     Object.values(this.store.data.voltageMonitors).forEach((monitor) => this._watchVoltage(monitor).catch((error) => this.error('Failed to resume voltage monitor', monitor.name, error)));
     Object.values(this.store.data.stateMonitors).forEach((monitor) => this._watchState(monitor).catch((error) => this.error('Failed to resume state monitor', monitor.name, error)));
@@ -407,6 +416,11 @@ class StatisticTrackerApp extends Homey.App {
       return filterId === state.monitorId && Number(args.cycles) === state.cycleCount;
     });
     this.cards.cyclesReached.registerArgumentAutocompleteListener('monitor', async (query) => this._monitorResults(query));
+    this.cards.unusuallyLong.registerRunListener(async (args, state) => {
+      const filterId = args.monitor?.id || args.monitor?.data?.id;
+      return filterId === state.monitorId && state.ratio >= Number(args.multiplier);
+    });
+    this.cards.unusuallyLong.registerArgumentAutocompleteListener('monitor', async (query) => this._monitorResults(query));
     this.binaryCards.logged.registerRunListener(async (args, state) => (args.counter?.id || args.counter?.data?.id) === state.counterId);
     this.binaryCards.logged.registerArgumentAutocompleteListener('counter', async (query) => this._binaryCounterResults(query));
     const deviceAutocomplete = (card) => card.registerArgumentAutocompleteListener('device', async (query) => {
@@ -446,7 +460,7 @@ class StatisticTrackerApp extends Homey.App {
     this._monitorConditionAutocomplete('activity_running_longer_than');
     ['remove_state_monitor', 'reset_state_monitor', 'get_state_statistics'].forEach((id) => this._stateMonitorActionAutocomplete(id));
     this._stateMonitorConditionAutocomplete('is_state_active');
-    ['add_device_to_state_group', 'remove_device_from_state_group', 'check_state_group'].forEach((id) => this._groupActionAutocomplete(id));
+    ['add_device_to_state_group', 'remove_device_from_state_group', 'check_state_group', 'get_group_statistics'].forEach((id) => this._groupActionAutocomplete(id));
     this._groupConditionAutocomplete('state_group_has_mismatch');
     ['remove_voltage_monitor', 'reset_voltage_monitor', 'update_voltage_monitor', 'get_voltage_statistics'].forEach((id) => this._voltageMonitorActionAutocomplete(id));
     this.homey.flow.getConditionCard('is_voltage_normal').registerArgumentAutocompleteListener('monitor', async (query) => this._voltageMonitorResults(query));
@@ -544,6 +558,11 @@ class StatisticTrackerApp extends Homey.App {
     action('check_state_group', async ({ group, expected_state }) => {
       const result = await this._checkGroup(this._group(group), expected_state);
       return { group_name: result.groupName, checked_count: result.checkedCount, match_count: result.matchCount, mismatch_count: result.mismatchCount, mismatch_list: result.mismatchList, message: result.message };
+    });
+    action('get_group_statistics', async ({ group, period }) => this._groupStatistics(this._group(group), period));
+    action('export_data', async () => {
+      const json = JSON.stringify(this.store.data);
+      return { json, size_bytes: Buffer.byteLength(json, 'utf8') };
     });
     condition('is_active', async ({ monitor }) => this._monitor(monitor).state === ACTIVE);
     // Lets an energy-saving Flow act only once a device has been running a while (e.g. "turn
@@ -872,6 +891,18 @@ class StatisticTrackerApp extends Homey.App {
           { device: monitor.deviceName, monitor: monitor.name, count: dayStats.cycle_count, message: finishedData.message },
           { monitorId: monitor.id, cycleCount: dayStats.cycle_count }
         );
+        // 'all' rather than 'day' for the baseline — cycles[] is never pruned, so this stays a
+        // stable, meaningful median regardless of how long the monitor's been running; a small
+        // cycle count (checked via median_duration being non-null, same MEDIAN_MIN_CYCLES guard
+        // every other median-consuming stat already uses) simply doesn't fire yet.
+        const allTimeStats = this._statistics(monitor, 'all');
+        if (Number.isFinite(allTimeStats.median_duration) && allTimeStats.median_duration > 0) {
+          const ratio = event.duration / allTimeStats.median_duration;
+          await this.cards.unusuallyLong.trigger(
+            { device: monitor.deviceName, monitor: monitor.name, duration: event.duration, duration_human: event.duration_human, median_duration: allTimeStats.median_duration, message: finishedData.message },
+            { monitorId: monitor.id, ratio }
+          );
+        }
         result = finishedData;
       }
     }
@@ -1329,6 +1360,35 @@ class StatisticTrackerApp extends Homey.App {
   }
   _assertGroupDevice(group, device) {
     if (!device || !device.capabilities.includes(GROUP_TYPES[group.type]?.capability)) throw new Error(`This device isn't compatible with the ${group.type} group.`);
+  }
+  // Feeds get_group_statistics — the closest a group gets to real history without a full
+  // live-subscription rewrite (see GROUP_POLL_INTERVAL_MS). A group with fewer than 2 devices
+  // shouldn't exist (creation already requires it) but skip defensively rather than let one bad
+  // group's error stop every other group's poll this tick.
+  async _pollGroups() {
+    const timeZone = this._getTimezone();
+    for (const group of Object.values(this.store.data.groups)) {
+      if (group.devices.length < 2) continue;
+      try {
+        const result = await this._checkGroup(group);
+        this.store.recordGroupPoll(group, result.mismatchCount, GROUP_POLL_INTERVAL_MS / 1000, timeZone);
+      } catch (error) {
+        this.error('Failed to poll group', group.name, error);
+      }
+    }
+    this._scheduleSave();
+  }
+  _groupStatistics(group, period = 'day') {
+    const now = Date.now();
+    const timeZone = this._getTimezone();
+    const rollingWindowDays = { week: 7, month: 30 };
+    const startKey = period === 'day'
+      ? localDateKey(new Date(now), timeZone)
+      : localDateKey(new Date(now - (rollingWindowDays[period] || 0) * 24 * 60 * 60 * 1000), timeZone);
+    const days = (group.dailySummaries || []).filter((day) => day.date >= startKey);
+    const mismatchSeconds = days.reduce((sum, day) => sum + day.mismatchSeconds, 0);
+    const checkCount = days.reduce((sum, day) => sum + day.checkCount, 0);
+    return { mismatch_seconds: mismatchSeconds, mismatch_duration_human: humanDuration(mismatchSeconds), check_count: checkCount };
   }
   async _checkGroup(group, expectedOverride) {
     if (group.devices.length < 2) throw new Error('A group needs at least two devices.');

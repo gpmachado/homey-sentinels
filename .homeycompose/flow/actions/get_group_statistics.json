@@ -1,0 +1,21 @@
+{
+  "title": { "en": "Get group statistics" },
+  "titleFormatted": { "en": "Get group statistics for [[group]], period: [[period]]" },
+  "hint": { "en": "A group has no continuous per-device history (see \"[Group] has a mismatch\"'s own limitation) — but the app polls every group every few minutes and keeps a light daily tally of how often and for how long it found a mismatch, which this reads." },
+  "args": [
+    { "name": "group", "type": "autocomplete", "title": { "en": "Group" } },
+    {
+      "name": "period", "type": "dropdown", "title": { "en": "Period" },
+      "values": [
+        { "id": "day", "label": { "en": "Today" } },
+        { "id": "week", "label": { "en": "Last 7 days" } },
+        { "id": "month", "label": { "en": "Last 30 days" } }
+      ]
+    }
+  ],
+  "tokens": [
+    { "name": "mismatch_seconds", "type": "number", "title": { "en": "Time with a mismatch (seconds)" } },
+    { "name": "mismatch_duration_human", "type": "string", "title": { "en": "Time with a mismatch" } },
+    { "name": "check_count", "type": "number", "title": { "en": "Checks performed" } }
+  ]
+}

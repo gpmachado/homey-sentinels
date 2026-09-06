@@ -1,0 +1,10 @@
+{
+  "title": { "en": "Export data as JSON" },
+  "titleFormatted": { "en": "Export all Sentinels data as JSON" },
+  "hint": { "en": "Returns the entire store — every monitor's configuration, history and stats — as one JSON string token. Meant for a backup/inspection flow (e.g. an HTTP request or a file-writing app), not a plain notification — check the size token first if you're about to put it somewhere with a size limit." },
+  "args": [],
+  "tokens": [
+    { "name": "json", "type": "string", "title": { "en": "JSON" } },
+    { "name": "size_bytes", "type": "number", "title": { "en": "Size (bytes)" } }
+  ]
+}
