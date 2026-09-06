@@ -26,6 +26,18 @@
       "method": "GET",
       "path": "/devices"
     },
+    "getAvailabilityWatchdogs": {
+      "method": "GET",
+      "path": "/availability-watchdogs"
+    },
+    "createAvailabilityWatchdog": {
+      "method": "POST",
+      "path": "/availability-watchdogs"
+    },
+    "deleteAvailabilityWatchdog": {
+      "method": "DELETE",
+      "path": "/availability-watchdogs/:deviceId"
+    },
     "getGroups": {
       "method": "GET",
       "path": "/groups"
@@ -501,6 +513,102 @@
           }
         ],
         "id": "binary_event_logged"
+      },
+      {
+        "title": {
+          "en": "Device became available"
+        },
+        "titleFormatted": {
+          "en": "[[device]] became available again"
+        },
+        "hint": {
+          "en": "Fires when a watched device recovers — its available flag returns true, or it starts reporting again after going stale."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Device"
+            },
+            "hint": {
+              "en": "Which watched device to react to."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "downtime",
+            "type": "string",
+            "title": {
+              "en": "Downtime"
+            }
+          }
+        ],
+        "id": "device_became_available"
+      },
+      {
+        "title": {
+          "en": "Device became unavailable"
+        },
+        "titleFormatted": {
+          "en": "[[device]] became unavailable"
+        },
+        "hint": {
+          "en": "Fires when a watched device's own available flag turns false, or when it goes longer than its configured threshold without reporting (catches drivers that never manage available themselves). Configure which devices are watched, and for how many hours, in Settings → Availability or with \"Add availability watchdog\"."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Device"
+            },
+            "hint": {
+              "en": "Which watched device to react to."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "zone",
+            "type": "string",
+            "title": {
+              "en": "Zone"
+            }
+          },
+          {
+            "name": "last_seen",
+            "type": "string",
+            "title": {
+              "en": "Last seen"
+            }
+          },
+          {
+            "name": "reason",
+            "type": "string",
+            "title": {
+              "en": "Reason"
+            }
+          }
+        ],
+        "id": "device_became_unavailable"
       },
       {
         "title": {
@@ -1048,6 +1156,27 @@
       },
       {
         "title": {
+          "en": "[[device]] !{{is available|is not available}}"
+        },
+        "titleFormatted": {
+          "en": "[[device]] !{{is available|is not available}}"
+        },
+        "hint": {
+          "en": "Checks the device's own available flag right now — no watchdog needs to be configured for this. Only accurate for devices whose driver actively manages availability; one that never does will always read \"available\" even if it's dead. Add an availability watchdog for that device instead to also catch staleness."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device"
+            }
+          }
+        ],
+        "id": "is_device_available"
+      },
+      {
+        "title": {
           "en": "[[device]] !{{is already monitored|is not monitored}}"
         },
         "titleFormatted": {
@@ -1222,6 +1351,38 @@
           }
         ],
         "id": "add_activity_monitor"
+      },
+      {
+        "title": {
+          "en": "Add availability watchdog"
+        },
+        "titleFormatted": {
+          "en": "Watch [[device]] for availability, alert after [[thresholdHours]]h without reporting"
+        },
+        "hint": {
+          "en": "Watches a device for two things: its own available flag turning false, and going this many hours without any capability update (catches drivers that never manage available themselves). Run once to create it — re-running just updates the threshold. Watchdogs can also be added/removed from Settings → Availability."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "thresholdHours",
+            "type": "number",
+            "min": 1,
+            "title": {
+              "en": "Hours without reporting before alerting"
+            },
+            "placeholder": {
+              "en": "12"
+            }
+          }
+        ],
+        "id": "add_availability_watchdog"
       },
       {
         "deprecated": true,
@@ -2348,6 +2509,24 @@
           }
         ],
         "id": "remove_activity_monitor"
+      },
+      {
+        "title": {
+          "en": "Remove availability watchdog"
+        },
+        "titleFormatted": {
+          "en": "Stop watching [[device]] for availability"
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device"
+            }
+          }
+        ],
+        "id": "remove_availability_watchdog"
       },
       {
         "title": {

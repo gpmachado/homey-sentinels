@@ -1,0 +1,12 @@
+{
+  "title": { "en": "Device became available" },
+  "titleFormatted": { "en": "[[device]] became available again" },
+  "hint": { "en": "Fires when a watched device recovers — its available flag returns true, or it starts reporting again after going stale." },
+  "args": [
+    { "name": "device", "type": "autocomplete", "required": true, "title": { "en": "Device" }, "hint": { "en": "Which watched device to react to." } }
+  ],
+  "tokens": [
+    { "name": "device", "type": "string", "title": { "en": "Device" } },
+    { "name": "downtime", "type": "string", "title": { "en": "Downtime" } }
+  ]
+}

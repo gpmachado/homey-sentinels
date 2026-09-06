@@ -4,6 +4,18 @@ module.exports = {
   async getDevices({ homey }) {
     return homey.app.gateway.getCachedDevices();
   },
+  async getAvailabilityWatchdogs({ homey }) {
+    return Object.values(homey.app.store.data.availabilityWatchdogs);
+  },
+  async createAvailabilityWatchdog({ homey, body }) {
+    return homey.app._createAvailabilityWatchdog({ deviceId: body.deviceId, thresholdHours: Number(body.thresholdHours) });
+  },
+  async deleteAvailabilityWatchdog({ homey, params }) {
+    const item = homey.app.store.data.availabilityWatchdogs[params.deviceId];
+    if (!item) throw new Error('Watchdog not found.');
+    await homey.app.removeAvailabilityWatchdog(params.deviceId);
+    return { ok: true };
+  },
   async getGroups({ homey }) {
     return Object.values(homey.app.store.data.groups);
   },

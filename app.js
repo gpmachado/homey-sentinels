@@ -42,6 +42,10 @@ const EVENT_LOG_MAX = 50;
 // DEVICE_CACHE_REFRESH_MS's own cadence — frequent enough to be useful, infrequent enough that
 // even several groups' worth of getDevice() calls per tick stays negligible.
 const GROUP_POLL_INTERVAL_MS = 5 * 60 * 1000;
+// Same polling rationale as groups — availability watchdogs check `available`/`lastSeenAt` off
+// the existing device cache, no new subscription. Thresholds are configured in hours, so this
+// cadence just needs to be comfortably finer than the smallest threshold anyone would set.
+const AVAILABILITY_POLL_INTERVAL_MS = 10 * 60 * 1000;
 // Every raw capability sample across every monitor used to call store.save() synchronously —
 // each one serializing and writing the ENTIRE settings blob (all monitors' periods/cycles
 // combined, now 30k+ entries). Confirmed live: as that data volume grew, a burst of
@@ -100,6 +104,10 @@ class StatisticTrackerApp extends Homey.App {
     this.binaryCards = {
       logged: this.homey.flow.getTriggerCard('binary_event_logged')
     };
+    this.availabilityCards = {
+      unavailable: this.homey.flow.getTriggerCard('device_became_unavailable'),
+      available: this.homey.flow.getTriggerCard('device_became_available')
+    };
     this._registerFlowCards();
     this._registerWidgets();
     const buildTag = buildInfo ? `${buildInfo.commit}${buildInfo.dirty ? '+dirty' : ''} (${buildInfo.subject || 'no subject'}, ${buildInfo.commitDate || 'unknown date'})` : 'unstamped — run `npm run stamp`';
@@ -116,6 +124,8 @@ class StatisticTrackerApp extends Homey.App {
     this.homey.setInterval(() => this._consolidateHistory(), HISTORY_CONSOLIDATION_MS);
     this._pollGroups().catch((error) => this.error('Failed to poll groups', error));
     this._scheduleWithBackoff('Group mismatch polling', () => this._pollGroups(), GROUP_POLL_INTERVAL_MS);
+    this._pollAvailabilityWatchdogs().catch((error) => this.error('Failed to poll availability watchdogs', error));
+    this._scheduleWithBackoff('Availability watchdog polling', () => this._pollAvailabilityWatchdogs(), AVAILABILITY_POLL_INTERVAL_MS);
     Object.values(this.store.data.monitors).forEach((monitor) => this._watch(monitor).catch((error) => this.error('Failed to resume monitor', monitor.name, error)));
     Object.values(this.store.data.voltageMonitors).forEach((monitor) => this._watchVoltage(monitor).catch((error) => this.error('Failed to resume voltage monitor', monitor.name, error)));
     Object.values(this.store.data.stateMonitors).forEach((monitor) => this._watchState(monitor).catch((error) => this.error('Failed to resume state monitor', monitor.name, error)));
@@ -346,6 +356,20 @@ class StatisticTrackerApp extends Homey.App {
     this.store.resetBinaryCounter(item);
     await this.store.save();
   }
+  // Shared by the "Add availability watchdog" Flow card and Settings — same upsert-by-deviceId
+  // path either way, matching _createActivityMonitor's rationale (re-running the Flow card just
+  // updates the threshold instead of erroring on a duplicate).
+  async _createAvailabilityWatchdog({ deviceId, thresholdHours }) {
+    const selected = await this.gateway.getDevice(deviceId);
+    if (!selected) throw new Error('Device not found.');
+    const watchdog = this.store.upsertAvailabilityWatchdog({ deviceId, name: selected.name, thresholdHours });
+    await this.store.save();
+    return watchdog;
+  }
+  async removeAvailabilityWatchdog(deviceId) {
+    this.store.deleteAvailabilityWatchdog(deviceId);
+    await this.store.save();
+  }
 
   _registerFlowCards() {
     // Wrapping every card here (instead of editing each handler) logs entry/result/error for
@@ -400,14 +424,27 @@ class StatisticTrackerApp extends Homey.App {
     this.cards.unusuallyLong.registerArgumentAutocompleteListener('monitor', async (query) => this._monitorResults(query));
     this.binaryCards.logged.registerRunListener(async (args, state) => (args.counter?.id || args.counter?.data?.id) === state.counterId);
     this.binaryCards.logged.registerArgumentAutocompleteListener('counter', async (query) => this._binaryCounterResults(query));
+    // Filters to only devices that already have a watchdog configured (unlike the generic
+    // deviceAutocomplete below, which lists every device — picking an unwatched one here would
+    // just never fire).
+    const registerAvailabilityTriggerFilter = (card) => {
+      card.registerRunListener(async (args, state) => (args.device?.id || args.device?.data?.id) === state.deviceId);
+      card.registerArgumentAutocompleteListener('device', async (query) => this._availabilityWatchdogResults(query));
+    };
+    registerAvailabilityTriggerFilter(this.availabilityCards.unavailable);
+    registerAvailabilityTriggerFilter(this.availabilityCards.available);
     const deviceAutocomplete = (card) => card.registerArgumentAutocompleteListener('device', async (query) => {
       const normalized = (query || '').toLowerCase();
       return (await this.gateway.listDevices()).filter((device) =>
         device.name.toLowerCase().includes(normalized)
       ).map((device) => ({ name: device.name, description: device.zoneName || undefined, data: { id: device.id, name: device.name } }));
     });
-    ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor', 'add_device_to_state_group', 'remove_device_from_state_group', 'start_monitoring_device'].forEach((id) => deviceAutocomplete(this.homey.flow.getActionCard(id)));
+    ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor', 'add_device_to_state_group', 'remove_device_from_state_group', 'start_monitoring_device', 'add_availability_watchdog'].forEach((id) => deviceAutocomplete(this.homey.flow.getActionCard(id)));
     deviceAutocomplete(this.homey.flow.getConditionCard('is_device_monitored'));
+    deviceAutocomplete(this.homey.flow.getConditionCard('is_device_available'));
+    // Unlike the trigger filters above, "remove" should list only watched devices — same
+    // rationale as _availabilityWatchdogResults being used there.
+    this.homey.flow.getActionCard('remove_availability_watchdog').registerArgumentAutocompleteListener('device', async (query) => this._availabilityWatchdogResults(query));
     // Lists every Homey device (like Start's own picker), not just ones with an
     // already-started manual monitor — restricting to existing monitors forced building the
     // Stop half of a Flow to wait until Start had actually run once in production, just to
@@ -628,6 +665,19 @@ class StatisticTrackerApp extends Homey.App {
       const stats = this._binaryEventStatistics(this._binaryCounter(counter), period);
       return { ...stats, last_event_at: stats.last_event_at || '' };
     });
+
+    action('add_availability_watchdog', async ({ device, thresholdHours }) => {
+      await this._createAvailabilityWatchdog({ deviceId: this._deviceId(device), thresholdHours: Number(thresholdHours) });
+      return true;
+    });
+    action('remove_availability_watchdog', async ({ device }) => { await this.removeAvailabilityWatchdog(this._deviceId(device)); return true; });
+    // Reads the cache (not a live gateway.getDevice() call) — a condition can run often inside
+    // a Flow, and the same cache already backs the Settings Availability tab.
+    condition('is_device_available', async ({ device }) => {
+      const id = this._deviceId(device);
+      const cached = this.gateway.getCachedDevices().find((d) => d.id === id);
+      return cached ? cached.available : false;
+    });
   }
 
   // Shared by the "Add activity monitor" Flow card and the Settings "Add monitor" form — same
@@ -693,6 +743,9 @@ class StatisticTrackerApp extends Homey.App {
   _voltageMonitorResults(query) { const normalized = (query || '').toLowerCase(); return Object.values(this.store.data.voltageMonitors).filter((m) => m.name.toLowerCase().includes(normalized)).map((m) => ({ name: m.name, description: m.deviceName, data: { id: m.id } })); }
   _stateMonitorResults(query) { const normalized = (query || '').toLowerCase(); return Object.values(this.store.data.stateMonitors).filter((m) => m.name.toLowerCase().includes(normalized)).map((m) => ({ name: m.name, description: m.deviceName, data: { id: m.id } })); }
   _binaryCounterResults(query) { const normalized = (query || '').toLowerCase(); return Object.values(this.store.data.binaryCounters).filter((c) => c.name.toLowerCase().includes(normalized)).map((c) => ({ name: c.name, description: `${c.totalCount} total`, data: { id: c.id } })); }
+  // Keyed by deviceId (not a synthetic id, see store.js) — `data.id` here IS the device id,
+  // matching what _deviceId() and the trigger filters above expect.
+  _availabilityWatchdogResults(query) { const normalized = (query || '').toLowerCase(); return Object.values(this.store.data.availabilityWatchdogs).filter((w) => w.name.toLowerCase().includes(normalized)).map((w) => ({ name: w.name, description: `alert after ${w.thresholdHours}h`, data: { id: w.deviceId } })); }
   _monitorActionAutocomplete(cardId) { this.homey.flow.getActionCard(cardId).registerArgumentAutocompleteListener('monitor', async (query) => this._monitorResults(query)); }
   _monitorConditionAutocomplete(cardId) { this.homey.flow.getConditionCard(cardId).registerArgumentAutocompleteListener('monitor', async (query) => this._monitorResults(query)); }
   _groupActionAutocomplete(cardId) { this.homey.flow.getActionCard(cardId).registerArgumentAutocompleteListener('group', async (query) => this._groupResults(query)); }
@@ -1096,6 +1149,48 @@ class StatisticTrackerApp extends Homey.App {
         this.store.recordGroupPoll(group, result.mismatchCount, GROUP_POLL_INTERVAL_MS / 1000, timeZone);
       } catch (error) {
         this.error('Failed to poll group', group.name, error);
+      }
+    }
+    this._scheduleSave();
+  }
+  // Combines two signals per the design in analise/NOTA_DISPONIBILIDADE_FLOWS.md: the device's
+  // own `available` flag (accurate whenever a driver actually manages it, fires instantly) and
+  // `lastSeenAt` staleness against a per-watchdog configurable threshold (covers drivers that
+  // never touch `available` at all — a single global threshold was exactly what made the
+  // Device Watchdog app's own detection unreliable in practice). Polled off the existing device
+  // cache, same as groups — no new subscription needed.
+  async _pollAvailabilityWatchdogs() {
+    const deviceById = new Map(this.gateway.getCachedDevices().map((device) => [device.id, device]));
+    for (const watchdog of Object.values(this.store.data.availabilityWatchdogs)) {
+      try {
+        const device = deviceById.get(watchdog.deviceId);
+        if (!device) continue; // unpaired from Homey — leave the watchdog as-is rather than guessing
+        watchdog.name = device.name;
+        const lastSeenMs = device.lastSeenAt ? Date.parse(device.lastSeenAt) : NaN;
+        const isStale = Number.isFinite(lastSeenMs) && (Date.now() - lastSeenMs) > watchdog.thresholdHours * 60 * 60 * 1000;
+        const isDown = !device.available || isStale;
+        if (isDown && !watchdog.wentUnavailableAt) {
+          watchdog.wentUnavailableAt = Date.now();
+          watchdog.reason = !device.available ? 'unavailable' : 'stale';
+          this._logEvent(watchdog.reason === 'stale'
+            ? `${device.name} hasn't reported in over ${watchdog.thresholdHours}h`
+            : `${device.name} became unavailable`);
+          await this.availabilityCards.unavailable.trigger(
+            { device: device.name, zone: device.zoneName || '', last_seen: device.lastSeenAt || '', reason: watchdog.reason },
+            { deviceId: watchdog.deviceId }
+          );
+        } else if (!isDown && watchdog.wentUnavailableAt) {
+          const downtimeSeconds = Math.max(0, Math.round((Date.now() - watchdog.wentUnavailableAt) / 1000));
+          this._logEvent(`${device.name} became available again`);
+          await this.availabilityCards.available.trigger(
+            { device: device.name, downtime: humanDuration(downtimeSeconds) },
+            { deviceId: watchdog.deviceId }
+          );
+          watchdog.wentUnavailableAt = null;
+          watchdog.reason = null;
+        }
+      } catch (error) {
+        this.error('Failed to poll availability watchdog', watchdog.deviceId, error);
       }
     }
     this._scheduleSave();

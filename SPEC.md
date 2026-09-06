@@ -132,10 +132,10 @@ and no history — every check reads the devices live. `Devices` never get modif
 
 - Cards: `create_state_group`, `add_device_to_state_group`, `remove_device_from_state_group`,
   `check_state_group`, condition `state_group_has_mismatch`.
-- Type→capability mapping lives once, in `app.js`'s `GROUP_TYPES` (`contact`→`alarm_contact`,
-  `light`/`switch`/`valve`→`onoff`, `garage`→`garagedoor_closed`) — shared by device
-  compatibility checks and the live comparison, so there's one place to get it right instead of
-  two that can drift out of sync (they already had, before this was unified).
+- Type→capability mapping lives once, in `lib/groups.js`'s `GROUP_TYPES` (`contact`→
+  `alarm_contact`, `light`/`switch`/`valve`→`onoff`, `garage`→`garagedoor_closed`) — shared by
+  device compatibility checks and the live comparison, so there's one place to get it right
+  instead of two that can drift out of sync (they already had, before this was unified).
 - `garagedoor_closed` reports `true` for *closed*, the opposite direction from `alarm_contact`/
   `onoff` — `GROUP_TYPES.garage.invert` flips the comparison so "expected: On / Open" still
   means what it says from the user's side, without exposing that polarity anywhere. Same
@@ -146,6 +146,26 @@ and no history — every check reads the devices live. `Devices` never get modif
 - **Known gap**: no per-device open-count or time-with-any-mismatch history exists. Adding
   that would require turning groups into a continuously-subscribed live monitor, which is a
   larger architectural change than the rest of this list — not started.
+
+### 2.6 Availability Watchdog (`store.data.availabilityWatchdogs`)
+
+Flags a plain Homey device (not a Sentinels monitor) going offline. Keyed by `deviceId` itself,
+not a synthetic id — one watchdog per device, since there's nothing else to disambiguate.
+Polled, not subscribed, off `HomeyDeviceGateway`'s existing device cache — same rationale as
+State Groups above, no new subscription mechanism needed.
+
+- Cards: `add_availability_watchdog` (upserts by device — re-running just updates the
+  threshold), `remove_availability_watchdog`, triggers `device_became_unavailable`/
+  `device_became_available`, condition `is_device_available` (reads the live `available` flag
+  directly, no watchdog required).
+- Combines two signals per `analise/NOTA_DISPONIBILIDADE_FLOWS.md`'s design: the device's own
+  `available` flag (instant, but only accurate for drivers that actively manage it) and
+  `lastSeenAt` staleness against a per-watchdog `thresholdHours` (covers drivers that never
+  touch `available` at all). A single global threshold was rejected up front — it's exactly what
+  made the third-party "Device Watchdog" app's own detection unreliable in the user's own setup
+  (151/307 devices false-flagged with one generic threshold).
+- **Explicitly out of scope**: battery-level monitoring, active reachability/ping testing,
+  "newly found" aggregate triggers — see the design note for the reasoning.
 
 ## 3. Shared engine mechanics (`lib/activity-engine.js`)
 

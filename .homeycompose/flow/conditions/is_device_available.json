@@ -1,0 +1,8 @@
+{
+  "title": { "en": "[[device]] !{{is available|is not available}}" },
+  "titleFormatted": { "en": "[[device]] !{{is available|is not available}}" },
+  "hint": { "en": "Checks the device's own available flag right now — no watchdog needs to be configured for this. Only accurate for devices whose driver actively manages availability; one that never does will always read \"available\" even if it's dead. Add an availability watchdog for that device instead to also catch staleness." },
+  "args": [
+    { "name": "device", "type": "autocomplete", "title": { "en": "Device" } }
+  ]
+}

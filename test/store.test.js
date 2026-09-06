@@ -411,6 +411,50 @@ test('resetBinaryCounter wipes counts and last-event but keeps name and message 
   assert.equal(counter.messageTemplate, '%counter% tocou %count% vezes hoje');
 });
 
+test('upsertAvailabilityWatchdog creates one keyed by deviceId, defaulting the threshold to 12h', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const watchdog = store.upsertAvailabilityWatchdog({ deviceId: 'dev-1', name: 'Front door' });
+  assert.equal(watchdog.deviceId, 'dev-1');
+  assert.equal(watchdog.name, 'Front door');
+  assert.equal(watchdog.thresholdHours, 12);
+  assert.equal(watchdog.wentUnavailableAt, null);
+  assert.equal(store.data.availabilityWatchdogs['dev-1'], watchdog);
+});
+
+test('upsertAvailabilityWatchdog re-running for the same device updates the threshold instead of creating a duplicate', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const first = store.upsertAvailabilityWatchdog({ deviceId: 'dev-1', name: 'Front door', thresholdHours: 6 });
+  const second = store.upsertAvailabilityWatchdog({ deviceId: 'dev-1', name: 'Front door', thresholdHours: 24 });
+  assert.equal(first, second);
+  assert.equal(second.thresholdHours, 24);
+  assert.equal(Object.keys(store.data.availabilityWatchdogs).length, 1);
+});
+
+test('upsertAvailabilityWatchdog rejects a missing deviceId', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  assert.throws(() => store.upsertAvailabilityWatchdog({ name: 'No device' }), /Pick a device/);
+});
+
+test('deleteAvailabilityWatchdog removes it by deviceId', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  store.upsertAvailabilityWatchdog({ deviceId: 'dev-1', name: 'Front door' });
+  store.deleteAvailabilityWatchdog('dev-1');
+  assert.equal(store.data.availabilityWatchdogs['dev-1'], undefined);
+});
+
+test('migrateAvailabilityWatchdog backfills threshold and live-state fields', () => {
+  const { migrateAvailabilityWatchdog } = require('../lib/store');
+  const watchdog = { deviceId: 'dev-1', name: 'Front door' };
+  migrateAvailabilityWatchdog(watchdog);
+  assert.equal(watchdog.thresholdHours, 12);
+  assert.equal(watchdog.wentUnavailableAt, null);
+  assert.equal(watchdog.reason, null);
+});
+
 test('creates a state monitor with mode "state", default true/false labels, no threshold', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();

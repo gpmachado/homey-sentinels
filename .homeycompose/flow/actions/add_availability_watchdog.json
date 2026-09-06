@@ -1,0 +1,9 @@
+{
+  "title": { "en": "Add availability watchdog" },
+  "titleFormatted": { "en": "Watch [[device]] for availability, alert after [[thresholdHours]]h without reporting" },
+  "hint": { "en": "Watches a device for two things: its own available flag turning false, and going this many hours without any capability update (catches drivers that never manage available themselves). Run once to create it — re-running just updates the threshold. Watchdogs can also be added/removed from Settings → Availability." },
+  "args": [
+    { "name": "device", "type": "autocomplete", "title": { "en": "Device" } },
+    { "name": "thresholdHours", "type": "number", "min": 1, "title": { "en": "Hours without reporting before alerting" }, "placeholder": { "en": "12" } }
+  ]
+}

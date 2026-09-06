@@ -20,6 +20,9 @@
   "permissions": ["homey:manager:api"],
   "api": {
     "getDevices": { "method": "GET", "path": "/devices" },
+    "getAvailabilityWatchdogs": { "method": "GET", "path": "/availability-watchdogs" },
+    "createAvailabilityWatchdog": { "method": "POST", "path": "/availability-watchdogs" },
+    "deleteAvailabilityWatchdog": { "method": "DELETE", "path": "/availability-watchdogs/:deviceId" },
     "getGroups": { "method": "GET", "path": "/groups" },
     "getMonitorsSummary": { "method": "GET", "path": "/monitors" },
     "createActivityMonitor": { "method": "POST", "path": "/monitors" },

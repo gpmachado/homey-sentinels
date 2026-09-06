@@ -1,0 +1,14 @@
+{
+  "title": { "en": "Device became unavailable" },
+  "titleFormatted": { "en": "[[device]] became unavailable" },
+  "hint": { "en": "Fires when a watched device's own available flag turns false, or when it goes longer than its configured threshold without reporting (catches drivers that never manage available themselves). Configure which devices are watched, and for how many hours, in Settings → Availability or with \"Add availability watchdog\"." },
+  "args": [
+    { "name": "device", "type": "autocomplete", "required": true, "title": { "en": "Device" }, "hint": { "en": "Which watched device to react to." } }
+  ],
+  "tokens": [
+    { "name": "device", "type": "string", "title": { "en": "Device" } },
+    { "name": "zone", "type": "string", "title": { "en": "Zone" } },
+    { "name": "last_seen", "type": "string", "title": { "en": "Last seen" } },
+    { "name": "reason", "type": "string", "title": { "en": "Reason" } }
+  ]
+}

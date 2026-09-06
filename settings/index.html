@@ -277,8 +277,24 @@
 
   <div class="tab-panel hidden" data-tab="availability">
     <h2>Device availability</h2>
-    <p class="hint">All of Homey's devices, no configuration needed — last seen and current availability.</p>
+    <p class="hint">All of Homey's devices, no configuration needed to just look — last seen and current availability. Add a watchdog to a device to also fire a Flow when it goes unavailable or stops reporting.</p>
     <div class="entity-list" id="availability-body"><div class="entity-empty">Loading…</div></div>
+
+    <div id="availability-watchdog-form-wrapper" class="hidden modal-overlay">
+    <div class="modal-box">
+    <form id="availability-watchdog-form">
+      <h2 style="margin-top:0">Availability watchdog — <span id="availability-watchdog-form-name"></span></h2>
+      <p class="hint">Alerts on two signals: the device's own "available" flag turning false, and going this many hours with no capability update at all (catches drivers that never manage "available" themselves).</p>
+      <label>Hours without reporting before alerting
+        <input type="number" id="availability-watchdog-thresholdHours" min="1" step="1" required>
+      </label>
+      <div class="actions">
+        <button type="submit">Save</button>
+        <button type="button" id="availability-watchdog-cancel-btn">Cancel</button>
+      </div>
+    </form>
+    </div>
+    </div>
   </div>
 
   <div class="tab-panel hidden" data-tab="groups">

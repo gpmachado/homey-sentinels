@@ -17,7 +17,7 @@ Sentinels watches devices you already own and turns their raw capability updates
 
 **Groups** — check a set of same-type devices (doors, lights, switches, valves, garage doors) against an expected state on demand, and report which ones don't match.
 
-**Availability** — a read-only overview of every Homey device's last-seen time and availability, no configuration required.
+**Availability** — a live overview of every Homey device's last-seen time and availability. Optionally add a watchdog per device to fire a Flow when it goes unavailable or stops reporting for a configurable number of hours — combines the device's own `available` flag with a `lastSeenAt` staleness check, since many drivers never manage `available` themselves.
 
 ## How it talks back
 

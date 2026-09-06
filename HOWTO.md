@@ -7,7 +7,7 @@ Flow card, and managed afterwards from the app's Settings page.
 
 ## Which one do I need?
 
-Five independent ways to watch something. Answer these in order — the first one that fits is
+Seven independent ways to watch something. Answer these in order — the first one that fits is
 the one to use:
 
 1. **Is it a boolean sensor** — a door/window contact, a motion sensor, anything that's simply
@@ -28,6 +28,8 @@ the one to use:
    device"** wired to whatever tells you it stopped. Two Flows instead of one card, in
    exchange for you deciding exactly what "on" means instead of a threshold guessing it.
 6. **Is it about voltage staying in range**, not power/duration? → **Voltage Monitor**.
+7. **Do you just want to know if a device stops working entirely** — not its activity, just
+   whether it's still there and reporting? → **Availability Watchdog**.
 
 ## 1. Activity Monitor — power-based devices
 
@@ -154,6 +156,27 @@ devices of the same logical type.
 **Known limitation**: a group has no memory — it can't tell you "how many times did any door
 open today," only "are they all in the expected state right now."
 
+## 6. Availability Watchdog — flag a device going offline
+
+For any Homey device you want to know about if it stops working — not a Sentinels monitor,
+just a plain device.
+
+1. In Settings → Availability tab, click **Add watchdog** next to a device (or use the **"Add
+   availability watchdog"** Flow card) — set how many hours it can go without reporting anything
+   before you're alerted. 12h is a reasonable default for most mains-powered devices; a
+   battery/sleepy sensor that reports rarely on its own needs a longer one.
+2. Two independent signals can trigger it: the device's own "available" flag turning false
+   (instant, but only accurate for drivers that actually manage it), or simply going longer than
+   the configured threshold with no capability update at all (catches the many drivers that
+   never touch "available"). Either way fires **"Device became unavailable"**; recovering either
+   way fires **"Device became available"** (with a `downtime` token).
+3. Condition **"[Device] is available"** checks the raw flag directly, no watchdog required —
+   useful as a quick guard, but remember it's only accurate for well-behaved drivers.
+
+**Known limitation**: no per-device-type default threshold — a single global default (12h) is
+suggested, but there's no built-in distinction between a router-class always-on device and a
+battery sensor that reports once a day; set the threshold per device to match.
+
 ## The Settings page
 
 Open the app's Settings from Homey. Three tabs:
@@ -161,8 +184,8 @@ Open the app's Settings from Homey. Three tabs:
 - **Monitors** — sub-tabs for Activity / State / Voltage / Binary, each with its own table
   (state, stats, a small trend sparkline) and Reset stats / Delete buttons per row. A shared
   Today/7 Days/30 Days period selector applies across all four.
-- **Availability** — every Homey device, last seen and current availability, no configuration
-  needed.
+- **Availability** — every Homey device, last seen and current availability. Add/Edit/Remove
+  watchdog per device row, no Flow required.
 - **Groups** — existing groups (with a "Check now" button for a live status check) and the
   Add/Edit form.
 
