@@ -37,6 +37,9 @@ homey app run           # installs and runs the app on a Homey Pro for live test
 
 ## Known platform limitation
 
-Flow action cards that return tokens (e.g. `get_activity_statistics`, `check_state_group`)
-only expose those tokens in Homey's **Advanced Flow** editor — a limitation of the platform,
-not this app. Each has a `_basic` sibling with no output tokens for use in a standard Flow.
+Flow action cards that return tokens (e.g. `get_activity_statistics`, `check_state_group`,
+`generate_text_report`) only expose those tokens in Homey's **Advanced Flow** editor — a
+limitation of the platform, not this app; there's no token-free variant for the standard editor.
+For a Standard Flow, react to a monitor's own trigger cards instead (`activity_started`/
+`activity_finished` and their equivalents for the other monitor types) — these already carry
+duration, energy, and a ready-to-use `message` token without needing Advanced Flow at all.

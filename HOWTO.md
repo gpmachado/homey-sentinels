@@ -186,6 +186,8 @@ chart. A group widget shows live matched/mismatch counts and the rendered messag
   there.
 - **Token-returning cards need Advanced Flow** — `get_activity_statistics`,
   `get_voltage_statistics`, `get_binary_event_statistics`, `get_state_statistics`,
-  `check_state_group`, `log_binary_event`, `start_monitoring_device`, and
-  `stop_monitoring_device` only appear as selectable cards in the Advanced Flow editor; Homey
-  hides any action card with output tokens from the standard editor entirely.
+  `get_group_statistics`, `check_state_group`, `generate_text_report`, `export_data`,
+  `log_binary_event`, `start_monitoring_device`, and `stop_monitoring_device` only appear as
+  selectable cards in the Advanced Flow editor; Homey hides any action card with output tokens
+  from the standard editor entirely. There's no token-free variant — react to a monitor's own
+  trigger cards in a Standard Flow instead, they already carry a ready-to-use `message` token.
