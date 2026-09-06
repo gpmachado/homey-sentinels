@@ -1025,6 +1025,64 @@ class StatisticTrackerApp extends Homey.App {
   _assertGroupDevice(group, device) { return assertGroupDevice(group, device); }
   _checkGroup(group, expectedOverride) { return checkGroup(group, this.gateway, expectedOverride); }
   _groupStatistics(group, period) { return computeGroupStatistics(group, period, this._getTimezone()); }
+  // Backs the Settings page's Monitors tab — the same period/energy/daily-breakdown detail
+  // the widget shows, but for every activity monitor at once in one table (no need to set up
+  // a widget per device just to see this). Restored here after the lib/statistics.js
+  // extraction accidentally dropped it along with the block it lived in — api.js's
+  // getMonitorsSummary route calls this by name, so its disappearance broke the whole
+  // Settings Monitors tab.
+  getMonitorsSummary(rawPeriod) {
+    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
+    return Object.values(this.store.data.monitors).map((monitor) => {
+      const stats = this._statistics(monitor, period);
+      return {
+        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, state: monitor.state, threshold: monitor.threshold,
+        period, cycleCount: stats.cycle_count, energy: stats.total_energy, averagePower: stats.average_power, energyQuality: stats.energy_quality,
+        dailyBreakdown: period === 'day' ? null : this._dailyBreakdown(monitor, period === 'week' ? 7 : 30),
+        messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished,
+        calibrating: !!monitor.calibrating,
+        suggestedThreshold: this._suggestedThreshold(monitor)
+      };
+    });
+  }
+  // Same idea as getMonitorsSummary, for the state monitors table — trimmed to duration/count
+  // fields by default, same as _stateStatistics, since energy/power don't mean anything for a
+  // plain boolean capability. Included when the monitor has an auxiliary power capability.
+  getStateMonitorsSummary(rawPeriod) {
+    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
+    return Object.values(this.store.data.stateMonitors).map((monitor) => {
+      const stats = this._stateStatistics(monitor, period);
+      return {
+        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, capability: monitor.capability, state: monitor.state,
+        trueLabel: monitor.trueLabel, falseLabel: monitor.falseLabel,
+        period, cycleCount: stats.cycle_count, trueDuration: stats.true_duration, falseDuration: stats.false_duration,
+        energy: stats.energy, averagePower: stats.average_power,
+        dailyBreakdown: period === 'day' ? null : this._stateDailyBreakdown(monitor, period === 'week' ? 7 : 30),
+        messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished
+      };
+    });
+  }
+  // Same idea as getMonitorsSummary, for the voltage monitors table.
+  getVoltageMonitorsSummary(rawPeriod) {
+    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
+    return Object.values(this.store.data.voltageMonitors).map((monitor) => {
+      const stats = this._voltageStatistics(monitor, period);
+      return {
+        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, capability: monitor.capability, state: monitor.state,
+        period, currentVoltage: monitor.lastSample?.voltage ?? null, minVoltage: stats.min_voltage, maxVoltage: stats.max_voltage,
+        undervoltageCount: stats.undervoltage_count, overvoltageCount: stats.overvoltage_count,
+        messageTemplateUndervoltage: monitor.messageTemplateUndervoltage, messageTemplateOvervoltage: monitor.messageTemplateOvervoltage, messageTemplateNormalized: monitor.messageTemplateNormalized
+      };
+    });
+  }
+  // Same idea again, for the Binary counters table.
+  getBinaryCountersSummary(rawPeriod) {
+    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
+    return Object.values(this.store.data.binaryCounters).map((counter) => {
+      const stats = this._binaryEventStatistics(counter, period);
+      return { id: counter.id, name: counter.name, period, eventCount: stats.event_count, totalCount: counter.totalCount, lastEventAt: stats.last_event_at, messageTemplate: counter.messageTemplate };
+    });
+  }
   // Feeds get_group_statistics — the closest a group gets to real history without a full
   // live-subscription rewrite (see GROUP_POLL_INTERVAL_MS). A group with fewer than 2 devices
   // shouldn't exist (creation already requires it) but skip defensively rather than let one bad
