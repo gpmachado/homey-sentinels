@@ -511,3 +511,60 @@ test('consolidateHistory folds a state monitor\'s periods into a daily summary, 
   assert.equal(monitor.dailySummaries.length, 1);
   assert.equal(monitor.dailySummaries[0].activeSeconds, 60);
 });
+
+// load() migrations — extracted to standalone functions specifically so each can be tested
+// directly against a bare, incomplete object (mimicking data saved by an older build) without
+// needing to load a whole store first.
+test('migrateActivityMonitor backfills every field an older build might not have saved', () => {
+  const monitor = { capability: undefined };
+  SentinelStore.migrateActivityMonitor(monitor);
+  assert.equal(monitor.capability, 'measure_power');
+  assert.deepEqual(monitor.auxiliaryCapabilities, []);
+  assert.deepEqual(monitor.cycles, []);
+  assert.deepEqual(monitor.periods, []);
+  assert.deepEqual(monitor.totals, { cycleCount: 0, activeSeconds: 0, standbySeconds: 0, activeEnergy: 0, standbyEnergy: 0 });
+  assert.equal(monitor.threshold, 40);
+  assert.equal(monitor.calibrating, true); // no threshold saved — falls back and flags as still calibrating
+});
+
+test('migrateActivityMonitor leaves an already-calibrated threshold untouched', () => {
+  const monitor = { threshold: 75, calibrating: false };
+  SentinelStore.migrateActivityMonitor(monitor);
+  assert.equal(monitor.threshold, 75);
+  assert.equal(monitor.calibrating, false);
+});
+
+test('migrateStateMonitor backfills fields and drops the superseded activeValue', () => {
+  const monitor = { activeValue: true };
+  SentinelStore.migrateStateMonitor(monitor);
+  assert.equal(monitor.mode, 'state');
+  assert.equal('activeValue' in monitor, false);
+  assert.equal(monitor.trueLabel, 'True');
+  assert.equal(monitor.falseLabel, 'False');
+  assert.equal(monitor.activeValues, null);
+  assert.deepEqual(monitor.auxiliaryCapabilities, []);
+  assert.equal(monitor.totals.activeEnergy, 0);
+});
+
+test('migrateGroup backfills the conjunction and message templates', () => {
+  const group = {};
+  SentinelStore.migrateGroup(group);
+  assert.equal(group.conjunction, 'and');
+  assert.equal(group.messageTemplateZero, '');
+});
+
+test('migrateVoltageMonitor defaults stabilizationMinutes to 5 for monitors saved before the grace window existed', () => {
+  const monitor = {};
+  SentinelStore.migrateVoltageMonitor(monitor);
+  assert.equal(monitor.capability, 'measure_voltage');
+  assert.equal(monitor.stabilizationMinutes, 5);
+  assert.equal(monitor.pendingNormalSince, null);
+});
+
+test('migrateBinaryCounter backfills counter fields', () => {
+  const counter = {};
+  SentinelStore.migrateBinaryCounter(counter);
+  assert.equal(counter.totalCount, 0);
+  assert.deepEqual(counter.dailyCounts, []);
+  assert.equal(counter.messageTemplate, '');
+});
