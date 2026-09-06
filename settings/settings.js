@@ -208,16 +208,16 @@ function onHomeyReady(Homey) {
   // (lights off, doors closed) — the common case. Keyed by type + expected state so the
   // wording still makes sense if someone flips it (e.g. a group that expects lights ON).
   var MESSAGE_WORDING_PRESETS = {
-    'light:false': { zero: 'All lights are off.', one: '%item% is on.', many: '%count% lights on: %items%.' },
-    'light:true': { zero: 'All lights are on.', one: '%item% is off.', many: '%count% lights off: %items%.' },
-    'switch:false': { zero: 'All switches are off.', one: '%item% is on.', many: '%count% switches on: %items%.' },
-    'switch:true': { zero: 'All switches are on.', one: '%item% is off.', many: '%count% switches off: %items%.' },
-    'contact:false': { zero: 'All doors and windows are closed.', one: '%item% is open.', many: '%count% doors/windows open: %items%.' },
-    'contact:true': { zero: 'All doors and windows are open.', one: '%item% is closed.', many: '%count% doors/windows closed: %items%.' },
-    'valve:false': { zero: 'All valves are closed.', one: '%item% is open.', many: '%count% valves open: %items%.' },
-    'valve:true': { zero: 'All valves are open.', one: '%item% is closed.', many: '%count% valves closed: %items%.' },
-    'garage:false': { zero: 'All garage doors are closed.', one: '%item% is open.', many: '%count% garage doors open: %items%.' },
-    'garage:true': { zero: 'All garage doors are open.', one: '%item% is closed.', many: '%count% garage doors closed: %items%.' }
+    'light:false': { zero: 'All lights are off.', one: '%items% is on.', many: '%count% lights on: %items%.' },
+    'light:true': { zero: 'All lights are on.', one: '%items% is off.', many: '%count% lights off: %items%.' },
+    'switch:false': { zero: 'All switches are off.', one: '%items% is on.', many: '%count% switches on: %items%.' },
+    'switch:true': { zero: 'All switches are on.', one: '%items% is off.', many: '%count% switches off: %items%.' },
+    'contact:false': { zero: 'All doors and windows are closed.', one: '%items% is open.', many: '%count% doors/windows open: %items%.' },
+    'contact:true': { zero: 'All doors and windows are open.', one: '%items% is closed.', many: '%count% doors/windows closed: %items%.' },
+    'valve:false': { zero: 'All valves are closed.', one: '%items% is open.', many: '%count% valves open: %items%.' },
+    'valve:true': { zero: 'All valves are open.', one: '%items% is closed.', many: '%count% valves closed: %items%.' },
+    'garage:false': { zero: 'All garage doors are closed.', one: '%items% is open.', many: '%count% garage doors open: %items%.' },
+    'garage:true': { zero: 'All garage doors are open.', one: '%items% is closed.', many: '%count% garage doors closed: %items%.' }
   };
   document.getElementById('fill-wording-btn').addEventListener('click', function () {
     var preset = MESSAGE_WORDING_PRESETS[typeSelect.value + ':' + document.getElementById('expectedState').value];
