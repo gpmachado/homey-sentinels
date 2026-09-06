@@ -1,0 +1,19 @@
+{
+  "title": { "en": "Generate text report" },
+  "titleFormatted": { "en": "Generate text report for [[item]], period: [[period]]" },
+  "hint": { "en": "Builds one ready-to-use sentence summarizing an activity/state/voltage monitor or binary counter's statistics for the period — for a push notification or chat message without concatenating a dozen tokens by hand." },
+  "args": [
+    { "name": "item", "type": "autocomplete", "title": { "en": "Monitor or counter" } },
+    {
+      "name": "period", "type": "dropdown", "title": { "en": "Period" },
+      "values": [
+        { "id": "day", "label": { "en": "Today" } },
+        { "id": "week", "label": { "en": "Last 7 days" } },
+        { "id": "month", "label": { "en": "Last 30 days" } }
+      ]
+    }
+  ],
+  "tokens": [
+    { "name": "report", "type": "string", "title": { "en": "Report" } }
+  ]
+}

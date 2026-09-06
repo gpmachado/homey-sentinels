@@ -148,6 +148,66 @@
     "triggers": [
       {
         "title": {
+          "en": "Cycle count reached"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] reaches [[cycles]] cycles today"
+        },
+        "hint": {
+          "en": "Fires once, the moment a monitor's cycle count for today reaches this exact number — not on every cycle after it. Useful to flag an abnormal on/off frequency (a pump or a compressor cycling far more than usual)."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "cycles",
+            "type": "number",
+            "title": {
+              "en": "Cycles"
+            },
+            "min": 1
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "count",
+            "type": "number",
+            "title": {
+              "en": "Cycles today"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message"
+            }
+          }
+        ],
+        "id": "activity_cycles_reached"
+      },
+      {
+        "title": {
           "en": "Activity finished"
         },
         "titleFormatted": {
@@ -312,6 +372,58 @@
           }
         ],
         "id": "activity_started"
+      },
+      {
+        "title": {
+          "en": "Binary event logged"
+        },
+        "titleFormatted": {
+          "en": "[[counter]] logs an event"
+        },
+        "hint": {
+          "en": "Fires whenever this counter is incremented via \"Log binary event\", from any Flow — lets a different Flow react passively instead of needing the tokens right there on the same card that logged it."
+        },
+        "args": [
+          {
+            "name": "counter",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Counter"
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "counter",
+            "type": "string",
+            "title": {
+              "en": "Counter"
+            }
+          },
+          {
+            "name": "event_count_today",
+            "type": "number",
+            "title": {
+              "en": "Events today (including this one)"
+            }
+          },
+          {
+            "name": "total_count",
+            "type": "number",
+            "title": {
+              "en": "Total events (all time)"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message"
+            }
+          }
+        ],
+        "id": "binary_event_logged"
       },
       {
         "title": {
@@ -786,6 +898,61 @@
     "conditions": [
       {
         "title": {
+          "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "minutes",
+            "type": "number",
+            "title": {
+              "en": "Minutes"
+            },
+            "min": 0,
+            "placeholder": {
+              "en": "e.g. 120"
+            }
+          }
+        ],
+        "id": "activity_running_longer_than"
+      },
+      {
+        "title": {
+          "en": "[[counter]] !{{today's count is|today's count is not}} greater than [[count]]"
+        },
+        "titleFormatted": {
+          "en": "[[counter]] !{{today's count is|today's count is not}} greater than [[count]]"
+        },
+        "args": [
+          {
+            "name": "counter",
+            "type": "autocomplete",
+            "title": {
+              "en": "Counter"
+            }
+          },
+          {
+            "name": "count",
+            "type": "number",
+            "title": {
+              "en": "Count"
+            },
+            "min": 0
+          }
+        ],
+        "id": "binary_count_greater_than"
+      },
+      {
+        "title": {
           "en": "[[monitor]] !{{is active|is not active}}"
         },
         "titleFormatted": {
@@ -801,6 +968,27 @@
           }
         ],
         "id": "is_active"
+      },
+      {
+        "title": {
+          "en": "[[device]] !{{is already monitored|is not monitored}}"
+        },
+        "titleFormatted": {
+          "en": "[[device]] !{{is already monitored|is not monitored}}"
+        },
+        "hint": {
+          "en": "Checks whether this device already has an activity, state, or voltage monitor configured on it — useful to guard a Flow that creates monitors dynamically against adding a duplicate."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+              "en": "Device"
+            }
+          }
+        ],
+        "id": "is_device_monitored"
       },
       {
         "title": {
@@ -855,10 +1043,56 @@
           }
         ],
         "id": "state_group_has_mismatch"
+      },
+      {
+        "title": {
+          "en": "[[monitor]] !{{is in state|is not in state}} [[state]]"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] !{{is in state|is not in state}} [[state]]"
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "state",
+            "type": "dropdown",
+            "title": {
+              "en": "State"
+            },
+            "values": [
+              {
+                "id": "NORMAL",
+                "title": {
+                  "en": "Normal"
+                }
+              },
+              {
+                "id": "UNDERVOLTAGE",
+                "title": {
+                  "en": "Undervoltage"
+                }
+              },
+              {
+                "id": "OVERVOLTAGE",
+                "title": {
+                  "en": "Overvoltage"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "voltage_is_state"
       }
     ],
     "actions": [
       {
+        "deprecated": true,
         "title": {
           "en": "Add activity monitor"
         },
@@ -913,6 +1147,7 @@
         "id": "add_activity_monitor"
       },
       {
+        "deprecated": true,
         "title": {
           "en": "Add binary counter"
         },
@@ -965,6 +1200,7 @@
         "id": "add_device_to_state_group"
       },
       {
+        "deprecated": true,
         "title": {
           "en": "Add state monitor"
         },
@@ -1043,6 +1279,7 @@
         "id": "add_state_monitor"
       },
       {
+        "deprecated": true,
         "title": {
           "en": "Add voltage monitor"
         },
@@ -1106,6 +1343,27 @@
           }
         ],
         "id": "add_voltage_monitor"
+      },
+      {
+        "title": {
+          "en": "Recalibrate threshold"
+        },
+        "titleFormatted": {
+          "en": "Recalibrate threshold for [[monitor]]"
+        },
+        "hint": {
+          "en": "Re-enables auto-calibration for an activity monitor that already has a threshold (manually set or previously calibrated) — the next time enough power history confirms a new standby/active split, the threshold updates automatically, same as a freshly created monitor. Existing history and current threshold are kept until then."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor"
+            }
+          }
+        ],
+        "id": "calibrate_threshold"
       },
       {
         "title": {
@@ -1201,6 +1459,7 @@
         "id": "check_state_group"
       },
       {
+        "deprecated": true,
         "title": {
           "en": "Create state group"
         },
@@ -1280,6 +1539,63 @@
           }
         ],
         "id": "create_state_group"
+      },
+      {
+        "title": {
+          "en": "Generate text report"
+        },
+        "titleFormatted": {
+          "en": "Generate text report for [[item]], period: [[period]]"
+        },
+        "hint": {
+          "en": "Builds one ready-to-use sentence summarizing an activity/state/voltage monitor or binary counter's statistics for the period — for a push notification or chat message without concatenating a dozen tokens by hand."
+        },
+        "args": [
+          {
+            "name": "item",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor or counter"
+            }
+          },
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period"
+            },
+            "values": [
+              {
+                "id": "day",
+                "label": {
+                  "en": "Today"
+                }
+              },
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "report",
+            "type": "string",
+            "title": {
+              "en": "Report"
+            }
+          }
+        ],
+        "id": "generate_text_report"
       },
       {
         "title": {
@@ -2261,6 +2577,56 @@
     ]
   },
   "widgets": {
+    "overview": {
+      "name": {
+        "en": "Sentinels Overview"
+      },
+      "height": 300,
+      "settings": [
+        {
+          "id": "monitor1",
+          "type": "autocomplete",
+          "title": {
+            "en": "Item 1"
+          }
+        },
+        {
+          "id": "monitor2",
+          "type": "autocomplete",
+          "title": {
+            "en": "Item 2"
+          }
+        },
+        {
+          "id": "monitor3",
+          "type": "autocomplete",
+          "title": {
+            "en": "Item 3"
+          }
+        },
+        {
+          "id": "monitor4",
+          "type": "autocomplete",
+          "title": {
+            "en": "Item 4"
+          }
+        },
+        {
+          "id": "monitor5",
+          "type": "autocomplete",
+          "title": {
+            "en": "Item 5"
+          }
+        }
+      ],
+      "api": {
+        "getSummary": {
+          "method": "GET",
+          "path": "/summary"
+        }
+      },
+      "id": "overview"
+    },
     "sentinel": {
       "name": {
         "en": "Sentinel"
@@ -2282,6 +2648,20 @@
         }
       },
       "id": "sentinel"
+    },
+    "timeline": {
+      "name": {
+        "en": "Sentinels Timeline"
+      },
+      "height": 252,
+      "settings": [],
+      "api": {
+        "getEvents": {
+          "method": "GET",
+          "path": "/events"
+        }
+      },
+      "id": "timeline"
     }
   }
 }

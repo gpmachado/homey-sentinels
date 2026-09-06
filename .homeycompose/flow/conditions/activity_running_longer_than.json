@@ -1,0 +1,8 @@
+{
+  "title": { "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes" },
+  "titleFormatted": { "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes" },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
+    { "name": "minutes", "type": "number", "title": { "en": "Minutes" }, "min": 0, "placeholder": { "en": "e.g. 120" } }
+  ]
+}

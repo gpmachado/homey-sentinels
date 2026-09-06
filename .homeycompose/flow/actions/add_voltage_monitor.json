@@ -1,4 +1,5 @@
 {
+  "deprecated": true,
   "title": { "en": "Add voltage monitor" },
   "titleFormatted": { "en": "Add voltage monitor for [[device]], capability [[capability]], range [[min_voltage]]-[[max_voltage]] V, stabilization [[stabilization_minutes]] min, name [[name]]" },
   "args": [

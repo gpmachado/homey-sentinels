@@ -1,0 +1,8 @@
+{
+  "title": { "en": "[[device]] !{{is already monitored|is not monitored}}" },
+  "titleFormatted": { "en": "[[device]] !{{is already monitored|is not monitored}}" },
+  "hint": { "en": "Checks whether this device already has an activity, state, or voltage monitor configured on it — useful to guard a Flow that creates monitors dynamically against adding a duplicate." },
+  "args": [
+    { "name": "device", "type": "autocomplete", "title": { "en": "Device" } }
+  ]
+}

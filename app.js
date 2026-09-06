@@ -26,6 +26,10 @@ const HISTORY_CONSOLIDATION_MS = 6 * 60 * 60 * 1000;
 // the primary capability is something else (an activity monitor on measure_current, or any
 // state monitor at all, whose primary is never a power reading).
 const AUXILIARY_CAPABILITY_CANDIDATES = ['measure_power', 'measure_current', 'meter_power', 'measure_voltage'];
+// Feeds the Timeline widget — a rolling feed of the most recent rendered event messages across
+// every monitor, capped rather than time-retained since its only purpose is "what just
+// happened", not historical analysis (that's what each monitor's own statistics are for).
+const EVENT_LOG_MAX = 50;
 // Every raw capability sample across every monitor used to call store.save() synchronously —
 // each one serializing and writing the ENTIRE settings blob (all monitors' periods/cycles
 // combined, now 30k+ entries). Confirmed live: as that data volume grew, a burst of
@@ -97,7 +101,8 @@ class StatisticTrackerApp extends Homey.App {
     this.cards = {
       started: this.homey.flow.getTriggerCard('activity_started'),
       finished: this.homey.flow.getTriggerCard('activity_finished'),
-      calibrated: this.homey.flow.getTriggerCard('threshold_calibrated')
+      calibrated: this.homey.flow.getTriggerCard('threshold_calibrated'),
+      cyclesReached: this.homey.flow.getTriggerCard('activity_cycles_reached')
     };
     this.stateCards = {
       started: this.homey.flow.getTriggerCard('state_started'),
@@ -108,6 +113,9 @@ class StatisticTrackerApp extends Homey.App {
       overvoltage: this.homey.flow.getTriggerCard('voltage_overvoltage_detected'),
       normalized: this.homey.flow.getTriggerCard('voltage_returned_to_normal')
     };
+    this.binaryCards = {
+      logged: this.homey.flow.getTriggerCard('binary_event_logged')
+    };
     this._registerFlowCards();
     this._registerWidgets();
     const buildTag = buildInfo ? `${buildInfo.commit}${buildInfo.dirty ? '+dirty' : ''} (${buildInfo.subject || 'no subject'}, ${buildInfo.commitDate || 'unknown date'})` : 'unstamped — run `npm run stamp`';
@@ -117,9 +125,9 @@ class StatisticTrackerApp extends Homey.App {
     // the Flow cards above must be registered even if HomeyAPI is slow or unreachable —
     // otherwise the app never reports ready and no card shows up in the Flow editor at all.
     this.gateway.refreshDeviceCache().catch((error) => this.error('Failed to load device cache', error));
-    this.homey.setInterval(() => this.gateway.refreshDeviceCache().catch((error) => this.error('Failed to refresh device cache', error)), DEVICE_CACHE_REFRESH_MS);
+    this._scheduleWithBackoff('Device cache refresh', () => this.gateway.refreshDeviceCache(), DEVICE_CACHE_REFRESH_MS);
     this.gateway.refreshSystemTimezone().catch((error) => this.error('Failed to detect system timezone', error));
-    this.homey.setInterval(() => this.gateway.refreshSystemTimezone().catch((error) => this.error('Failed to refresh system timezone', error)), DEVICE_CACHE_REFRESH_MS);
+    this._scheduleWithBackoff('System timezone refresh', () => this.gateway.refreshSystemTimezone(), DEVICE_CACHE_REFRESH_MS);
     this._consolidateHistory();
     this.homey.setInterval(() => this._consolidateHistory(), HISTORY_CONSOLIDATION_MS);
     Object.values(this.store.data.monitors).forEach((monitor) => this._watch(monitor).catch((error) => this.error('Failed to resume monitor', monitor.name, error)));
@@ -127,6 +135,32 @@ class StatisticTrackerApp extends Homey.App {
     Object.values(this.store.data.stateMonitors).forEach((monitor) => this._watchState(monitor).catch((error) => this.error('Failed to resume state monitor', monitor.name, error)));
   }
 
+  // A plain setInterval calling something network-dependent (device cache, system timezone)
+  // logs the exact same failure forever, at full frequency, if Homey's own API is unreachable
+  // for hours — confirmed as a real annoyance during a network blip earlier this session.
+  // Doubles the wait after each consecutive failure (capped at 8x the base interval) and drops
+  // back to normal the moment a call succeeds again, so a real outage doesn't spam the log
+  // while a brief hiccup still recovers on the very next regular tick. Also thins out the log
+  // itself during a prolonged outage — full detail for the first few failures, then only every
+  // 10th attempt — rather than silencing it (still need to know it's ongoing).
+  _scheduleWithBackoff(label, fn, baseIntervalMs, maxIntervalMs = baseIntervalMs * 8) {
+    let currentInterval = baseIntervalMs;
+    let consecutiveFailures = 0;
+    const tick = async () => {
+      try {
+        await fn();
+        if (consecutiveFailures > 0) this.log(`${label} recovered after ${consecutiveFailures} failed attempt(s)`);
+        consecutiveFailures = 0;
+        currentInterval = baseIntervalMs;
+      } catch (error) {
+        consecutiveFailures += 1;
+        if (consecutiveFailures <= 3 || consecutiveFailures % 10 === 0) this.error(`${label} failed (attempt ${consecutiveFailures})`, error);
+        currentInterval = Math.min(currentInterval * 2, maxIntervalMs);
+      }
+      this.homey.setTimeout(tick, currentInterval);
+    };
+    this.homey.setTimeout(tick, baseIntervalMs);
+  }
   // Coalesces rapid-fire saves from the sample hot path (see SAVE_DEBOUNCE_MS above) — any
   // number of calls while one is already pending just ride along on that same upcoming write,
   // since store.save() always persists the full current state regardless of what changed.
@@ -178,31 +212,53 @@ class StatisticTrackerApp extends Homey.App {
     const top = all.sort((a, b) => b.count - a.count).slice(0, 5);
     this.log('Largest raw period counts:', top.map((m) => `${m.name} (${m.kind}): ${m.count}`).join(', '));
   }
+  // Shared by every widget setting that needs to pick "any monitor or group" — sentinel's own
+  // `monitorId`, and overview's five `monitorN` slots below.
+  async _monitorOrGroupAutocomplete(query) {
+    const normalized = (query || '').toLowerCase();
+    const activity = Object.values(this.store.data.monitors)
+      .filter((m) => m.name.toLowerCase().includes(normalized))
+      .map((m) => ({ name: m.name, description: `Activity · ${m.deviceName}`, data: { id: m.id } }));
+    const voltage = Object.values(this.store.data.voltageMonitors)
+      .filter((m) => m.name.toLowerCase().includes(normalized))
+      .map((m) => ({ name: m.name, description: `Voltage · ${m.deviceName}`, data: { id: m.id } }));
+    const state = Object.values(this.store.data.stateMonitors)
+      .filter((m) => m.name.toLowerCase().includes(normalized))
+      .map((m) => ({ name: m.name, description: `State · ${m.deviceName}`, data: { id: m.id } }));
+    const groups = Object.values(this.store.data.groups)
+      .filter((g) => g.name.toLowerCase().includes(normalized))
+      .map((g) => ({ name: g.name, description: `Group · ${g.devices.length} device(s)`, data: { id: g.id } }));
+    const binary = Object.values(this.store.data.binaryCounters)
+      .filter((c) => c.name.toLowerCase().includes(normalized))
+      .map((c) => ({ name: c.name, description: 'Binary counter', data: { id: c.id } }));
+    return [...activity, ...voltage, ...state, ...groups, ...binary];
+  }
   _registerWidgets() {
     const widget = this.homey.dashboards.getWidget('sentinel');
-    widget.registerSettingAutocompleteListener('monitorId', async (query) => {
-      const normalized = (query || '').toLowerCase();
-      const activity = Object.values(this.store.data.monitors)
-        .filter((m) => m.name.toLowerCase().includes(normalized))
-        .map((m) => ({ name: m.name, description: `Activity · ${m.deviceName}`, data: { id: m.id } }));
-      const voltage = Object.values(this.store.data.voltageMonitors)
-        .filter((m) => m.name.toLowerCase().includes(normalized))
-        .map((m) => ({ name: m.name, description: `Voltage · ${m.deviceName}`, data: { id: m.id } }));
-      const state = Object.values(this.store.data.stateMonitors)
-        .filter((m) => m.name.toLowerCase().includes(normalized))
-        .map((m) => ({ name: m.name, description: `State · ${m.deviceName}`, data: { id: m.id } }));
-      const groups = Object.values(this.store.data.groups)
-        .filter((g) => g.name.toLowerCase().includes(normalized))
-        .map((g) => ({ name: g.name, description: `Group · ${g.devices.length} device(s)`, data: { id: g.id } }));
-      const binary = Object.values(this.store.data.binaryCounters)
-        .filter((c) => c.name.toLowerCase().includes(normalized))
-        .map((c) => ({ name: c.name, description: 'Binary counter', data: { id: c.id } }));
-      return [...activity, ...voltage, ...state, ...groups, ...binary];
-    });
+    widget.registerSettingAutocompleteListener('monitorId', async (query) => this._monitorOrGroupAutocomplete(query));
+    const overviewWidget = this.homey.dashboards.getWidget('overview');
+    ['monitor1', 'monitor2', 'monitor3', 'monitor4', 'monitor5'].forEach((id) =>
+      overviewWidget.registerSettingAutocompleteListener(id, async (query) => this._monitorOrGroupAutocomplete(query)));
   }
 
   // Homey sometimes stores the widget setting's full autocomplete result ({name, data:{id}}),
   // not just the id string it appears to be from the picker — unwrap defensively either way.
+  // Called right alongside every real trigger (started/finished/under-/over-voltage/normalized/
+  // binary event) — see the call sites in _handleActivityEvents/_handleStateEvents/
+  // _handleVoltageEvents/log_binary_event — with the exact message already rendered for that
+  // Flow card's own `message` token, so there's nothing new to compute here. Not called for
+  // 'continuity_pending' (not a real event yet) or the "used to be" Flow cards' own token
+  // fallbacks (_startedSnapshot/_finishedSnapshot are just what a card returns when nothing
+  // actually changed).
+  _logEvent(message) {
+    if (!message) return;
+    this.store.data.eventLog ||= [];
+    this.store.data.eventLog.push({ timestamp: Date.now(), message });
+    if (this.store.data.eventLog.length > EVENT_LOG_MAX) this.store.data.eventLog.shift();
+  }
+  getRecentEvents(limit = 10) {
+    return (this.store.data.eventLog || []).slice(-limit).reverse();
+  }
   async getWidgetSummary(rawId, rawPeriod) {
     const id = rawId && typeof rawId === 'object' ? (rawId.data?.id || rawId.id) : rawId;
     const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
@@ -344,13 +400,23 @@ class StatisticTrackerApp extends Homey.App {
     registerTriggerFilter(this.voltageCards.normalized, (q) => this._voltageMonitorResults(q));
     registerTriggerFilter(this.stateCards.started, (q) => this._stateMonitorResults(q));
     registerTriggerFilter(this.stateCards.finished, (q) => this._stateMonitorResults(q));
-    const deviceAutocomplete = (cardId) => this.homey.flow.getActionCard(cardId).registerArgumentAutocompleteListener('device', async (query) => {
+    // Cycle count reached also needs the exact-cycles match, not just "which monitor" —
+    // registerTriggerFilter's helper only covers the latter, so this stays hand-written.
+    this.cards.cyclesReached.registerRunListener(async (args, state) => {
+      const filterId = args.monitor?.id || args.monitor?.data?.id;
+      return filterId === state.monitorId && Number(args.cycles) === state.cycleCount;
+    });
+    this.cards.cyclesReached.registerArgumentAutocompleteListener('monitor', async (query) => this._monitorResults(query));
+    this.binaryCards.logged.registerRunListener(async (args, state) => (args.counter?.id || args.counter?.data?.id) === state.counterId);
+    this.binaryCards.logged.registerArgumentAutocompleteListener('counter', async (query) => this._binaryCounterResults(query));
+    const deviceAutocomplete = (card) => card.registerArgumentAutocompleteListener('device', async (query) => {
       const normalized = (query || '').toLowerCase();
       return (await this.gateway.listDevices()).filter((device) =>
         device.name.toLowerCase().includes(normalized)
       ).map((device) => ({ name: device.name, description: device.zoneName || undefined, data: { id: device.id, name: device.name } }));
     });
-    ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor', 'add_device_to_state_group', 'remove_device_from_state_group', 'start_monitoring_device'].forEach((id) => deviceAutocomplete(id));
+    ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor', 'add_device_to_state_group', 'remove_device_from_state_group', 'start_monitoring_device'].forEach((id) => deviceAutocomplete(this.homey.flow.getActionCard(id)));
+    deviceAutocomplete(this.homey.flow.getConditionCard('is_device_monitored'));
     // Lists every Homey device (like Start's own picker), not just ones with an
     // already-started manual monitor — restricting to existing monitors forced building the
     // Stop half of a Flow to wait until Start had actually run once in production, just to
@@ -375,15 +441,21 @@ class StatisticTrackerApp extends Homey.App {
         }));
     });
     ['add_activity_monitor', 'add_voltage_monitor', 'add_state_monitor'].forEach((id) => this._registerCapabilityAutocomplete(id));
-    ['remove_activity_monitor', 'reset_activity_monitor', 'update_activity_monitor', 'get_activity_statistics'].forEach((id) => this._monitorActionAutocomplete(id));
+    ['remove_activity_monitor', 'reset_activity_monitor', 'update_activity_monitor', 'get_activity_statistics', 'calibrate_threshold'].forEach((id) => this._monitorActionAutocomplete(id));
     this._monitorConditionAutocomplete('is_active');
+    this._monitorConditionAutocomplete('activity_running_longer_than');
     ['remove_state_monitor', 'reset_state_monitor', 'get_state_statistics'].forEach((id) => this._stateMonitorActionAutocomplete(id));
     this._stateMonitorConditionAutocomplete('is_state_active');
     ['add_device_to_state_group', 'remove_device_from_state_group', 'check_state_group'].forEach((id) => this._groupActionAutocomplete(id));
     this._groupConditionAutocomplete('state_group_has_mismatch');
     ['remove_voltage_monitor', 'reset_voltage_monitor', 'update_voltage_monitor', 'get_voltage_statistics'].forEach((id) => this._voltageMonitorActionAutocomplete(id));
     this.homey.flow.getConditionCard('is_voltage_normal').registerArgumentAutocompleteListener('monitor', async (query) => this._voltageMonitorResults(query));
+    this.homey.flow.getConditionCard('voltage_is_state').registerArgumentAutocompleteListener('monitor', async (query) => this._voltageMonitorResults(query));
     ['log_binary_event', 'remove_binary_counter', 'reset_binary_counter', 'get_binary_event_statistics'].forEach((id) => this._binaryCounterActionAutocomplete(id));
+    this.homey.flow.getConditionCard('binary_count_greater_than').registerArgumentAutocompleteListener('counter', async (query) => this._binaryCounterResults(query));
+    this.homey.flow.getActionCard('generate_text_report').registerArgumentAutocompleteListener('item', async (query) => [
+      ...this._monitorResults(query), ...this._voltageMonitorResults(query), ...this._stateMonitorResults(query), ...this._binaryCounterResults(query)
+    ]);
     // Unlike the other binary-counter cards (which only ever pick an existing one), this one
     // also has to let the user type a brand new name — so the exact-match case gets offered
     // as "create new" instead of forcing a pick from existing counters alone.
@@ -455,6 +527,17 @@ class StatisticTrackerApp extends Homey.App {
         energy_quality: stats.energy_quality || ''
       };
     });
+    // Re-enables auto-calibration without deleting/recreating the monitor — reuses
+    // _maybeAutoCalibrate's existing pipeline entirely (app.js's onSample path already checks
+    // `monitor.calibrating` before re-suggesting a threshold), same as a freshly created
+    // monitor with no explicit threshold.
+    action('calibrate_threshold', async ({ monitor }) => {
+      const item = this._monitor(monitor);
+      item.calibrating = true;
+      await this.store.save();
+      return true;
+    });
+    action('generate_text_report', async ({ item, period }) => ({ report: this._generateTextReport(item, period) }));
     action('create_state_group', async ({ name, type, expected_state }) => { this.store.createGroup({ name, type, expectedState: expected_state }); await this.store.save(); return true; });
     action('add_device_to_state_group', async ({ group, device }) => { const item = this._group(group); const selected = await this.gateway.getDevice(this._deviceId(device)); this._assertGroupDevice(item, selected); if (!item.devices.some((d) => d.id === selected.id)) item.devices.push({ id: selected.id, name: selected.name }); await this.store.save(); return true; });
     action('remove_device_from_state_group', async ({ group, device }) => { const item = this._group(group); const id = this._deviceId(device); item.devices = item.devices.filter((d) => d.id !== id); await this.store.save(); return true; });
@@ -463,7 +546,21 @@ class StatisticTrackerApp extends Homey.App {
       return { group_name: result.groupName, checked_count: result.checkedCount, match_count: result.matchCount, mismatch_count: result.mismatchCount, mismatch_list: result.mismatchList, message: result.message };
     });
     condition('is_active', async ({ monitor }) => this._monitor(monitor).state === ACTIVE);
+    // Lets an energy-saving Flow act only once a device has been running a while (e.g. "turn
+    // off the AC when the tariff spikes, but only if it's been on for 2+ hours") instead of
+    // reacting to any activity at all. False for a monitor currently STANDBY — there's no
+    // "since" to measure.
+    condition('activity_running_longer_than', async ({ monitor, minutes }) => {
+      const item = this._monitor(monitor);
+      if (item.state !== ACTIVE || !item.activeSince) return false;
+      return (Date.now() - item.activeSince) / 60000 >= Number(minutes);
+    });
     condition('state_group_has_mismatch', async ({ group }) => (await this._checkGroup(this._group(group))).mismatchCount > 0);
+    condition('is_device_monitored', async ({ device }) => {
+      const id = this._deviceId(device);
+      return [this.store.data.monitors, this.store.data.voltageMonitors, this.store.data.stateMonitors]
+        .some((collection) => Object.values(collection).some((m) => m.deviceId === id));
+    });
 
     action('add_voltage_monitor', async ({ device, capability, min_voltage, max_voltage, name, stabilization_minutes }) => {
       await this._createVoltageMonitor({ deviceId: this._deviceId(device), capability: capability?.id || capability?.data?.id, minVoltage: min_voltage, maxVoltage: max_voltage, name, stabilizationMinutes: stabilization_minutes });
@@ -480,6 +577,10 @@ class StatisticTrackerApp extends Homey.App {
     });
     action('get_voltage_statistics', async ({ monitor, period }) => this._voltageStatistics(this._voltageMonitor(monitor), period));
     condition('is_voltage_normal', async ({ monitor }) => this._voltageMonitor(monitor).state === NORMAL);
+    // is_voltage_normal alone can't distinguish under- from over-voltage on the "not normal"
+    // side — useful for a safety Flow that should react differently to each (e.g. only skip
+    // running a motor on overvoltage, not undervoltage).
+    condition('voltage_is_state', async ({ monitor, state }) => this._voltageMonitor(monitor).state === state);
 
     // No continuity/confirmation window here (and no "Update state monitor" card exists to
     // tune it later, unlike Activity Monitor) — every real use case so far is a plain
@@ -500,6 +601,7 @@ class StatisticTrackerApp extends Homey.App {
     });
     condition('is_state_active', async ({ monitor }) => this._stateMonitor(monitor).state === ACTIVE);
 
+    condition('binary_count_greater_than', async ({ counter, count }) => this._binaryEventStatistics(this._binaryCounter(counter), 'day').event_count > Number(count));
     action('add_binary_counter', async ({ name: rawName }) => {
       const name = (typeof rawName === 'object' ? rawName?.name : rawName || '').trim();
       if (!name) throw new Error('Counter name is required.');
@@ -514,11 +616,14 @@ class StatisticTrackerApp extends Homey.App {
       const item = this._binaryCounter(counter);
       const timestamp = Date.now();
       const todayCount = this.store.recordBinaryEvent(item, timestamp, this._getTimezone());
-      await this.store.save();
       const data = { counter: item.name, count: todayCount, total: item.totalCount };
+      const message = renderMessage(item.messageTemplate, data);
+      this._logEvent(message);
+      await this.store.save();
+      await this.binaryCards.logged.trigger({ counter: item.name, event_count_today: todayCount, total_count: item.totalCount, message }, { counterId: item.id });
       return {
         event_count_today: todayCount, total_count: item.totalCount, last_event_at: new Date(timestamp).toISOString(),
-        message: renderMessage(item.messageTemplate, data)
+        message
       };
     });
     action('remove_binary_counter', async ({ counter }) => { await this.removeBinaryCounter(this._binaryCounter(counter)); return true; });
@@ -743,6 +848,7 @@ class StatisticTrackerApp extends Homey.App {
         this.log(`[${monitor.name}] started (${num(event.power)} W)`);
         const startedData = { ...base, message: renderMessage(monitor.messageTemplateStarted, base) };
         await this.cards.started.trigger(startedData, { monitorId: monitor.id });
+        this._logEvent(startedData.message);
         result = startedData;
       }
       if (event.type === 'finished') {
@@ -758,6 +864,14 @@ class StatisticTrackerApp extends Homey.App {
         };
         finishedData.message = renderMessage(monitor.messageTemplateFinished, finishedData);
         await this.cards.finished.trigger(finishedData, { monitorId: monitor.id });
+        this._logEvent(finishedData.message);
+        // dayStats.cycle_count strictly increases by exactly one per finished cycle, so an
+        // exact-equality state match (see registerRunListener above) fires this precisely once
+        // per Flow's configured count, not on every finish after crossing it.
+        await this.cards.cyclesReached.trigger(
+          { device: monitor.deviceName, monitor: monitor.name, count: dayStats.cycle_count, message: finishedData.message },
+          { monitorId: monitor.id, cycleCount: dayStats.cycle_count }
+        );
         result = finishedData;
       }
     }
@@ -822,7 +936,9 @@ class StatisticTrackerApp extends Homey.App {
       if (event.type === 'started') {
         this.log(`[${monitor.name}] started (${monitor.trueLabel})`);
         const startedData = { ...base, label: monitor.trueLabel, power: num(event.power) };
-        await this.stateCards.started.trigger({ ...startedData, message: renderMessage(monitor.messageTemplateStarted, startedData) }, { monitorId: monitor.id });
+        const startedMessage = renderMessage(monitor.messageTemplateStarted, startedData);
+        await this.stateCards.started.trigger({ ...startedData, message: startedMessage }, { monitorId: monitor.id });
+        this._logEvent(startedMessage);
       }
       if (event.type === 'finished') {
         this.log(`[${monitor.name}] finished (duration=${event.duration_human}, now ${monitor.falseLabel})`);
@@ -832,7 +948,9 @@ class StatisticTrackerApp extends Homey.App {
           energy: num(event.energy), average_power: num(event.average_power), max_power: num(event.max_power),
           average_current: num(event.average_current), max_current: num(event.max_current), energy_today: num(dayStats.energy)
         };
-        await this.stateCards.finished.trigger({ ...finishedData, message: renderMessage(monitor.messageTemplateFinished, finishedData) }, { monitorId: monitor.id });
+        const finishedMessage = renderMessage(monitor.messageTemplateFinished, finishedData);
+        await this.stateCards.finished.trigger({ ...finishedData, message: finishedMessage }, { monitorId: monitor.id });
+        this._logEvent(finishedMessage);
       }
     }
   }
@@ -861,11 +979,15 @@ class StatisticTrackerApp extends Homey.App {
       const base = { device: monitor.deviceName, monitor: monitor.name, voltage: event.voltage, timestamp: new Date(event.timestamp).toISOString() };
       if (event.type === 'started' && event.eventType === UNDERVOLTAGE) {
         this.log(`[${monitor.name}] undervoltage (${event.voltage} V)`);
-        await this.voltageCards.undervoltage.trigger({ ...base, message: renderMessage(monitor.messageTemplateUndervoltage, base) }, { monitorId: monitor.id });
+        const undervoltageMessage = renderMessage(monitor.messageTemplateUndervoltage, base);
+        await this.voltageCards.undervoltage.trigger({ ...base, message: undervoltageMessage }, { monitorId: monitor.id });
+        this._logEvent(undervoltageMessage);
       }
       if (event.type === 'started' && event.eventType === OVERVOLTAGE) {
         this.log(`[${monitor.name}] overvoltage (${event.voltage} V)`);
-        await this.voltageCards.overvoltage.trigger({ ...base, message: renderMessage(monitor.messageTemplateOvervoltage, base) }, { monitorId: monitor.id });
+        const overvoltageMessage = renderMessage(monitor.messageTemplateOvervoltage, base);
+        await this.voltageCards.overvoltage.trigger({ ...base, message: overvoltageMessage }, { monitorId: monitor.id });
+        this._logEvent(overvoltageMessage);
       }
       if (event.type === 'normalized') {
         this.log(`[${monitor.name}] normalized (duration=${humanDuration(event.duration)}, min=${num(event.min_voltage).toFixed(1)} V, max=${num(event.max_voltage).toFixed(1)} V)`);
@@ -873,7 +995,9 @@ class StatisticTrackerApp extends Homey.App {
           ...base, event_type: event.previousEventType, duration: num(event.duration), duration_human: humanDuration(event.duration),
           min_voltage: num(event.min_voltage), max_voltage: num(event.max_voltage), average_voltage: num(event.average_voltage)
         };
-        await this.voltageCards.normalized.trigger({ ...normalizedData, message: renderMessage(monitor.messageTemplateNormalized, normalizedData) }, { monitorId: monitor.id });
+        const normalizedMessage = renderMessage(monitor.messageTemplateNormalized, normalizedData);
+        await this.voltageCards.normalized.trigger({ ...normalizedData, message: normalizedMessage }, { monitorId: monitor.id });
+        this._logEvent(normalizedMessage);
       }
     }
   }
@@ -892,6 +1016,36 @@ class StatisticTrackerApp extends Homey.App {
     const eventCount = (counter.dailyCounts || []).filter((day) => day.date >= startKey).reduce((total, day) => total + day.count, 0);
     return { event_count: eventCount, last_event_at: lastEventAt };
   }
+  // One canned sentence per monitor/counter kind, built from the exact same stats functions
+  // each type's own "Get statistics" Flow card already calls — for a push notification or chat
+  // message without concatenating a dozen tokens by hand in the Flow itself.
+  _generateTextReport(rawId, rawPeriod) {
+    const id = rawId && typeof rawId === 'object' ? (rawId.data?.id || rawId.id) : rawId;
+    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
+    const periodLabel = period === 'week' ? 'the last 7 days' : period === 'month' ? 'the last 30 days' : 'today';
+    const activityMonitor = this.store.data.monitors[id];
+    if (activityMonitor) {
+      const s = this._statistics(activityMonitor, period);
+      return `${activityMonitor.name}: ${s.cycle_count} cycle${s.cycle_count === 1 ? '' : 's'}, ${formatEnergy(num(s.total_energy))}, active ${humanDuration(num(s.active_duration))} (${periodLabel}).`;
+    }
+    const voltageMonitor = this.store.data.voltageMonitors[id];
+    if (voltageMonitor) {
+      const s = this._voltageStatistics(voltageMonitor, period);
+      const incidents = (s.undervoltage_count || 0) + (s.overvoltage_count || 0);
+      return `${voltageMonitor.name}: avg ${num(s.average_voltage).toFixed(1)} V, range ${num(s.min_voltage).toFixed(1)}–${num(s.max_voltage).toFixed(1)} V, ${incidents} incident${incidents === 1 ? '' : 's'} (${periodLabel}).`;
+    }
+    const stateMonitor = this.store.data.stateMonitors[id];
+    if (stateMonitor) {
+      const s = this._stateStatistics(stateMonitor, period);
+      return `${stateMonitor.name}: ${s.cycle_count} session${s.cycle_count === 1 ? '' : 's'}, ${humanDuration(num(s.true_duration))} ${stateMonitor.trueLabel} (${periodLabel}).`;
+    }
+    const counter = this.store.data.binaryCounters[id];
+    if (counter) {
+      const s = this._binaryEventStatistics(counter, period);
+      return `${counter.name}: ${s.event_count} event${s.event_count === 1 ? '' : 's'} (${periodLabel}).`;
+    }
+    throw new Error('Monitor or counter not found.');
+  }
   _voltageStatistics(monitor, period = 'all') {
     const now = Date.now();
     const rollingWindowDays = { week: 7, month: 30 };
@@ -899,7 +1053,15 @@ class StatisticTrackerApp extends Homey.App {
       ? startOfLocalDay(new Date(now), this._getTimezone()).getTime()
       : rollingWindowDays[period] ? now - rollingWindowDays[period] * 24 * 60 * 60 * 1000 : 0;
     const periods = (monitor.periods || []).filter((item) => item.endedAt > start && item.startedAt < now);
-    const voltages = periods.map((item) => item.voltage).filter(Number.isFinite);
+    // minVoltage/maxVoltage/voltageSum/sampleCount per period (see VoltageEngine#processSample's
+    // bucketing) — falls back to the older single-`voltage`-per-period shape for anything still
+    // stored that way. average_voltage is sum-of-samples/count-of-samples rather than an
+    // average-of-bucket-averages, so a long bucket doesn't get diluted to the same weight as a
+    // short one.
+    const periodMins = periods.map((item) => item.minVoltage ?? item.voltage).filter(Number.isFinite);
+    const periodMaxes = periods.map((item) => item.maxVoltage ?? item.voltage).filter(Number.isFinite);
+    const totalSampleCount = periods.reduce((sum, item) => sum + (item.sampleCount ?? (Number.isFinite(item.voltage) ? 1 : 0)), 0);
+    const totalVoltageSum = periods.reduce((sum, item) => sum + (item.voltageSum ?? (Number.isFinite(item.voltage) ? item.voltage : 0)), 0);
     // Daily summaries (see SentinelStore#consolidateHistory) fill in min/max for anything
     // older than the granular period retention window. They don't track an average (only
     // min/max are kept once consolidated, to avoid carrying a running sum+count forever), so
@@ -908,14 +1070,14 @@ class StatisticTrackerApp extends Homey.App {
       const dayStart = new Date(`${day.date}T00:00:00Z`).getTime();
       return dayStart >= start && dayStart < now;
     });
-    const mins = voltages.concat(daily.map((day) => day.minVoltage)).filter(Number.isFinite);
-    const maxes = voltages.concat(daily.map((day) => day.maxVoltage)).filter(Number.isFinite);
+    const mins = periodMins.concat(daily.map((day) => day.minVoltage)).filter(Number.isFinite);
+    const maxes = periodMaxes.concat(daily.map((day) => day.maxVoltage)).filter(Number.isFinite);
     const events = (monitor.events || []).filter((event) => event.startedAt >= start && event.startedAt < now);
     const undervoltageEvents = events.filter((event) => event.type === UNDERVOLTAGE);
     const overvoltageEvents = events.filter((event) => event.type === OVERVOLTAGE);
     const sumDuration = (items) => items.reduce((total, item) => total + item.duration, 0);
     return {
-      average_voltage: average(voltages), min_voltage: mins.length ? Math.min(...mins) : null, max_voltage: maxes.length ? Math.max(...maxes) : null,
+      average_voltage: totalSampleCount ? totalVoltageSum / totalSampleCount : null, min_voltage: mins.length ? Math.min(...mins) : null, max_voltage: maxes.length ? Math.max(...maxes) : null,
       undervoltage_count: undervoltageEvents.length, undervoltage_duration: sumDuration(undervoltageEvents),
       overvoltage_count: overvoltageEvents.length, overvoltage_duration: sumDuration(overvoltageEvents)
     };

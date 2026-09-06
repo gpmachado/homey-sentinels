@@ -1,0 +1,8 @@
+{
+  "title": { "en": "[[counter]] !{{today's count is|today's count is not}} greater than [[count]]" },
+  "titleFormatted": { "en": "[[counter]] !{{today's count is|today's count is not}} greater than [[count]]" },
+  "args": [
+    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter" } },
+    { "name": "count", "type": "number", "title": { "en": "Count" }, "min": 0 }
+  ]
+}

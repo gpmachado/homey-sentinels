@@ -1,0 +1,15 @@
+{
+  "title": { "en": "[[monitor]] !{{is in state|is not in state}} [[state]]" },
+  "titleFormatted": { "en": "[[monitor]] !{{is in state|is not in state}} [[state]]" },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
+    {
+      "name": "state", "type": "dropdown", "title": { "en": "State" },
+      "values": [
+        { "id": "NORMAL", "title": { "en": "Normal" } },
+        { "id": "UNDERVOLTAGE", "title": { "en": "Undervoltage" } },
+        { "id": "OVERVOLTAGE", "title": { "en": "Overvoltage" } }
+      ]
+    }
+  ]
+}

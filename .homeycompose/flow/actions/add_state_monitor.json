@@ -1,4 +1,5 @@
 {
+  "deprecated": true,
   "title": { "en": "Add state monitor" },
   "titleFormatted": { "en": "Add state monitor for [[device]], capability [[capability]], active value(s) [[active_values]], label when true [[true_label]], label when false [[false_label]], name [[name]]" },
   "hint": { "en": "For a device with a reliable ACTIVE/STANDBY signal of its own — a door, a presence sensor, an on/off switch, or an appliance's own multi-value state (e.g. \"Power Off\"/\"Running\") instead of guessing from a power threshold. Tracks time spent in BOTH states. If the device also has a power/energy capability, it's tracked automatically alongside the state signal." },

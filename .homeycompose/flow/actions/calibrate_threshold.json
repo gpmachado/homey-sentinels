@@ -1,0 +1,8 @@
+{
+  "title": { "en": "Recalibrate threshold" },
+  "titleFormatted": { "en": "Recalibrate threshold for [[monitor]]" },
+  "hint": { "en": "Re-enables auto-calibration for an activity monitor that already has a threshold (manually set or previously calibrated) — the next time enough power history confirms a new standby/active split, the threshold updates automatically, same as a freshly created monitor. Existing history and current threshold are kept until then." },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
+  ]
+}

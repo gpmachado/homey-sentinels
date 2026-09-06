@@ -1,0 +1,14 @@
+{
+  "title": { "en": "Binary event logged" },
+  "titleFormatted": { "en": "[[counter]] logs an event" },
+  "hint": { "en": "Fires whenever this counter is incremented via \"Log binary event\", from any Flow — lets a different Flow react passively instead of needing the tokens right there on the same card that logged it." },
+  "args": [
+    { "name": "counter", "type": "autocomplete", "required": true, "title": { "en": "Counter" } }
+  ],
+  "tokens": [
+    { "name": "counter", "type": "string", "title": { "en": "Counter" } },
+    { "name": "event_count_today", "type": "number", "title": { "en": "Events today (including this one)" } },
+    { "name": "total_count", "type": "number", "title": { "en": "Total events (all time)" } },
+    { "name": "message", "type": "string", "title": { "en": "Message" } }
+  ]
+}

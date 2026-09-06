@@ -1,0 +1,15 @@
+{
+  "title": { "en": "Cycle count reached" },
+  "titleFormatted": { "en": "[[monitor]] reaches [[cycles]] cycles today" },
+  "hint": { "en": "Fires once, the moment a monitor's cycle count for today reaches this exact number — not on every cycle after it. Useful to flag an abnormal on/off frequency (a pump or a compressor cycling far more than usual)." },
+  "args": [
+    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor" } },
+    { "name": "cycles", "type": "number", "title": { "en": "Cycles" }, "min": 1 }
+  ],
+  "tokens": [
+    { "name": "device", "type": "string", "title": { "en": "Device" } },
+    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
+    { "name": "count", "type": "number", "title": { "en": "Cycles today" } },
+    { "name": "message", "type": "string", "title": { "en": "Message" } }
+  ]
+}

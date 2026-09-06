@@ -1,4 +1,5 @@
 {
+  "deprecated": true,
   "title": { "en": "Add binary counter" },
   "titleFormatted": { "en": "Add binary counter [[name]]" },
   "hint": { "en": "For a fire-and-forget occurrence with no start/end pair — a doorbell press, a single motion pulse, a button click. Just tallies how many times it happened, no duration or energy. Run once to set it up (or wire it to a native trigger — running it again on the same name updates the existing counter instead of duplicating it), then use \"Log binary event\" wherever the real occurrence happens." },
