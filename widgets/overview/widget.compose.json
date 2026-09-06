@@ -1,0 +1,14 @@
+{
+  "name": { "en": "Sentinels Overview" },
+  "height": 300,
+  "settings": [
+    { "id": "monitor1", "type": "autocomplete", "title": { "en": "Item 1" } },
+    { "id": "monitor2", "type": "autocomplete", "title": { "en": "Item 2" } },
+    { "id": "monitor3", "type": "autocomplete", "title": { "en": "Item 3" } },
+    { "id": "monitor4", "type": "autocomplete", "title": { "en": "Item 4" } },
+    { "id": "monitor5", "type": "autocomplete", "title": { "en": "Item 5" } }
+  ],
+  "api": {
+    "getSummary": { "method": "GET", "path": "/summary" }
+  }
+}

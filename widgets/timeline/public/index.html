@@ -1,0 +1,88 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    #wrap {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: var(--homey-su-4, 16px);
+      gap: var(--homey-su-2, 8px);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    #title { font-size: 15px; font-weight: 600; color: var(--homey-text-color, #16161a); }
+    #hint { font-size: 13px; color: var(--homey-text-color-light, #7a7a85); }
+    .hidden { display: none; }
+    #rows { flex: 1 1 auto; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .row { display: flex; gap: 8px; align-items: baseline; }
+    .row-time { font-size: 11px; font-weight: 700; color: var(--homey-text-color-light, #7a7a85); font-variant-numeric: tabular-nums; flex-shrink: 0; }
+    .row-message { font-size: 12px; color: var(--homey-text-color, #16161a); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+    #wrap.stale { opacity: 0.5; transition: opacity 0.3s; }
+  </style>
+</head>
+
+<body>
+  <div id="wrap">
+    <div id="title">Recent activity</div>
+    <div id="hint">Loading…</div>
+    <div id="rows"></div>
+  </div>
+
+  <script type="text/javascript">
+    function onHomeyReady(Homey) {
+      var $wrap = document.getElementById('wrap');
+      var $hint = document.getElementById('hint');
+      var $rows = document.getElementById('rows');
+      var hasLoadedOnce = false;
+
+      function formatTime(timestamp) {
+        var date = new Date(timestamp);
+        var pad = function (n) { return String(n).padStart(2, '0'); };
+        return pad(date.getHours()) + ':' + pad(date.getMinutes());
+      }
+
+      function renderRow(event) {
+        var row = document.createElement('div');
+        row.className = 'row';
+        var time = document.createElement('div');
+        time.className = 'row-time';
+        time.textContent = formatTime(event.timestamp);
+        var message = document.createElement('div');
+        message.className = 'row-message';
+        message.textContent = event.message;
+        row.appendChild(time);
+        row.appendChild(message);
+        return row;
+      }
+
+      async function load() {
+        try {
+          var events = await Homey.api('GET', '/events');
+          hasLoadedOnce = true;
+          $wrap.classList.remove('stale');
+          if (!events.length) {
+            $hint.textContent = 'Nothing logged yet.';
+            $hint.classList.remove('hidden');
+            $rows.classList.add('hidden');
+          } else {
+            $hint.classList.add('hidden');
+            $rows.classList.remove('hidden');
+            $rows.innerHTML = '';
+            events.forEach(function (event) { $rows.appendChild(renderRow(event)); });
+          }
+        } catch (error) {
+          if (hasLoadedOnce) $wrap.classList.add('stale');
+        }
+      }
+
+      load().finally(function () { Homey.ready(); });
+      setInterval(load, 30000);
+    }
+  </script>
+</body>
+
+</html>

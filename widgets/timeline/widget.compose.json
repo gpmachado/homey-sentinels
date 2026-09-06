@@ -1,0 +1,8 @@
+{
+  "name": { "en": "Sentinels Timeline" },
+  "height": 252,
+  "settings": [],
+  "api": {
+    "getEvents": { "method": "GET", "path": "/events" }
+  }
+}
