@@ -3,10 +3,16 @@
 const Homey = require('homey');
 const SentinelStore = require('./lib/store');
 const HomeyDeviceGateway = require('./lib/homey-device-gateway');
-const { ACTIVE, ActivityEngine, average, maximum, median, humanDuration, standbyGraceSeconds } = require('./lib/activity-engine');
+const { ACTIVE, ActivityEngine, humanDuration, standbyGraceSeconds } = require('./lib/activity-engine');
 const { NORMAL, UNDERVOLTAGE, OVERVOLTAGE, VoltageEngine, stabilizationGraceSeconds } = require('./lib/voltage-engine');
-const { renderMessage, formatList } = require('./lib/message-template');
+const { renderMessage } = require('./lib/message-template');
 const { startOfLocalDay, localDateKey, isValidTimeZone } = require('./lib/time');
+const {
+  statistics: computeStatistics, stateStatistics: computeStateStatistics, voltageStatistics: computeVoltageStatistics,
+  binaryEventStatistics: computeBinaryEventStatistics, dailyBreakdown: computeDailyBreakdown, stateDailyBreakdown: computeStateDailyBreakdown,
+  binaryDailyBreakdown: computeBinaryDailyBreakdown, suggestedThreshold: computeSuggestedThreshold, generateTextReport: computeTextReport
+} = require('./lib/statistics');
+const { assertGroupDevice, checkGroup, groupStatistics: computeGroupStatistics } = require('./lib/groups');
 
 // Regenerated on every commit (see scripts/write-build-info.js, .git/hooks/post-commit) — the
 // app's own version stays 1.0.0 across every dev iteration, so without this a pasted log has no
@@ -51,37 +57,8 @@ const SAVE_DEBOUNCE_MS = 3000;
 // array. Confirmed live: this hit Homey's own CPU limit and crashed the app. A per-monitor
 // cooldown bounds the sort to at most once per this interval, regardless of sample rate.
 const CALIBRATION_RETRY_MS = 60 * 1000;
-// Below this many cycles, a median duration/energy is technically defined but not
-// meaningful yet as "typical" — same floor the reference app used for its health
-// calculation. Below it, median_duration/median_energy come back null ("still learning")
-// instead of a number that looks more authoritative than a sample of 1-2 cycles deserves.
-const MEDIAN_MIN_CYCLES = 5;
-// Below this many raw power samples, a "gap" in the distribution is as likely to be sampling
-// noise as a real standby/active split — too little history to suggest a threshold from yet.
-const THRESHOLD_SUGGESTION_MIN_SAMPLES = 30;
-// The widest gap available isn't necessarily a real standby/active split — if a monitor has
-// never actually seen its device turn on yet, every sample so far sits in the standby band,
-// and the "widest gap" found is just jitter inside that band (confirmed live: an oven idling
-// at ~8 W with no cooking session yet calibrated a ~5 W threshold from noise alone, then
-// immediately false-triggered "started" off ordinary standby readings). Every real
-// standby/active pair seen in practice — a coffee machine's ~5 W vs ~500 W, a dishwasher's
-// ~60 W vs ~1000 W, an oven's ~8 W vs ~1400 W — clears 15x+, so requiring the gap to span at
-// least this ratio filters out same-band noise without rejecting any real appliance.
-const THRESHOLD_SUGGESTION_MIN_GAP_RATIO = 4;
-// Single source of truth for State Group's type→capability mapping — was previously duplicated
-// (and already drifting: _checkGroup only special-cased 'contact', everything else fell through
-// to 'onoff', silently wrong for any new type added there without updating both places).
-// `invert: true` means the capability's raw true/false is the OPPOSITE of what "On / Open" /
-// "Off / Closed" means to the user — garagedoor_closed reports true when the door is CLOSED,
-// so without inverting, picking "Open" as the expected state would silently check for closed
-// (the exact polarity footgun already fixed once for State Monitor's old active_value picker).
-const GROUP_TYPES = {
-  contact: { capability: 'alarm_contact', invert: false },
-  light: { capability: 'onoff', invert: false },
-  switch: { capability: 'onoff', invert: false },
-  valve: { capability: 'onoff', invert: false },
-  garage: { capability: 'garagedoor_closed', invert: true }
-};
+// MEDIAN_MIN_CYCLES, THRESHOLD_SUGGESTION_MIN_SAMPLES/MIN_GAP_RATIO, and GROUP_TYPES now live in
+// lib/statistics.js and lib/groups.js respectively, alongside the functions that use them.
 // Homey rejects a "number" Flow token whose value is null/undefined ("Invalid Token") —
 // average()/maximum() legitimately return null for "no data yet". Only coerce at this
 // Flow-token boundary; getWidgetSummary keeps reading the raw null to render "—" instead of "0".
@@ -1032,335 +1009,22 @@ class StatisticTrackerApp extends Homey.App {
       }
     }
   }
-  // 'all' reads counter.totalCount directly (never pruned) rather than summing dailyCounts,
-  // which only keeps the same 90-day window every other monitor type retains.
-  _binaryEventStatistics(counter, period = 'all') {
-    const lastEventAt = counter.lastEventAt ? new Date(counter.lastEventAt).toISOString() : null;
-    if (period === 'all') return { event_count: counter.totalCount, last_event_at: lastEventAt };
-    const now = Date.now();
-    const timeZone = this._getTimezone();
-    const rollingWindowDays = { week: 7, month: 30 };
-    const start = period === 'day'
-      ? startOfLocalDay(new Date(now), timeZone).getTime()
-      : rollingWindowDays[period] ? now - rollingWindowDays[period] * 24 * 60 * 60 * 1000 : 0;
-    const startKey = localDateKey(new Date(start), timeZone);
-    const eventCount = (counter.dailyCounts || []).filter((day) => day.date >= startKey).reduce((total, day) => total + day.count, 0);
-    return { event_count: eventCount, last_event_at: lastEventAt };
-  }
-  // One canned sentence per monitor/counter kind, built from the exact same stats functions
-  // each type's own "Get statistics" Flow card already calls — for a push notification or chat
-  // message without concatenating a dozen tokens by hand in the Flow itself.
-  _generateTextReport(rawId, rawPeriod) {
-    const id = rawId && typeof rawId === 'object' ? (rawId.data?.id || rawId.id) : rawId;
-    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
-    const periodLabel = period === 'week' ? 'the last 7 days' : period === 'month' ? 'the last 30 days' : 'today';
-    const activityMonitor = this.store.data.monitors[id];
-    if (activityMonitor) {
-      const s = this._statistics(activityMonitor, period);
-      return `${activityMonitor.name}: ${s.cycle_count} cycle${s.cycle_count === 1 ? '' : 's'}, ${formatEnergy(num(s.total_energy))}, active ${humanDuration(num(s.active_duration))} (${periodLabel}).`;
-    }
-    const voltageMonitor = this.store.data.voltageMonitors[id];
-    if (voltageMonitor) {
-      const s = this._voltageStatistics(voltageMonitor, period);
-      const incidents = (s.undervoltage_count || 0) + (s.overvoltage_count || 0);
-      return `${voltageMonitor.name}: avg ${num(s.average_voltage).toFixed(1)} V, range ${num(s.min_voltage).toFixed(1)}–${num(s.max_voltage).toFixed(1)} V, ${incidents} incident${incidents === 1 ? '' : 's'} (${periodLabel}).`;
-    }
-    const stateMonitor = this.store.data.stateMonitors[id];
-    if (stateMonitor) {
-      const s = this._stateStatistics(stateMonitor, period);
-      return `${stateMonitor.name}: ${s.cycle_count} session${s.cycle_count === 1 ? '' : 's'}, ${humanDuration(num(s.true_duration))} ${stateMonitor.trueLabel} (${periodLabel}).`;
-    }
-    const counter = this.store.data.binaryCounters[id];
-    if (counter) {
-      const s = this._binaryEventStatistics(counter, period);
-      return `${counter.name}: ${s.event_count} event${s.event_count === 1 ? '' : 's'} (${periodLabel}).`;
-    }
-    throw new Error('Monitor or counter not found.');
-  }
-  _voltageStatistics(monitor, period = 'all') {
-    const now = Date.now();
-    const rollingWindowDays = { week: 7, month: 30 };
-    const start = period === 'day'
-      ? startOfLocalDay(new Date(now), this._getTimezone()).getTime()
-      : rollingWindowDays[period] ? now - rollingWindowDays[period] * 24 * 60 * 60 * 1000 : 0;
-    const periods = (monitor.periods || []).filter((item) => item.endedAt > start && item.startedAt < now);
-    // minVoltage/maxVoltage/voltageSum/sampleCount per period (see VoltageEngine#processSample's
-    // bucketing) — falls back to the older single-`voltage`-per-period shape for anything still
-    // stored that way. average_voltage is sum-of-samples/count-of-samples rather than an
-    // average-of-bucket-averages, so a long bucket doesn't get diluted to the same weight as a
-    // short one.
-    const periodMins = periods.map((item) => item.minVoltage ?? item.voltage).filter(Number.isFinite);
-    const periodMaxes = periods.map((item) => item.maxVoltage ?? item.voltage).filter(Number.isFinite);
-    const totalSampleCount = periods.reduce((sum, item) => sum + (item.sampleCount ?? (Number.isFinite(item.voltage) ? 1 : 0)), 0);
-    const totalVoltageSum = periods.reduce((sum, item) => sum + (item.voltageSum ?? (Number.isFinite(item.voltage) ? item.voltage : 0)), 0);
-    // Daily summaries (see SentinelStore#consolidateHistory) fill in min/max for anything
-    // older than the granular period retention window. They don't track an average (only
-    // min/max are kept once consolidated, to avoid carrying a running sum+count forever), so
-    // average_voltage naturally only reflects the still-granular window.
-    const daily = (monitor.dailySummaries || []).filter((day) => {
-      const dayStart = new Date(`${day.date}T00:00:00Z`).getTime();
-      return dayStart >= start && dayStart < now;
-    });
-    const mins = periodMins.concat(daily.map((day) => day.minVoltage)).filter(Number.isFinite);
-    const maxes = periodMaxes.concat(daily.map((day) => day.maxVoltage)).filter(Number.isFinite);
-    const events = (monitor.events || []).filter((event) => event.startedAt >= start && event.startedAt < now);
-    const undervoltageEvents = events.filter((event) => event.type === UNDERVOLTAGE);
-    const overvoltageEvents = events.filter((event) => event.type === OVERVOLTAGE);
-    const sumDuration = (items) => items.reduce((total, item) => total + item.duration, 0);
-    return {
-      average_voltage: totalSampleCount ? totalVoltageSum / totalSampleCount : null, min_voltage: mins.length ? Math.min(...mins) : null, max_voltage: maxes.length ? Math.max(...maxes) : null,
-      undervoltage_count: undervoltageEvents.length, undervoltage_duration: sumDuration(undervoltageEvents),
-      overvoltage_count: overvoltageEvents.length, overvoltage_duration: sumDuration(overvoltageEvents)
-    };
-  }
-  _statistics(monitor, period = 'all') {
-    const now = Date.now();
-    // "day" means since local midnight (matching how Home Assistant's Energy dashboard and
-    // utility_meter roll over) — a rolling 24h window would answer a different question.
-    const rollingWindowDays = { week: 7, month: 30 };
-    const start = period === 'day'
-      ? startOfLocalDay(new Date(now), this._getTimezone()).getTime()
-      : rollingWindowDays[period] ? now - rollingWindowDays[period] * 24 * 60 * 60 * 1000 : 0;
-    const current = this._periodStatistics(monitor, start, now);
-    const trend = this._weeklyTrend(monitor, now);
-    return { ...current, trend_active_duration_percent: trend.activeDuration.percent, trend_cycle_count_percent: trend.cycleCount.percent, trend_energy_percent: trend.energy.percent, trend_summary: trend.summary };
-  }
-  // Same underlying period/cycle math as _statistics — a state monitor is just an activity
-  // monitor with no power/energy signal by default — but only the fields that mean something
-  // for a boolean capability are surfaced, so a door's stats card doesn't show "Peak power: 0
-  // W". When an auxiliary power capability IS being tracked (see _sampleState), periods/cycles
-  // already carry real wattage/energy — _statistics() computes average_power/total_energy from
-  // them with no changes needed there, this just decides whether to surface them.
-  _stateStatistics(monitor, period = 'all') {
-    const stats = this._statistics(monitor, period);
-    const tracksPower = monitor.auxiliaryCapabilities?.length > 0;
-    return {
-      cycle_count: stats.cycle_count, true_duration: stats.active_duration, false_duration: stats.standby_duration,
-      true_label: monitor.trueLabel, false_label: monitor.falseLabel,
-      median_duration: stats.median_duration, median_duration_human: stats.median_duration_human,
-      trend_active_duration_percent: stats.trend_active_duration_percent, trend_cycle_count_percent: stats.trend_cycle_count_percent,
-      trend_summary: stats.trend_summary,
-      ...(tracksPower ? {
-        energy: stats.total_energy, average_power: stats.average_power, max_power: stats.max_power,
-        average_current: stats.average_current, max_current: stats.max_current
-      } : {})
-    };
-  }
-  _periodStatistics(monitor, start, end) {
-    const periods = (monitor.periods || []).filter((item) => item.endedAt > start && item.startedAt < end);
-    const active = periods.filter((item) => item.state === ACTIVE);
-    const standby = periods.filter((item) => item.state !== ACTIVE);
-    const overlapSeconds = (item) => Math.max(0, Math.min(item.endedAt, end) - Math.max(item.startedAt, start)) / 1000;
-    const sum = (items, field) => items.reduce((total, item) => total + (field === 'seconds' ? overlapSeconds(item) : (item[field] || 0)), 0);
-    // Filtered by when the cycle ENDED, not started — a session that started before local
-    // midnight and finished today (an AC left running overnight) must count as today's cycle.
-    // Filtering by startedAt instead silently dropped it from every period's cycle_count/
-    // average_power/max_power forever (it never started "today", so "today" always excluded
-    // it, and by the time "yesterday" is queried the window has already moved on) — confirmed
-    // live: a unit active since before midnight showed 0 cycles / no average power for the
-    // entire day even after it turned off. periods[] doesn't have this problem since it's
-    // filtered by overlap and prorated across the midnight split (see splitPeriodByLocalDay).
-    const cycles = (monitor.cycles || []).filter((cycle) => cycle.endedAt > start && cycle.endedAt <= end);
-    // Sourced from cycles (never pruned/condensed), not periods (condensed after ~7 days) —
-    // keeps power/current stats accurate for "month"/"all" queries regardless of how much of
-    // the raw period detail behind them has already been folded into daily summaries.
-    const numeric = (items, field) => items.map((item) => item[field]).filter(Number.isFinite);
-    const powers = numeric(cycles, 'averagePower');
-    const currents = numeric(cycles, 'averageCurrent');
-    const peakPowers = numeric(cycles, 'maxPower');
-    const peakCurrents = numeric(cycles, 'maxCurrent');
-    const hasEnoughCycles = cycles.length >= MEDIAN_MIN_CYCLES;
-    const medianDuration = hasEnoughCycles ? median(numeric(cycles, 'duration')) : null;
-    const medianEnergy = hasEnoughCycles ? median(numeric(cycles, 'energy')) : null;
-    // Daily summaries (see SentinelStore#consolidateHistory) fill in duration/energy for
-    // anything older than the granular period retention window.
-    const daily = (monitor.dailySummaries || []).reduce((acc, day) => {
-      const dayStart = new Date(`${day.date}T00:00:00Z`).getTime();
-      if (dayStart >= start && dayStart < end) {
-        acc.activeSeconds += day.activeSeconds; acc.standbySeconds += day.standbySeconds;
-        acc.activeEnergy += day.activeEnergy; acc.standbyEnergy += day.standbyEnergy;
-        acc.meterResetCount += day.meterResetCount || 0;
-      }
-      return acc;
-    }, { activeSeconds: 0, standbySeconds: 0, activeEnergy: 0, standbyEnergy: 0, meterResetCount: 0 });
-    // A negative energy delta (meter replaced/reset) is already clamped to 0 above like
-    // before — this only tells the difference between "genuinely measured zero" and "a
-    // reset happened here," instead of the two silently looking identical. Sparse field:
-    // absent when nothing was detected in the requested period, same convention as
-    // getWidgetSummary's null-for-no-data fields.
-    const hadMeterReset = periods.some((item) => item.meterReset) || daily.meterResetCount > 0;
-    return {
-      cycle_count: cycles.length, active_duration: sum(active, 'seconds') + daily.activeSeconds, standby_duration: sum(standby, 'seconds') + daily.standbySeconds,
-      total_energy: sum(periods, 'energy') + daily.activeEnergy + daily.standbyEnergy, active_energy: sum(active, 'energy') + daily.activeEnergy, standby_energy: sum(standby, 'energy') + daily.standbyEnergy,
-      average_power: average(powers), max_power: maximum(peakPowers), average_current: average(currents), max_current: maximum(peakCurrents),
-      median_duration: medianDuration, median_duration_human: medianDuration !== null ? humanDuration(medianDuration) : null, median_energy: medianEnergy,
-      energy_quality: hadMeterReset ? 'meter_reset' : null
-    };
-  }
-  // Finds a threshold by locating the widest gap in the monitor's raw power sample history —
-  // works well for appliances with a clearly separated standby draw (clock/display
-  // electronics, a few watts) and active draw (heating element/motor, much higher), which is
-  // the common shape a device like this actually has. `minClusterSize` samples are required
-  // on both sides of the split so a single outlier reading can't be mistaken for "the gap".
-  // Reports the observed low/high bounds alongside the suggestion so the user can judge how
-  // convincing the gap really is, instead of trusting a bare number.
-  _suggestedThreshold(monitor) {
-    const periods = monitor.periods || [];
-    // Cheap length check before the sort below — called on every sample while a monitor is
-    // still calibrating (see _maybeAutoCalibrate), so skipping the sort for the common
-    // below-the-minimum case matters more here than it did as a Settings-page-load-only call.
-    if (periods.length < THRESHOLD_SUGGESTION_MIN_SAMPLES) return null;
-    const values = periods.map((period) => period.power).filter(Number.isFinite).sort((a, b) => a - b);
-    if (values.length < THRESHOLD_SUGGESTION_MIN_SAMPLES) return null;
-    // A flat 10% share excluded the real gap entirely for a lopsided duty cycle — confirmed
-    // live: a freezer whose compressor runs most of the time has a "standby" cluster (the
-    // brief off periods) well under 10% of its sample history, so the search below never even
-    // considered the boundary between it and the "active" cluster, and picked some meaningless
-    // split deep inside the active cluster instead (a threshold landing right next to the
-    // freezer's own normal running wattage). A small, capped minimum still guards against a
-    // single outlier looking like a cluster, without scaling up indefinitely for a device
-    // that's active far more often than idle — verified against a simulated duty cycle down to
-    // 2% idle samples (10x more skewed than the freezer case that exposed this).
-    const minClusterSize = Math.max(3, Math.min(10, Math.floor(values.length * 0.02)));
-    let bestGap = -1;
-    let bestIndex = -1;
-    for (let i = minClusterSize; i < values.length - minClusterSize; i += 1) {
-      const gap = values[i] - values[i - 1];
-      if (gap > bestGap) { bestGap = gap; bestIndex = i; }
-    }
-    if (bestIndex === -1 || bestGap <= 0) return null;
-    const low = values[bestIndex - 1];
-    const high = values[bestIndex];
-    // Reject a gap that's real but not convincingly a standby/active split — see
-    // THRESHOLD_SUGGESTION_MIN_GAP_RATIO's comment above.
-    if (high < Math.max(low, 0.1) * THRESHOLD_SUGGESTION_MIN_GAP_RATIO) return null;
-    // Geometric mean lands the suggestion proportionally inside the gap rather than at its
-    // arithmetic midpoint — standby and active are often an order of magnitude apart (5 W vs
-    // 1000 W), where a straight average (502 W) would sit absurdly close to full load instead
-    // of comfortably above standby noise.
-    const threshold = Math.sqrt(Math.max(low, 0.1) * high);
-    return { threshold: Math.round(threshold * 10) / 10, low, high, sampleCount: values.length };
-  }
-  // Backs the Settings page's Monitors tab — the same period/energy/daily-breakdown detail
-  // the widget shows, but for every activity monitor at once in one table (no need to set up
-  // a widget per device just to see this).
-  getMonitorsSummary(rawPeriod) {
-    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
-    return Object.values(this.store.data.monitors).map((monitor) => {
-      const stats = this._statistics(monitor, period);
-      return {
-        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, state: monitor.state, threshold: monitor.threshold,
-        period, cycleCount: stats.cycle_count, energy: stats.total_energy, averagePower: stats.average_power, energyQuality: stats.energy_quality,
-        dailyBreakdown: period === 'day' ? null : this._dailyBreakdown(monitor, period === 'week' ? 7 : 30),
-        messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished,
-        // Still on the DEFAULT_ACTIVITY_THRESHOLD fallback, not a confirmed calibration — the
-        // widget/Settings badge shows this instead of "Standby"/"Active" so it's clear the
-        // threshold is still a guess, not yet confirmed from this device's own history.
-        calibrating: !!monitor.calibrating,
-        suggestedThreshold: this._suggestedThreshold(monitor)
-      };
-    });
-  }
-  // Same idea as getMonitorsSummary, for the state monitors table — trimmed to duration/count
-  // fields by default, same as _stateStatistics, since energy/power don't mean anything for a
-  // plain boolean capability. Included when the monitor has an auxiliary power capability.
-  getStateMonitorsSummary(rawPeriod) {
-    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
-    return Object.values(this.store.data.stateMonitors).map((monitor) => {
-      const stats = this._stateStatistics(monitor, period);
-      return {
-        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, capability: monitor.capability, state: monitor.state,
-        trueLabel: monitor.trueLabel, falseLabel: monitor.falseLabel,
-        period, cycleCount: stats.cycle_count, trueDuration: stats.true_duration, falseDuration: stats.false_duration,
-        energy: stats.energy, averagePower: stats.average_power,
-        dailyBreakdown: period === 'day' ? null : this._stateDailyBreakdown(monitor, period === 'week' ? 7 : 30),
-        messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished
-      };
-    });
-  }
-  // Same idea as _dailyBreakdown, for state monitors — active seconds per day instead of energy.
-  _stateDailyBreakdown(monitor, days) {
-    const timeZone = this._getTimezone();
-    const now = Date.now();
-    const todayStart = startOfLocalDay(new Date(now), timeZone).getTime();
-    const result = [];
-    for (let i = days - 1; i >= 0; i -= 1) {
-      const dayStart = todayStart - i * 24 * 60 * 60 * 1000;
-      const dayEnd = startOfLocalDay(new Date(dayStart + 25 * 60 * 60 * 1000), timeZone).getTime();
-      const stats = this._periodStatistics(monitor, dayStart, Math.min(dayEnd, now));
-      result.push({ date: localDateKey(new Date(dayStart), timeZone), trueDuration: stats.active_duration });
-    }
-    return result;
-  }
-  // Same idea as getMonitorsSummary, for the voltage monitors table.
-  getVoltageMonitorsSummary(rawPeriod) {
-    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
-    return Object.values(this.store.data.voltageMonitors).map((monitor) => {
-      const stats = this._voltageStatistics(monitor, period);
-      return {
-        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, capability: monitor.capability, state: monitor.state,
-        period, currentVoltage: monitor.lastSample?.voltage ?? null, minVoltage: stats.min_voltage, maxVoltage: stats.max_voltage,
-        undervoltageCount: stats.undervoltage_count, overvoltageCount: stats.overvoltage_count,
-        messageTemplateUndervoltage: monitor.messageTemplateUndervoltage, messageTemplateOvervoltage: monitor.messageTemplateOvervoltage, messageTemplateNormalized: monitor.messageTemplateNormalized
-      };
-    });
-  }
-  // Same idea again, for the Binary counters table.
-  getBinaryCountersSummary(rawPeriod) {
-    const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
-    return Object.values(this.store.data.binaryCounters).map((counter) => {
-      const stats = this._binaryEventStatistics(counter, period);
-      return { id: counter.id, name: counter.name, period, eventCount: stats.event_count, totalCount: counter.totalCount, lastEventAt: stats.last_event_at, messageTemplate: counter.messageTemplate };
-    });
-  }
-  // Same idea again, for the widget's binary-counter sparkline — reads straight off
-  // dailyCounts (already one bucket per calendar day, see recordBinaryEvent) instead of
-  // recomputing anything, padding in a zero for any day with no event.
-  _binaryDailyBreakdown(counter, days) {
-    const timeZone = this._getTimezone();
-    const now = Date.now();
-    const todayStart = startOfLocalDay(new Date(now), timeZone).getTime();
-    const result = [];
-    for (let i = days - 1; i >= 0; i -= 1) {
-      const dateKey = localDateKey(new Date(todayStart - i * 24 * 60 * 60 * 1000), timeZone);
-      const day = (counter.dailyCounts || []).find((d) => d.date === dateKey);
-      result.push({ date: dateKey, count: day ? day.count : 0 });
-    }
-    return result;
-  }
-  // One energy total per calendar day for the last `days` days (oldest first), for the
-  // widget's sparkline. Reuses _periodStatistics per day rather than a separate aggregation
-  // path, so it stays consistent with whatever the stat cards show for the same range.
-  _dailyBreakdown(monitor, days) {
-    const timeZone = this._getTimezone();
-    const now = Date.now();
-    const todayStart = startOfLocalDay(new Date(now), timeZone).getTime();
-    const result = [];
-    for (let i = days - 1; i >= 0; i -= 1) {
-      const dayStart = todayStart - i * 24 * 60 * 60 * 1000;
-      const dayEnd = startOfLocalDay(new Date(dayStart + 25 * 60 * 60 * 1000), timeZone).getTime();
-      const stats = this._periodStatistics(monitor, dayStart, Math.min(dayEnd, now));
-      result.push({ date: localDateKey(new Date(dayStart), timeZone), energy: stats.total_energy });
-    }
-    return result;
-  }
-  _weeklyTrend(monitor, now) {
-    const week = 7 * 24 * 60 * 60 * 1000;
-    const current = this._periodStatistics(monitor, now - week, now);
-    const previous = this._periodStatistics(monitor, now - 2 * week, now - week);
-    const compare = (key) => {
-      const value = current[key]; const baseline = previous[key];
-      const hasBaseline = baseline !== 0;
-      const percent = hasBaseline ? ((value - baseline) / baseline) * 100 : 0;
-      return { current: value, previous: baseline, percent, hasBaseline };
-    };
-    const activeDuration = compare('active_duration'); const cycleCount = compare('cycle_count'); const energy = compare('total_energy');
-    const label = (item) => !item.hasBaseline ? 'no prior baseline' : `${item.percent >= 0 ? '+' : ''}${item.percent.toFixed(1)}%`;
-    return { activeDuration, cycleCount, energy, summary: `This week vs. previous: activity ${label(activeDuration)}, cycles ${label(cycleCount)}, energy ${label(energy)}.` };
-  }
-  _assertGroupDevice(group, device) {
-    if (!device || !device.capabilities.includes(GROUP_TYPES[group.type]?.capability)) throw new Error(`This device isn't compatible with the ${group.type} group.`);
-  }
+  // Thin delegates over lib/statistics.js (pure functions, no `this`) — kept as same-named
+  // methods so every internal call site and api.js's contract with app.js (getMonitorsSummary
+  // etc. call these by name) are unaffected by the move. See lib/statistics.js for the actual
+  // logic and its own now-isolated tests.
+  _binaryEventStatistics(counter, period) { return computeBinaryEventStatistics(counter, period, this._getTimezone()); }
+  _generateTextReport(rawId, rawPeriod) { return computeTextReport(rawId, rawPeriod, this.store.data, this._getTimezone()); }
+  _voltageStatistics(monitor, period) { return computeVoltageStatistics(monitor, period, this._getTimezone()); }
+  _statistics(monitor, period) { return computeStatistics(monitor, period, this._getTimezone()); }
+  _stateStatistics(monitor, period) { return computeStateStatistics(monitor, period, this._getTimezone()); }
+  _dailyBreakdown(monitor, days) { return computeDailyBreakdown(monitor, days, this._getTimezone()); }
+  _stateDailyBreakdown(monitor, days) { return computeStateDailyBreakdown(monitor, days, this._getTimezone()); }
+  _binaryDailyBreakdown(counter, days) { return computeBinaryDailyBreakdown(counter, days, this._getTimezone()); }
+  _suggestedThreshold(monitor) { return computeSuggestedThreshold(monitor); }
+  _assertGroupDevice(group, device) { return assertGroupDevice(group, device); }
+  _checkGroup(group, expectedOverride) { return checkGroup(group, this.gateway, expectedOverride); }
+  _groupStatistics(group, period) { return computeGroupStatistics(group, period, this._getTimezone()); }
   // Feeds get_group_statistics — the closest a group gets to real history without a full
   // live-subscription rewrite (see GROUP_POLL_INTERVAL_MS). A group with fewer than 2 devices
   // shouldn't exist (creation already requires it) but skip defensively rather than let one bad
@@ -1377,30 +1041,6 @@ class StatisticTrackerApp extends Homey.App {
       }
     }
     this._scheduleSave();
-  }
-  _groupStatistics(group, period = 'day') {
-    const now = Date.now();
-    const timeZone = this._getTimezone();
-    const rollingWindowDays = { week: 7, month: 30 };
-    const startKey = period === 'day'
-      ? localDateKey(new Date(now), timeZone)
-      : localDateKey(new Date(now - (rollingWindowDays[period] || 0) * 24 * 60 * 60 * 1000), timeZone);
-    const days = (group.dailySummaries || []).filter((day) => day.date >= startKey);
-    const mismatchSeconds = days.reduce((sum, day) => sum + day.mismatchSeconds, 0);
-    const checkCount = days.reduce((sum, day) => sum + day.checkCount, 0);
-    return { mismatch_seconds: mismatchSeconds, mismatch_duration_human: humanDuration(mismatchSeconds), check_count: checkCount };
-  }
-  async _checkGroup(group, expectedOverride) {
-    if (group.devices.length < 2) throw new Error('A group needs at least two devices.');
-    const expected = expectedOverride === undefined || expectedOverride === '' ? group.expectedState : (expectedOverride === true || expectedOverride === 'true');
-    const devices = await Promise.all(group.devices.map(({ id }) => this.gateway.getDevice(id)));
-    const { capability, invert } = GROUP_TYPES[group.type];
-    const target = invert ? !expected : expected;
-    const mismatches = devices.filter((device) => !device || Boolean(device.capabilitiesObj?.[capability]?.value) !== target).map((device, index) => device?.name || group.devices[index].name);
-    const items = formatList(mismatches, group.conjunction || 'and');
-    const template = mismatches.length === 0 ? group.messageTemplateZero : mismatches.length === 1 ? group.messageTemplateOne : group.messageTemplateMany;
-    const message = renderMessage(template, { group: group.name, count: mismatches.length, items });
-    return { groupName: group.name, checkedCount: group.devices.length, matchCount: group.devices.length - mismatches.length, mismatchCount: mismatches.length, mismatchList: mismatches.join('\n'), message };
   }
 }
 
