@@ -330,11 +330,15 @@ function onHomeyReady(Homey) {
         ? '<span class="badge badge-calibrating" title="Using a default 40 W threshold until enough history confirms this device\'s real standby/active power split.">Calibrating</span>'
         : '<span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + (isActive ? 'Active' : 'Standby') + '</span>';
       var nameHtml = escapeHtml(monitor.name) + ' ' + stateBadge;
+      // Energy (a total accumulated over the whole period) and average power (a rate,
+      // measured only while active) are easy to mistake for two readings of "the same
+      // thing" when shown side by side with bare numbers — labeling each explicitly avoids
+      // that, instead of relying on the reader to infer it from the unit alone.
       var metaBits = [
         escapeHtml(monitor.deviceName),
         monitor.cycleCount + ' cycle' + (monitor.cycleCount === 1 ? '' : 's'),
-        formatEnergy(monitor.energy) + (monitor.energyQuality === 'meter_reset' ? ' <span class="badge badge-danger" title="A meter reset was detected in this period — energy may be understated.">reset</span>' : ''),
-        'avg ' + avgPower,
+        '<span title="Total energy measured this period — active and standby draw combined.">' + formatEnergy(monitor.energy) + ' total</span>' + (monitor.energyQuality === 'meter_reset' ? ' <span class="badge badge-danger" title="A meter reset was detected in this period — energy may be understated.">reset</span>' : ''),
+        '<span title="Average power measured only while active — not blended with standby time, and not the same as energy divided by the period length.">' + avgPower + ' while running</span>',
         monitor.threshold !== null && monitor.threshold !== undefined ? '<span class="chip" title="The Watts value that currently decides Active vs Standby for this monitor.">threshold ' + Math.round(monitor.threshold) + ' W</span>' : null,
         suggestion ? '<span class="chip chip-accent" title="Based on ' + suggestion.sampleCount + ' power samples, split between ' + Math.round(suggestion.low) + ' W and ' + Math.round(suggestion.high) + ' W">suggested ~' + Math.round(suggestion.threshold) + ' W</span>' : null
       ];
@@ -381,9 +385,10 @@ function onHomeyReady(Homey) {
         escapeHtml(monitor.trueLabel) + ' ' + formatDuration(monitor.trueDuration),
         escapeHtml(monitor.falseLabel) + ' ' + formatDuration(monitor.falseDuration),
         // Only present when this monitor also tracks an auxiliary power capability — a
-        // plain door/motion monitor's row stays exactly as it was.
-        monitor.energy !== undefined ? formatEnergy(monitor.energy) : null,
-        monitor.averagePower !== null && monitor.averagePower !== undefined ? 'avg ' + Math.round(monitor.averagePower) + ' W' : null
+        // plain door/motion monitor's row stays exactly as it was. Labeled the same explicit
+        // way as renderMonitors' energy/avg-power bits, for the same reason.
+        monitor.energy !== undefined ? '<span title="Total energy measured this period — active and standby draw combined.">' + formatEnergy(monitor.energy) + ' total</span>' : null,
+        monitor.averagePower !== null && monitor.averagePower !== undefined ? '<span title="Average power measured only while active — not blended with standby time, and not the same as energy divided by the period length.">' + Math.round(monitor.averagePower) + ' W while running</span>' : null
       ];
       var row = entityRow(nameHtml, metaBits, renderSparkline(monitor.dailyBreakdown, 'trueDuration', formatDuration));
       if (monitorPeriod === 'day') {
@@ -672,12 +677,25 @@ function onHomeyReady(Homey) {
     }).catch(function (error) { Homey.alert(error.message || String(error)); });
   });
 
+  // Re-rendered from the last data received rather than hiding/showing existing rows (like
+  // applyDeviceFilter above does) — this list can be 100+ devices long, in a house that size
+  // scrolling past every one just to find a name is the actual complaint being fixed.
+  var availabilityFilterEl = document.getElementById('availability-filter');
+  var lastAvailabilityDevices = [];
+  var lastAvailabilityWatchdogs = [];
+  availabilityFilterEl.addEventListener('input', function () { renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs); });
+
   function renderAvailability(devices, watchdogs) {
+    lastAvailabilityDevices = devices;
+    lastAvailabilityWatchdogs = watchdogs;
     var container = document.getElementById('availability-body');
     if (!devices.length) { renderEmptyList(container, 'No devices found.'); return; }
+    var query = availabilityFilterEl.value.trim().toLowerCase();
+    var filtered = query ? devices.filter(function (d) { return d.name.toLowerCase().indexOf(query) !== -1; }) : devices;
+    if (!filtered.length) { renderEmptyList(container, 'No devices match "' + escapeHtml(query) + '".'); return; }
     var watchdogByDeviceId = {};
     (watchdogs || []).forEach(function (w) { watchdogByDeviceId[w.deviceId] = w; });
-    var sorted = devices.slice().sort(function (a, b) {
+    var sorted = filtered.slice().sort(function (a, b) {
       if (a.available !== b.available) return a.available ? 1 : -1;
       return (a.lastSeenAt || '').localeCompare(b.lastSeenAt || '');
     });
