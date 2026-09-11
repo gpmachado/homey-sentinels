@@ -1,5 +1,5 @@
 {
-  "name": "gpm.statistic.tracker",
+  "name": "com.gpm.sentinels",
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
