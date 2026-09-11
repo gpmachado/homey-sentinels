@@ -9,6 +9,60 @@ function monitor(overrides) {
 test('classifies a threshold exactly as standby', () => { const e = new ActivityEngine(); const m = monitor(); e.processSample(m, { power: 50, timestamp: 0 }); assert.equal(m.state, STANDBY); });
 test('records a complete active cycle', () => { const e = new ActivityEngine(); const m = monitor(); e.processSample(m, { power: 10, timestamp: 0 }); assert.equal(e.processSample(m, { power: 100, timestamp: 60000 })[0].type, 'started'); const events = e.processSample(m, { power: 10, timestamp: 180000 }); assert.equal(m.state, STANDBY); assert.equal(m.totals.cycleCount, 1); assert.equal(m.totals.activeSeconds, 120); assert.equal(events[0].duration, 120); });
 test('keeps timestamped periods for trend comparisons', () => { const e = new ActivityEngine(); const m = monitor(); e.processSample(m, { power: 10, timestamp: 0 }); e.processSample(m, { power: 100, timestamp: 60000 }); assert.equal(m.periods.length, 1); assert.equal(m.periods[0].state, STANDBY); });
+test('samples within the bucket window and the same state merge into one period, tracking min/max power and a sample-weighted sum', () => {
+  const e = new ActivityEngine(); const m = monitor();
+  e.processSample(m, { power: 10, timestamp: 0 });
+  e.processSample(m, { power: 20, timestamp: 5000 }); // creates the period (holds power=10 for [0,5000))
+  e.processSample(m, { power: 30, timestamp: 10000 }); // same state, within 60s of the period's start — merges
+  e.processSample(m, { power: 40, timestamp: 55000 }); // still within 60s of the period's start — merges
+  assert.equal(m.periods.length, 1);
+  const period = m.periods[0];
+  assert.equal(period.startedAt, 0);
+  assert.equal(period.endedAt, 55000);
+  assert.equal(period.seconds, 55);
+  assert.equal(period.state, STANDBY);
+  assert.equal(period.minPower, 10);
+  assert.equal(period.maxPower, 30);
+  assert.equal(period.powerSum, 60);
+  assert.equal(period.sampleCount, 3);
+});
+test('a sample past the bucket window starts a new period instead of merging', () => {
+  const e = new ActivityEngine(); const m = monitor();
+  e.processSample(m, { power: 10, timestamp: 0 });
+  e.processSample(m, { power: 20, timestamp: 5000 });
+  e.processSample(m, { power: 30, timestamp: 65000 }); // 65s after the period started — past the 60s bucket
+  assert.equal(m.periods.length, 2);
+  assert.equal(m.periods[1].startedAt, 5000);
+});
+test('a state transition always starts a fresh period, even within the bucket window', () => {
+  const e = new ActivityEngine(); const m = monitor(); // default threshold 50
+  e.processSample(m, { power: 10, timestamp: 0 });
+  e.processSample(m, { power: 20, timestamp: 5000 }); // still STANDBY — merges into one STANDBY period so far
+  e.processSample(m, { power: 100, timestamp: 10000 }); // crosses the threshold — the [5000,10000) interval is still STANDBY (state hasn't flipped yet when it's recorded), so it merges too; state flips to ACTIVE only after
+  e.processSample(m, { power: 110, timestamp: 15000 }); // now genuinely ACTIVE — must start a fresh period, not merge into the STANDBY one despite being well within the 60s bucket window
+  assert.equal(m.periods.length, 2);
+  assert.deepEqual(m.periods.map((p) => p.state), [STANDBY, ACTIVE]);
+  assert.equal(m.periods[0].endedAt, 10000);
+  assert.equal(m.periods[1].startedAt, 10000);
+});
+test('a cycle\'s averagePower/maxPower/averageCurrent/maxCurrent are sample-weighted across bucketed periods, not just the last bucket', () => {
+  const e = new ActivityEngine(); const m = monitor();
+  e.processSample(m, { power: 10, current: 0, timestamp: 0 });
+  e.processSample(m, { power: 100, current: 1, timestamp: 60000 }); // started
+  e.processSample(m, { power: 150, current: 1.5, timestamp: 65000 }); // first ACTIVE period begins
+  e.processSample(m, { power: 200, current: 2, timestamp: 70000 }); // merges into it (within 60s of its start)
+  e.processSample(m, { power: 300, current: 3, timestamp: 130000 }); // past that bucket's window — new one
+  const events = e.processSample(m, { power: 10, current: 0, timestamp: 190000 }); // finished
+  assert.equal(events[0].type, 'finished');
+  assert.ok(m.periods.filter((p) => p.state === ACTIVE).length >= 2, 'expected bucketing to still leave more than one ACTIVE period across this span');
+  // True sample-weighted average across every raw active reading (100, 150, 200, 300) =
+  // 750/4 = 187.5 — averaging each bucket's own max, or using only the last bucket, would
+  // both give a different (wrong) number.
+  assert.equal(m.cycles[0].averagePower, 187.5);
+  assert.equal(m.cycles[0].maxPower, 300);
+  assert.ok(Math.abs(m.cycles[0].averageCurrent - (1 + 1.5 + 2 + 3) / 4) < 1e-9);
+  assert.equal(m.cycles[0].maxCurrent, 3);
+});
 test('a negative energy delta (meter reset) is flagged on the period and still clamped to zero, not counted as negative consumption', () => {
   const e = new ActivityEngine(); const m = monitor();
   e.processSample(m, { power: 10, energy: 100, timestamp: 0 });

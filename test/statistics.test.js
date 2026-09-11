@@ -202,6 +202,15 @@ test('suggestedThreshold rejects a gap that doesn\'t clear the min ratio (all-st
   assert.equal(suggestedThreshold(monitor), null);
 });
 
+test('suggestedThreshold reads minPower/maxPower from bucketed periods (see ActivityEngine#_recordPeriod), not just the legacy single power field', () => {
+  const standby = Array.from({ length: 20 }, () => ({ minPower: 5, maxPower: 6 })); // 40 values once expanded
+  const active = Array.from({ length: 20 }, () => ({ minPower: 499, maxPower: 501 })); // 40 values once expanded
+  const monitor = { periods: [...standby, ...active] };
+  const suggestion = suggestedThreshold(monitor);
+  assert.ok(suggestion);
+  assert.ok(suggestion.threshold > 6 && suggestion.threshold < 499);
+});
+
 test('generateTextReport builds one sentence per entity kind and throws for an unknown id', () => {
   const data = {
     monitors: { m1: { id: 'm1', name: 'Freezer', periods: [], cycles: [{ endedAt: 1000, duration: 60, energy: 0.1 }] } },
