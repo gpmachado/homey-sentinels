@@ -1,0 +1,11 @@
+{
+  "title": { "en": "Group matched again" },
+  "titleFormatted": { "en": "[[group]] is back to normal" },
+  "hint": { "en": "Fires the next time a poll finds every device back in the expected state, after the group had a mismatch." },
+  "args": [
+    { "name": "group", "type": "autocomplete", "required": true, "title": { "en": "Group" } }
+  ],
+  "tokens": [
+    { "name": "message", "type": "string", "title": { "en": "Message" } }
+  ]
+}

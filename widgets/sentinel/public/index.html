@@ -179,19 +179,23 @@
         $device.innerText = summary.deviceName;
 
         var periodLabel = summary.period === 'week' ? '7 days' : summary.period === 'month' ? '30 days' : 'today';
-        $periods.classList.toggle('hidden', summary.kind === 'group');
-        $message.classList.toggle('hidden', summary.kind !== 'group' || !summary.message);
+        $periods.classList.remove('hidden');
+        $message.classList.toggle('hidden', summary.kind !== 'group' || (!summary.message && summary.period === 'day'));
         if (summary.kind === 'group') {
-          renderChart(null);
+          // The live check (matched/mismatch counts, rendered message) always reflects right
+          // now, same as before — the period selector only changes what the chart/duration
+          // line below it shows, same split as every other kind's "live status + period stat".
+          if (summary.period === 'day') { renderChart(null); }
+          else { renderChart(summary.dailyBreakdown, 'mismatchSeconds', formatDuration); }
           var allMatch = summary.mismatchCount === 0;
           $status.className = allMatch ? 'is-good' : 'is-bad';
           $statusLabel.innerText = allMatch ? 'All match' : summary.mismatchCount + ' mismatch' + (summary.mismatchCount === 1 ? '' : 'es');
           sinceMs = null;
           document.getElementById('stat1-value').innerText = summary.matchCount + ' / ' + summary.checkedCount;
           document.getElementById('stat1-label').innerText = 'Matching';
-          document.getElementById('stat2-value').innerText = formatNumber(summary.mismatchCount);
-          document.getElementById('stat2-label').innerText = 'Mismatches';
-          $message.innerText = summary.message || '';
+          document.getElementById('stat2-value').innerText = summary.period === 'day' ? formatNumber(summary.mismatchCount) : summary.mismatchDurationHuman;
+          document.getElementById('stat2-label').innerText = summary.period === 'day' ? 'Mismatches' : 'Mismatched (' + periodLabel + ')';
+          $message.innerText = summary.period === 'day' ? (summary.message || '') : summary.mismatchDurationHuman + ' mismatched over the last ' + periodLabel + ', from periodic checks.';
         } else if (summary.kind === 'activity') {
           var isActive = summary.state === 'ACTIVE';
           $status.className = isActive ? 'is-good' : '';

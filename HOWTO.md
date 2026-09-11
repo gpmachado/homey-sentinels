@@ -152,9 +152,16 @@ devices of the same logical type.
 3. Condition **"[Group] has a mismatch"** works directly in a Flow's `AND`/`OR` — no separate
    "all match" card exists, since Homey's own condition-card negation toggle already covers
    that case.
+4. Triggers **"Group mismatch detected"** / **"Group matched again"** fire on their own, off a
+   background poll every few minutes — no Flow needs to call "Check state group" itself.
+   "Detected" fires once when a mismatch first appears, not again on every following poll while
+   it stays that way; "matched again" fires once it clears. This can lag the real moment by up
+   to the poll interval — for a true instant check, call "Check state group" from your own
+   Flow (e.g. off the group members' own native triggers) instead.
 
-**Known limitation**: a group has no memory — it can't tell you "how many times did any door
-open today," only "are they all in the expected state right now."
+**Known limitation**: a group still has no per-device history — it can't tell you "how many
+times did any door open today," only "is it currently mismatched, and for how long has today's
+polling seen it mismatched."
 
 ## 6. Availability Watchdog — flag a device going offline
 
@@ -198,8 +205,10 @@ entirely.
 
 Add the "Sentinela" widget to a Homey dashboard, then pick a monitor or group in its settings
 (search by name). It shows current status, a Today/7 Days/30 Days period switch, the relevant
-headline numbers for that monitor type, and — for Activity/State monitors — a small daily
-chart. A group widget shows live matched/mismatch counts and the rendered message.
+headline numbers for that monitor type, and a small daily chart. A group widget always shows
+live matched/mismatch counts and the rendered message; switching to 7 Days/30 Days additionally
+shows a sparkline and total of how much of that period the group spent mismatched, sourced from
+the same background poll that drives the "Group mismatch detected" trigger.
 
 ## Common pitfalls, all in one place
 

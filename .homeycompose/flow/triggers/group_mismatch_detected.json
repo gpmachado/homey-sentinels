@@ -1,0 +1,14 @@
+{
+  "title": { "en": "Group mismatch detected" },
+  "titleFormatted": { "en": "[[group]] has a new mismatch" },
+  "hint": { "en": "Fires the moment a poll first finds a mismatch in this group — not again on every following poll while it stays mismatched. Checked every few minutes (same cadence as the group's own statistics poll), so this can lag the real moment by up to that interval; use \"Check state group\" instead for an instant, on-demand check." },
+  "args": [
+    { "name": "group", "type": "autocomplete", "required": true, "title": { "en": "Group" } }
+  ],
+  "tokens": [
+    { "name": "mismatch_count", "type": "number", "title": { "en": "Mismatch count" } },
+    { "name": "match_count", "type": "number", "title": { "en": "Match count" } },
+    { "name": "mismatch_list", "type": "string", "title": { "en": "Mismatched devices" } },
+    { "name": "message", "type": "string", "title": { "en": "Message" } }
+  ]
+}

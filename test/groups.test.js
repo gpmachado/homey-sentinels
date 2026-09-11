@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { GROUP_TYPES, assertGroupDevice, checkGroup, groupStatistics } = require('../lib/groups');
+const { GROUP_TYPES, assertGroupDevice, checkGroup, groupStatistics, groupDailyBreakdown } = require('../lib/groups');
 
 function fakeGateway(devicesById) {
   return { async getDevice(id) { return devicesById[id] || null; } };
@@ -121,4 +121,20 @@ test('groupStatistics sums mismatchSeconds/checkCount across dailySummaries with
   const weekStats = groupStatistics(group, 'week', 'UTC', now);
   assert.equal(weekStats.mismatch_seconds, 600); // 12-01 falls outside the last 7 days, the other two don't
   assert.equal(weekStats.check_count, 18);
+});
+
+test('groupDailyBreakdown pads missing days with zero and reads mismatchSeconds for days that have data', () => {
+  const group = {
+    dailySummaries: [
+      { date: '2026-01-13', mismatchSeconds: 300, checkCount: 5 },
+      { date: '2026-01-15', mismatchSeconds: 120, checkCount: 8 }
+    ]
+  };
+  const now = Date.parse('2026-01-15T12:00:00Z');
+  const breakdown = groupDailyBreakdown(group, 3, 'UTC', now);
+  assert.deepEqual(breakdown, [
+    { date: '2026-01-13', mismatchSeconds: 300 },
+    { date: '2026-01-14', mismatchSeconds: 0 },
+    { date: '2026-01-15', mismatchSeconds: 120 }
+  ]);
 });

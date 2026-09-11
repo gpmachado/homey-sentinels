@@ -1,6 +1,6 @@
 # Sentinels — Technical Specification
 
-`gpm.statistic.tracker` ("Sentinels") is a Homey Pro app that observes devices already paired
+`com.gpm.sentinels` ("Sentinels") is a Homey Pro app that observes devices already paired
 to Homey and turns their raw capability events into structured state, incidents, and
 statistics. It never sends a command to any device — the Web API access it holds
 (`homey:manager:api`) is used read-only throughout.
@@ -126,12 +126,13 @@ like) calls "Log binary event" to tally it. Just a count, no duration or energy.
 
 ### 2.5 State Group (`store.data.groups`)
 
-Checks, **on demand only**, whether two or more devices of the same logical type
-(contact/light/switch/valve/garage) are all in an expected state. No continuous subscription
-and no history — every check reads the devices live. `Devices` never get modified.
+Checks whether two or more devices of the same logical type (contact/light/switch/valve/garage)
+are all in an expected state. `check_state_group`/`_checkGroup` remain fully on-demand (reads
+the devices live, no continuous subscription). `Devices` never get modified.
 
 - Cards: `create_state_group`, `add_device_to_state_group`, `remove_device_from_state_group`,
-  `check_state_group`, condition `state_group_has_mismatch`.
+  `check_state_group`, condition `state_group_has_mismatch`, triggers `group_mismatch_detected`/
+  `group_matched_again`.
 - Type→capability mapping lives once, in `lib/groups.js`'s `GROUP_TYPES` (`contact`→
   `alarm_contact`, `light`/`switch`/`valve`→`onoff`, `garage`→`garagedoor_closed`) — shared by
   device compatibility checks and the live comparison, so there's one place to get it right
@@ -143,9 +144,17 @@ and no history — every check reads the devices live. `Devices` never get modif
   per-group.
 - Message wording (zero/one/many mismatches) uses `%group%`, `%count%`, `%items%`,
   `%count:word|word%`.
-- **Known gap**: no per-device open-count or time-with-any-mismatch history exists. Adding
-  that would require turning groups into a continuously-subscribed live monitor, which is a
-  larger architectural change than the rest of this list — not started.
+- **Live triggers, bounded by the poll cadence**: `app.js#_pollGroups` (every
+  `GROUP_POLL_INTERVAL_MS`, 5 min) tracks `group.mismatchSince` — a group-level "was this
+  already reported" flag — so `group_mismatch_detected` fires once on the transition into a
+  mismatch (not on every subsequent poll while it stays mismatched) and `group_matched_again`
+  fires once it clears. Not a real capability subscription: a mismatch that starts and resolves
+  entirely between two polls is invisible to both triggers, and either can lag the real moment
+  by up to the poll interval. `check_state_group` remains the only truly instant path.
+- **Known gap**: still no per-device open-count or time-with-any-mismatch *history* (only
+  today's accumulated `dailySummaries` estimate via `recordGroupPoll`/`groupStatistics`). Real
+  per-device event history would still require turning groups into a continuously-subscribed
+  live monitor, a larger architectural change than the rest of this list — not started.
 
 ### 2.6 Availability Watchdog (`store.data.availabilityWatchdogs`)
 
@@ -173,9 +182,21 @@ Activity and State monitors share one `ActivityEngine` class:
 
 - `stateFor(monitor, power)` dispatches on `monitor.mode`: `'state'` mirrors the boolean value
   directly; the default mode compares `power` against `monitor.threshold`.
-- `processSample()` pushes a `period` for every sample-to-sample interval, tagged with
-  whatever state was true during it. Cycle boundaries are confirmed/finalized through
-  continuity and confirmation grace windows (the longer of the two governs).
+- `processSample()` records a `period` per sample-to-sample interval, tagged with whatever
+  state was true during it — but coalesces same-state intervals within a 1-minute bucket
+  window (`ACTIVITY_BUCKET_MS`) into one period instead of pushing a new one per sample,
+  mirroring `VoltageEngine`'s own bucketing and for the same reason: a fast-sampling device
+  otherwise accumulates one period per raw reading, the exact shape that caused a live memory
+  crash for voltage monitors before that bucketing existed (confirmed live for an activity
+  monitor too, via `export_data`, before this fix). Each period tracks `minPower`/`maxPower`
+  (so `_suggestedThreshold`'s calibration gap search still sees genuine extremes) and a
+  `powerSum`/`sampleCount` pair (so a cycle's `averagePower`/`averageCurrent` stay a true
+  sample-weighted average across however many raw readings landed in each bucket, not just an
+  average of the buckets' own maxima). A bucket never spans a real state transition — compared
+  against the period's own recorded `state`, never a `monitor.state` read after this same call
+  could have mutated it, same bug class `VoltageEngine`'s bucketing fix originally caught.
+  Cycle boundaries are confirmed/finalized through continuity and confirmation grace windows
+  (the longer of the two governs).
 - A gap between samples longer than `MAX_GAP_SECONDS` (4h) is discarded rather than counted —
   it usually means Homey or the device was offline, not that the previous state genuinely held.
 - `startNow`/`stopNow` are manual overrides (used by `start_monitoring_device`/

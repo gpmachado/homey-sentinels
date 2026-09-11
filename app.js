@@ -12,7 +12,7 @@ const {
   binaryEventStatistics: computeBinaryEventStatistics, dailyBreakdown: computeDailyBreakdown, stateDailyBreakdown: computeStateDailyBreakdown,
   binaryDailyBreakdown: computeBinaryDailyBreakdown, suggestedThreshold: computeSuggestedThreshold, generateTextReport: computeTextReport
 } = require('./lib/statistics');
-const { assertGroupDevice, checkGroup, groupStatistics: computeGroupStatistics } = require('./lib/groups');
+const { assertGroupDevice, checkGroup, groupStatistics: computeGroupStatistics, groupDailyBreakdown: computeGroupDailyBreakdown } = require('./lib/groups');
 
 // Regenerated on every commit (see scripts/write-build-info.js, .git/hooks/post-commit) — the
 // app's own version stays 1.0.0 across every dev iteration, so without this a pasted log has no
@@ -103,6 +103,10 @@ class StatisticTrackerApp extends Homey.App {
     };
     this.binaryCards = {
       logged: this.homey.flow.getTriggerCard('binary_event_logged')
+    };
+    this.groupCards = {
+      mismatchDetected: this.homey.flow.getTriggerCard('group_mismatch_detected'),
+      matchedAgain: this.homey.flow.getTriggerCard('group_matched_again')
     };
     this.availabilityCards = {
       unavailable: this.homey.flow.getTriggerCard('device_became_unavailable'),
@@ -292,14 +296,19 @@ class StatisticTrackerApp extends Homey.App {
     }
     const group = this.store.data.groups[id];
     if (group) {
-      // A group has no continuous history to poll from storage — it's checked live, the
-      // same way the Check state group Flow action does, just triggered by the widget's own
-      // refresh timer instead of a Flow.
+      // Live status still comes from checking the devices right now, the same way the Check
+      // state group Flow action does — but the period selector isn't wasted like before: the
+      // accumulated mismatch-time estimate (from the same 5-min poll that now also drives the
+      // live group triggers) fills in "how much of today/this week/this month was this group
+      // mismatched", exactly like the other kinds' period stats.
       const result = await this._checkGroup(group);
+      const stats = this._groupStatistics(group, period);
       return {
         kind: 'group', name: group.name, deviceName: `${group.devices.length} device(s)`,
         checkedCount: result.checkedCount, matchCount: result.matchCount, mismatchCount: result.mismatchCount,
-        mismatchList: result.mismatchList, message: result.message
+        mismatchList: result.mismatchList, message: result.message,
+        period, mismatchSeconds: stats.mismatch_seconds, mismatchDurationHuman: stats.mismatch_duration_human,
+        dailyBreakdown: period === 'day' ? null : this._groupDailyBreakdown(group, period === 'week' ? 7 : 30)
       };
     }
     const binaryCounter = this.store.data.binaryCounters[id];
@@ -362,8 +371,13 @@ class StatisticTrackerApp extends Homey.App {
   async _createAvailabilityWatchdog({ deviceId, thresholdHours }) {
     const selected = await this.gateway.getDevice(deviceId);
     if (!selected) throw new Error('Device not found.');
+    const existed = !!this.store.data.availabilityWatchdogs[deviceId];
     const watchdog = this.store.upsertAvailabilityWatchdog({ deviceId, name: selected.name, thresholdHours });
     await this.store.save();
+    // See _createActivityMonitor's comment — same Settings-form silent-creation gap, same fix.
+    this.log(existed
+      ? `[${watchdog.name}] availability watchdog already existed — threshold updated to ${watchdog.thresholdHours}h`
+      : `[${watchdog.name}] availability watchdog created (threshold: ${watchdog.thresholdHours}h)`);
     return watchdog;
   }
   async removeAvailabilityWatchdog(deviceId) {
@@ -433,6 +447,12 @@ class StatisticTrackerApp extends Homey.App {
     };
     registerAvailabilityTriggerFilter(this.availabilityCards.unavailable);
     registerAvailabilityTriggerFilter(this.availabilityCards.available);
+    const registerGroupTriggerFilter = (card) => {
+      card.registerRunListener(async (args, state) => (args.group?.id || args.group?.data?.id) === state.groupId);
+      card.registerArgumentAutocompleteListener('group', async (query) => this._groupResults(query));
+    };
+    registerGroupTriggerFilter(this.groupCards.mismatchDetected);
+    registerGroupTriggerFilter(this.groupCards.matchedAgain);
     const deviceAutocomplete = (card) => card.registerArgumentAutocompleteListener('device', async (query) => {
       const normalized = (query || '').toLowerCase();
       return (await this.gateway.listDevices()).filter((device) =>
@@ -689,6 +709,13 @@ class StatisticTrackerApp extends Homey.App {
     const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => cap !== capabilityId && selected.capabilities.includes(cap));
     const { monitor, created } = this.store.upsertMonitor({ device: selected, threshold, name, capability: capabilityId, auxiliaryCapabilities });
     await this.store.save();
+    // Flow-card creation already logs for free via _registerFlowCards' withLogging wrapper —
+    // this is the only line for the Settings-form path, which calls this directly through
+    // api.js with no such wrapper. Confirmed live: a monitor created from Settings left zero
+    // trace in the terminal, looking indistinguishable from a silent failure.
+    this.log(created
+      ? `[${monitor.name}] activity monitor created (device: ${selected.name}, capability: ${capabilityId}, threshold: ${threshold != null ? `${threshold} W` : 'auto-calibrating'})`
+      : `[${monitor.name}] activity monitor already existed for this device+capability${threshold != null ? ` — threshold updated to ${threshold} W` : ''}`);
     if (created) await this._watch(monitor);
     // An existing monitor's threshold just changed (or was re-run idempotently) — re-check it
     // against the last known reading right away instead of waiting for the device's next real
@@ -710,6 +737,13 @@ class StatisticTrackerApp extends Homey.App {
     }
     const { monitor, created } = this.store.upsertVoltageMonitor({ device: selected, capability: capabilityId, minVoltage, maxVoltage, name, stabilizationMinutes });
     await this.store.save();
+    // Flow-card creation already logs for free via _registerFlowCards' withLogging wrapper —
+    // this is the only line for the Settings-form path, which calls this directly through
+    // api.js with no such wrapper. Confirmed live: a monitor created from Settings left zero
+    // trace in the terminal, looking indistinguishable from a silent failure.
+    this.log(created
+      ? `[${monitor.name}] voltage monitor created (device: ${selected.name}, capability: ${capabilityId}, range: ${minVoltage}-${maxVoltage} V)`
+      : `[${monitor.name}] voltage monitor already existed for this device+capability — range updated to ${minVoltage}-${maxVoltage} V`);
     if (created) await this._watchVoltage(monitor);
     else if (monitor.lastSample) await this._voltageSample(monitor, monitor.lastSample.voltage, Date.now());
     return monitor;
@@ -735,6 +769,10 @@ class StatisticTrackerApp extends Homey.App {
     const auxiliaryCapabilities = AUXILIARY_CAPABILITY_CANDIDATES.filter((cap) => cap !== capabilityId && selected.capabilities.includes(cap));
     const { monitor, created } = this.store.upsertStateMonitor({ device: selected, capability: capabilityId, trueLabel, falseLabel, name, activeValues, auxiliaryCapabilities });
     await this.store.save();
+    // See _createActivityMonitor's comment — same Settings-form silent-creation gap, same fix.
+    this.log(created
+      ? `[${monitor.name}] state monitor created (device: ${selected.name}, capability: ${capabilityId})`
+      : `[${monitor.name}] state monitor already existed for this device+capability — labels/settings updated`);
     if (created) await this._watchState(monitor);
     return monitor;
   }
@@ -1078,6 +1116,7 @@ class StatisticTrackerApp extends Homey.App {
   _assertGroupDevice(group, device) { return assertGroupDevice(group, device); }
   _checkGroup(group, expectedOverride) { return checkGroup(group, this.gateway, expectedOverride); }
   _groupStatistics(group, period) { return computeGroupStatistics(group, period, this._getTimezone()); }
+  _groupDailyBreakdown(group, days) { return computeGroupDailyBreakdown(group, days, this._getTimezone()); }
   // Backs the Settings page's Monitors tab — the same period/energy/daily-breakdown detail
   // the widget shows, but for every activity monitor at once in one table (no need to set up
   // a widget per device just to see this). Restored here after the lib/statistics.js
@@ -1147,6 +1186,23 @@ class StatisticTrackerApp extends Homey.App {
       try {
         const result = await this._checkGroup(group);
         this.store.recordGroupPoll(group, result.mismatchCount, GROUP_POLL_INTERVAL_MS / 1000, timeZone);
+        // Fires only on the transition into/out of a mismatch, not on every poll tick while it
+        // stays that way — mismatchSince is the group's own memory of "was this already
+        // reported" across polls. Still bounded by the poll cadence (up to
+        // GROUP_POLL_INTERVAL_MS late), not a real capability subscription — "Check state
+        // group" remains the only instant, on-demand path.
+        if (result.mismatchCount > 0 && !group.mismatchSince) {
+          group.mismatchSince = Date.now();
+          this._logEvent(result.message || `${group.name} has a mismatch`);
+          await this.groupCards.mismatchDetected.trigger(
+            { mismatch_count: result.mismatchCount, match_count: result.matchCount, mismatch_list: result.mismatchList, message: result.message },
+            { groupId: group.id }
+          );
+        } else if (result.mismatchCount === 0 && group.mismatchSince) {
+          group.mismatchSince = null;
+          this._logEvent(`${group.name} is back to normal`);
+          await this.groupCards.matchedAgain.trigger({ message: result.message }, { groupId: group.id });
+        }
       } catch (error) {
         this.error('Failed to poll group', group.name, error);
       }

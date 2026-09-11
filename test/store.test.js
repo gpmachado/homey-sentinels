@@ -595,6 +595,20 @@ test('migrateGroup backfills the conjunction and message templates', () => {
   SentinelStore.migrateGroup(group);
   assert.equal(group.conjunction, 'and');
   assert.equal(group.messageTemplateZero, '');
+  assert.equal(group.mismatchSince, null);
+});
+
+test('migrateGroup leaves an already-set mismatchSince untouched', () => {
+  const group = { mismatchSince: 12345 };
+  SentinelStore.migrateGroup(group);
+  assert.equal(group.mismatchSince, 12345);
+});
+
+test('createGroup starts with mismatchSince null', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const group = store.createGroup({ name: 'Doors', type: 'contact', expectedState: false, devices: [{ id: 'd1', name: 'A' }, { id: 'd2', name: 'B' }] });
+  assert.equal(group.mismatchSince, null);
 });
 
 test('migrateVoltageMonitor defaults stabilizationMinutes to 5 for monitors saved before the grace window existed', () => {
