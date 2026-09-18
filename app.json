@@ -58,6 +58,10 @@
       "method": "POST",
       "path": "/monitors/:id/reset"
     },
+    "updateMonitor": {
+      "method": "PUT",
+      "path": "/monitors/:id"
+    },
     "updateMonitorMessages": {
       "method": "PUT",
       "path": "/monitors/:id/messages"
@@ -78,6 +82,10 @@
       "method": "POST",
       "path": "/state-monitors/:id/reset"
     },
+    "updateStateMonitor": {
+      "method": "PUT",
+      "path": "/state-monitors/:id"
+    },
     "updateStateMonitorMessages": {
       "method": "PUT",
       "path": "/state-monitors/:id/messages"
@@ -97,6 +105,10 @@
     "resetVoltageMonitor": {
       "method": "POST",
       "path": "/voltage-monitors/:id/reset"
+    },
+    "updateVoltageMonitor": {
+      "method": "PUT",
+      "path": "/voltage-monitors/:id"
     },
     "updateVoltageMonitorMessages": {
       "method": "PUT",

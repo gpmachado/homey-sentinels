@@ -243,6 +243,10 @@ function onHomeyReady(Homey) {
     renderDeviceList();
   }
 
+  // Matches the wording of the #type <select> options exactly — showing the raw group.type
+  // value ("switch", "light") read as a rough placeholder, not a real label, especially since
+  // light/switch share the same onoff capability and are easy to pick between by mistake.
+  var GROUP_TYPE_LABELS = { contact: 'Contact (doors/windows)', light: 'Light', switch: 'Switch/plug', valve: 'Valve', garage: 'Garage door' };
   function renderGroups(groups) {
     groupsEl.innerHTML = '';
     if (!groups.length) {
@@ -258,7 +262,7 @@ function onHomeyReady(Homey) {
       title.textContent = group.name;
       var meta = document.createElement('div');
       meta.className = 'meta';
-      meta.textContent = group.type + ' · ' + group.devices.length + ' device(s) · expected: ' + (group.expectedState ? 'on/open' : 'off/closed');
+      meta.textContent = (GROUP_TYPE_LABELS[group.type] || group.type) + ' · ' + group.devices.length + ' device(s) · expected: ' + (group.expectedState ? 'on/open' : 'off/closed');
       var status = document.createElement('div');
       status.className = 'meta';
       status.textContent = 'Status not checked yet';
@@ -322,7 +326,7 @@ function onHomeyReady(Homey) {
     var container = document.getElementById('monitors-body');
     container.innerHTML = '';
     if (!monitors.length) { renderEmptyList(container, 'No activity monitors created yet.'); return; }
-    monitors.forEach(function (monitor) {
+    monitors.slice().sort(byName).forEach(function (monitor) {
       var isActive = monitor.state === 'ACTIVE';
       var avgPower = monitor.averagePower !== null && monitor.averagePower !== undefined ? Math.round(monitor.averagePower) + ' W' : '—';
       var suggestion = monitor.suggestedThreshold;
@@ -348,6 +352,7 @@ function onHomeyReady(Homey) {
       // if the action applied to that whole period instead of the monitor as a whole.
       if (monitorPeriod === 'day') {
         row.appendChild(entityActions([
+          actionLink('Edit', function () { openActivityEditForm(monitor); }),
           actionLink('Messages', function () { openActivityMessageForm(monitor); }),
           actionLink('Reset', function () {
             confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
@@ -375,7 +380,7 @@ function onHomeyReady(Homey) {
     var container = document.getElementById('state-monitors-body');
     container.innerHTML = '';
     if (!monitors.length) { renderEmptyList(container, 'No state monitors created yet.'); return; }
-    monitors.forEach(function (monitor) {
+    monitors.slice().sort(byName).forEach(function (monitor) {
       var isActive = monitor.state === 'ACTIVE';
       var stateLabel = isActive ? monitor.trueLabel : monitor.falseLabel;
       var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + escapeHtml(stateLabel) + '</span>';
@@ -393,6 +398,7 @@ function onHomeyReady(Homey) {
       var row = entityRow(nameHtml, metaBits, renderSparkline(monitor.dailyBreakdown, 'trueDuration', formatDuration));
       if (monitorPeriod === 'day') {
         row.appendChild(entityActions([
+          actionLink('Edit', function () { openStateEditForm(monitor); }),
           actionLink('Messages', function () { openStateMessageForm(monitor); }),
           actionLink('Reset', function () {
             confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
@@ -420,7 +426,7 @@ function onHomeyReady(Homey) {
     var container = document.getElementById('voltage-monitors-body');
     container.innerHTML = '';
     if (!monitors.length) { renderEmptyList(container, 'No voltage monitors created yet.'); return; }
-    monitors.forEach(function (monitor) {
+    monitors.slice().sort(byName).forEach(function (monitor) {
       var isNormal = monitor.state === 'NORMAL';
       var range = (monitor.minVoltage !== null && monitor.maxVoltage !== null)
         ? monitor.minVoltage.toFixed(1) + '–' + monitor.maxVoltage.toFixed(1) + ' V' : '—';
@@ -434,6 +440,7 @@ function onHomeyReady(Homey) {
       var row = entityRow(nameHtml, metaBits);
       if (monitorPeriod === 'day') {
         row.appendChild(entityActions([
+          actionLink('Edit', function () { openVoltageEditForm(monitor); }),
           actionLink('Messages', function () { openVoltageMessageForm(monitor); }),
           actionLink('Reset', function () {
             confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
@@ -456,6 +463,36 @@ function onHomeyReady(Homey) {
       container.appendChild(row);
     });
   }
+
+  var voltageEditFormWrapper = document.getElementById('voltage-edit-form-wrapper');
+  var voltageEditForm = document.getElementById('voltage-edit-form');
+  var editingVoltageRangeMonitorId = null;
+  function openVoltageEditForm(monitor) {
+    editingVoltageRangeMonitorId = monitor.id;
+    document.getElementById('voltage-edit-form-name').textContent = monitor.name;
+    document.getElementById('voltage-edit-min').value = monitor.configuredMinVoltage;
+    document.getElementById('voltage-edit-max').value = monitor.configuredMaxVoltage;
+    document.getElementById('voltage-edit-stabilization').value = monitor.stabilizationMinutes;
+    openModal(voltageEditFormWrapper);
+  }
+  document.getElementById('voltage-edit-cancel-btn').addEventListener('click', function () {
+    editingVoltageRangeMonitorId = null;
+    closeModal(voltageEditFormWrapper);
+  });
+  voltageEditForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (!editingVoltageRangeMonitorId) return;
+    var payload = {
+      minVoltage: document.getElementById('voltage-edit-min').value,
+      maxVoltage: document.getElementById('voltage-edit-max').value,
+      stabilizationMinutes: document.getElementById('voltage-edit-stabilization').value
+    };
+    api('PUT', '/voltage-monitors/' + editingVoltageRangeMonitorId, payload).then(function () {
+      closeModal(voltageEditFormWrapper);
+      editingVoltageRangeMonitorId = null;
+      return api('GET', '/voltage-monitors?period=' + monitorPeriod);
+    }).then(renderVoltageMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+  });
 
   var voltageMessageFormWrapper = document.getElementById('voltage-message-form-wrapper');
   var voltageMessageForm = document.getElementById('voltage-message-form');
@@ -517,6 +554,36 @@ function onHomeyReady(Homey) {
       lastActivityTokenTarget.focus();
     });
   });
+  var activityEditFormWrapper = document.getElementById('activity-edit-form-wrapper');
+  var activityEditForm = document.getElementById('activity-edit-form');
+  var editingActivityMonitorSettingsId = null;
+  function openActivityEditForm(monitor) {
+    editingActivityMonitorSettingsId = monitor.id;
+    document.getElementById('activity-edit-form-name').textContent = monitor.name;
+    document.getElementById('activity-edit-threshold').value = monitor.threshold;
+    document.getElementById('activity-edit-continuity').value = monitor.continuityMinutes || 0;
+    document.getElementById('activity-edit-confirmation').value = monitor.minConfirmationSeconds || 0;
+    openModal(activityEditFormWrapper);
+  }
+  document.getElementById('activity-edit-cancel-btn').addEventListener('click', function () {
+    editingActivityMonitorSettingsId = null;
+    closeModal(activityEditFormWrapper);
+  });
+  activityEditForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (!editingActivityMonitorSettingsId) return;
+    var payload = {
+      threshold: document.getElementById('activity-edit-threshold').value,
+      continuityMinutes: document.getElementById('activity-edit-continuity').value,
+      minConfirmationSeconds: document.getElementById('activity-edit-confirmation').value
+    };
+    api('PUT', '/monitors/' + editingActivityMonitorSettingsId, payload).then(function () {
+      closeModal(activityEditFormWrapper);
+      editingActivityMonitorSettingsId = null;
+      return api('GET', '/monitors?period=' + monitorPeriod);
+    }).then(renderMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+  });
+
   function openActivityMessageForm(monitor) {
     editingActivityMonitorId = monitor.id;
     document.getElementById('activity-message-form-name').textContent = monitor.name;
@@ -558,6 +625,39 @@ function onHomeyReady(Homey) {
       lastStateTokenTarget.focus();
     });
   });
+  var stateEditFormWrapper = document.getElementById('state-edit-form-wrapper');
+  var stateEditForm = document.getElementById('state-edit-form');
+  var editingStateMonitorLabelsId = null;
+  function openStateEditForm(monitor) {
+    editingStateMonitorLabelsId = monitor.id;
+    document.getElementById('state-edit-form-name').textContent = monitor.name;
+    document.getElementById('state-edit-true-label').value = monitor.trueLabel || '';
+    document.getElementById('state-edit-false-label').value = monitor.falseLabel || '';
+    var isMultiValue = Array.isArray(monitor.activeValues) && monitor.activeValues.length > 0;
+    document.getElementById('state-edit-active-values').value = isMultiValue ? monitor.activeValues.join(', ') : '';
+    document.getElementById('state-edit-active-values-wrap').classList.toggle('hidden', !isMultiValue);
+    document.getElementById('state-edit-active-values-hint').classList.toggle('hidden', !isMultiValue);
+    openModal(stateEditFormWrapper);
+  }
+  document.getElementById('state-edit-cancel-btn').addEventListener('click', function () {
+    editingStateMonitorLabelsId = null;
+    closeModal(stateEditFormWrapper);
+  });
+  stateEditForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+    if (!editingStateMonitorLabelsId) return;
+    var payload = {
+      trueLabel: document.getElementById('state-edit-true-label').value,
+      falseLabel: document.getElementById('state-edit-false-label').value,
+      activeValues: document.getElementById('state-edit-active-values').value
+    };
+    api('PUT', '/state-monitors/' + editingStateMonitorLabelsId, payload).then(function () {
+      closeModal(stateEditFormWrapper);
+      editingStateMonitorLabelsId = null;
+      return api('GET', '/state-monitors?period=' + monitorPeriod);
+    }).then(renderStateMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+  });
+
   function openStateMessageForm(monitor) {
     editingStateMonitorId = monitor.id;
     document.getElementById('state-message-form-name').textContent = monitor.name;
@@ -587,7 +687,7 @@ function onHomeyReady(Homey) {
     var container = document.getElementById('binary-counters-body');
     container.innerHTML = '';
     if (!counters.length) { renderEmptyList(container, 'No binary counters created yet. Use the "Add binary counter" Flow action to create one.'); return; }
-    counters.forEach(function (counter) {
+    counters.slice().sort(byName).forEach(function (counter) {
       var metaBits = [
         formatNumberOrDash(counter.eventCount) + ' event' + (counter.eventCount === 1 ? '' : 's'),
         'total ' + formatNumberOrDash(counter.totalCount),
@@ -727,7 +827,7 @@ function onHomeyReady(Homey) {
   // Shared by the three "Add monitor" forms below — same device-then-capability picker
   // idea as the Flow cards' own autocomplete, just backed by the already-cached
   // `allDevices` list instead of a live query.
-  function byDeviceName(a, b) { return a.name.localeCompare(b.name); }
+  function byName(a, b) { return a.name.localeCompare(b.name); }
   function findDevice(id) { return allDevices.filter(function (d) { return d.id === id; })[0]; }
   function eligibleCapabilities(device, kind) {
     if (!device) return [];
@@ -765,7 +865,7 @@ function onHomeyReady(Homey) {
     selectEl.innerHTML = '';
     allDevices.slice()
       .filter(function (device) { return !zoneName || device.zoneName === zoneName; })
-      .sort(byDeviceName)
+      .sort(byName)
       .forEach(function (device) {
         var opt = document.createElement('option');
         opt.value = device.id;

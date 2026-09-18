@@ -192,6 +192,22 @@ test('updates group metadata and replaces its device membership', async () => {
   assert.deepEqual(group.devices, [{ id: 'd3', name: 'Luz 3' }]);
 });
 
+test('updateGroup applies a type change — confirmed bug: api.js/store.js previously silently dropped it', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const group = store.createGroup({ name: 'Tomadas', type: 'light', expectedState: true, devices: [{ id: 'd1', name: 'A' }, { id: 'd2', name: 'B' }] });
+  store.updateGroup(group, { type: 'switch' });
+  assert.equal(group.type, 'switch');
+});
+
+test('updateGroup rejects an unknown group type', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const group = store.createGroup({ name: 'Tomadas', type: 'light', expectedState: true, devices: [{ id: 'd1', name: 'A' }, { id: 'd2', name: 'B' }] });
+  assert.throws(() => store.updateGroup(group, { type: 'not-a-real-type' }), /Unknown group type/);
+  assert.equal(group.type, 'light');
+});
+
 test('deletes a group', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();

@@ -351,6 +351,16 @@ class StatisticTrackerApp extends Homey.App {
     this.store.resetVoltageMonitor(item);
     await this.store.save();
   }
+  // Shared by the "Update voltage monitor" Flow card and the Settings "Edit" form — same
+  // validation (store.updateVoltageMonitor throws on an invalid range) and the same
+  // immediate re-check against the last known reading, so a range edit that would already
+  // flag the current voltage doesn't wait for the device's next real push to notice.
+  async updateVoltageMonitorRange(item, { minVoltage, maxVoltage, stabilizationMinutes } = {}) {
+    this.store.updateVoltageMonitor(item, { minVoltage, maxVoltage, stabilizationMinutes });
+    await this.store.save();
+    if (item.lastSample) await this._voltageSample(item, item.lastSample.voltage, Date.now());
+    return item;
+  }
   async resetStateMonitorStats(item) {
     this.store.resetStateMonitor(item);
     await this.store.save();
@@ -547,20 +557,7 @@ class StatisticTrackerApp extends Homey.App {
       return (await this._handleActivityEvents(monitor, this.engine.stopNow(monitor))) || this._finishedSnapshot(monitor);
     });
     action('update_activity_monitor', async ({ monitor, threshold, continuity_minutes, min_confirmation_seconds }) => {
-      const item = this._monitor(monitor);
-      if (!Number.isFinite(Number(threshold)) || Number(threshold) < 0) throw new Error('The threshold must be greater than or equal to zero.');
-      item.threshold = Number(threshold);
-      item.calibrating = false;
-      if (continuity_minutes !== undefined && continuity_minutes !== '') {
-        if (!Number.isFinite(Number(continuity_minutes)) || Number(continuity_minutes) < 0) throw new Error('The continuity window must be greater than or equal to zero.');
-        item.continuityMinutes = Number(continuity_minutes);
-      }
-      if (min_confirmation_seconds !== undefined && min_confirmation_seconds !== '') {
-        if (!Number.isFinite(Number(min_confirmation_seconds)) || Number(min_confirmation_seconds) < 0) throw new Error('The minimum confirmation must be greater than or equal to zero.');
-        item.minConfirmationSeconds = Number(min_confirmation_seconds);
-      }
-      await this.store.save();
-      if (item.lastSample) await this._sample(item, item.lastSample.power, Date.now());
+      await this.updateActivityMonitorSettings(this._monitor(monitor), { threshold, continuityMinutes: continuity_minutes, minConfirmationSeconds: min_confirmation_seconds });
       return true;
     });
     // Homey rejects a "number" token with a null/undefined value ("Invalid Token"), which
@@ -622,10 +619,7 @@ class StatisticTrackerApp extends Homey.App {
     action('remove_voltage_monitor', async ({ monitor }) => { await this.removeVoltageMonitor(this._voltageMonitor(monitor)); return true; });
     action('reset_voltage_monitor', async ({ monitor }) => { await this.resetVoltageMonitorStats(this._voltageMonitor(monitor)); return true; });
     action('update_voltage_monitor', async ({ monitor, min_voltage, max_voltage }) => {
-      const item = this._voltageMonitor(monitor);
-      this.store.updateVoltageMonitor(item, { minVoltage: min_voltage, maxVoltage: max_voltage });
-      await this.store.save();
-      if (item.lastSample) await this._voltageSample(item, item.lastSample.voltage, Date.now());
+      await this.updateVoltageMonitorRange(this._voltageMonitor(monitor), { minVoltage: min_voltage, maxVoltage: max_voltage });
       return true;
     });
     action('get_voltage_statistics', async ({ monitor, period }) => this._voltageStatistics(this._voltageMonitor(monitor), period));
@@ -722,6 +716,28 @@ class StatisticTrackerApp extends Homey.App {
     // push.
     else if (monitor.lastSample) await this._sample(monitor, monitor.lastSample.power, Date.now());
     return monitor;
+  }
+  // Shared by the "Update activity monitor" Flow card and the Settings "Edit" form. Unlike the
+  // Flow card (whose `threshold` arg is required), threshold here is optional — Settings can
+  // edit just the continuity/confirmation windows without having to re-type a value that isn't
+  // changing.
+  async updateActivityMonitorSettings(item, { threshold, continuityMinutes, minConfirmationSeconds } = {}) {
+    if (threshold !== undefined && threshold !== '') {
+      if (!Number.isFinite(Number(threshold)) || Number(threshold) < 0) throw new Error('The threshold must be greater than or equal to zero.');
+      item.threshold = Number(threshold);
+      item.calibrating = false;
+    }
+    if (continuityMinutes !== undefined && continuityMinutes !== '') {
+      if (!Number.isFinite(Number(continuityMinutes)) || Number(continuityMinutes) < 0) throw new Error('The continuity window must be greater than or equal to zero.');
+      item.continuityMinutes = Number(continuityMinutes);
+    }
+    if (minConfirmationSeconds !== undefined && minConfirmationSeconds !== '') {
+      if (!Number.isFinite(Number(minConfirmationSeconds)) || Number(minConfirmationSeconds) < 0) throw new Error('The minimum confirmation must be greater than or equal to zero.');
+      item.minConfirmationSeconds = Number(minConfirmationSeconds);
+    }
+    await this.store.save();
+    if (item.lastSample) await this._sample(item, item.lastSample.power, Date.now());
+    return item;
   }
   async _createVoltageMonitor({ deviceId, capability, minVoltage, maxVoltage, name, stabilizationMinutes }) {
     const selected = await this.gateway.getDevice(deviceId);
@@ -1129,6 +1145,7 @@ class StatisticTrackerApp extends Homey.App {
       const stats = this._statistics(monitor, period);
       return {
         id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, state: monitor.state, threshold: monitor.threshold,
+        continuityMinutes: monitor.continuityMinutes, minConfirmationSeconds: monitor.minConfirmationSeconds,
         period, cycleCount: stats.cycle_count, energy: stats.total_energy, averagePower: stats.average_power, energyQuality: stats.energy_quality,
         dailyBreakdown: period === 'day' ? null : this._dailyBreakdown(monitor, period === 'week' ? 7 : 30),
         messageTemplateStarted: monitor.messageTemplateStarted, messageTemplateFinished: monitor.messageTemplateFinished,
@@ -1145,8 +1162,8 @@ class StatisticTrackerApp extends Homey.App {
     return Object.values(this.store.data.stateMonitors).map((monitor) => {
       const stats = this._stateStatistics(monitor, period);
       return {
-        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, capability: monitor.capability, state: monitor.state,
-        trueLabel: monitor.trueLabel, falseLabel: monitor.falseLabel,
+        id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, deviceId: monitor.deviceId, capability: monitor.capability, state: monitor.state,
+        trueLabel: monitor.trueLabel, falseLabel: monitor.falseLabel, activeValues: monitor.activeValues,
         period, cycleCount: stats.cycle_count, trueDuration: stats.true_duration, falseDuration: stats.false_duration,
         energy: stats.energy, averagePower: stats.average_power,
         dailyBreakdown: period === 'day' ? null : this._stateDailyBreakdown(monitor, period === 'week' ? 7 : 30),
@@ -1163,6 +1180,12 @@ class StatisticTrackerApp extends Homey.App {
         id: monitor.id, name: monitor.name, deviceName: monitor.deviceName, capability: monitor.capability, state: monitor.state,
         period, currentVoltage: monitor.lastSample?.voltage ?? null, minVoltage: stats.min_voltage, maxVoltage: stats.max_voltage,
         undervoltageCount: stats.undervoltage_count, overvoltageCount: stats.overvoltage_count,
+        // minVoltage/maxVoltage above are the OBSERVED range for the period (from stats) — the
+        // "range 218.5-221.3 V" the Settings row already shows. These two are the CONFIGURED
+        // alert thresholds instead, needed by the Settings "Edit" form; same name collision
+        // risk noted here so a future change doesn't reuse minVoltage/maxVoltage for this by
+        // mistake.
+        configuredMinVoltage: monitor.minVoltage, configuredMaxVoltage: monitor.maxVoltage, stabilizationMinutes: monitor.stabilizationMinutes,
         messageTemplateUndervoltage: monitor.messageTemplateUndervoltage, messageTemplateOvervoltage: monitor.messageTemplateOvervoltage, messageTemplateNormalized: monitor.messageTemplateNormalized
       };
     });

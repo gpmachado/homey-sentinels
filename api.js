@@ -37,6 +37,12 @@ module.exports = {
     await homey.app.resetMonitorStats(item);
     return { ok: true };
   },
+  async updateMonitor({ homey, params, body }) {
+    const item = homey.app.store.data.monitors[params.id];
+    if (!item) throw new Error('Monitor not found.');
+    await homey.app.updateActivityMonitorSettings(item, { threshold: body.threshold, continuityMinutes: body.continuityMinutes, minConfirmationSeconds: body.minConfirmationSeconds });
+    return item;
+  },
   async updateMonitorMessages({ homey, params, body }) {
     const item = homey.app.store.data.monitors[params.id];
     if (!item) throw new Error('Monitor not found.');
@@ -63,6 +69,12 @@ module.exports = {
     await homey.app.resetVoltageMonitorStats(item);
     return { ok: true };
   },
+  async updateVoltageMonitor({ homey, params, body }) {
+    const item = homey.app.store.data.voltageMonitors[params.id];
+    if (!item) throw new Error('Voltage monitor not found.');
+    await homey.app.updateVoltageMonitorRange(item, { minVoltage: body.minVoltage, maxVoltage: body.maxVoltage, stabilizationMinutes: body.stabilizationMinutes });
+    return item;
+  },
   async updateVoltageMonitorMessages({ homey, params, body }) {
     const item = homey.app.store.data.voltageMonitors[params.id];
     if (!item) throw new Error('Voltage monitor not found.');
@@ -88,6 +100,15 @@ module.exports = {
     if (!item) throw new Error('State monitor not found.');
     await homey.app.resetStateMonitorStats(item);
     return { ok: true };
+  },
+  async updateStateMonitor({ homey, params, body }) {
+    const item = homey.app.store.data.stateMonitors[params.id];
+    if (!item) throw new Error('State monitor not found.');
+    // Same device+capability, only the labels/activeValues change — _createStateMonitor's
+    // upsert path (store.upsertStateMonitor) already updates an existing monitor in place for
+    // this exact device+capability pair instead of throwing on a duplicate, so this just reruns
+    // it rather than needing a dedicated update method.
+    return homey.app._createStateMonitor({ deviceId: item.deviceId, capability: item.capability, trueLabel: body.trueLabel, falseLabel: body.falseLabel, activeValues: body.activeValues });
   },
   async updateStateMonitorMessages({ homey, params, body }) {
     const item = homey.app.store.data.stateMonitors[params.id];
@@ -137,8 +158,8 @@ module.exports = {
   async updateGroup({ homey, params, body }) {
     const group = homey.app.store.data.groups[params.id];
     if (!group) throw new Error('Group not found.');
-    const { name, expectedState, deviceIds, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany } = body;
-    homey.app.store.updateGroup(group, { name, expectedState, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany });
+    const { name, type, expectedState, deviceIds, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany } = body;
+    homey.app.store.updateGroup(group, { name, type, expectedState, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany });
     if (Array.isArray(deviceIds)) {
       if (deviceIds.length < 2) throw new Error('Select at least two devices.');
       const devices = homey.app.gateway.getCachedDevices();

@@ -60,6 +60,28 @@
       </div>
       </div>
 
+      <div id="activity-edit-form-wrapper" class="hidden modal-overlay">
+      <div class="modal-box">
+      <form id="activity-edit-form">
+        <h2 style="margin-top:0">Edit settings — <span id="activity-edit-form-name"></span></h2>
+        <p class="hint">Device and capability can't be changed here — delete and re-add the monitor for that.</p>
+        <label>Activity threshold (W)
+          <input type="text" id="activity-edit-threshold" required>
+        </label>
+        <label>Continuity window, in minutes
+          <input type="text" id="activity-edit-continuity" required>
+        </label>
+        <label>Minimum confirmation, in seconds
+          <input type="text" id="activity-edit-confirmation" required>
+        </label>
+        <div class="actions">
+          <button type="submit">Save</button>
+          <button type="button" id="activity-edit-cancel-btn">Cancel</button>
+        </div>
+      </form>
+      </div>
+      </div>
+
       <div id="activity-message-form-wrapper" class="hidden modal-overlay">
       <div class="modal-box">
       <form id="activity-message-form">
@@ -130,6 +152,29 @@
       </div>
       </div>
 
+      <div id="state-edit-form-wrapper" class="hidden modal-overlay">
+      <div class="modal-box">
+      <form id="state-edit-form">
+        <h2 style="margin-top:0">Edit labels — <span id="state-edit-form-name"></span></h2>
+        <p class="hint">Device and capability can't be changed here — delete and re-add the monitor for that.</p>
+        <label id="state-edit-active-values-wrap" class="hidden">Active value(s)
+          <input type="text" id="state-edit-active-values" placeholder="e.g. Running, Rinse">
+        </label>
+        <p class="hint hidden" id="state-edit-active-values-hint">This capability has multiple states — list which value(s) count as active, comma-separated.</p>
+        <label>Label when true
+          <input type="text" id="state-edit-true-label" placeholder="e.g. Open">
+        </label>
+        <label>Label when false
+          <input type="text" id="state-edit-false-label" placeholder="e.g. Closed">
+        </label>
+        <div class="actions">
+          <button type="submit">Save</button>
+          <button type="button" id="state-edit-cancel-btn">Cancel</button>
+        </div>
+      </form>
+      </div>
+      </div>
+
       <div id="state-message-form-wrapper" class="hidden modal-overlay">
       <div class="modal-box">
       <form id="state-message-form">
@@ -192,6 +237,28 @@
         <div class="actions">
           <button type="submit">Save</button>
           <button type="button" id="voltage-add-cancel-btn">Cancel</button>
+        </div>
+      </form>
+      </div>
+      </div>
+
+      <div id="voltage-edit-form-wrapper" class="hidden modal-overlay">
+      <div class="modal-box">
+      <form id="voltage-edit-form">
+        <h2 style="margin-top:0">Edit range — <span id="voltage-edit-form-name"></span></h2>
+        <p class="hint">Device and capability can't be changed here — delete and re-add the monitor for that.</p>
+        <label>Min voltage
+          <input type="text" id="voltage-edit-min" required>
+        </label>
+        <label>Max voltage
+          <input type="text" id="voltage-edit-max" required>
+        </label>
+        <label>Stabilization window, in minutes
+          <input type="text" id="voltage-edit-stabilization" required>
+        </label>
+        <div class="actions">
+          <button type="submit">Save</button>
+          <button type="button" id="voltage-edit-cancel-btn">Cancel</button>
         </div>
       </form>
       </div>
