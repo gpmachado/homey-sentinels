@@ -177,6 +177,8 @@
         $hint.classList.add('hidden');
         $name.innerText = summary.name;
         $device.innerText = summary.deviceName;
+        // Often the monitor is named after its device: then a second, identical line is just noise.
+        $device.style.display = summary.deviceName && summary.deviceName !== summary.name ? '' : 'none';
 
         var periodLabel = summary.period === 'week' ? '7 days' : summary.period === 'month' ? '30 days' : 'today';
         $periods.classList.remove('hidden');

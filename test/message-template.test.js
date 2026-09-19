@@ -22,3 +22,9 @@ test('formats a natural-language list with a custom conjunction', () => {
   assert.equal(formatList(['Cozinha', 'Sala', 'Varanda']), 'Cozinha, Sala e Varanda');
   assert.equal(formatList(['Cozinha', 'Sala'], 'and'), 'Cozinha and Sala');
 });
+
+test('numbers are shown without float noise, integers and text are untouched', () => {
+  assert.equal(renderMessage('%energy% kWh, %power% W, %name%', { energy: 0.5899999999999999, power: 1521.2, name: 'Bomba' }), '0.59 kWh, 1521.2 W, Bomba');
+  assert.equal(renderMessage('%count% cycles, %energy%', { count: 15, energy: 0 }), '15 cycles, 0');
+  assert.equal(renderMessage('%x%', { x: NaN }), 'NaN');
+});
