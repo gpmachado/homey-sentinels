@@ -1,7 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { VoltageEngine, NORMAL } = require('../lib/voltage-engine');
+const { VoltageEngine, NORMAL, VOLTAGE_BUCKET_MS } = require('../lib/voltage-engine');
 
 function monitor(overrides) {
   return Object.assign({ minVoltage: 110, maxVoltage: 130, stabilizedAt: null, state: NORMAL, eventSince: null, eventType: null, lastSample: null, events: [], periods: [] }, overrides);
@@ -108,8 +108,8 @@ test('samples within the bucket window and the same state merge into one period,
   const e = new VoltageEngine(); const m = monitor();
   e.processSample(m, { voltage: 120, timestamp: 0 });
   e.processSample(m, { voltage: 121, timestamp: 5000 }); // creates the period (holds 120 for [0,5000))
-  e.processSample(m, { voltage: 119, timestamp: 10000 }); // same state, within 60s of the period's start — merges
-  e.processSample(m, { voltage: 122, timestamp: 55000 }); // still within 60s of the period's start — merges
+  e.processSample(m, { voltage: 119, timestamp: 10000 }); // same state, within the bucket window of the period's start — merges
+  e.processSample(m, { voltage: 122, timestamp: 55000 }); // still within the bucket window of the period's start — merges
   assert.equal(m.periods.length, 1);
   assert.deepEqual(m.periods[0], { startedAt: 0, endedAt: 55000, seconds: 55, state: 'NORMAL', minVoltage: 119, maxVoltage: 121, voltageSum: 360, sampleCount: 3 });
 });
@@ -118,7 +118,7 @@ test('a sample past the bucket window starts a new period instead of merging', (
   const e = new VoltageEngine(); const m = monitor();
   e.processSample(m, { voltage: 120, timestamp: 0 });
   e.processSample(m, { voltage: 121, timestamp: 5000 });
-  e.processSample(m, { voltage: 122, timestamp: 65000 }); // 65s after the period started — past the 60s bucket
+  e.processSample(m, { voltage: 122, timestamp: 5000 + VOLTAGE_BUCKET_MS + 1000 }); // just past the bucket window from the period's start
   assert.equal(m.periods.length, 2);
   assert.equal(m.periods[1].startedAt, 5000);
 });

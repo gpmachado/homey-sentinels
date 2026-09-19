@@ -10,8 +10,12 @@ const { startOfLocalDay, localDateKey, isValidTimeZone } = require('./lib/time')
 const {
   statistics: computeStatistics, stateStatistics: computeStateStatistics, voltageStatistics: computeVoltageStatistics,
   binaryEventStatistics: computeBinaryEventStatistics, dailyBreakdown: computeDailyBreakdown, stateDailyBreakdown: computeStateDailyBreakdown,
-  binaryDailyBreakdown: computeBinaryDailyBreakdown, suggestedThreshold: computeSuggestedThreshold, generateTextReport: computeTextReport
+  binaryDailyBreakdown: computeBinaryDailyBreakdown, suggestedThreshold: computeSuggestedThreshold, analyzeThreshold: computeAnalyzeThreshold, generateTextReport: computeTextReport
 } = require('./lib/statistics');
+const { startMemoryGuard } = require('./lib/memory-guard');
+const { openHistoryDb } = require('./lib/history-db');
+const { summarizeSystemMemory } = require('./lib/memory-report');
+const { punctuationToAscii } = require('./lib/text');
 const { assertGroupDevice, checkGroup, groupStatistics: computeGroupStatistics, groupDailyBreakdown: computeGroupDailyBreakdown } = require('./lib/groups');
 
 // Regenerated on every commit (see scripts/write-build-info.js, .git/hooks/post-commit) — the
@@ -54,13 +58,15 @@ const AVAILABILITY_POLL_INTERVAL_MS = 10 * 60 * 1000;
 // every this long fixes the scaling problem — store.save() always persists the current
 // `this.data` wholesale, so any number of mutations before the timer fires are captured by
 // that one eventual write regardless.
-const SAVE_DEBOUNCE_MS = 3000;
+const SAVE_DEBOUNCE_MS = 15000;
+const SUMMARY_CACHE_MS = 5000;
 // A calibrating monitor re-attempts _suggestedThreshold on every sample — cheap for a device
 // that reports every few minutes, but a device cycling rapidly (a heating element's thermostat
 // clicking on/off) can push many samples per second, each re-sorting the whole periods[]
 // array. Confirmed live: this hit Homey's own CPU limit and crashed the app. A per-monitor
 // cooldown bounds the sort to at most once per this interval, regardless of sample rate.
 const CALIBRATION_RETRY_MS = 60 * 1000;
+const CALIBRATION_MAX_RETRY_MS = 30 * 60 * 1000;
 // MEDIAN_MIN_CYCLES, THRESHOLD_SUGGESTION_MIN_SAMPLES/MIN_GAP_RATIO, and GROUP_TYPES now live in
 // lib/statistics.js and lib/groups.js respectively, alongside the functions that use them.
 // Homey rejects a "number" Flow token whose value is null/undefined ("Invalid Token") —
@@ -75,12 +81,26 @@ const formatEnergy = (kwh) => (kwh < 1 ? `${Math.round(kwh * 1000)} Wh` : `${kwh
 
 class StatisticTrackerApp extends Homey.App {
   async onInit() {
-    this.store = new SentinelStore(this.homey.settings);
+    // The bulky series live in a SQLite file under /userdata, not in settings (see lib/history-db.js).
+    // /userdata is served over plain HTTP on the LAN without authentication, so the file gets a random
+    // name that is generated once and remembered; if the database can't be opened the store falls back
+    // to keeping the series in settings.
+    this._history = openHistoryDb(`/userdata/${this._historyFileName()}`, { log: (message) => this.log(message) });
+    this.store = new SentinelStore(this.homey.settings, { history: this._history });
     await this.store.load();
+    if (this.store.migratedFrom) this.log(`Storage migrated from ${this.store.migratedFrom}.`);
+    this.store.warnings.forEach((warning) => this.log(`Storage warning: ${warning}`));
+    this.log(`History storage: ${this._history ? `SQLite (${Math.round(this._history.sizeBytes() / 1024)} KB)` : 'settings key (SQLite unavailable)'}`);
+    // The device list used to be persisted here; it now lives in memory only (see the gateway), and
+    // the old copy would keep inflating every settings write.
+    try { this.homey.settings.unset('deviceCache'); } catch (error) { /* nothing to remove */ }
+    this._stopMemoryGuard = startMemoryGuard(this.homey, { log: (m) => this.log(m), error: (m, e) => this.error(m, e) });
     // In-memory only, deliberately not persisted — a per-monitor cooldown so a burst of rapid
     // samples (a device cycling its heating element on/off) can't re-run _suggestedThreshold's
     // sort over the whole periods[] array on every single one of them while still calibrating.
     this._lastCalibrationAttempt = new Map();
+    this._calibrationAttempts = new Map();
+    this._summaryCache = new Map();
     this._saveTimer = null;
     this.engine = new ActivityEngine();
     this.voltageEngine = new VoltageEngine();
@@ -115,7 +135,7 @@ class StatisticTrackerApp extends Homey.App {
     this._registerFlowCards();
     this._registerWidgets();
     const buildTag = buildInfo ? `${buildInfo.commit}${buildInfo.dirty ? '+dirty' : ''} (${buildInfo.subject || 'no subject'}, ${buildInfo.commitDate || 'unknown date'})` : 'unstamped — run `npm run stamp`';
-    this.log(`Sentinels started — observation only, no device control. [build ${buildTag}]`);
+    this.log(`Sentinels started — observation only, no device control. [build ${buildTag}] [node ${process.version}, sqlite ${process.versions.sqlite || 'n/a'}]`);
 
     // Device/network work happens in the background, on purpose: onInit must resolve and
     // the Flow cards above must be registered even if HomeyAPI is slow or unreachable —
@@ -126,6 +146,19 @@ class StatisticTrackerApp extends Homey.App {
     this._scheduleWithBackoff('System timezone refresh', () => this.gateway.refreshSystemTimezone(), DEVICE_CACHE_REFRESH_MS);
     this._consolidateHistory();
     this.homey.setInterval(() => this._consolidateHistory(), HISTORY_CONSOLIDATION_MS);
+    // A crash inside a few minutes leaves nothing between startup and the abort — a memory trail
+    // makes it possible to tell steady growth from a single large allocation. Dense for the first
+    // three minutes (that's when the startup/migration work happens), then every five.
+    let memoryTick = 0;
+    this.homey.setInterval(() => {
+      memoryTick += 1;
+      if (memoryTick <= 12 || memoryTick % 20 === 0) this._logMemory().catch(() => {});
+    }, 15 * 1000);
+    // The Homey as a whole is often short on memory (a Homey Pro 2023 sat at 86% used with 14% free);
+    // this shows who holds it. Once shortly after start (with the raw response, to confirm its
+    // shape), then hourly. A rejected call (scope not granted) is reported once and not retried.
+    this.homey.setTimeout(() => this._logSystemMemory(true), 45 * 1000);
+    this.homey.setInterval(() => this._logSystemMemory(false), 60 * 60 * 1000);
     this._pollGroups().catch((error) => this.error('Failed to poll groups', error));
     this._scheduleWithBackoff('Group mismatch polling', () => this._pollGroups(), GROUP_POLL_INTERVAL_MS);
     this._pollAvailabilityWatchdogs().catch((error) => this.error('Failed to poll availability watchdogs', error));
@@ -174,12 +207,21 @@ class StatisticTrackerApp extends Homey.App {
   // Flushes a still-pending debounced save immediately — without this, an app update/restart
   // landing inside the debounce window would silently drop whatever samples arrived since the
   // last write.
+  _historyFileName() {
+    let name = this.homey.settings.get('historyFile');
+    if (!name) {
+      name = `sentinels-${require('crypto').randomBytes(12).toString('hex')}.sqlite`;
+      this.homey.settings.set('historyFile', name);
+    }
+    return name;
+  }
   async onUninit() {
     if (this._saveTimer) {
       this.homey.clearTimeout(this._saveTimer);
       this._saveTimer = null;
       await this.store.save().catch((error) => this.error('Failed to save on shutdown', error));
     }
+    try { this._history?.close(); } catch (error) { /* already closed */ }
   }
   _consolidateHistory() {
     try {
@@ -195,10 +237,55 @@ class StatisticTrackerApp extends Homey.App {
       this.store.consolidateHistory(this._getTimezone());
       const durationMs = Date.now() - startedAt;
       const periodCountAfter = this._totalPeriodCount();
-      this.log(`Consolidated history in ${durationMs}ms (periods ${periodCountBefore} -> ${periodCountAfter})`);
-      this.store.save().catch((error) => this.error('Failed to save after consolidating history', error));
+      // Meta is the part rewritten on every save; the series live in one key per monitor and are
+      // sized by the period counts above. (Serializing the whole in-memory store here, as an
+      // earlier version did, would recreate the very multi-MB string the split storage avoids.)
+      this.log(`Consolidated history in ${durationMs}ms (periods ${periodCountBefore} -> ${periodCountAfter}, meta ~${this._metaLabel()}${this._history ? `, history db ${Math.round(this._history.sizeBytes() / 1024)} KB` : ''}, heap ${this._heapMb()} MB used/limit)`);
+      this.store.save().then(() => this._history?.checkpoint()).catch((error) => this.error('Failed to save after consolidating history', error));
     } catch (error) {
       this.error('Failed to consolidate history', error);
+    }
+  }
+  // v8.getHeapStatistics, not process.memoryUsage(): the latter reads the process RSS from /proc,
+  // which doesn't exist inside Homey's app container (ENOENT uv_resident_set_memory) and made the
+  // consolidation pass throw before it could save. Also exposes the real heap limit. Diagnostics
+  // must never be able to break the code they're logging, hence the catch.
+  // Heap from V8 plus what Homey's supervisor measures for this app. The latter is the one its
+  // Memory Warning Limit applies to; if the call isn't permitted or fails, log that once and
+  // carry on with the heap numbers alone.
+  async _logMemory() {
+    let homeyUsage = '';
+    try {
+      const usage = await this.gateway.getOwnUsage();
+      homeyUsage = `, homey usage ${JSON.stringify(usage)}`;
+    } catch (error) {
+      if (!this._usageErrorLogged) { this._usageErrorLogged = true; homeyUsage = `, homey usage unavailable (${error.message})`; }
+    }
+    const stats = require('v8').getHeapStatistics();
+    const dbSizes = this._history ? this._history.sizes() : null;
+    const dbLabel = dbSizes ? `, history db ${Math.round(dbSizes.main / 1024)} KB + wal ${Math.round(dbSizes.wal / 1024)} KB` : '';
+    this.log(`memory: heap ${this._heapMb()} MB used/limit, external ${Math.round(stats.external_memory / 1048576)} MB, malloced ${Math.round(stats.malloced_memory / 1048576)} MB${dbLabel}${homeyUsage}`);
+  }
+  async _logSystemMemory(includeRaw) {
+    if (this._systemMemoryUnavailable) return;
+    try {
+      const info = await this.gateway.getSystemMemory();
+      this.log(summarizeSystemMemory(info, this.homey.manifest.id, { includeRaw }));
+    } catch (error) {
+      this._systemMemoryUnavailable = true;
+      this.log(`system memory unavailable (${error.message}); not retrying`);
+    }
+  }
+  _metaLabel() {
+    const { kb, twoByte } = this.store.metaStats();
+    return `${kb} KB${twoByte ? ' (HAS NON-LATIN1 TEXT: writes cost double)' : ''}`;
+  }
+  _heapMb() {
+    try {
+      const { used_heap_size: used, heap_size_limit: limit } = require('v8').getHeapStatistics();
+      return `${Math.round(used / 1048576)}/${Math.round(limit / 1048576)}`;
+    } catch (error) {
+      return '?';
     }
   }
   _totalPeriodCount() {
@@ -253,13 +340,33 @@ class StatisticTrackerApp extends Homey.App {
   _logEvent(message) {
     if (!message) return;
     this.store.data.eventLog ||= [];
-    this.store.data.eventLog.push({ timestamp: Date.now(), message });
+    this.store.data.eventLog.push({ timestamp: Date.now(), message: punctuationToAscii(message) });
     if (this.store.data.eventLog.length > EVENT_LOG_MAX) this.store.data.eventLog.shift();
   }
   getRecentEvents(limit = 10) {
     return (this.store.data.eventLog || []).slice(-limit).reverse();
   }
-  async getWidgetSummary(rawId, rawPeriod) {
+  // Settings pages and widgets re-request the same summaries (every dashboard tile, every tab
+  // switch), and each one re-filters every period of every monitor — garbage that lands on top of
+  // the heap and the process footprint. A few seconds of reuse is invisible to the user; any save
+  // (a config edit, or the debounced sample save) bumps store.revision and drops the entry, so an
+  // edit is never shown stale.
+  _cached(key, ttlMs, compute) {
+    const now = Date.now();
+    const hit = this._summaryCache.get(key);
+    if (hit && hit.revision === this.store.revision && now - hit.at < ttlMs) return hit.value;
+    const value = compute();
+    this._summaryCache.set(key, { at: now, revision: this.store.revision, value });
+    if (value && typeof value.catch === 'function') value.catch(() => this._summaryCache.delete(key));
+    if (this._summaryCache.size > 64) this._summaryCache.delete(this._summaryCache.keys().next().value);
+    return value;
+  }
+  getMonitorsSummary(rawPeriod) { return this._cached(`monitors:${rawPeriod}`, SUMMARY_CACHE_MS, () => this._computeMonitorsSummary(rawPeriod)); }
+  getStateMonitorsSummary(rawPeriod) { return this._cached(`state:${rawPeriod}`, SUMMARY_CACHE_MS, () => this._computeStateMonitorsSummary(rawPeriod)); }
+  getVoltageMonitorsSummary(rawPeriod) { return this._cached(`voltage:${rawPeriod}`, SUMMARY_CACHE_MS, () => this._computeVoltageMonitorsSummary(rawPeriod)); }
+  getBinaryCountersSummary(rawPeriod) { return this._cached(`binary:${rawPeriod}`, SUMMARY_CACHE_MS, () => this._computeBinaryCountersSummary(rawPeriod)); }
+  getWidgetSummary(rawId, rawPeriod) { return this._cached(`widget:${JSON.stringify(rawId)}:${rawPeriod}`, SUMMARY_CACHE_MS, () => this._computeWidgetSummary(rawId, rawPeriod)); }
+  async _computeWidgetSummary(rawId, rawPeriod) {
     const id = rawId && typeof rawId === 'object' ? (rawId.data?.id || rawId.id) : rawId;
     const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
     const activityMonitor = this.store.data.monitors[id];
@@ -327,6 +434,7 @@ class StatisticTrackerApp extends Homey.App {
   async removeMonitor(item) {
     this.gateway.unsubscribeCapabilities(item.id, item.deviceId, item.capability, item.auxiliaryCapabilities);
     this._lastCalibrationAttempt.delete(item.id);
+    this._calibrationAttempts.delete(item.id);
     delete this.store.data.monitors[item.id];
     await this.store.save();
   }
@@ -722,19 +830,7 @@ class StatisticTrackerApp extends Homey.App {
   // edit just the continuity/confirmation windows without having to re-type a value that isn't
   // changing.
   async updateActivityMonitorSettings(item, { threshold, continuityMinutes, minConfirmationSeconds } = {}) {
-    if (threshold !== undefined && threshold !== '') {
-      if (!Number.isFinite(Number(threshold)) || Number(threshold) < 0) throw new Error('The threshold must be greater than or equal to zero.');
-      item.threshold = Number(threshold);
-      item.calibrating = false;
-    }
-    if (continuityMinutes !== undefined && continuityMinutes !== '') {
-      if (!Number.isFinite(Number(continuityMinutes)) || Number(continuityMinutes) < 0) throw new Error('The continuity window must be greater than or equal to zero.');
-      item.continuityMinutes = Number(continuityMinutes);
-    }
-    if (minConfirmationSeconds !== undefined && minConfirmationSeconds !== '') {
-      if (!Number.isFinite(Number(minConfirmationSeconds)) || Number(minConfirmationSeconds) < 0) throw new Error('The minimum confirmation must be greater than or equal to zero.');
-      item.minConfirmationSeconds = Number(minConfirmationSeconds);
-    }
+    this.store.updateMonitorSettings(item, { threshold, continuityMinutes, minConfirmationSeconds });
     await this.store.save();
     if (item.lastSample) await this._sample(item, item.lastSample.power, Date.now());
     return item;
@@ -906,12 +1002,25 @@ class StatisticTrackerApp extends Homey.App {
   async _maybeAutoCalibrate(monitor) {
     const now = Date.now();
     const lastAttempt = this._lastCalibrationAttempt.get(monitor.id);
-    if (lastAttempt && now - lastAttempt < CALIBRATION_RETRY_MS) return;
+    const attempts = this._calibrationAttempts.get(monitor.id) || 0;
+    // Each failed attempt sorts every raw power value of the monitor; a device that never shows two
+    // clearly separated levels (a well pump idles at 0 W) failed every minute forever. Back off
+    // 1, 2, 4 ... up to 30 minutes between tries, and log only the first few and then every tenth.
+    const waitMs = Math.min(CALIBRATION_RETRY_MS * 2 ** attempts, CALIBRATION_MAX_RETRY_MS);
+    if (lastAttempt && now - lastAttempt < waitMs) return;
     this._lastCalibrationAttempt.set(monitor.id, now);
+    this._calibrationAttempts.set(monitor.id, attempts + 1);
     const periodCount = (monitor.periods || []).length;
-    this.log(`[${monitor.name}] checking for a calibration threshold (${periodCount} power samples so far)`);
-    const suggestion = this._suggestedThreshold(monitor);
-    if (!suggestion) return;
+    if (attempts < 3 || attempts % 10 === 0) this.log(`[${monitor.name}] checking for a calibration threshold (${periodCount} power samples so far, attempt ${attempts + 1})`);
+    const analysis = computeAnalyzeThreshold(monitor);
+    const suggestion = analysis.suggestion;
+    if (!suggestion) {
+      // Says WHY it isn't confident (only on the attempts that are logged at all), so a monitor that
+      // stays in "calibrating" can be diagnosed from the log rather than guessed at.
+      if (attempts < 3 || attempts % 10 === 0) this.log(`[${monitor.name}] calibration not confident yet: ${analysis.reason} ${JSON.stringify(analysis.details)}`);
+      return;
+    }
+    this._calibrationAttempts.delete(monitor.id);
     monitor.threshold = suggestion.threshold;
     monitor.calibrating = false;
     await this.store.save();
@@ -1139,7 +1248,7 @@ class StatisticTrackerApp extends Homey.App {
   // extraction accidentally dropped it along with the block it lived in — api.js's
   // getMonitorsSummary route calls this by name, so its disappearance broke the whole
   // Settings Monitors tab.
-  getMonitorsSummary(rawPeriod) {
+  _computeMonitorsSummary(rawPeriod) {
     const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
     return Object.values(this.store.data.monitors).map((monitor) => {
       const stats = this._statistics(monitor, period);
@@ -1157,7 +1266,7 @@ class StatisticTrackerApp extends Homey.App {
   // Same idea as getMonitorsSummary, for the state monitors table — trimmed to duration/count
   // fields by default, same as _stateStatistics, since energy/power don't mean anything for a
   // plain boolean capability. Included when the monitor has an auxiliary power capability.
-  getStateMonitorsSummary(rawPeriod) {
+  _computeStateMonitorsSummary(rawPeriod) {
     const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
     return Object.values(this.store.data.stateMonitors).map((monitor) => {
       const stats = this._stateStatistics(monitor, period);
@@ -1172,7 +1281,7 @@ class StatisticTrackerApp extends Homey.App {
     });
   }
   // Same idea as getMonitorsSummary, for the voltage monitors table.
-  getVoltageMonitorsSummary(rawPeriod) {
+  _computeVoltageMonitorsSummary(rawPeriod) {
     const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
     return Object.values(this.store.data.voltageMonitors).map((monitor) => {
       const stats = this._voltageStatistics(monitor, period);
@@ -1191,7 +1300,7 @@ class StatisticTrackerApp extends Homey.App {
     });
   }
   // Same idea again, for the Binary counters table.
-  getBinaryCountersSummary(rawPeriod) {
+  _computeBinaryCountersSummary(rawPeriod) {
     const period = ['day', 'week', 'month'].includes(rawPeriod) ? rawPeriod : 'day';
     return Object.values(this.store.data.binaryCounters).map((counter) => {
       const stats = this._binaryEventStatistics(counter, period);

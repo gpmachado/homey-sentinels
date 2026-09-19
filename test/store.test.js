@@ -208,6 +208,72 @@ test('updateGroup rejects an unknown group type', async () => {
   assert.equal(group.type, 'light');
 });
 
+test('updateGroup validates before mutating and resets type-dependent state on a type change', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const group = store.createGroup({ name: 'Tomadas', type: 'light', expectedState: true, devices: [{ id: 'd1', name: 'A' }, { id: 'd2', name: 'B' }] });
+  group.mismatchSince = 123;
+  group.dailySummaries = [{ date: '2026-01-01', mismatchSeconds: 60, checkCount: 1 }];
+  assert.throws(() => store.updateGroup(group, { name: 'Novo', type: 'not-a-real-type' }), /Unknown group type/);
+  assert.equal(group.name, 'Tomadas');
+  assert.throws(() => store.updateGroup(group, { name: '  ', type: 'switch' }));
+  assert.equal(group.type, 'light');
+  store.updateGroup(group, { type: 'light' });
+  assert.equal(group.mismatchSince, 123);
+  store.updateGroup(group, { type: 'switch' });
+  assert.equal(group.mismatchSince, null);
+  assert.deepEqual(group.dailySummaries, []);
+});
+
+test('updateMonitorSettings edits only provided fields and applies nothing when one is invalid', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const monitor = store.createMonitor({ device: { id: 'dev-1', name: 'Freezer' }, threshold: 50, continuityMinutes: 5, minConfirmationSeconds: 10 });
+  monitor.calibrating = true;
+  store.updateMonitorSettings(monitor, { continuityMinutes: '7' });
+  assert.equal(monitor.continuityMinutes, 7);
+  assert.equal(monitor.threshold, 50);
+  assert.equal(monitor.calibrating, true);
+  assert.throws(() => store.updateMonitorSettings(monitor, { threshold: '80', continuityMinutes: 'abc' }), /continuity/);
+  assert.equal(monitor.threshold, 50);
+  assert.equal(monitor.calibrating, true);
+  store.updateMonitorSettings(monitor, { threshold: '80', minConfirmationSeconds: '' });
+  assert.equal(monitor.threshold, 80);
+  assert.equal(monitor.calibrating, false);
+  assert.equal(monitor.minConfirmationSeconds, 10);
+});
+
+test('updateVoltageMonitor only restarts the stabilization window when its length changes', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const monitor = store.createVoltageMonitor({ device: { id: 'dev-1', name: 'Shelly 3EM' }, minVoltage: 110, maxVoltage: 130, stabilizationMinutes: 5 });
+  monitor.stabilizedAt = 0;
+  store.updateVoltageMonitor(monitor, { minVoltage: 115, stabilizationMinutes: '5' });
+  assert.equal(monitor.stabilizedAt, 0);
+  store.updateVoltageMonitor(monitor, { stabilizationMinutes: '10' });
+  assert.ok(monitor.stabilizedAt > Date.now());
+  assert.equal(monitor.stabilizationMinutes, 10);
+  const before = { min: monitor.minVoltage, stabilizedAt: monitor.stabilizedAt };
+  assert.throws(() => store.updateVoltageMonitor(monitor, { minVoltage: 100, stabilizationMinutes: 'abc' }));
+  assert.equal(monitor.minVoltage, before.min);
+  assert.equal(monitor.stabilizedAt, before.stabilizedAt);
+});
+
+test('updateStateMonitor edits labels and active values in place without a device lookup', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const boolMonitor = store.createStateMonitor({ device: { id: 'dev-1', name: 'Door' }, capability: 'alarm_contact', trueLabel: 'Open', falseLabel: 'Closed' });
+  store.updateStateMonitor(boolMonitor, { trueLabel: 'Aberta', falseLabel: '', activeValues: '' });
+  assert.equal(boolMonitor.trueLabel, 'Aberta');
+  assert.equal(boolMonitor.falseLabel, 'False');
+  assert.equal(boolMonitor.activeValues, null);
+  const enumMonitor = store.createStateMonitor({ device: { id: 'dev-2', name: 'Washer' }, capability: 'washer_state', activeValues: ['Running'] });
+  store.updateStateMonitor(enumMonitor, { activeValues: 'Running, Rinse' });
+  assert.deepEqual(enumMonitor.activeValues, ['Running', 'Rinse']);
+  assert.throws(() => store.updateStateMonitor(enumMonitor, { trueLabel: 'X', activeValues: ' , ' }), /multiple states/);
+  assert.equal(enumMonitor.trueLabel, 'True');
+});
+
 test('deletes a group', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();
@@ -641,4 +707,58 @@ test('migrateBinaryCounter backfills counter fields', () => {
   assert.equal(counter.totalCount, 0);
   assert.deepEqual(counter.dailyCounts, []);
   assert.equal(counter.messageTemplate, '');
+});
+
+test('compactVoltagePeriods merges adjacent same-state periods into one bucket without losing min/max/sum/count', () => {
+  const { compactVoltagePeriods } = require('../lib/store');
+  const { VOLTAGE_BUCKET_MS } = require('../lib/voltage-engine');
+  const mk = (i, state, v) => ({ startedAt: i * 60000, endedAt: i * 60000 + 60000, seconds: 60, state, minVoltage: v, maxVoltage: v + 1, voltageSum: (v + 0.5) * 12, sampleCount: 12 });
+  const perBucket = VOLTAGE_BUCKET_MS / 60000;
+  const periods = [];
+  for (let i = 0; i < perBucket; i += 1) periods.push(mk(i, 'NORMAL', 220 + i)); // first bucket, all NORMAL
+  periods.push(mk(perBucket, 'UNDERVOLTAGE', 180)); // state change starts a new bucket
+  periods.push(mk(perBucket + 1, 'UNDERVOLTAGE', 175));
+  const result = compactVoltagePeriods(periods);
+  assert.equal(result.length, 2);
+  assert.equal(result[0].state, 'NORMAL');
+  assert.equal(result[0].sampleCount, 12 * perBucket);
+  assert.equal(result[0].seconds, 60 * perBucket);
+  assert.equal(result[0].minVoltage, 220);
+  assert.equal(result[0].maxVoltage, 220 + perBucket - 1 + 1);
+  assert.equal(result[0].endedAt, perBucket * 60000);
+  assert.equal(result[1].state, 'UNDERVOLTAGE');
+  assert.equal(result[1].minVoltage, 175);
+  assert.equal(result[1].sampleCount, 24);
+  assert.equal('bucketed' in result[0], false);
+  // legacy single-`voltage` periods are never merged
+  const legacy = compactVoltagePeriods([{ startedAt: 0, endedAt: 1000, state: 'NORMAL', voltage: 220 }, { startedAt: 1000, endedAt: 2000, state: 'NORMAL', voltage: 221 }]);
+  assert.equal(legacy.length, 2);
+});
+
+test('consolidateHistory compacts a voltage monitor stored with 1-minute periods', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const now = Date.now();
+  const monitor = store.createVoltageMonitor({ device: { id: 'dev-1', name: 'Shelly 3EM' }, minVoltage: 200, maxVoltage: 240 });
+  monitor.periods = Array.from({ length: 60 }, (_, i) => ({ startedAt: now - (60 - i) * 60000, endedAt: now - (59 - i) * 60000, seconds: 60, state: 'NORMAL', minVoltage: 219, maxVoltage: 221, voltageSum: 220 * 12, sampleCount: 12 }));
+  store.consolidateHistory('America/Sao_Paulo', now);
+  assert.equal(monitor.periods.length, 12);
+  assert.equal(monitor.periods.reduce((sum, p) => sum + p.sampleCount, 0), 720);
+});
+
+test('consolidateHistory drops cycles older than the cycle retention window but keeps recent ones and the lifetime counter', async () => {
+  const { CYCLE_RETENTION_DAYS } = require('../lib/store');
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const now = Date.now();
+  const DAY = 24 * 60 * 60 * 1000;
+  const monitor = store.createMonitor({ device: { id: 'dev-1', name: 'Pump' }, threshold: 50 });
+  monitor.cycles = [
+    { startedAt: now - (CYCLE_RETENTION_DAYS + 10) * DAY, endedAt: now - (CYCLE_RETENTION_DAYS + 10) * DAY + 1000, duration: 1 },
+    { startedAt: now - 5 * DAY, endedAt: now - 5 * DAY + 1000, duration: 1 }
+  ];
+  monitor.totals.cycleCount = 2;
+  store.consolidateHistory('America/Sao_Paulo', now);
+  assert.equal(monitor.cycles.length, 1);
+  assert.equal(monitor.totals.cycleCount, 2);
 });

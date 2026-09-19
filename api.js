@@ -1,5 +1,7 @@
 'use strict';
 
+const { GROUP_TYPES } = require('./lib/groups');
+
 module.exports = {
   async getDevices({ homey }) {
     return homey.app.gateway.getCachedDevices();
@@ -104,11 +106,10 @@ module.exports = {
   async updateStateMonitor({ homey, params, body }) {
     const item = homey.app.store.data.stateMonitors[params.id];
     if (!item) throw new Error('State monitor not found.');
-    // Same device+capability, only the labels/activeValues change — _createStateMonitor's
-    // upsert path (store.upsertStateMonitor) already updates an existing monitor in place for
-    // this exact device+capability pair instead of throwing on a duplicate, so this just reruns
-    // it rather than needing a dedicated update method.
-    return homey.app._createStateMonitor({ deviceId: item.deviceId, capability: item.capability, trueLabel: body.trueLabel, falseLabel: body.falseLabel, activeValues: body.activeValues });
+    homey.app.store.updateStateMonitor(item, { trueLabel: body.trueLabel, falseLabel: body.falseLabel, activeValues: body.activeValues });
+    await homey.app.store.save();
+    homey.app.log(`[${item.name}] state monitor settings updated`);
+    return item;
   },
   async updateStateMonitorMessages({ homey, params, body }) {
     const item = homey.app.store.data.stateMonitors[params.id];
@@ -159,14 +160,21 @@ module.exports = {
     const group = homey.app.store.data.groups[params.id];
     if (!group) throw new Error('Group not found.');
     const { name, type, expectedState, deviceIds, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany } = body;
-    homey.app.store.updateGroup(group, { name, type, expectedState, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany });
+    // Validate devices against the (possibly new) type before touching the group, so a failure
+    // leaves it unchanged. A type change re-checks the existing devices too when none were resent.
+    if (type !== undefined && !GROUP_TYPES[type]) throw new Error('Unknown group type.');
+    const candidate = { ...group, type: type !== undefined ? type : group.type };
+    const devices = homey.app.gateway.getCachedDevices();
+    let selected = null;
     if (Array.isArray(deviceIds)) {
       if (deviceIds.length < 2) throw new Error('Select at least two devices.');
-      const devices = homey.app.gateway.getCachedDevices();
-      const selected = deviceIds.map((id) => devices.find((device) => device.id === id)).filter(Boolean);
-      selected.forEach((device) => homey.app._assertGroupDevice(group, device));
-      homey.app.store.setGroupDevices(group, selected);
+      selected = deviceIds.map((id) => devices.find((device) => device.id === id)).filter(Boolean);
+    } else if (candidate.type !== group.type) {
+      selected = group.devices.map(({ id }) => devices.find((device) => device.id === id)).filter(Boolean);
     }
+    if (selected) selected.forEach((device) => homey.app._assertGroupDevice(candidate, device));
+    homey.app.store.updateGroup(group, { name, type, expectedState, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany });
+    if (Array.isArray(deviceIds)) homey.app.store.setGroupDevices(group, selected);
     await homey.app.store.save();
     return group;
   },

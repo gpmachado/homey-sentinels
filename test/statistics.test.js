@@ -222,3 +222,34 @@ test('generateTextReport builds one sentence per entity kind and throws for an u
   assert.match(counterReport, /Doorbell: 3 events/);
   assert.throws(() => generateTextReport('nope', 'day', data, TZ, 2000), /not found/);
 });
+
+test('binaryDailyBreakdown keeps one bucket per calendar day across a DST change', () => {
+  const { binaryDailyBreakdown } = require('../lib/statistics');
+  const counter = { dailyCounts: [{ date: '2026-03-08', count: 2 }] };
+  const result = binaryDailyBreakdown(counter, 4, 'America/New_York', Date.parse('2026-03-10T15:00:00Z'));
+  assert.deepEqual(result.map((d) => d.date), ['2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10']);
+  assert.equal(result[1].count, 2);
+});
+
+test('"all" cycle_count uses the lifetime counter once old cycles have been pruned, other periods still count cycles[]', () => {
+  const { statistics } = require('../lib/statistics');
+  const now = Date.now();
+  const monitor = { periods: [], dailySummaries: [], cycles: [{ startedAt: now - 2000, endedAt: now - 1000, duration: 1, averagePower: 100, maxPower: 120, energy: 0.1 }], totals: { cycleCount: 40 } };
+  assert.equal(statistics(monitor, 'all', 'America/Sao_Paulo', now).cycle_count, 40);
+  assert.equal(statistics(monitor, 'week', 'America/Sao_Paulo', now).cycle_count, 1);
+});
+
+test('analyzeThreshold says why it is not confident, and agrees with suggestedThreshold when it is', () => {
+  const { analyzeThreshold, suggestedThreshold } = require('../lib/statistics');
+  const period = (min, max) => ({ minPower: min, maxPower: max });
+  assert.equal(analyzeThreshold({ periods: [period(0, 1)] }).reason, 'too_few_periods');
+  const idleOnly = { threshold: 40, periods: Array.from({ length: 100 }, (_, i) => period(0, (i % 3) * 0.1)) };
+  const idle = analyzeThreshold(idleOnly);
+  assert.equal(idle.reason, 'gap_ratio_too_small');
+  assert.equal(idle.details.valuesAtOrAboveThreshold, 0);
+  assert.equal(suggestedThreshold(idleOnly), null);
+  const withRuns = { threshold: 40, periods: [...Array.from({ length: 200 }, () => period(0, 2)), ...Array.from({ length: 30 }, () => period(1400, 1600))] };
+  const ok = analyzeThreshold(withRuns);
+  assert.ok(ok.suggestion);
+  assert.deepEqual(suggestedThreshold(withRuns), ok.suggestion);
+});
