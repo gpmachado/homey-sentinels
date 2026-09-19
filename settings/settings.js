@@ -761,6 +761,7 @@ function onHomeyReady(Homey) {
     editingWatchdogDeviceId = device.id;
     document.getElementById('availability-watchdog-form-name').textContent = device.name;
     availabilityWatchdogThresholdInput.value = watchdog ? watchdog.thresholdHours : 12;
+    document.getElementById('availability-watchdog-ignoreUnavailable').checked = !!(watchdog && watchdog.ignoreUnavailable);
     openModal(availabilityWatchdogFormWrapper);
   }
   document.getElementById('availability-watchdog-cancel-btn').addEventListener('click', function () {
@@ -770,7 +771,7 @@ function onHomeyReady(Homey) {
   availabilityWatchdogForm.addEventListener('submit', function (event) {
     event.preventDefault();
     if (!editingWatchdogDeviceId) return;
-    api('POST', '/availability-watchdogs', { deviceId: editingWatchdogDeviceId, thresholdHours: Number(availabilityWatchdogThresholdInput.value) }).then(function () {
+    api('POST', '/availability-watchdogs', { deviceId: editingWatchdogDeviceId, thresholdHours: Number(availabilityWatchdogThresholdInput.value), ignoreUnavailable: document.getElementById('availability-watchdog-ignoreUnavailable').checked }).then(function () {
       closeModal(availabilityWatchdogFormWrapper);
       editingWatchdogDeviceId = null;
       return loadAll();
@@ -789,23 +790,32 @@ function onHomeyReady(Homey) {
     lastAvailabilityDevices = devices;
     lastAvailabilityWatchdogs = watchdogs;
     var container = document.getElementById('availability-body');
-    if (!devices.length) { renderEmptyList(container, 'No devices found.'); return; }
+    if (!devices.length) { renderEmptyList(container, deviceListLoading ? 'Loading devices...' : 'No devices found.'); return; }
     var query = availabilityFilterEl.value.trim().toLowerCase();
     var filtered = query ? devices.filter(function (d) { return d.name.toLowerCase().indexOf(query) !== -1; }) : devices;
     if (!filtered.length) { renderEmptyList(container, 'No devices match "' + escapeHtml(query) + '".'); return; }
     var watchdogByDeviceId = {};
     (watchdogs || []).forEach(function (w) { watchdogByDeviceId[w.deviceId] = w; });
-    var sorted = filtered.slice().sort(function (a, b) {
+    // Unavailable first, then the longest-unseen; devices with a watchdog are listed first in their own
+    // section, so a watchdog that was just added is easy to find in a list of 300 devices.
+    function byRisk(a, b) {
       if (a.available !== b.available) return a.available ? 1 : -1;
       return (a.lastSeenAt || '').localeCompare(b.lastSeenAt || '');
-    });
+    }
+    // Two devices can carry the same name (a washer and its second plug, a re-paired device): show a
+    // short id on those so a watchdog can be told apart from the other one.
+    var nameCount = {};
+    devices.forEach(function (d) { nameCount[d.name] = (nameCount[d.name] || 0) + 1; });
+    var watched = filtered.filter(function (d) { return watchdogByDeviceId[d.id]; }).sort(byRisk);
+    var others = filtered.filter(function (d) { return !watchdogByDeviceId[d.id]; }).sort(byRisk);
     container.innerHTML = '';
-    sorted.forEach(function (device) {
+    function renderRow(device) {
       var watchdog = watchdogByDeviceId[device.id];
       var nameHtml = escapeHtml(device.name) + ' <span class="badge ' + (device.available ? 'badge-active' : 'badge-danger') + '">' + (device.available ? 'Available' : 'Unavailable') + '</span>'
-        + (watchdog ? ' <span class="badge">Watchdog ' + watchdog.thresholdHours + 'h</span>' : '');
+        + (watchdog ? ' <span class="badge">Watchdog ' + watchdog.thresholdHours + 'h' + (watchdog.ignoreUnavailable ? ', silence only' : '') + '</span>' : '');
       var metaBits = [
         escapeHtml(device.zoneName || ''),
+        nameCount[device.name] > 1 ? 'same name as another device - id ' + escapeHtml(String(device.id).slice(0, 8)) : null,
         'last seen ' + formatLastSeen(device.lastSeenAt),
         !device.available && device.unavailableMessage ? escapeHtml(device.unavailableMessage) : null
       ];
@@ -821,7 +831,17 @@ function onHomeyReady(Homey) {
       }
       row.appendChild(entityActions(actionButtons));
       container.appendChild(row);
-    });
+    }
+    function appendSection(title) {
+      var heading = document.createElement('div');
+      heading.className = 'entity-section';
+      heading.textContent = title;
+      container.appendChild(heading);
+    }
+    if (watched.length) appendSection('Watched by a watchdog (' + watched.length + ')');
+    watched.forEach(renderRow);
+    if (watched.length && others.length) appendSection('All other devices (' + others.length + ')');
+    others.forEach(renderRow);
   }
 
   // Shared by the three "Add monitor" forms below — same device-then-capability picker
@@ -917,6 +937,7 @@ function onHomeyReady(Homey) {
   var activityAddCapability = document.getElementById('activity-add-capability');
   var activityPicker = setupDeviceCapabilityPicker('activity-add', 'activity', { preselectCapability: 'measure_power' });
   document.getElementById('add-activity-monitor-btn').addEventListener('click', function () {
+    if (!requireDevices()) return;
     activityAddForm.reset();
     populateZoneSelect(activityPicker.zoneEl);
     activityPicker.refreshDevices();
@@ -944,6 +965,7 @@ function onHomeyReady(Homey) {
   var voltageAddCapability = document.getElementById('voltage-add-capability');
   var voltagePicker = setupDeviceCapabilityPicker('voltage-add', 'voltage');
   document.getElementById('add-voltage-monitor-btn').addEventListener('click', function () {
+    if (!requireDevices()) return;
     voltageAddForm.reset();
     populateZoneSelect(voltagePicker.zoneEl);
     voltagePicker.refreshDevices();
@@ -982,6 +1004,7 @@ function onHomeyReady(Homey) {
   }
   var statePicker = setupDeviceCapabilityPicker('state-add', 'state', { onCapabilityChange: refreshStateActiveValuesVisibility });
   document.getElementById('add-state-monitor-btn').addEventListener('click', function () {
+    if (!requireDevices()) return;
     stateAddForm.reset();
     populateZoneSelect(statePicker.zoneEl);
     statePicker.refreshDevices();
@@ -1020,6 +1043,39 @@ function onHomeyReady(Homey) {
     }).then(renderBinaryCounters).catch(function (error) { Homey.alert(error.message || String(error)); });
   });
 
+  // The device list is read by the app on demand (it is large, and reading it costs the app memory), so
+  // it can still be empty or stale when the page first asks: poll its status and re-render when the
+  // read has finished.
+  var deviceListLoading = false;
+  var devicePollTimer = null;
+  function waitForDevices(attempt) {
+    deviceListLoading = true;
+    clearTimeout(devicePollTimer);
+    api('GET', '/devices/status').then(function (status) {
+      if (status.loaded && !status.loading) {
+        return api('GET', '/devices').then(function (list) {
+          deviceListLoading = false;
+          allDevices = list;
+          renderDeviceList();
+          renderAvailability(allDevices, lastAvailabilityWatchdogs || []);
+        });
+      }
+      if (attempt < 60) {
+        devicePollTimer = setTimeout(function () { waitForDevices(attempt + 1); }, 1500);
+      } else {
+        deviceListLoading = false;
+        renderEmptyList(document.getElementById('availability-body'), 'The device list could not be loaded. Reload this page to try again.');
+      }
+    }).catch(function (error) { deviceListLoading = false; Homey.alert(error.message || String(error)); });
+  }
+
+  // The Add forms pick from the device list, which the app reads on demand.
+  function requireDevices() {
+    if (allDevices.length) return true;
+    Homey.alert('The device list is still loading. Try again in a few seconds.');
+    return false;
+  }
+
   function loadAll() {
     return Promise.all([
       api('GET', '/devices'), api('GET', '/groups'), api('GET', '/monitors?period=' + monitorPeriod), api('GET', '/voltage-monitors?period=' + monitorPeriod),
@@ -1032,7 +1088,11 @@ function onHomeyReady(Homey) {
       renderVoltageMonitors(results[3]);
       renderBinaryCounters(results[4]);
       renderStateMonitors(results[5]);
+      deviceListLoading = !results[0].length;
       renderAvailability(results[0], results[6]);
+      return api('GET', '/devices/status').then(function (status) {
+        if (status.loading || !allDevices.length) waitForDevices(0);
+      });
     });
   }
 

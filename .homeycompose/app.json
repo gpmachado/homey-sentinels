@@ -20,6 +20,7 @@
   "permissions": ["homey:manager:api"],
   "api": {
     "getDevices": { "method": "GET", "path": "/devices" },
+    "getDevicesStatus": { "method": "GET", "path": "/devices/status" },
     "getAvailabilityWatchdogs": { "method": "GET", "path": "/availability-watchdogs" },
     "createAvailabilityWatchdog": { "method": "POST", "path": "/availability-watchdogs" },
     "deleteAvailabilityWatchdog": { "method": "DELETE", "path": "/availability-watchdogs/:deviceId" },

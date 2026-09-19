@@ -7,10 +7,11 @@ const api = require('../api');
 
 function fakeSettings() { const data = {}; return { get: (key) => data[key], set: async (key, value) => { data[key] = value; } }; }
 
-async function fakeHomey(devices) {
+async function fakeHomey(devices, loaded = true) {
   const store = new SentinelStore(fakeSettings());
   await store.load();
-  return { app: { store, gateway: { getCachedDevices: () => devices }, _assertGroupDevice: assertGroupDevice } };
+  const directory = { requested: 0, hasLoaded: () => loaded, request() { this.requested += 1; }, list: () => devices };
+  return { app: { store, directory, _assertGroupDevice: assertGroupDevice } };
 }
 const light = (id) => ({ id, name: id, capabilities: ['onoff'] });
 const contact = (id) => ({ id, name: id, capabilities: ['alarm_contact'] });
@@ -35,4 +36,10 @@ test('api.updateGroup leaves the group untouched when the new type is incompatib
   assert.equal(updated.type, 'contact');
   assert.equal(updated.name, 'Portas');
   assert.deepEqual(updated.devices.map((d) => d.id), ['c1', 'c2']);
+});
+
+test('group create/update ask for the device list and say so when it has not loaded yet', async () => {
+  const homey = await fakeHomey([], false);
+  await assert.rejects(api.createGroup({ homey, body: { name: 'X', type: 'light', deviceIds: ['d1', 'd2'] } }), /still loading/);
+  assert.equal(homey.app.directory.requested, 1);
 });

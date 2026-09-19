@@ -356,6 +356,11 @@
       <label>Hours without reporting before alerting
         <input type="number" id="availability-watchdog-thresholdHours" min="1" step="1" required>
       </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="availability-watchdog-ignoreUnavailable">
+        Ignore the "unavailable" status — only alert when it hasn't reported for that long
+      </label>
+      <p class="hint">For devices that go unavailable on purpose, such as an appliance that is switched off or one a cloud app marks offline.</p>
       <div class="actions">
         <button type="submit">Save</button>
         <button type="button" id="availability-watchdog-cancel-btn">Cancel</button>

@@ -2,15 +2,36 @@
 
 const { GROUP_TYPES } = require('./lib/groups');
 
+// How old the device list may be before opening the page triggers a new read of it.
+const DEVICE_LIST_MAX_AGE_MS = 5 * 60 * 1000;
+
+// Group create/update validate members against the loaded device list. On a cold start the list
+// isn't there yet: ask for it and say so instead of reporting a misleading "select two devices".
+function loadedDevices(homey) {
+  const directory = homey.app.directory;
+  if (!directory.hasLoaded()) {
+    directory.request(DEVICE_LIST_MAX_AGE_MS);
+    throw new Error('The device list is still loading. Try again in a few seconds.');
+  }
+  return directory.list();
+}
+
 module.exports = {
+  // The full device list is read on demand: this only asks the app to (re)load it in the background
+  // and answers with what is loaded now (empty on the very first call); the page polls
+  // getDevicesStatus and asks again once it reports the list loaded.
   async getDevices({ homey }) {
-    return homey.app.gateway.getCachedDevices();
+    homey.app.directory.request(DEVICE_LIST_MAX_AGE_MS);
+    return homey.app.directory.list();
+  },
+  async getDevicesStatus({ homey }) {
+    return homey.app.directory.status();
   },
   async getAvailabilityWatchdogs({ homey }) {
     return Object.values(homey.app.store.data.availabilityWatchdogs);
   },
   async createAvailabilityWatchdog({ homey, body }) {
-    return homey.app._createAvailabilityWatchdog({ deviceId: body.deviceId, thresholdHours: Number(body.thresholdHours) });
+    return homey.app.inAppContext(() => homey.app._createAvailabilityWatchdog({ deviceId: body.deviceId, thresholdHours: Number(body.thresholdHours), ignoreUnavailable: body.ignoreUnavailable === true || body.ignoreUnavailable === 'true' }));
   },
   async deleteAvailabilityWatchdog({ homey, params }) {
     const item = homey.app.store.data.availabilityWatchdogs[params.deviceId];
@@ -25,7 +46,7 @@ module.exports = {
     return homey.app.getMonitorsSummary(query.period);
   },
   async createActivityMonitor({ homey, body }) {
-    return homey.app._createActivityMonitor({ deviceId: body.deviceId, capability: body.capability, threshold: body.threshold, name: body.name });
+    return homey.app.inAppContext(() => homey.app._createActivityMonitor({ deviceId: body.deviceId, capability: body.capability, threshold: body.threshold, name: body.name }));
   },
   async deleteMonitor({ homey, params }) {
     const item = homey.app.store.data.monitors[params.id];
@@ -57,7 +78,7 @@ module.exports = {
     return homey.app.getVoltageMonitorsSummary(query.period);
   },
   async createVoltageMonitor({ homey, body }) {
-    return homey.app._createVoltageMonitor({ deviceId: body.deviceId, capability: body.capability, minVoltage: body.minVoltage, maxVoltage: body.maxVoltage, name: body.name, stabilizationMinutes: body.stabilizationMinutes });
+    return homey.app.inAppContext(() => homey.app._createVoltageMonitor({ deviceId: body.deviceId, capability: body.capability, minVoltage: body.minVoltage, maxVoltage: body.maxVoltage, name: body.name, stabilizationMinutes: body.stabilizationMinutes }));
   },
   async deleteVoltageMonitor({ homey, params }) {
     const item = homey.app.store.data.voltageMonitors[params.id];
@@ -89,7 +110,7 @@ module.exports = {
     return homey.app.getStateMonitorsSummary(query.period);
   },
   async createStateMonitor({ homey, body }) {
-    return homey.app._createStateMonitor({ deviceId: body.deviceId, capability: body.capability, trueLabel: body.trueLabel, falseLabel: body.falseLabel, name: body.name, activeValues: body.activeValues });
+    return homey.app.inAppContext(() => homey.app._createStateMonitor({ deviceId: body.deviceId, capability: body.capability, trueLabel: body.trueLabel, falseLabel: body.falseLabel, name: body.name, activeValues: body.activeValues }));
   },
   async deleteStateMonitor({ homey, params }) {
     const item = homey.app.store.data.stateMonitors[params.id];
@@ -149,7 +170,7 @@ module.exports = {
   async createGroup({ homey, body }) {
     const { name, type, expectedState, deviceIds = [], conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany } = body;
     if (deviceIds.length < 2) throw new Error('Select at least two devices.');
-    const devices = homey.app.gateway.getCachedDevices();
+    const devices = loadedDevices(homey);
     const selected = deviceIds.map((id) => devices.find((device) => device.id === id)).filter(Boolean);
     selected.forEach((device) => homey.app._assertGroupDevice({ type }, device));
     const group = homey.app.store.createGroup({ name, type, expectedState, devices: selected, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany });
@@ -164,7 +185,7 @@ module.exports = {
     // leaves it unchanged. A type change re-checks the existing devices too when none were resent.
     if (type !== undefined && !GROUP_TYPES[type]) throw new Error('Unknown group type.');
     const candidate = { ...group, type: type !== undefined ? type : group.type };
-    const devices = homey.app.gateway.getCachedDevices();
+    const devices = loadedDevices(homey);
     let selected = null;
     if (Array.isArray(deviceIds)) {
       if (deviceIds.length < 2) throw new Error('Select at least two devices.');
@@ -184,7 +205,7 @@ module.exports = {
   async checkGroupStatus({ homey, params }) {
     const group = homey.app.store.data.groups[params.id];
     if (!group) throw new Error('Group not found.');
-    return homey.app._checkGroup(group);
+    return homey.app.inAppContext(() => homey.app._checkGroup(group));
   },
   async deleteGroup({ homey, params }) {
     homey.app.store.deleteGroup(params.id);

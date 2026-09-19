@@ -40,6 +40,8 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .device-list label { font-weight: normal; display: flex; align-items: center; gap: 6px; margin: 4px 0; }
 .actions { margin-top: 16px; display: flex; gap: 8px; }
 .subtab-panel > .actions { margin: 0 0 12px; }
+.checkbox-row { display: flex; align-items: flex-start; gap: 8px; font-weight: 400; margin-top: 12px; }
+.checkbox-row input { margin-top: 2px; width: auto; }
 .hint { color: var(--color-muted); font-size: 12px; margin-top: 4px; }
 /* Every button/heading rule below is scoped under .container and marked !important: inside the
    Homey app the settings page gets Homey's own button/heading styles applied on top of ours, and
@@ -68,6 +70,7 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .entity-name { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; overflow-wrap: anywhere; }
 .entity-meta { color: var(--color-muted); font-size: 12px; margin-top: 3px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; }
 .entity-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; margin-left: auto; }
+.entity-section { padding: 8px 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--color-muted); background: var(--color-bg); border-bottom: 1px solid var(--color-border); }
 .entity-empty { padding: 16px 14px; color: var(--color-muted); font-size: 13px; }
 
 .container .btn-link { border: none !important; background: none !important; color: var(--color-accent) !important; font-size: 12px !important; font-weight: 600 !important; padding: 6px 8px !important; cursor: pointer !important; border-radius: 6px !important; font-family: inherit !important; white-space: nowrap !important; }

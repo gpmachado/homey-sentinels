@@ -26,6 +26,10 @@
       "method": "GET",
       "path": "/devices"
     },
+    "getDevicesStatus": {
+      "method": "GET",
+      "path": "/devices/status"
+    },
     "getAvailabilityWatchdogs": {
       "method": "GET",
       "path": "/availability-watchdogs"
@@ -3028,6 +3032,20 @@
     ]
   },
   "widgets": {
+    "availability": {
+      "name": {
+        "en": "Sentinels Watchdogs"
+      },
+      "height": 240,
+      "settings": [],
+      "api": {
+        "getSummary": {
+          "method": "GET",
+          "path": "/summary"
+        }
+      },
+      "id": "availability"
+    },
     "overview": {
       "name": {
         "en": "Sentinels Overview"
@@ -3113,6 +3131,20 @@
         }
       },
       "id": "timeline"
+    },
+    "voltage": {
+      "name": {
+        "en": "Sentinels Voltage"
+      },
+      "height": 260,
+      "settings": [],
+      "api": {
+        "getSummary": {
+          "method": "GET",
+          "path": "/summary"
+        }
+      },
+      "id": "voltage"
     }
   }
 }
