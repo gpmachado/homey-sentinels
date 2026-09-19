@@ -1,0 +1,13 @@
+{
+  "name": {
+    "en": "Sentinels Voltage"
+  },
+  "height": 260,
+  "settings": [],
+  "api": {
+    "getSummary": {
+      "method": "GET",
+      "path": "/summary"
+    }
+  }
+}

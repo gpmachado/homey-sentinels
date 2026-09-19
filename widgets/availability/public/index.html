@@ -1,0 +1,116 @@
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    #wrap { width: 100%; height: 100%; display: flex; flex-direction: column; padding: var(--homey-su-4, 16px); gap: var(--homey-su-2, 8px); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow-y: auto; }
+    .hidden { display: none; }
+    #head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    #title { font-size: 15px; font-weight: 600; color: var(--homey-text-color, #16161a); }
+    #hint, .loading { font-size: 13px; color: var(--homey-text-color-light, #7a7a85); }
+    .row { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; border-bottom: 1px solid var(--homey-line-color-light, #f2f2f4); }
+    #rows .row:last-child { border-bottom: none; }
+    .line { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .name { font-size: 13px; font-weight: 600; color: var(--homey-text-color, #16161a); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1 1 auto; min-width: 0; }
+    .meta { font-size: 11px; color: var(--homey-text-color-light, #7a7a85); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .pill { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; white-space: nowrap; flex-shrink: 0; background-color: var(--homey-line-color-light, #f2f2f4); color: var(--homey-text-color-light, #7a7a85); }
+    .pill .dot { width: 7px; height: 7px; border-radius: 50%; background-color: var(--homey-line-color, #cfcfd4); }
+    .pill.is-good { background-color: var(--homey-background-color-green, #d9f2e3); color: var(--homey-text-color-green, #1e8e5a); }
+    .pill.is-good .dot { background-color: var(--homey-icon-color-green, #1e8e5a); }
+    .pill.is-bad { background-color: var(--homey-background-color-red, #f9d9d9); color: var(--homey-text-color-red, #b42318); }
+    .pill.is-bad .dot { background-color: var(--homey-icon-color-red, #b42318); }
+    #wrap.stale { opacity: 0.5; transition: opacity 0.3s; }
+    .down { color: var(--homey-text-color-red, #b42318); }
+  </style>
+</head>
+
+<body>
+  <div id="wrap">
+    <div id="head"><div id="title">Watchdogs</div><div id="summary" class="pill hidden"></div></div>
+    <div id="hint" class="hidden">No watchdogs yet. Add one in Sentinels settings, under Availability.</div>
+    <div id="rows"><div class="loading">Loading...</div></div>
+  </div>
+
+  <script type="text/javascript">
+    function onHomeyReady(Homey) {
+      var $wrap = document.getElementById('wrap');
+      var $summary = document.getElementById('summary');
+      var $hint = document.getElementById('hint');
+      var $rows = document.getElementById('rows');
+      var hasLoadedOnce = false;
+
+      function duration(seconds) {
+        if (seconds < 90) return seconds + ' s';
+        if (seconds < 5400) return Math.round(seconds / 60) + ' min';
+        if (seconds < 172800) return Math.round(seconds / 3600) + ' h';
+        return Math.round(seconds / 86400) + ' days';
+      }
+
+      function pill(text, cls) {
+        var el = document.createElement('div');
+        el.className = 'pill' + (cls ? ' ' + cls : '');
+        el.innerHTML = '<span class="dot"></span><span></span>';
+        el.querySelector('span:last-child').textContent = text;
+        return el;
+      }
+
+      function metaText(item) {
+        if (item.down) {
+          var why = item.reason === 'stale' ? 'silent for over ' + item.thresholdHours + ' h' : 'unavailable';
+          return why + ' - down for ' + duration(item.downSeconds || 0);
+        }
+        var seen = item.lastSeenAt ? 'last seen ' + new Date(item.lastSeenAt).toLocaleString() : 'watching';
+        return seen + (item.silenceOnly ? ' - silence only' : '');
+      }
+
+      function renderRow(item) {
+        var row = document.createElement('div');
+        row.className = 'row';
+        var line = document.createElement('div');
+        line.className = 'line';
+        var name = document.createElement('div');
+        name.className = 'name' + (item.down ? ' down' : '');
+        name.textContent = item.name;
+        line.appendChild(name);
+        line.appendChild(pill(item.down ? 'Down' : 'OK', item.down ? 'is-bad' : 'is-good'));
+        var meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.textContent = metaText(item);
+        row.appendChild(line);
+        row.appendChild(meta);
+        return row;
+      }
+
+      async function load() {
+        if (document.hidden) return;
+        try {
+          var summary = await Homey.api('GET', '/summary');
+          hasLoadedOnce = true;
+          $wrap.classList.remove('stale');
+          $rows.innerHTML = '';
+          if (!summary.total) {
+            $summary.classList.add('hidden');
+            $hint.classList.remove('hidden');
+            return;
+          }
+          $hint.classList.add('hidden');
+          $summary.className = 'pill ' + (summary.downCount ? 'is-bad' : 'is-good');
+          $summary.innerHTML = '<span class="dot"></span><span></span>';
+          $summary.querySelector('span:last-child').textContent = summary.downCount ? summary.downCount + ' down' : 'All OK';
+          summary.items.forEach(function (item) { $rows.appendChild(renderRow(item)); });
+        } catch (error) {
+          if (hasLoadedOnce) $wrap.classList.add('stale');
+        }
+      }
+
+      // No polling while the widget is not on screen.
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
+      load().finally(function () { Homey.ready(); });
+      setInterval(load, 30000);
+    }
+  </script>
+</body>
+
+</html>

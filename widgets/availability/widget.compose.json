@@ -1,0 +1,13 @@
+{
+  "name": {
+    "en": "Sentinels Watchdogs"
+  },
+  "height": 240,
+  "settings": [],
+  "api": {
+    "getSummary": {
+      "method": "GET",
+      "path": "/summary"
+    }
+  }
+}
