@@ -28,3 +28,12 @@ test('isValidTimeZone accepts a real IANA zone and rejects garbage', () => {
   assert.equal(isValidTimeZone('Not/A_Zone'), false);
   assert.equal(isValidTimeZone(''), false);
 });
+
+test('recentLocalDayStarts steps back one calendar day at a time across a DST change', () => {
+  const { recentLocalDayStarts, localDateKey } = require('../lib/time');
+  const tz = 'America/New_York'; // clocks spring forward on 2026-03-08 (a 23h day)
+  const starts = recentLocalDayStarts(new Date('2026-03-10T15:00:00Z'), 4, tz);
+  assert.deepEqual(starts.map((ms) => localDateKey(new Date(ms), tz)), ['2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10']);
+  assert.equal(new Date(starts[1]).toISOString(), '2026-03-08T05:00:00.000Z');
+  assert.equal(new Date(starts[2]).toISOString(), '2026-03-09T04:00:00.000Z');
+});

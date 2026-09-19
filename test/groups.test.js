@@ -138,3 +138,12 @@ test('groupDailyBreakdown pads missing days with zero and reads mismatchSeconds 
     { date: '2026-01-15', mismatchSeconds: 120 }
   ]);
 });
+
+test('groupDailyBreakdown and groupStatistics keep one bucket per calendar day across a DST change', () => {
+  const { groupDailyBreakdown, groupStatistics } = require('../lib/groups');
+  const tz = 'America/New_York';
+  const now = Date.parse('2026-03-10T15:00:00Z');
+  const group = { dailySummaries: [{ date: '2026-03-08', mismatchSeconds: 60, checkCount: 1 }] };
+  assert.deepEqual(groupDailyBreakdown(group, 4, tz, now).map((d) => d.date), ['2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10']);
+  assert.equal(groupStatistics(group, 'week', tz, now).mismatch_seconds, 60);
+});
