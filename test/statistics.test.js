@@ -253,3 +253,16 @@ test('analyzeThreshold says why it is not confident, and agrees with suggestedTh
   assert.ok(ok.suggestion);
   assert.deepEqual(suggestedThreshold(withRuns), ok.suggestion);
 });
+
+test('a single start-up transient between standby and active no longer blocks the calibration (well pump)', () => {
+  const { analyzeThreshold } = require('../lib/statistics');
+  // Shaped like the live "Bomba do poco" data: ~0 W standby, ~450-1650 W while running, one stray reading in between.
+  const standby = Array.from({ length: 700 }, (_, i) => ({ minPower: -0.2 + (i % 3) * 0.1, maxPower: (i % 5) * 0.4 }));
+  const stray = [{ minPower: 3, maxPower: 164.8 }];
+  const running = Array.from({ length: 300 }, (_, i) => ({ minPower: 450.8 + (i % 40) * 20, maxPower: 1400 + (i % 30) * 8.5 }));
+  const result = analyzeThreshold({ threshold: 40, periods: [...standby, ...stray, ...running] });
+  assert.ok(result.suggestion, `expected a suggestion, got ${JSON.stringify(result)}`);
+  assert.ok(result.suggestion.threshold > 5 && result.suggestion.threshold < 450, `threshold ${result.suggestion.threshold}`);
+  assert.ok(result.suggestion.low < 5);
+  assert.ok(result.suggestion.high > 400);
+});
