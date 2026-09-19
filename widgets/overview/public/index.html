@@ -16,6 +16,7 @@
       overflow-y: auto;
     }
     #hint, .row-loading { font-size: 13px; color: var(--homey-text-color-light, #7a7a85); }
+    #title { font-size: 15px; font-weight: 600; color: var(--homey-text-color, #16161a); }
     .hidden { display: none; }
     .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-bottom: 1px solid var(--homey-line-color-light, #f2f2f4); }
     #rows .row:last-child { border-bottom: none; }
@@ -36,7 +37,8 @@
 
 <body>
   <div id="wrap">
-    <div id="hint" class="hidden">Configure up to 5 items in the widget settings.</div>
+    <div id="title" class="hidden"></div>
+    <div id="hint" class="hidden">Pick up to 5 items in the widget settings, or turn on "Show every monitor".</div>
     <div id="rows"><div class="row-loading">Loading…</div></div>
   </div>
 
@@ -45,6 +47,7 @@
       var $wrap = document.getElementById('wrap');
       var $hint = document.getElementById('hint');
       var $rows = document.getElementById('rows');
+      var $title = document.getElementById('title');
       var hasLoadedOnce = false;
 
       // Same {name, data:{id}} vs plain-id unwrap the sentinel widget's own settings need —
@@ -107,21 +110,35 @@
       }
 
       async function load() {
-        var ids = configuredIds();
-        if (!ids.length) {
+        var settings = Homey.getSettings() || {};
+        var text = settings.title ? String(settings.title) : '';
+        $title.textContent = text;
+        $title.classList.toggle('hidden', !text);
+        var showAll = settings.showAll === true;
+        var ids = showAll ? [] : configuredIds();
+        if (!showAll && !ids.length) {
           $hint.classList.remove('hidden');
           $rows.classList.add('hidden');
           return;
         }
         try {
-          var summaries = await Promise.all(ids.map(function (id) {
-            return Homey.api('GET', '/summary?id=' + encodeURIComponent(id) + '&period=day').catch(function () { return null; });
-          }));
+          var summaries = showAll
+            ? await Homey.api('GET', '/list?kind=' + encodeURIComponent(settings.kind || 'all'))
+            : await Promise.all(ids.map(function (id) {
+              return Homey.api('GET', '/summary?id=' + encodeURIComponent(id) + '&period=day').catch(function () { return null; });
+            }));
           hasLoadedOnce = true;
           $wrap.classList.remove('stale');
           $hint.classList.add('hidden');
           $rows.classList.remove('hidden');
           $rows.innerHTML = '';
+          if (showAll) {
+            // Problems first, then by name; the picked-items mode keeps the order the user chose.
+            summaries = summaries.filter(Boolean).map(function (summary) { return { summary: summary, bad: shortStatus(summary).cls === 'is-bad' }; })
+              .sort(function (a, b) { return a.bad === b.bad ? String(a.summary.name).localeCompare(String(b.summary.name)) : (a.bad ? -1 : 1); })
+              .map(function (entry) { return entry.summary; });
+            if (!summaries.length) $rows.innerHTML = '<div class="row-loading">No monitors yet.</div>';
+          }
           summaries.forEach(function (summary) { $rows.appendChild(renderRow(summary)); });
         } catch (error) {
           if (hasLoadedOnce) $wrap.classList.add('stale');

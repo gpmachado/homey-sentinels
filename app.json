@@ -42,6 +42,18 @@
       "method": "DELETE",
       "path": "/availability-watchdogs/:deviceId"
     },
+    "cleanupAvailabilityWatchdogs": {
+      "method": "POST",
+      "path": "/availability-watchdogs-cleanup"
+    },
+    "getAvailabilitySettings": {
+      "method": "GET",
+      "path": "/availability-settings"
+    },
+    "setAvailabilitySettings": {
+      "method": "POST",
+      "path": "/availability-settings"
+    },
     "getGroups": {
       "method": "GET",
       "path": "/groups"
@@ -529,6 +541,54 @@
           }
         ],
         "id": "binary_event_logged"
+      },
+      {
+        "title": {
+          "en": "Watched device battery is low"
+        },
+        "titleFormatted": {
+          "en": "[[device]] battery is low"
+        },
+        "hint": {
+          "en": "Fires once when a watched device's battery drops to the warning level set in Settings -> Availability (30 % unless changed), and stays low for the configured delay. Fires again only after the battery has recovered and dropped again."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Device"
+            },
+            "hint": {
+              "en": "Which watched device to react to."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "zone",
+            "type": "string",
+            "title": {
+              "en": "Zone"
+            }
+          },
+          {
+            "name": "battery",
+            "type": "number",
+            "title": {
+              "en": "Battery (%)"
+            }
+          }
+        ],
+        "id": "device_battery_low"
       },
       {
         "title": {
@@ -3036,12 +3096,36 @@
       "name": {
         "en": "Sentinels Watchdogs"
       },
-      "height": 240,
-      "settings": [],
+      "height": 300,
+      "settings": [
+        {
+          "id": "title",
+          "type": "text",
+          "title": {
+            "en": "Title"
+          },
+          "hint": {
+            "en": "Shown above the list. Leave empty for no title."
+          },
+          "value": ""
+        },
+        {
+          "id": "onlyDown",
+          "type": "checkbox",
+          "title": {
+            "en": "Only show devices that are down"
+          },
+          "value": false
+        }
+      ],
       "api": {
         "getSummary": {
           "method": "GET",
           "path": "/summary"
+        },
+        "runCheck": {
+          "method": "POST",
+          "path": "/check"
         }
       },
       "id": "availability"
@@ -3052,6 +3136,74 @@
       },
       "height": 300,
       "settings": [
+        {
+          "id": "title",
+          "type": "text",
+          "title": {
+            "en": "Title"
+          },
+          "hint": {
+            "en": "Shown above the list. Leave empty for no title."
+          },
+          "value": ""
+        },
+        {
+          "id": "showAll",
+          "type": "checkbox",
+          "title": {
+            "en": "Show every monitor"
+          },
+          "hint": {
+            "en": "Lists all your monitors and groups instead of the items picked below."
+          },
+          "value": false
+        },
+        {
+          "id": "kind",
+          "type": "dropdown",
+          "title": {
+            "en": "Only show (with Show every monitor)"
+          },
+          "value": "all",
+          "values": [
+            {
+              "id": "all",
+              "label": {
+                "en": "Everything"
+              }
+            },
+            {
+              "id": "activity",
+              "label": {
+                "en": "Activity monitors"
+              }
+            },
+            {
+              "id": "state",
+              "label": {
+                "en": "State monitors"
+              }
+            },
+            {
+              "id": "voltage",
+              "label": {
+                "en": "Voltage monitors"
+              }
+            },
+            {
+              "id": "group",
+              "label": {
+                "en": "Groups"
+              }
+            },
+            {
+              "id": "binary",
+              "label": {
+                "en": "Event counters"
+              }
+            }
+          ]
+        },
         {
           "id": "monitor1",
           "type": "autocomplete",
@@ -3092,6 +3244,10 @@
         "getSummary": {
           "method": "GET",
           "path": "/summary"
+        },
+        "getList": {
+          "method": "GET",
+          "path": "/list"
         }
       },
       "id": "overview"

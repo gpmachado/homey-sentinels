@@ -1,0 +1,13 @@
+{
+  "title": { "en": "Watched device battery is low" },
+  "titleFormatted": { "en": "[[device]] battery is low" },
+  "hint": { "en": "Fires once when a watched device's battery drops to the warning level set in Settings -> Availability (30 % unless changed), and stays low for the configured delay. Fires again only after the battery has recovered and dropped again." },
+  "args": [
+    { "name": "device", "type": "autocomplete", "required": true, "title": { "en": "Device" }, "hint": { "en": "Which watched device to react to." } }
+  ],
+  "tokens": [
+    { "name": "device", "type": "string", "title": { "en": "Device" } },
+    { "name": "zone", "type": "string", "title": { "en": "Zone" } },
+    { "name": "battery", "type": "number", "title": { "en": "Battery (%)" } }
+  ]
+}

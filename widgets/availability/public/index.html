@@ -21,6 +21,17 @@
     .pill.is-good .dot { background-color: var(--homey-icon-color-green, #1e8e5a); }
     .pill.is-bad { background-color: var(--homey-background-color-red, #f9d9d9); color: var(--homey-text-color-red, #b42318); }
     .pill.is-bad .dot { background-color: var(--homey-icon-color-red, #b42318); }
+    #tiles { display: flex; gap: 8px; }
+    .tile { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 4px; border-radius: 12px; border: 1px solid var(--homey-line-color-light, #f2f2f4); background: var(--homey-background-color-light, transparent); color: var(--homey-text-color, #16161a); font: inherit; cursor: pointer; }
+    .tile .n { font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .tile .l { font-size: 11px; color: var(--homey-text-color-light, #7a7a85); }
+    .tile.is-bad .n { color: var(--homey-text-color-red, #b42318); }
+    .tile.is-good .n { color: var(--homey-text-color-green, #1e8e5a); }
+    .tile.active { border-color: var(--homey-color-blue, #2c7be5); }
+    #foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    #check { font: inherit; font-size: 13px; padding: 6px 14px; border-radius: 8px; border: 1px solid var(--homey-line-color, #cfcfd4); background: transparent; color: var(--homey-text-color, #16161a); cursor: pointer; }
+    #check:disabled { opacity: 0.5; cursor: default; }
+    #stamp { font-size: 11px; color: var(--homey-text-color-light, #7a7a85); }
     #wrap.stale { opacity: 0.5; transition: opacity 0.3s; }
     .down { color: var(--homey-text-color-red, #b42318); }
   </style>
@@ -28,24 +39,42 @@
 
 <body>
   <div id="wrap">
-    <div id="head"><div id="summary" class="pill hidden"></div></div>
+    <div id="title" class="hidden"></div>
+    <div id="tiles" class="hidden"></div>
     <div id="hint" class="hidden">No watchdogs yet. Add one in Sentinels settings, under Availability.</div>
     <div id="rows"><div class="loading">Loading...</div></div>
+    <div id="foot" class="hidden"><button id="check" type="button">Check now</button><span id="stamp"></span></div>
   </div>
 
   <script type="text/javascript">
     function onHomeyReady(Homey) {
       var $wrap = document.getElementById('wrap');
-      var $summary = document.getElementById('summary');
+      var $title = document.getElementById('title');
+      var $tiles = document.getElementById('tiles');
       var $hint = document.getElementById('hint');
       var $rows = document.getElementById('rows');
+      var $foot = document.getElementById('foot');
+      var $check = document.getElementById('check');
+      var $stamp = document.getElementById('stamp');
       var hasLoadedOnce = false;
+      var last = null;
+      var filter = null; // null = everything, or 'stale' | 'unavailable' | 'ok'
+      var settings = {};
+      try { settings = Homey.getSettings() || {}; } catch (e) { settings = {}; }
+
+      function applySettings() {
+        var text = settings.title ? String(settings.title) : '';
+        $title.textContent = text;
+        $title.classList.toggle('hidden', !text);
+      }
 
       function duration(seconds) {
-        if (seconds < 90) return seconds + ' s';
-        if (seconds < 5400) return Math.round(seconds / 60) + ' min';
-        if (seconds < 172800) return Math.round(seconds / 3600) + ' h';
-        return Math.round(seconds / 86400) + ' days';
+        if (seconds < 60) return seconds + ' s';
+        var minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return minutes + ' min';
+        var hours = Math.floor(minutes / 60);
+        if (hours < 48) return hours + ' h ' + (minutes % 60) + ' min';
+        return Math.floor(hours / 24) + ' d';
       }
 
       function pill(text, cls) {
@@ -62,7 +91,8 @@
           return why + ' - down for ' + duration(item.downSeconds || 0);
         }
         var seen = item.lastSeenAt ? 'last seen ' + new Date(item.lastSeenAt).toLocaleString() : 'watching';
-        return seen + (item.silenceOnly ? ' - silence only' : '');
+        var battery = item.battery !== null && item.battery !== undefined ? ' - battery ' + Math.round(item.battery) + '%' : '';
+        return seen + battery + (item.silenceOnly ? ' - silence only' : '');
       }
 
       function renderRow(item) {
@@ -72,9 +102,9 @@
         line.className = 'line';
         var name = document.createElement('div');
         name.className = 'name' + (item.down ? ' down' : '');
-        name.textContent = item.name;
+        name.textContent = item.name + (item.zoneName ? ' (' + item.zoneName + ')' : '');
         line.appendChild(name);
-        line.appendChild(pill(item.down ? 'Down' : 'OK', item.down ? 'is-bad' : 'is-good'));
+        line.appendChild(pill(item.down ? 'Down' : (item.lowBattery ? 'Low battery' : 'OK'), item.down || item.lowBattery ? 'is-bad' : 'is-good'));
         var meta = document.createElement('div');
         meta.className = 'meta';
         meta.textContent = metaText(item);
@@ -83,28 +113,73 @@
         return row;
       }
 
-      async function load() {
-        if (document.hidden) return;
+      function tile(key, count, label, cls) {
+        var el = document.createElement('button');
+        el.type = 'button';
+        el.className = 'tile ' + (count && cls ? cls : '') + (filter === key ? ' active' : '');
+        el.innerHTML = '<span class="n"></span><span class="l"></span>';
+        el.querySelector('.n').textContent = count;
+        el.querySelector('.l').textContent = label;
+        el.addEventListener('click', function () { filter = filter === key ? null : key; render(); });
+        return el;
+      }
+
+      function matches(item) {
+        if (filter === 'ok') return !item.down;
+        if (filter === 'battery') return item.lowBattery;
+        if (filter === 'stale' || filter === 'unavailable') return item.down && item.reason === filter;
+        return settings.onlyDown === true ? (item.down || item.lowBattery) : true;
+      }
+
+      function render() {
+        if (!last) return;
+        $rows.innerHTML = '';
+        if (!last.total) {
+          $tiles.classList.add('hidden'); $foot.classList.add('hidden');
+          $hint.classList.remove('hidden');
+          return;
+        }
+        $hint.classList.add('hidden');
+        $tiles.classList.remove('hidden'); $foot.classList.remove('hidden');
+        $tiles.innerHTML = '';
+        $tiles.appendChild(tile('stale', last.staleCount, 'Not reporting', 'is-bad'));
+        $tiles.appendChild(tile('unavailable', last.unavailableCount, 'Unavailable', 'is-bad'));
+        $tiles.appendChild(tile('battery', last.lowBatteryCount || 0, 'Low battery', 'is-bad'));
+        $tiles.appendChild(tile('ok', last.okCount, 'OK', 'is-good'));
+        var shown = last.items.filter(matches);
+        if (!shown.length) {
+          var empty = document.createElement('div');
+          empty.className = 'loading';
+          empty.textContent = filter || settings.onlyDown ? 'Nothing to show here.' : 'Nothing to show.';
+          $rows.appendChild(empty);
+        }
+        shown.forEach(function (item) { $rows.appendChild(renderRow(item)); });
+        $stamp.textContent = new Date().toLocaleTimeString();
+      }
+
+      async function load(path) {
+        if (document.hidden && !path) return;
         try {
-          var summary = await Homey.api('GET', '/summary');
+          last = path ? await Homey.api('POST', path) : await Homey.api('GET', '/summary');
           hasLoadedOnce = true;
           $wrap.classList.remove('stale');
-          $rows.innerHTML = '';
-          if (!summary.total) {
-            $summary.classList.add('hidden');
-            $hint.classList.remove('hidden');
-            return;
-          }
-          $hint.classList.add('hidden');
-          $summary.className = 'pill ' + (summary.downCount ? 'is-bad' : 'is-good');
-          $summary.innerHTML = '<span class="dot"></span><span></span>';
-          $summary.querySelector('span:last-child').textContent = summary.downCount ? summary.downCount + ' down' : 'All OK';
-          summary.items.forEach(function (item) { $rows.appendChild(renderRow(item)); });
+          render();
         } catch (error) {
           if (hasLoadedOnce) $wrap.classList.add('stale');
         }
       }
 
+      $check.addEventListener('click', function () {
+        $check.disabled = true;
+        load('/check').finally(function () { $check.disabled = false; });
+      });
+      Homey.on('settings.set', function (key, value) {
+        settings[key] = value;
+        applySettings();
+        render();
+      });
+
+      applySettings();
       // No polling while the widget is not on screen.
       document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
       load().finally(function () { Homey.ready(); });

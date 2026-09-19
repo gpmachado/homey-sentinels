@@ -33,6 +33,19 @@ module.exports = {
   async createAvailabilityWatchdog({ homey, body }) {
     return homey.app.inAppContext(() => homey.app._createAvailabilityWatchdog({ deviceId: body.deviceId, thresholdHours: Number(body.thresholdHours), ignoreUnavailable: body.ignoreUnavailable === true || body.ignoreUnavailable === 'true' }));
   },
+  async getAvailabilitySettings({ homey }) {
+    return homey.app.store.getAvailabilitySettings();
+  },
+  async setAvailabilitySettings({ homey, body }) {
+    const settings = homey.app.store.updateAvailabilitySettings(body);
+    await homey.app.store.save();
+    return settings;
+  },
+  async cleanupAvailabilityWatchdogs({ homey }) {
+    const removed = homey.app.store.removeMissingWatchdogs();
+    if (removed) await homey.app.store.save();
+    return { removed };
+  },
   async deleteAvailabilityWatchdog({ homey, params }) {
     const item = homey.app.store.data.availabilityWatchdogs[params.deviceId];
     if (!item) throw new Error('Watchdog not found.');

@@ -757,10 +757,40 @@ function onHomeyReady(Homey) {
   var availabilityWatchdogForm = document.getElementById('availability-watchdog-form');
   var availabilityWatchdogThresholdInput = document.getElementById('availability-watchdog-thresholdHours');
   var editingWatchdogDeviceId = null;
+  var availabilityDefaults = { defaultThresholdHours: 12 };
+  var DEFAULT_FIELDS = ['defaultThresholdHours', 'startupGraceMinutes', 'unavailableDelaySeconds', 'batteryWarnPercent', 'batteryDelaySeconds'];
+  var defaultsFormWrapper = document.getElementById('availability-defaults-form-wrapper');
+  function defaultsField(name) { return document.getElementById('availability-defaults-' + name); }
+  function fillDefaultsForm(settings) {
+    DEFAULT_FIELDS.forEach(function (name) { defaultsField(name).value = settings[name]; });
+    defaultsField('timelineNotifications').checked = settings.timelineNotifications !== false;
+  }
+  document.getElementById('availability-defaults-btn').addEventListener('click', function () {
+    api('GET', '/availability-settings').then(function (settings) {
+      availabilityDefaults = settings;
+      fillDefaultsForm(settings);
+      openModal(defaultsFormWrapper);
+    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+  });
+  document.getElementById('availability-defaults-cancel-btn').addEventListener('click', function () { closeModal(defaultsFormWrapper); });
+  document.getElementById('availability-defaults-form').addEventListener('submit', function (event) {
+    event.preventDefault();
+    var body = { timelineNotifications: defaultsField('timelineNotifications').checked };
+    DEFAULT_FIELDS.forEach(function (name) { body[name] = Number(defaultsField(name).value); });
+    api('POST', '/availability-settings', body).then(function (saved) {
+      availabilityDefaults = saved;
+      closeModal(defaultsFormWrapper);
+    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+  });
+  document.getElementById('availability-cleanup-btn').addEventListener('click', function () {
+    confirmAction('Remove every watchdog whose device is no longer in Homey?', function () {
+      api('POST', '/availability-watchdogs-cleanup').then(loadAll).catch(function (error) { Homey.alert(error.message || String(error)); });
+    });
+  });
   function openAvailabilityWatchdogForm(device, watchdog) {
     editingWatchdogDeviceId = device.id;
     document.getElementById('availability-watchdog-form-name').textContent = device.name;
-    availabilityWatchdogThresholdInput.value = watchdog ? watchdog.thresholdHours : 12;
+    availabilityWatchdogThresholdInput.value = watchdog ? watchdog.thresholdHours : availabilityDefaults.defaultThresholdHours;
     document.getElementById('availability-watchdog-ignoreUnavailable').checked = !!(watchdog && watchdog.ignoreUnavailable);
     openModal(availabilityWatchdogFormWrapper);
   }
@@ -790,6 +820,8 @@ function onHomeyReady(Homey) {
     lastAvailabilityDevices = devices;
     lastAvailabilityWatchdogs = watchdogs;
     var container = document.getElementById('availability-body');
+    var missingCount = (watchdogs || []).filter(function (w) { return w.missing; }).length;
+    document.getElementById('availability-cleanup-btn').classList.toggle('hidden', !missingCount);
     if (!devices.length) { renderEmptyList(container, deviceListLoading ? 'Loading devices...' : 'No devices found.'); return; }
     var query = availabilityFilterEl.value.trim().toLowerCase();
     var filtered = query ? devices.filter(function (d) { return d.name.toLowerCase().indexOf(query) !== -1; }) : devices;
@@ -812,7 +844,9 @@ function onHomeyReady(Homey) {
     function renderRow(device) {
       var watchdog = watchdogByDeviceId[device.id];
       var nameHtml = escapeHtml(device.name) + ' <span class="badge ' + (device.available ? 'badge-active' : 'badge-danger') + '">' + (device.available ? 'Available' : 'Unavailable') + '</span>'
-        + (watchdog ? ' <span class="badge">Watchdog ' + watchdog.thresholdHours + 'h' + (watchdog.ignoreUnavailable ? ', silence only' : '') + '</span>' : '');
+        + (watchdog ? ' <span class="badge">Watchdog ' + watchdog.thresholdHours + 'h' + (watchdog.ignoreUnavailable ? ', silence only' : '') + '</span>' : '')
+        + (watchdog && watchdog.lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(watchdog.battery) + '%</span>' : '')
+        + (watchdog && Number.isFinite(watchdog.battery) && !watchdog.lowBattery ? ' <span class="badge">Battery ' + Math.round(watchdog.battery) + '%</span>' : '');
       var metaBits = [
         escapeHtml(device.zoneName || ''),
         nameCount[device.name] > 1 ? 'same name as another device - id ' + escapeHtml(String(device.id).slice(0, 8)) : null,
@@ -837,6 +871,17 @@ function onHomeyReady(Homey) {
       heading.className = 'entity-section';
       heading.textContent = title;
       container.appendChild(heading);
+    }
+    var missing = (watchdogs || []).filter(function (w) { return w.missing; });
+    if (missing.length) {
+      appendSection('Device no longer in Homey (' + missing.length + ')');
+      missing.forEach(function (w) {
+        var row = entityRow(escapeHtml(w.name) + ' <span class="badge badge-danger">Not found</span>', [escapeHtml(w.zoneName || ''), 'watchdog ' + w.thresholdHours + 'h']);
+        row.appendChild(entityActions([actionLink('Remove watchdog', function () {
+          api('DELETE', '/availability-watchdogs/' + w.deviceId).then(loadAll).catch(function (error) { Homey.alert(error.message || String(error)); });
+        }, true)]));
+        container.appendChild(row);
+      });
     }
     if (watched.length) appendSection('Watched by a watchdog (' + watched.length + ')');
     watched.forEach(renderRow);
@@ -1079,9 +1124,10 @@ function onHomeyReady(Homey) {
   function loadAll() {
     return Promise.all([
       api('GET', '/devices'), api('GET', '/groups'), api('GET', '/monitors?period=' + monitorPeriod), api('GET', '/voltage-monitors?period=' + monitorPeriod),
-      api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs')
+      api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs'), api('GET', '/availability-settings')
     ]).then(function (results) {
       allDevices = results[0];
+      availabilityDefaults = results[7];
       renderDeviceList();
       renderGroups(results[1]);
       renderMonitors(results[2]);

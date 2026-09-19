@@ -12,6 +12,7 @@ test('watchdogs: the ones that are down come first, with how long and why, then 
   ], now);
   assert.equal(summary.total, 3);
   assert.equal(summary.downCount, 1);
+  assert.deepEqual([summary.staleCount, summary.unavailableCount, summary.okCount], [1, 0, 2]);
   assert.deepEqual(summary.items.map((item) => item.name), ['Bomba', 'Alfa', 'Zeta']);
   assert.equal(summary.items[0].reason, 'stale');
   assert.equal(summary.items[0].downSeconds, 90);
@@ -21,7 +22,7 @@ test('watchdogs: the ones that are down come first, with how long and why, then 
 });
 
 test('watchdogs: nothing configured gives an empty summary, not an error', () => {
-  assert.deepEqual(watchdogsWidgetSummary(undefined), { total: 0, downCount: 0, items: [] });
+  assert.deepEqual(watchdogsWidgetSummary(undefined), { total: 0, downCount: 0, staleCount: 0, unavailableCount: 0, okCount: 0, lowBatteryCount: 0, items: [] });
 });
 
 test('voltage: keeps the reading, today\'s range and episodes, and the configured band; missing numbers stay null', () => {

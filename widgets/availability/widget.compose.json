@@ -2,12 +2,30 @@
   "name": {
     "en": "Sentinels Watchdogs"
   },
-  "height": 240,
-  "settings": [],
+  "height": 300,
+  "settings": [
+    {
+      "id": "title",
+      "type": "text",
+      "title": { "en": "Title" },
+      "hint": { "en": "Shown above the list. Leave empty for no title." },
+      "value": ""
+    },
+    {
+      "id": "onlyDown",
+      "type": "checkbox",
+      "title": { "en": "Only show devices that are down" },
+      "value": false
+    }
+  ],
   "api": {
     "getSummary": {
       "method": "GET",
       "path": "/summary"
+    },
+    "runCheck": {
+      "method": "POST",
+      "path": "/check"
     }
   }
 }

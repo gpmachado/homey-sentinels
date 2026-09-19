@@ -345,8 +345,46 @@
   <div class="tab-panel hidden" data-tab="availability">
     <h2>Device availability</h2>
     <p class="hint">All of Homey's devices, no configuration needed to just look — last seen and current availability. Add a watchdog to a device to also fire a Flow when it goes unavailable or stops reporting.</p>
+    <div class="actions">
+      <button type="button" id="availability-defaults-btn">Watchdog defaults</button>
+      <button type="button" id="availability-cleanup-btn" class="hidden">Remove watchdogs of missing devices</button>
+    </div>
     <input type="text" id="availability-filter" placeholder="Filter by name...">
     <div class="entity-list" id="availability-body"><div class="entity-empty">Loading…</div></div>
+
+    <div id="availability-defaults-form-wrapper" class="hidden modal-overlay">
+    <div class="modal-box">
+    <form id="availability-defaults-form">
+      <h2>Watchdog defaults</h2>
+      <label>Hours without reporting (for new watchdogs)
+        <input type="number" id="availability-defaults-defaultThresholdHours" min="1" step="1" required>
+      </label>
+      <label>Wait after the app starts (minutes)
+        <input type="number" id="availability-defaults-startupGraceMinutes" min="0" step="1" required>
+      </label>
+      <p class="hint">Delays only the first check after a restart, while drivers are still loading. 0 = right away.</p>
+      <label>Seconds a device must stay unavailable before it counts
+        <input type="number" id="availability-defaults-unavailableDelaySeconds" min="0" step="1" required>
+      </label>
+      <p class="hint">0 = instantly. Useful for devices that drop off for a moment and come back.</p>
+      <label>Battery warning at (%)
+        <input type="number" id="availability-defaults-batteryWarnPercent" min="0" max="100" step="1" required>
+      </label>
+      <p class="hint">0 turns the low battery check off.</p>
+      <label>Seconds a battery must stay low before it counts
+        <input type="number" id="availability-defaults-batteryDelaySeconds" min="0" step="1" required>
+      </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="availability-defaults-timelineNotifications">
+        Add an entry to Homey's timeline when a watched device goes down or its battery is low
+      </label>
+      <div class="actions">
+        <button type="submit">Save</button>
+        <button type="button" id="availability-defaults-cancel-btn">Cancel</button>
+      </div>
+    </form>
+    </div>
+    </div>
 
     <div id="availability-watchdog-form-wrapper" class="hidden modal-overlay">
     <div class="modal-box">
