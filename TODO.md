@@ -49,3 +49,21 @@ commercial SaaS (Functional Software, Inc.) — free tier with limits, not self-
 infrastructure. The library itself is open source (ISC); the destination service isn't. Revisit
 once the app is actually published and being used by real people, not just local testing —
 that's when unattended-crash visibility starts to matter.
+
+## Virtual device for state groups ("Sentinel Group") - deferred (2026-09-19)
+
+Widgets do not work in the Homey web/PC app, so a native device tile is the only view of a group
+that works everywhere. Design settled in conversation, not started:
+
+- Read-only, like the Linked Switch (gpm.linked.switches): dynamic `subdevice_state.N` capabilities
+  (`string`, `uiComponent: "sensor"`, `setable: false`), title = member name via `setCapabilityOptions`,
+  up to 10 slots + a summary text beyond that; plus `alarm_generic` (mismatch) and a mismatch count.
+- Member picker like Lightkeeper's "Choose lights" pair view (`drivers/schedule/pair/lights.html`):
+  tabs "Pick devices" / "Use a zone", cards grouped by zone, "include sub-zones", a "N of M support X"
+  summary, groups of 1 device allowed, a repair view to edit later. Zones resolve dynamically
+  (lightkeeper `DeviceCatalog.devicesInZone` walks descendant zones).
+- The device references a `groupId` in the store (pairing creates the group), so the group Flow cards,
+  the Settings page and the device share one source; state comes from the existing `_pollGroups`.
+- Costs: ~0.6 MB heap per device (Lightkeeper), custom pair-view HTML (styles must be scoped to a root id,
+  `homey app validate` cannot check views), 10-slot limit, unavailable-device handling on group delete.
+- Prerequisite: the memory work first (this adds fixed memory). Licence: Lightkeeper is MIT, PELS is GPL-3.0.
