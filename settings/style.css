@@ -11,6 +11,8 @@
   --color-success-bg: #e7f6ea;
   --color-danger: #b42318;
   --color-danger-bg: #fdecea;
+  --color-warn: #a15c00;
+  --color-warn-bg: #fff3dc;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -25,6 +27,8 @@
     --color-success-bg: #163a20;
     --color-danger: #ff6b60;
     --color-danger-bg: #4a1f1c;
+    --color-warn: #ffb547;
+    --color-warn-bg: #4a3512;
   }
 }
 * { box-sizing: border-box; }
@@ -87,6 +91,7 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .badge-active, .badge-ok { background: var(--color-success-bg); color: var(--color-success); }
 .badge-standby { background: var(--color-border); color: var(--color-muted); }
 .badge-danger, .badge-nok { background: var(--color-danger-bg); color: var(--color-danger); }
+.badge-warn { background: var(--color-warn-bg); color: var(--color-warn); }
 .badge-calibrating { background: var(--color-accent-bg); color: var(--color-accent); }
 /* Highlighted stat, e.g. a suggested threshold — normal-case (not a state badge) so it
    reads as a value, not a status. */

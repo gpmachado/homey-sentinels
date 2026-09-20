@@ -315,6 +315,14 @@ function onHomeyReady(Homey) {
     return date.toLocaleString();
   }
 
+  // "6 d", "5 h", "20 min" — how long a device has been silent, for the Availability list.
+  function silenceLabel(ms) {
+    var minutes = Math.floor(ms / 60000);
+    if (minutes < 60) return minutes + ' min';
+    var hours = Math.floor(minutes / 60);
+    return hours < 48 ? hours + ' h' : Math.floor(hours / 24) + ' d';
+  }
+
   function confirmAction(message, onConfirmed) {
     Homey.confirm(message, null, function (err, confirmed) {
       if (err || !confirmed) return;
@@ -843,7 +851,17 @@ function onHomeyReady(Homey) {
     container.innerHTML = '';
     function renderRow(device) {
       var watchdog = watchdogByDeviceId[device.id];
-      var nameHtml = escapeHtml(device.name) + ' <span class="badge ' + (device.available ? 'badge-active' : 'badge-danger') + '">' + (device.available ? 'Available' : 'Unavailable') + '</span>'
+      // A device that stays "available" while it has said nothing for days is not healthy: sleepy sensors
+      // never flip the flag when their battery dies. The same silence rule the watchdog uses (its own hours,
+      // or the default for devices without one) shows here as an amber "Silent" badge.
+      var lastSeenMs = device.lastSeenAt ? Date.parse(device.lastSeenAt) : NaN;
+      var silentMs = isNaN(lastSeenMs) ? 0 : Math.max(0, Date.now() - lastSeenMs);
+      var silentLimitHours = watchdog ? watchdog.thresholdHours : availabilityDefaults.defaultThresholdHours;
+      var silent = device.available && silentMs > silentLimitHours * 3600000;
+      var statusBadge = !device.available
+        ? '<span class="badge badge-danger">Unavailable</span>'
+        : (silent ? '<span class="badge ' + (watchdog && watchdog.wentUnavailableAt ? 'badge-danger' : 'badge-warn') + '">Silent ' + silenceLabel(silentMs) + '</span>' : '<span class="badge badge-active">Available</span>');
+      var nameHtml = escapeHtml(device.name) + ' ' + statusBadge
         + (watchdog ? ' <span class="badge">Watchdog ' + watchdog.thresholdHours + 'h' + (watchdog.ignoreUnavailable ? ', silence only' : '') + '</span>' : '')
         + (watchdog && watchdog.lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(watchdog.battery) + '%</span>' : '')
         + (watchdog && Number.isFinite(watchdog.battery) && !watchdog.lowBattery ? ' <span class="badge">Battery ' + Math.round(watchdog.battery) + '%</span>' : '');

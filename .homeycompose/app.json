@@ -1,6 +1,6 @@
 {
   "id": "com.gpm.sentinels",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -17,46 +17,162 @@
     "tools"
   ],
   "brandColor": "#FF6D00",
-  "permissions": ["homey:manager:api"],
+  "permissions": [
+    "homey:manager:api"
+  ],
   "api": {
-    "getDevices": { "method": "GET", "path": "/devices" },
-    "getDevicesStatus": { "method": "GET", "path": "/devices/status" },
-    "getAvailabilityWatchdogs": { "method": "GET", "path": "/availability-watchdogs" },
-    "createAvailabilityWatchdog": { "method": "POST", "path": "/availability-watchdogs" },
-    "deleteAvailabilityWatchdog": { "method": "DELETE", "path": "/availability-watchdogs/:deviceId" },
-    "cleanupAvailabilityWatchdogs": { "method": "POST", "path": "/availability-watchdogs-cleanup" },
-    "getAvailabilitySettings": { "method": "GET", "path": "/availability-settings" },
-    "setAvailabilitySettings": { "method": "POST", "path": "/availability-settings" },
-    "getGroups": { "method": "GET", "path": "/groups" },
-    "getMonitorsSummary": { "method": "GET", "path": "/monitors" },
-    "createActivityMonitor": { "method": "POST", "path": "/monitors" },
-    "deleteMonitor": { "method": "DELETE", "path": "/monitors/:id" },
-    "resetMonitor": { "method": "POST", "path": "/monitors/:id/reset" },
-    "updateMonitor": { "method": "PUT", "path": "/monitors/:id" },
-    "updateMonitorMessages": { "method": "PUT", "path": "/monitors/:id/messages" },
-    "getStateMonitorsSummary": { "method": "GET", "path": "/state-monitors" },
-    "createStateMonitor": { "method": "POST", "path": "/state-monitors" },
-    "deleteStateMonitor": { "method": "DELETE", "path": "/state-monitors/:id" },
-    "resetStateMonitor": { "method": "POST", "path": "/state-monitors/:id/reset" },
-    "updateStateMonitor": { "method": "PUT", "path": "/state-monitors/:id" },
-    "updateStateMonitorMessages": { "method": "PUT", "path": "/state-monitors/:id/messages" },
-    "getVoltageMonitorsSummary": { "method": "GET", "path": "/voltage-monitors" },
-    "createVoltageMonitor": { "method": "POST", "path": "/voltage-monitors" },
-    "deleteVoltageMonitor": { "method": "DELETE", "path": "/voltage-monitors/:id" },
-    "resetVoltageMonitor": { "method": "POST", "path": "/voltage-monitors/:id/reset" },
-    "updateVoltageMonitor": { "method": "PUT", "path": "/voltage-monitors/:id" },
-    "updateVoltageMonitorMessages": { "method": "PUT", "path": "/voltage-monitors/:id/messages" },
-    "getBinaryCountersSummary": { "method": "GET", "path": "/binary-counters" },
-    "createBinaryCounter": { "method": "POST", "path": "/binary-counters" },
-    "deleteBinaryCounter": { "method": "DELETE", "path": "/binary-counters/:id" },
-    "resetBinaryCounter": { "method": "POST", "path": "/binary-counters/:id/reset" },
-    "updateBinaryCounterMessage": { "method": "PUT", "path": "/binary-counters/:id/message" },
-    "createGroup": { "method": "POST", "path": "/groups" },
-    "updateGroup": { "method": "PUT", "path": "/groups/:id" },
-    "deleteGroup": { "method": "DELETE", "path": "/groups/:id" },
-    "checkGroupStatus": { "method": "GET", "path": "/groups/:id/check" },
-    "getTimezone": { "method": "GET", "path": "/timezone" },
-    "setTimezone": { "method": "POST", "path": "/timezone" }
+    "getDevices": {
+      "method": "GET",
+      "path": "/devices"
+    },
+    "getDevicesStatus": {
+      "method": "GET",
+      "path": "/devices/status"
+    },
+    "getAvailabilityWatchdogs": {
+      "method": "GET",
+      "path": "/availability-watchdogs"
+    },
+    "createAvailabilityWatchdog": {
+      "method": "POST",
+      "path": "/availability-watchdogs"
+    },
+    "deleteAvailabilityWatchdog": {
+      "method": "DELETE",
+      "path": "/availability-watchdogs/:deviceId"
+    },
+    "cleanupAvailabilityWatchdogs": {
+      "method": "POST",
+      "path": "/availability-watchdogs-cleanup"
+    },
+    "getAvailabilitySettings": {
+      "method": "GET",
+      "path": "/availability-settings"
+    },
+    "setAvailabilitySettings": {
+      "method": "POST",
+      "path": "/availability-settings"
+    },
+    "getGroups": {
+      "method": "GET",
+      "path": "/groups"
+    },
+    "getMonitorsSummary": {
+      "method": "GET",
+      "path": "/monitors"
+    },
+    "createActivityMonitor": {
+      "method": "POST",
+      "path": "/monitors"
+    },
+    "deleteMonitor": {
+      "method": "DELETE",
+      "path": "/monitors/:id"
+    },
+    "resetMonitor": {
+      "method": "POST",
+      "path": "/monitors/:id/reset"
+    },
+    "updateMonitor": {
+      "method": "PUT",
+      "path": "/monitors/:id"
+    },
+    "updateMonitorMessages": {
+      "method": "PUT",
+      "path": "/monitors/:id/messages"
+    },
+    "getStateMonitorsSummary": {
+      "method": "GET",
+      "path": "/state-monitors"
+    },
+    "createStateMonitor": {
+      "method": "POST",
+      "path": "/state-monitors"
+    },
+    "deleteStateMonitor": {
+      "method": "DELETE",
+      "path": "/state-monitors/:id"
+    },
+    "resetStateMonitor": {
+      "method": "POST",
+      "path": "/state-monitors/:id/reset"
+    },
+    "updateStateMonitor": {
+      "method": "PUT",
+      "path": "/state-monitors/:id"
+    },
+    "updateStateMonitorMessages": {
+      "method": "PUT",
+      "path": "/state-monitors/:id/messages"
+    },
+    "getVoltageMonitorsSummary": {
+      "method": "GET",
+      "path": "/voltage-monitors"
+    },
+    "createVoltageMonitor": {
+      "method": "POST",
+      "path": "/voltage-monitors"
+    },
+    "deleteVoltageMonitor": {
+      "method": "DELETE",
+      "path": "/voltage-monitors/:id"
+    },
+    "resetVoltageMonitor": {
+      "method": "POST",
+      "path": "/voltage-monitors/:id/reset"
+    },
+    "updateVoltageMonitor": {
+      "method": "PUT",
+      "path": "/voltage-monitors/:id"
+    },
+    "updateVoltageMonitorMessages": {
+      "method": "PUT",
+      "path": "/voltage-monitors/:id/messages"
+    },
+    "getBinaryCountersSummary": {
+      "method": "GET",
+      "path": "/binary-counters"
+    },
+    "createBinaryCounter": {
+      "method": "POST",
+      "path": "/binary-counters"
+    },
+    "deleteBinaryCounter": {
+      "method": "DELETE",
+      "path": "/binary-counters/:id"
+    },
+    "resetBinaryCounter": {
+      "method": "POST",
+      "path": "/binary-counters/:id/reset"
+    },
+    "updateBinaryCounterMessage": {
+      "method": "PUT",
+      "path": "/binary-counters/:id/message"
+    },
+    "createGroup": {
+      "method": "POST",
+      "path": "/groups"
+    },
+    "updateGroup": {
+      "method": "PUT",
+      "path": "/groups/:id"
+    },
+    "deleteGroup": {
+      "method": "DELETE",
+      "path": "/groups/:id"
+    },
+    "checkGroupStatus": {
+      "method": "GET",
+      "path": "/groups/:id/check"
+    },
+    "getTimezone": {
+      "method": "GET",
+      "path": "/timezone"
+    },
+    "setTimezone": {
+      "method": "POST",
+      "path": "/timezone"
+    }
   },
   "images": {
     "small": "/assets/images/small.png",
