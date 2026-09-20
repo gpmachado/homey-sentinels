@@ -33,6 +33,15 @@ module.exports = {
   async createAvailabilityWatchdog({ homey, body }) {
     return homey.app.inAppContext(() => homey.app._createAvailabilityWatchdog({ deviceId: body.deviceId, thresholdHours: Number(body.thresholdHours), ignoreUnavailable: body.ignoreUnavailable === true || body.ignoreUnavailable === 'true' }));
   },
+  async getAvailabilityScan({ homey }) {
+    return homey.app.getAvailabilityScanSummary();
+  },
+  async runAvailabilityScan({ homey }) {
+    return homey.app.inAppContext(() => homey.app.runAvailabilityScanNow());
+  },
+  async setAvailabilityExclusion({ homey, body }) {
+    return homey.app.setAvailabilityExclusion(body || {});
+  },
   async getAvailabilitySettings({ homey }) {
     return homey.app.store.getAvailabilitySettings();
   },

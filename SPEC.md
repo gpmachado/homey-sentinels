@@ -151,30 +151,39 @@ the devices live, no continuous subscription). `Devices` never get modified.
   fires once it clears. Not a real capability subscription: a mismatch that starts and resolves
   entirely between two polls is invisible to both triggers, and either can lag the real moment
   by up to the poll interval. `check_state_group` remains the only truly instant path.
-- **Known gap**: still no per-device open-count or time-with-any-mismatch *history* (only
-  today's accumulated `dailySummaries` estimate via `recordGroupPoll`/`groupStatistics`). Real
-  per-device event history would still require turning groups into a continuously-subscribed
-  live monitor, a larger architectural change than the rest of this list — not started.
+- **Per-device history is deliberately not built** (decided 2026-09-13, see `TODO.md`): a poll every
+  5 minutes cannot see a door open for 3 minutes between two polls, so per-device times taken from
+  it would be confidently wrong. Exact per-device numbers come from State Monitors (event-driven);
+  a "Generate individual monitors" button on a group is the planned way to get them.
 
-### 2.6 Availability Watchdog (`store.data.availabilityWatchdogs`)
+### 2.6 Availability (`store.data.availabilityWatchdogs`, `availabilitySettings`, `availabilityScan`)
 
-Flags a plain Homey device (not a Sentinels monitor) going offline. Keyed by `deviceId` itself,
-not a synthetic id — one watchdog per device, since there's nothing else to disambiguate.
-Polled, not subscribed, off `HomeyDeviceGateway`'s existing device cache — same rationale as
-State Groups above, no new subscription mechanism needed.
+Flags a plain Homey device (not a Sentinels monitor) that went offline or quiet. Two layers share
+the same rules (`lib/availability.js`):
 
-- Cards: `add_availability_watchdog` (upserts by device — re-running just updates the
-  threshold), `remove_availability_watchdog`, triggers `device_became_unavailable`/
-  `device_became_available`, condition `is_device_available` (reads the live `available` flag
-  directly, no watchdog required).
-- Combines two signals per `analise/NOTA_DISPONIBILIDADE_FLOWS.md`'s design: the device's own
-  `available` flag (instant, but only accurate for drivers that actively manage it) and
-  `lastSeenAt` staleness against a per-watchdog `thresholdHours` (covers drivers that never
-  touch `available` at all). A single global threshold was rejected up front — it's exactly what
-  made the third-party "Device Watchdog" app's own detection unreliable in the user's own setup
-  (151/307 devices false-flagged with one generic threshold).
-- **Explicitly out of scope**: battery-level monitoring, active reachability/ping testing,
-  "newly found" aggregate triggers — see the design note for the reasoning.
+- **Watchdogs** (opt-in, keyed by `deviceId`): a device watched on its own, with its own
+  `thresholdHours` and an `ignoreUnavailable` option for appliances that go unavailable on purpose.
+  Each is read individually with `getDevice` every 10 minutes (never the whole list), so it fires
+  the `device_became_unavailable` / `device_became_available` / `device_battery_low` Flow triggers.
+- **All-devices scan** (on by default, `lib/availability-scan.js`, `lib/app/availability-scan.js`):
+  every device without a watchdog is judged with the defaults, like the Device Watchdog app. It
+  reads the whole device list once per interval (60 min) and lets it go right after. The first scan
+  only records what is already wrong; later ones announce each *new* problem once
+  (`device_problem_detected` trigger, at most 10 per scan, plus one Homey timeline entry). Devices,
+  zones and whole apps (`ownerUri`, for virtual devices such as Linked Switches) can be ignored.
+
+Signals per device: the driver's `available` flag, `lastSeenAt` older than the threshold (a device
+never seen is not called stale), and `measure_battery` at or below the warning percent. The defaults
+(Settings -> Availability -> Watchdog defaults): silence hours (12), wait after app start (2 min),
+seconds a device must stay unavailable / a battery must stay low, battery warning percent (30, 0 = off),
+timeline entries, scan on/off and interval. Settings shows the same rule as an amber "Silent N d" badge,
+because sleepy sensors never flip `available` when they die.
+
+- Cards: `add_availability_watchdog` (upserts by device), `remove_availability_watchdog`, triggers above,
+  condition `is_device_available` (live `available` flag, no watchdog required).
+- Watchdogs whose device is gone from Homey are flagged after 3 polls in a row and can be removed.
+- **Explicitly out of scope**: active reachability/ping testing. `lastSeenAt` is Homey's own; the third-party
+  Device Watchdog app flags 161 of 305 devices with a 24 h limit because it counts only real value changes.
 
 ## 3. Shared engine mechanics (`lib/activity-engine.js`)
 

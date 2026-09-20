@@ -1,0 +1,12 @@
+{
+  "title": { "en": "A device needs attention" },
+  "titleFormatted": { "en": "A device stopped reporting, is unavailable or has a low battery" },
+  "hint": { "en": "Fires once for each device that newly turns up as a problem in the all-devices scan (Settings -> Availability), for devices that have no watchdog of their own. The very first scan only records what is already wrong. At most 10 per scan; a summary also goes to the Homey timeline." },
+  "tokens": [
+    { "name": "device", "type": "string", "title": { "en": "Device" } },
+    { "name": "zone", "type": "string", "title": { "en": "Zone" } },
+    { "name": "last_seen", "type": "string", "title": { "en": "Last seen" } },
+    { "name": "reason", "type": "string", "title": { "en": "Reason (stale, unavailable or low_battery)" } },
+    { "name": "battery", "type": "number", "title": { "en": "Battery (%)" } }
+  ]
+}

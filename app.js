@@ -84,7 +84,8 @@ class StatisticTrackerApp extends Homey.App {
     this.availabilityCards = {
       unavailable: this.homey.flow.getTriggerCard('device_became_unavailable'),
       available: this.homey.flow.getTriggerCard('device_became_available'),
-      batteryLow: this.homey.flow.getTriggerCard('device_battery_low')
+      batteryLow: this.homey.flow.getTriggerCard('device_battery_low'),
+      problem: this.homey.flow.getTriggerCard('device_problem_detected')
     };
     this._registerFlowCards();
     this._registerWidgets();
@@ -119,6 +120,7 @@ class StatisticTrackerApp extends Homey.App {
     this.homey.setTimeout(() => {
       this._pollAvailabilityWatchdogs().catch((error) => this.error('Failed to poll availability watchdogs', error));
       this._scheduleWithBackoff('Availability watchdog polling', () => this._pollAvailabilityWatchdogs(), AVAILABILITY_POLL_INTERVAL_MS);
+      this._scheduleAvailabilityScan(0);
     }, graceMs);
     // Resuming a monitor needs its device: right after a Homey reboot the apps start before the
     // devices are ready, so a failed attempt is retried with growing waits instead of leaving the
@@ -271,6 +273,7 @@ class StatisticTrackerApp extends Homey.App {
 // The app's behaviour is split by concern under lib/app/. Each module exports plain methods that are
 // mixed into the prototype, so they keep using `this` (store, gateway, homey) exactly as before.
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/activity'));
+Object.assign(StatisticTrackerApp.prototype, require('./lib/app/availability-scan'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/availability-watchdogs'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/flow-cards'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/groups'));

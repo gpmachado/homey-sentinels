@@ -1,7 +1,7 @@
 /env.json
 /node_modules/
 /.homeybuild/
-
+SUGESTOES_E_OTIMIZACOES.md
 # Regenerated on every commit by .git/hooks/post-commit (see scripts/write-build-info.js) —
 # not meaningful to version, always reflects the current HEAD.
 /build-info.json

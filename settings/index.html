@@ -345,7 +345,12 @@
   <div class="tab-panel hidden" data-tab="availability">
     <h2>Device availability</h2>
     <p class="hint">All of Homey's devices, no configuration needed to just look — last seen and current availability. Add a watchdog to a device to also fire a Flow when it goes unavailable or stops reporting.</p>
+    <div id="availability-scan" class="hidden">
+      <div class="tiles" id="availability-scan-tiles"></div>
+      <p class="hint" id="availability-scan-stamp"></p>
+    </div>
     <div class="actions">
+      <button type="button" id="availability-scan-btn" class="hidden">Scan now</button>
       <button type="button" id="availability-defaults-btn">Watchdog defaults</button>
       <button type="button" id="availability-cleanup-btn" class="hidden">Remove watchdogs of missing devices</button>
     </div>
@@ -373,6 +378,14 @@
       <p class="hint">0 turns the low battery check off.</p>
       <label>Seconds a battery must stay low before it counts
         <input type="number" id="availability-defaults-batteryDelaySeconds" min="0" step="1" required>
+      </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="availability-defaults-scanAll">
+        Check every device that has no watchdog, with these defaults
+      </label>
+      <p class="hint">Reads the whole device list once per interval below. Turn it off to watch only the devices you added a watchdog to.</p>
+      <label>Scan every (minutes)
+        <input type="number" id="availability-defaults-scanIntervalMinutes" min="5" step="1" required>
       </label>
       <label class="checkbox-row">
         <input type="checkbox" id="availability-defaults-timelineNotifications">

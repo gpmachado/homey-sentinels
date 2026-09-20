@@ -1,5 +1,51 @@
 # TODO
 
+## Pending (2026-09-20)
+
+### To verify on the Homey (built and unit-tested, not yet seen running)
+- Availability tab: scan tiles and filters, **Scan now**, **Ignore** / **Ignore app** / include again, the
+  amber **Silent N d** badge, low battery badge, the "Watchdog defaults" form (incl. scan on/off + interval),
+  the "Device no longer in Homey" section and its cleanup button.
+- Flow: `device_problem_detected` (fires once per new problem, first scan is silent), `device_battery_low`,
+  Homey timeline entries, "wait after app start" and the "must stay unavailable N s" delay with its recheck.
+- Widgets: Watchdogs (filter tiles, zone, **Check now**, title / only-down settings), Overview
+  "Show every monitor" + kind filter, Voltage, the fixed Sentinel header; dark mode of all of them.
+- Older, still unchecked: the group **Check** button, Flow autocompletes, the "ignore unavailable" checkbox,
+  monitor resume retry after a failed start.
+- Check the amber badge on "Motion Sensor Despensa" (silent since 13/09): possibly a dead sensor, not a false alarm.
+
+### To build
+- **Generate individual monitors** button on a Group (design in the section below; not started).
+- **Ignore zone** in the Availability tab (the scan already honours excluded zones; only the button is missing).
+- Widget settings like the Energy KPI Monitor's, editable after creation: Voltage (which monitors, period
+  Day/Week/Month, view) and Overview (one list instead of five `monitorN` slots).
+- Suggest the silence limit by device kind when adding a watchdog (battery sensor 24 h, mains plug 1 h).
+- Scan option "silence only" per device (like a watchdog's `ignoreUnavailable`) instead of ignoring it entirely,
+  and an `ignoreUnavailable` argument on the `add_availability_watchdog` Flow card.
+- **Energy widget for the Shelly Pro** in the Energy KPI Monitor style: live W, kWh today / week / month, cost with a
+  kWh price, top zone or consumers. (KPI Monitor is closed source; only its store page and settings are known.)
+- More widgets: group members, running now, 24 h chart, compact badge; 365-day daily summaries / a "year" period.
+- Sentinel Group virtual device (section below): the only view of a group in the web app.
+- Docs: README / HOWTO for the scan and the new trigger; NL / DE translations are low priority.
+- Tests do not cover the Settings HTML, the widgets or real Homey I/O.
+
+### Housekeeping
+- Commit and push the scan work, the SPEC update and the 1.0.2 version alignment (working tree only right now).
+- Promote build 1.0.2 in the Homey developer dashboard; write the 1.0.3 changelog for the scan
+  (no double quotes or apostrophes in `.homeychangelog.json`: the CLI's own commit breaks on them).
+- `.git/hooks/post-commit` is missing on this clone, so the build stamp in the log goes stale; run `npm run stamp`
+  before `homey app run -r` (or recreate the hook).
+- Delete the throwaway probe app `/Users/gabriel/HomeyApp/memprobe` and its dev install on the Homey.
+- Ask the Athom forum whether apps will move to Node 24 (no way to select the Node version from the app; v22.23 now).
+
+### Decided against
+- Watchdog opt-out by default was replaced by the scan with sane defaults; a device-class adaptive threshold
+  (median of report intervals) was judged fragile for sensors that only report on change.
+- Statistics library (nothing beyond mean / median / percentile is needed), per-device matrix in Groups,
+  "action fires an internal trigger" for Standard Flow (a trigger cannot return values to the calling Flow),
+  `cumulative` / energy sign convention (the app exposes no capabilities), the Device Watchdog style virtual
+  device with four counters (the widget covers it).
+
 ## Settings — Activity/State Monitor missing "Edit" — DONE (2026-09-13)
 
 Both now have an **Edit** action, matching Voltage's. Activity: threshold/continuity/min-

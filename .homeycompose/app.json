@@ -45,6 +45,18 @@
       "method": "POST",
       "path": "/availability-watchdogs-cleanup"
     },
+    "getAvailabilityScan": {
+      "method": "GET",
+      "path": "/availability-scan"
+    },
+    "runAvailabilityScan": {
+      "method": "POST",
+      "path": "/availability-scan"
+    },
+    "setAvailabilityExclusion": {
+      "method": "POST",
+      "path": "/availability-exclusions"
+    },
     "getAvailabilitySettings": {
       "method": "GET",
       "path": "/availability-settings"

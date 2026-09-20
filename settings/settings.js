@@ -766,12 +766,87 @@ function onHomeyReady(Homey) {
   var availabilityWatchdogThresholdInput = document.getElementById('availability-watchdog-thresholdHours');
   var editingWatchdogDeviceId = null;
   var availabilityDefaults = { defaultThresholdHours: 12 };
-  var DEFAULT_FIELDS = ['defaultThresholdHours', 'startupGraceMinutes', 'unavailableDelaySeconds', 'batteryWarnPercent', 'batteryDelaySeconds'];
+  // What the all-devices scan found (see the Availability tab): null until Settings has asked, then the
+  // API's summary. `scanFilter` is the tile the user tapped to narrow the list.
+  var lastScan = null;
+  var scanFilter = null;
+  var scanProblemById = {};
+  var excludedIds = {};
+  var excludedAppIds = {};
+  function shortApp(uri) { return String(uri || '').replace(/^homey:app:/, ''); }
+  function isScanIgnored(device) { return !!(excludedIds[device.id] || (device.ownerUri && excludedAppIds[device.ownerUri])); }
+  function renderScanTiles() {
+    var wrapper = document.getElementById('availability-scan');
+    var scanButton = document.getElementById('availability-scan-btn');
+    var enabled = lastScan && lastScan.enabled;
+    scanButton.classList.toggle('hidden', !enabled);
+    scanProblemById = {};
+    excludedIds = {};
+    excludedAppIds = {};
+    if (lastScan) {
+      lastScan.excludedDevices.forEach(function (d) { excludedIds[d.id] = true; });
+      lastScan.excludedApps.forEach(function (uri) { excludedAppIds[uri] = true; });
+    }
+    if (!enabled || !lastScan.scan) {
+      wrapper.classList.toggle('hidden', !enabled);
+      document.getElementById('availability-scan-tiles').innerHTML = '';
+      document.getElementById('availability-scan-stamp').textContent = enabled ? 'The first scan runs a couple of minutes after the app starts. Press Scan now to run it.' : '';
+      return;
+    }
+    var scan = lastScan.scan;
+    scan.problems.forEach(function (p) { scanProblemById[p.id] = p; });
+    var tiles = [
+      ['stale', scan.counts.stale, 'Not reporting', 'is-bad'],
+      ['unavailable', scan.counts.unavailable, 'Unavailable', 'is-bad'],
+      ['battery', scan.counts.lowBattery, 'Low battery', 'is-warn'],
+      ['ok', Math.max(0, scan.monitored - scan.problems.length), 'OK', '']
+    ];
+    var box = document.getElementById('availability-scan-tiles');
+    box.innerHTML = '';
+    tiles.forEach(function (tile) {
+      var el = document.createElement('button');
+      el.type = 'button';
+      el.className = 'tile' + (tile[1] && tile[3] ? ' ' + tile[3] : '') + (scanFilter === tile[0] ? ' active' : '');
+      el.innerHTML = '<span class="tile-count"></span><span class="tile-label"></span>';
+      el.querySelector('.tile-count').textContent = tile[1];
+      el.querySelector('.tile-label').textContent = tile[2];
+      el.addEventListener('click', function () { scanFilter = scanFilter === tile[0] ? null : tile[0]; renderScanTiles(); renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs); });
+      box.appendChild(el);
+    });
+    var ignoredApps = lastScan.excludedApps.map(shortApp);
+    document.getElementById('availability-scan-stamp').textContent = (ignoredApps.length ? 'Ignoring every device of: ' + ignoredApps.join(', ') + '. ' : '') + scan.monitored + ' devices without a watchdog checked, last scan ' + new Date(scan.at).toLocaleString() + '. Silent for more than ' + availabilityDefaults.defaultThresholdHours + ' h counts as not reporting.';
+    wrapper.classList.remove('hidden');
+  }
+  document.getElementById('availability-scan-btn').addEventListener('click', function () {
+    var button = document.getElementById('availability-scan-btn');
+    button.disabled = true;
+    api('POST', '/availability-scan').then(function (summary) {
+      lastScan = summary;
+      renderScanTiles();
+      renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
+    }).catch(function (error) { Homey.alert(error.message || String(error)); }).then(function () { button.disabled = false; });
+  });
+  function setAppExclusion(uri, excluded) {
+    api('POST', '/availability-exclusions', { app: uri, excluded: excluded }).then(function (summary) {
+      lastScan = summary;
+      renderScanTiles();
+      renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
+    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+  }
+  function setExclusion(device, excluded) {
+    api('POST', '/availability-exclusions', { deviceId: device.id, name: device.name, excluded: excluded }).then(function (summary) {
+      lastScan = summary;
+      renderScanTiles();
+      renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
+    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+  }
+  var DEFAULT_FIELDS = ['defaultThresholdHours', 'startupGraceMinutes', 'unavailableDelaySeconds', 'batteryWarnPercent', 'batteryDelaySeconds', 'scanIntervalMinutes'];
   var defaultsFormWrapper = document.getElementById('availability-defaults-form-wrapper');
   function defaultsField(name) { return document.getElementById('availability-defaults-' + name); }
   function fillDefaultsForm(settings) {
     DEFAULT_FIELDS.forEach(function (name) { defaultsField(name).value = settings[name]; });
     defaultsField('timelineNotifications').checked = settings.timelineNotifications !== false;
+    defaultsField('scanAll').checked = settings.scanAll !== false;
   }
   document.getElementById('availability-defaults-btn').addEventListener('click', function () {
     api('GET', '/availability-settings').then(function (settings) {
@@ -783,11 +858,12 @@ function onHomeyReady(Homey) {
   document.getElementById('availability-defaults-cancel-btn').addEventListener('click', function () { closeModal(defaultsFormWrapper); });
   document.getElementById('availability-defaults-form').addEventListener('submit', function (event) {
     event.preventDefault();
-    var body = { timelineNotifications: defaultsField('timelineNotifications').checked };
+    var body = { timelineNotifications: defaultsField('timelineNotifications').checked, scanAll: defaultsField('scanAll').checked };
     DEFAULT_FIELDS.forEach(function (name) { body[name] = Number(defaultsField(name).value); });
     api('POST', '/availability-settings', body).then(function (saved) {
       availabilityDefaults = saved;
       closeModal(defaultsFormWrapper);
+      loadAll();
     }).catch(function (error) { Homey.alert(error.message || String(error)); });
   });
   document.getElementById('availability-cleanup-btn').addEventListener('click', function () {
@@ -847,7 +923,20 @@ function onHomeyReady(Homey) {
     var nameCount = {};
     devices.forEach(function (d) { nameCount[d.name] = (nameCount[d.name] || 0) + 1; });
     var watched = filtered.filter(function (d) { return watchdogByDeviceId[d.id]; }).sort(byRisk);
-    var others = filtered.filter(function (d) { return !watchdogByDeviceId[d.id]; }).sort(byRisk);
+    var scanOn = lastScan && lastScan.enabled;
+    var ignored = scanOn ? filtered.filter(function (d) { return isScanIgnored(d) && !watchdogByDeviceId[d.id]; }).sort(byRisk) : [];
+    var others = filtered.filter(function (d) { return !watchdogByDeviceId[d.id] && !(scanOn && isScanIgnored(d)); }).sort(byRisk);
+    if (scanOn && scanFilter) {
+      // A tapped scan tile narrows the list to the devices the scan put in that group.
+      others = others.filter(function (d) {
+        var problem = scanProblemById[d.id];
+        if (scanFilter === 'ok') return !problem;
+        if (!problem) return false;
+        return scanFilter === 'battery' ? problem.lowBattery : problem.reason === scanFilter;
+      });
+      watched = [];
+      ignored = [];
+    }
     container.innerHTML = '';
     function renderRow(device) {
       var watchdog = watchdogByDeviceId[device.id];
@@ -864,16 +953,32 @@ function onHomeyReady(Homey) {
       var nameHtml = escapeHtml(device.name) + ' ' + statusBadge
         + (watchdog ? ' <span class="badge">Watchdog ' + watchdog.thresholdHours + 'h' + (watchdog.ignoreUnavailable ? ', silence only' : '') + '</span>' : '')
         + (watchdog && watchdog.lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(watchdog.battery) + '%</span>' : '')
-        + (watchdog && Number.isFinite(watchdog.battery) && !watchdog.lowBattery ? ' <span class="badge">Battery ' + Math.round(watchdog.battery) + '%</span>' : '');
+        + (watchdog && Number.isFinite(watchdog.battery) && !watchdog.lowBattery ? ' <span class="badge">Battery ' + Math.round(watchdog.battery) + '%</span>' : '')
+        + (!watchdog && scanProblemById[device.id] && scanProblemById[device.id].lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(scanProblemById[device.id].battery) + '%</span>' : '');
       var metaBits = [
         escapeHtml(device.zoneName || ''),
         nameCount[device.name] > 1 ? 'same name as another device - id ' + escapeHtml(String(device.id).slice(0, 8)) : null,
         'last seen ' + formatLastSeen(device.lastSeenAt),
+        scanOn && device.ownerUri ? 'app ' + escapeHtml(shortApp(device.ownerUri)) : null,
         !device.available && device.unavailableMessage ? escapeHtml(device.unavailableMessage) : null
       ];
       var row = entityRow(nameHtml, metaBits);
       if (!device.available) row.classList.add('unavailable-row');
       var actionButtons = [actionLink(watchdog ? 'Edit watchdog' : 'Add watchdog', function () { openAvailabilityWatchdogForm(device, watchdog); })];
+      if (!watchdog && scanOn) {
+        if (device.ownerUri && excludedAppIds[device.ownerUri]) {
+          actionButtons.push(actionLink('Include app', function () { setAppExclusion(device.ownerUri, false); }));
+        } else if (excludedIds[device.id]) {
+          actionButtons.push(actionLink('Include in scan', function () { setExclusion(device, false); }));
+        } else {
+          actionButtons.push(actionLink('Ignore', function () { setExclusion(device, true); }));
+          if (device.ownerUri) {
+            actionButtons.push(actionLink('Ignore app', function () {
+              confirmAction('Ignore every device of the app "' + shortApp(device.ownerUri) + '" in the scan?', function () { setAppExclusion(device.ownerUri, true); });
+            }));
+          }
+        }
+      }
       if (watchdog) {
         actionButtons.push(actionLink('Remove watchdog', function () {
           confirmAction('Stop watching "' + device.name + '" for availability?', function () {
@@ -905,6 +1010,10 @@ function onHomeyReady(Homey) {
     watched.forEach(renderRow);
     if (watched.length && others.length) appendSection('All other devices (' + others.length + ')');
     others.forEach(renderRow);
+    if (ignored.length) {
+      appendSection('Ignored by the scan (' + ignored.length + ')');
+      ignored.forEach(renderRow);
+    }
   }
 
   // Shared by the three "Add monitor" forms below — same device-then-capability picker
@@ -1142,10 +1251,12 @@ function onHomeyReady(Homey) {
   function loadAll() {
     return Promise.all([
       api('GET', '/devices'), api('GET', '/groups'), api('GET', '/monitors?period=' + monitorPeriod), api('GET', '/voltage-monitors?period=' + monitorPeriod),
-      api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs'), api('GET', '/availability-settings')
+      api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs'), api('GET', '/availability-settings'), api('GET', '/availability-scan')
     ]).then(function (results) {
       allDevices = results[0];
       availabilityDefaults = results[7];
+      lastScan = results[8];
+      renderScanTiles();
       renderDeviceList();
       renderGroups(results[1]);
       renderMonitors(results[2]);

@@ -1,6 +1,7 @@
 # Reference material and prototype — not part of the shipped app bundle
 analise/
-
+SUGESTOES_E_OTIMIZACOES.md
+*.log
 # Dev-only — never needed to run the app, just bloats the package installed on the Homey Pro
 test/
 package-lock.json

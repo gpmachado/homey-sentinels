@@ -22,7 +22,7 @@ test('watchdogs: the ones that are down come first, with how long and why, then 
 });
 
 test('watchdogs: nothing configured gives an empty summary, not an error', () => {
-  assert.deepEqual(watchdogsWidgetSummary(undefined), { total: 0, downCount: 0, staleCount: 0, unavailableCount: 0, okCount: 0, lowBatteryCount: 0, items: [] });
+  assert.deepEqual(watchdogsWidgetSummary(undefined), { total: 0, downCount: 0, staleCount: 0, unavailableCount: 0, okCount: 0, lowBatteryCount: 0, scanning: false, items: [] });
 });
 
 test('voltage: keeps the reading, today\'s range and episodes, and the configured band; missing numbers stay null', () => {
