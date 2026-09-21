@@ -354,6 +354,11 @@
       <button type="button" id="availability-defaults-btn">Watchdog defaults</button>
       <button type="button" id="availability-cleanup-btn" class="hidden">Remove watchdogs of missing devices</button>
     </div>
+    <details id="availability-apps" class="hidden">
+      <summary>Apps: skip some, or give them a longer silence limit</summary>
+      <p class="hint">Tick an app to leave its devices out of the scan (virtual devices that only report when used). Or type hours next to it to give that app its own silence limit: solar panels are quiet all night, so 36 h keeps a real failure visible without a daily false alarm.</p>
+      <div class="device-list" id="availability-apps-body"></div>
+    </details>
     <input type="text" id="availability-filter" placeholder="Filter by name...">
     <div class="entity-list" id="availability-body"><div class="entity-empty">Loading…</div></div>
 
@@ -384,6 +389,11 @@
         Check every device that has no watchdog, with these defaults
       </label>
       <p class="hint">Reads the whole device list once per interval below. Turn it off to watch only the devices you added a watchdog to.</p>
+      <label class="checkbox-row">
+        <input type="checkbox" id="availability-defaults-scanAnnounceSilent">
+        Also announce devices that are only silent (timeline and Flow)
+      </label>
+      <p class="hint">Off by default: a switch that only reports when pressed is silent for hours. Unavailable devices and low batteries are always announced. Silent devices still show in the list, the tiles and the widget.</p>
       <label>Scan every (minutes)
         <input type="number" id="availability-defaults-scanIntervalMinutes" min="5" step="1" required>
       </label>

@@ -79,3 +79,38 @@ test('scan: every device of an ignored app is left out (virtual devices that nev
   assert.deepEqual(result.problems.map((p) => p.id), ['real']);
   assert.equal(result.problems[0].ownerUri, 'homey:app:com.x');
 });
+
+test('announceable: silence alone is not announced unless asked for; unavailable and low battery always are', () => {
+  const { announceable } = require('../lib/availability-scan');
+  const problems = [
+    { id: 'quiet', reason: 'stale', lowBattery: false, isNew: true },
+    { id: 'gone', reason: 'unavailable', lowBattery: false, isNew: true },
+    { id: 'quiet-weak', reason: 'stale', lowBattery: true, isNew: true },
+    { id: 'old', reason: 'unavailable', lowBattery: false, isNew: false }
+  ];
+  const off = announceable(problems, normalizeAvailabilitySettings({}));
+  assert.deepEqual(off.map((p) => [p.id, p.reason]), [['gone', 'unavailable'], ['quiet-weak', null]]);
+  const on = announceable(problems, normalizeAvailabilitySettings({ scanAnnounceSilent: true }));
+  assert.deepEqual(on.map((p) => p.id), ['quiet', 'gone', 'quiet-weak']);
+});
+
+test('scan: an app can have its own silence limit (solar panels are quiet all night)', () => {
+  const solar = (id, hours) => device(id, { ownerUri: 'homey:app:solar', lastSeenAt: hoursAgo(hours) });
+  const list = [solar('night', 13), solar('dead', 40), device('plain', { lastSeenAt: hoursAgo(13) })];
+  const result = scanDevices(list, { settings, now: NOW, exclusions: { appHours: { 'homey:app:solar': 36 } } });
+  assert.deepEqual(result.problems.map((p) => p.id).sort(), ['dead', 'plain']); // 13 h passes for the solar app, not for the rest
+  assert.equal(result.problems.find((p) => p.id === 'dead').thresholdHours, 36);
+});
+
+test('store: an app limit is kept, clamped, and removed by an empty value', async () => {
+  const SentinelStore = require('../lib/store');
+  const data = {};
+  const store = new SentinelStore({ get: (k) => data[k], set: async (k, v) => { data[k] = v; } });
+  await store.load();
+  store.setAppHours('homey:app:solar', 36.4);
+  assert.equal(store.data.availabilityExclusions.appHours['homey:app:solar'], 36);
+  store.setAppHours('homey:app:solar', 999999);
+  assert.equal(store.data.availabilityExclusions.appHours['homey:app:solar'], 24 * 90);
+  store.setAppHours('homey:app:solar', 0);
+  assert.equal(store.data.availabilityExclusions.appHours['homey:app:solar'], undefined);
+});

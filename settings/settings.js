@@ -814,7 +814,12 @@ function onHomeyReady(Homey) {
       box.appendChild(el);
     });
     var ignoredApps = lastScan.excludedApps.map(shortApp);
-    document.getElementById('availability-scan-stamp').textContent = (ignoredApps.length ? 'Ignoring every device of: ' + ignoredApps.join(', ') + '. ' : '') + scan.monitored + ' devices without a watchdog checked, last scan ' + new Date(scan.at).toLocaleString() + '. Silent for more than ' + availabilityDefaults.defaultThresholdHours + ' h counts as not reporting.';
+    // Many silent devices from one app usually means virtual or event-only devices: point at Ignore app.
+    var silentByApp = {};
+    scan.problems.forEach(function (p) { if (p.reason === 'stale' && p.ownerUri) silentByApp[p.ownerUri] = (silentByApp[p.ownerUri] || 0) + 1; });
+    var topApp = Object.keys(silentByApp).sort(function (a, b) { return silentByApp[b] - silentByApp[a]; })[0];
+    var appHint = topApp && silentByApp[topApp] >= 5 ? silentByApp[topApp] + ' of the silent devices belong to ' + shortApp(topApp) + '; if they only report when used, press Ignore app on one of them. ' : '';
+    document.getElementById('availability-scan-stamp').textContent = appHint + (ignoredApps.length ? 'Ignoring every device of: ' + ignoredApps.join(', ') + '. ' : '') + scan.monitored + ' devices without a watchdog checked, last scan ' + new Date(scan.at).toLocaleString() + '. Silent for more than ' + availabilityDefaults.defaultThresholdHours + ' h counts as not reporting.';
     wrapper.classList.remove('hidden');
   }
   document.getElementById('availability-scan-btn').addEventListener('click', function () {
@@ -826,6 +831,70 @@ function onHomeyReady(Homey) {
       renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
     }).catch(function (error) { Homey.alert(error.message || String(error)); }).then(function () { button.disabled = false; });
   });
+  // One row per app that owns devices, with how many devices it has, how many the scan flags, and a switch to
+  // skip the whole app. Built from the device list already on the page, so it costs nothing extra.
+  function renderAppList(devices, watchdogs) {
+    var details = document.getElementById('availability-apps');
+    var body = document.getElementById('availability-apps-body');
+    var scanOn = lastScan && lastScan.enabled;
+    var watchedIds = {};
+    (watchdogs || []).forEach(function (w) { watchedIds[w.deviceId] = true; });
+    var apps = {};
+    (devices || []).forEach(function (d) {
+      if (!d.ownerUri || watchedIds[d.id]) return;
+      var app = apps[d.ownerUri] || (apps[d.ownerUri] = { uri: d.ownerUri, devices: 0, flagged: 0 });
+      app.devices += 1;
+      if (scanProblemById[d.id]) app.flagged += 1;
+    });
+    lastScan && lastScan.excludedApps.forEach(function (uri) { if (!apps[uri]) apps[uri] = { uri: uri, devices: 0, flagged: 0 }; });
+    // By name only, so ticking an app doesn't make it jump to another place in the list.
+    var list = Object.keys(apps).map(function (uri) { return apps[uri]; }).sort(function (a, b) { return shortApp(a.uri).localeCompare(shortApp(b.uri)); });
+    details.classList.toggle('hidden', !scanOn || !list.length);
+    body.innerHTML = '';
+    var appHours = (lastScan && lastScan.appHours) || {};
+    list.forEach(function (app) {
+      var row = document.createElement('div');
+      row.className = 'app-row';
+      var label = document.createElement('label');
+      var box = document.createElement('input');
+      box.type = 'checkbox';
+      box.checked = !!excludedAppIds[app.uri];
+      box.addEventListener('change', function () { setAppExclusion(app.uri, box.checked); });
+      var text = document.createElement('span');
+      text.textContent = shortApp(app.uri) + ' - ' + app.devices + ' device' + (app.devices === 1 ? '' : 's') + (app.flagged ? ', ' + app.flagged + ' flagged' : '');
+      label.appendChild(box);
+      label.appendChild(text);
+      // Its own silence limit, for an app whose devices are quiet for long stretches (solar panels at night).
+      var hours = document.createElement('input');
+      hours.type = 'number';
+      hours.min = '1';
+      hours.className = 'app-hours';
+      hours.title = 'Hours of silence before this app\'s devices count as not reporting (empty = the default)';
+      hours.placeholder = String(availabilityDefaults.defaultThresholdHours);
+      hours.value = appHours[app.uri] || '';
+      hours.disabled = box.checked;
+      hours.addEventListener('change', function () { setAppHours(app.uri, hours.value); });
+      var unit = document.createElement('span');
+      unit.className = 'hint';
+      unit.textContent = 'h';
+      row.appendChild(label);
+      row.appendChild(hours);
+      row.appendChild(unit);
+      body.appendChild(row);
+    });
+  }
+  function setAppHours(uri, value) {
+    var hours = Math.round(Number(value));
+    api('POST', '/availability-exclusions', { app: uri, hours: Number.isFinite(hours) && hours > 0 ? hours : 0 }).then(function (summary) {
+      lastScan = summary;
+      renderScanTiles();
+      renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
+      // The scan runs again a moment after the change; fetch its result then.
+      setTimeout(function () {
+        api('GET', '/availability-scan').then(function (fresh) { lastScan = fresh; renderScanTiles(); renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs); }).catch(function () {});
+      }, 4000);
+    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+  }
   function setAppExclusion(uri, excluded) {
     api('POST', '/availability-exclusions', { app: uri, excluded: excluded }).then(function (summary) {
       lastScan = summary;
@@ -847,6 +916,7 @@ function onHomeyReady(Homey) {
     DEFAULT_FIELDS.forEach(function (name) { defaultsField(name).value = settings[name]; });
     defaultsField('timelineNotifications').checked = settings.timelineNotifications !== false;
     defaultsField('scanAll').checked = settings.scanAll !== false;
+    defaultsField('scanAnnounceSilent').checked = settings.scanAnnounceSilent === true;
   }
   document.getElementById('availability-defaults-btn').addEventListener('click', function () {
     api('GET', '/availability-settings').then(function (settings) {
@@ -858,7 +928,7 @@ function onHomeyReady(Homey) {
   document.getElementById('availability-defaults-cancel-btn').addEventListener('click', function () { closeModal(defaultsFormWrapper); });
   document.getElementById('availability-defaults-form').addEventListener('submit', function (event) {
     event.preventDefault();
-    var body = { timelineNotifications: defaultsField('timelineNotifications').checked, scanAll: defaultsField('scanAll').checked };
+    var body = { timelineNotifications: defaultsField('timelineNotifications').checked, scanAll: defaultsField('scanAll').checked, scanAnnounceSilent: defaultsField('scanAnnounceSilent').checked };
     DEFAULT_FIELDS.forEach(function (name) { body[name] = Number(defaultsField(name).value); });
     api('POST', '/availability-settings', body).then(function (saved) {
       availabilityDefaults = saved;
@@ -904,6 +974,7 @@ function onHomeyReady(Homey) {
     lastAvailabilityDevices = devices;
     lastAvailabilityWatchdogs = watchdogs;
     var container = document.getElementById('availability-body');
+    renderAppList(devices, watchdogs);
     var missingCount = (watchdogs || []).filter(function (w) { return w.missing; }).length;
     document.getElementById('availability-cleanup-btn').classList.toggle('hidden', !missingCount);
     if (!devices.length) { renderEmptyList(container, deviceListLoading ? 'Loading devices...' : 'No devices found.'); return; }
@@ -945,7 +1016,8 @@ function onHomeyReady(Homey) {
       // or the default for devices without one) shows here as an amber "Silent" badge.
       var lastSeenMs = device.lastSeenAt ? Date.parse(device.lastSeenAt) : NaN;
       var silentMs = isNaN(lastSeenMs) ? 0 : Math.max(0, Date.now() - lastSeenMs);
-      var silentLimitHours = watchdog ? watchdog.thresholdHours : availabilityDefaults.defaultThresholdHours;
+      var appLimit = lastScan && lastScan.appHours && device.ownerUri ? lastScan.appHours[device.ownerUri] : 0;
+      var silentLimitHours = watchdog ? watchdog.thresholdHours : (appLimit || availabilityDefaults.defaultThresholdHours);
       var silent = device.available && silentMs > silentLimitHours * 3600000;
       var statusBadge = !device.available
         ? '<span class="badge badge-danger">Unavailable</span>'
