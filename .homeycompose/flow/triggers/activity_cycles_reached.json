@@ -10,6 +10,7 @@
     { "name": "device", "type": "string", "title": { "en": "Device" } },
     { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
     { "name": "count", "type": "number", "title": { "en": "Cycles today" } },
+    { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
     { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]
 }

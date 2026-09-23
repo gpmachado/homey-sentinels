@@ -178,6 +178,10 @@
       "method": "GET",
       "path": "/groups/:id/check"
     },
+    "clearGroupMismatch": {
+      "method": "POST",
+      "path": "/groups/:id/clear-mismatch"
+    },
     "getTimezone": {
       "method": "GET",
       "path": "/timezone"
@@ -266,6 +270,13 @@
             }
           },
           {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -323,6 +334,13 @@
             "type": "number",
             "title": {
               "en": "Cycles today"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
             }
           },
           {
@@ -434,6 +452,13 @@
             }
           },
           {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -490,6 +515,13 @@
             "type": "string",
             "title": {
               "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
             }
           },
           {
@@ -943,6 +975,13 @@
             }
           },
           {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -1006,6 +1045,13 @@
             "type": "string",
             "title": {
               "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
             }
           },
           {
@@ -1137,6 +1183,13 @@
             }
           },
           {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -1231,6 +1284,13 @@
             }
           },
           {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -1287,6 +1347,13 @@
             "type": "string",
             "title": {
               "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
             }
           },
           {

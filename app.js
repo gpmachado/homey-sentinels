@@ -102,16 +102,22 @@ class StatisticTrackerApp extends Homey.App {
     // A crash inside a few minutes leaves nothing between startup and the abort — a memory trail
     // makes it possible to tell steady growth from a single large allocation. Dense for the first
     // three minutes (that's when the startup/migration work happens), then every five.
-    let memoryTick = 0;
-    this.homey.setInterval(() => {
-      memoryTick += 1;
-      if (memoryTick <= 12 || memoryTick % 20 === 0) this._logMemory().catch(() => {});
-    }, 15 * 1000);
-    // The Homey as a whole is often short on memory (a Homey Pro 2023 sat at 86% used with 14% free);
-    // this shows who holds it. Once shortly after start (with the raw response, to confirm its
-    // shape), then hourly. A rejected call (scope not granted) is reported once and not retried.
-    this.homey.setTimeout(() => this._logSystemMemory(true), 45 * 1000);
-    this.homey.setInterval(() => this._logSystemMemory(false), 60 * 60 * 1000);
+    // Verbose by default (this is what earlier crash hunts relied on); set SENTINELS_MEMORY_LOG=0
+    // in env.json to quiet both this and the whole-Homey/other-apps log below while debugging
+    // something else. env.json is gitignored on purpose, so this is a local-only switch. It reaches
+    // the app as `Homey.env` (the top-level module, not `this.homey` or `process.env`).
+    if ((Homey.env || {}).SENTINELS_MEMORY_LOG !== '0') {
+      let memoryTick = 0;
+      this.homey.setInterval(() => {
+        memoryTick += 1;
+        if (memoryTick <= 12 || memoryTick % 20 === 0) this._logMemory().catch(() => {});
+      }, 15 * 1000);
+      // The Homey as a whole is often short on memory (a Homey Pro 2023 sat at 86% used with 14% free);
+      // this shows who holds it. Once shortly after start (with the raw response, to confirm its
+      // shape), then hourly. A rejected call (scope not granted) is reported once and not retried.
+      this.homey.setTimeout(() => this._logSystemMemory(true), 45 * 1000);
+      this.homey.setInterval(() => this._logSystemMemory(false), 60 * 60 * 1000);
+    }
     this._pollGroups().catch((error) => this.error('Failed to poll groups', error));
     this._scheduleWithBackoff('Group mismatch polling', () => this._pollGroups(), GROUP_POLL_INTERVAL_MS);
     // Right after the app starts some drivers haven't loaded their devices yet, so the first look at the

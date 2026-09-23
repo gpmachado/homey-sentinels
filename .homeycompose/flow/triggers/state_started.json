@@ -10,6 +10,7 @@
     { "name": "label", "type": "string", "title": { "en": "State entered" } },
     { "name": "power", "type": "number", "title": { "en": "Power (W)" } },
     { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } },
+    { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
     { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]
 }

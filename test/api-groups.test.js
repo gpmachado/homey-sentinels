@@ -43,3 +43,18 @@ test('group create/update ask for the device list and say so when it has not loa
   await assert.rejects(api.createGroup({ homey, body: { name: 'X', type: 'light', deviceIds: ['d1', 'd2'] } }), /still loading/);
   assert.equal(homey.app.directory.requested, 1);
 });
+
+test('clearGroupMismatch: unsticks a mismatch the poll already reported', async () => {
+  const data = {};
+  const settings = { get: (k) => data[k], set: async (k, v) => { data[k] = v; } };
+  const store = new SentinelStore(settings);
+  await store.load();
+  const group = store.createGroup({ name: 'Fontes', type: 'switch', expectedState: true, devices: [{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }] });
+  group.mismatchSince = Date.now() - 900000; // stuck from an earlier poll/restart
+  store.clearGroupMismatch(group);
+  assert.equal(group.mismatchSince, null);
+  await store.save();
+  const reloaded = new SentinelStore(settings);
+  await reloaded.load();
+  assert.equal(reloaded.data.groups[group.id].mismatchSince, null);
+});

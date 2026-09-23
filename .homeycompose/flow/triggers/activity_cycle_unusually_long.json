@@ -12,6 +12,7 @@
     { "name": "duration", "type": "number", "title": { "en": "This cycle's duration (seconds)" } },
     { "name": "duration_human", "type": "string", "title": { "en": "This cycle's duration" } },
     { "name": "median_duration", "type": "number", "title": { "en": "Usual (median) duration (seconds)" } },
+    { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
     { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]
 }

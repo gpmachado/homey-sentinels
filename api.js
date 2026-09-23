@@ -229,6 +229,14 @@ module.exports = {
     if (!group) throw new Error('Group not found.');
     return homey.app.inAppContext(() => homey.app._checkGroup(group));
   },
+  // Unsticks a mismatch the poll already thinks it reported (see lib/store.js#clearGroupMismatch),
+  // when a device that was checked live is mismatched but the Flow trigger never fired for it.
+  async clearGroupMismatch({ homey, params }) {
+    const group = homey.app.store.data.groups[params.id];
+    if (!group) throw new Error('Group not found.');
+    await homey.app.clearGroupMismatchFlag(group);
+    return group;
+  },
   async deleteGroup({ homey, params }) {
     homey.app.store.deleteGroup(params.id);
     await homey.app.store.save();

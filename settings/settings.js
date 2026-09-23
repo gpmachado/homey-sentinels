@@ -266,9 +266,22 @@ function onHomeyReady(Homey) {
       var status = document.createElement('div');
       status.className = 'meta';
       status.textContent = 'Status not checked yet';
+      // Whether the automatic 5-minute poll (not this on-demand check) currently thinks it already
+      // reported a mismatch to Flow — the two can disagree if a mismatch resolved between two polls,
+      // or the app restarted mid-mismatch, leaving group_mismatch_detected stuck and never firing
+      // again until this is cleared.
+      var flowStatus = document.createElement('div');
+      flowStatus.className = 'meta';
+      function renderFlowStatus() {
+        flowStatus.textContent = group.mismatchSince
+          ? 'Flow: mismatch reported since ' + new Date(group.mismatchSince).toLocaleString() + ' - will not fire again until it clears'
+          : 'Flow: not currently reporting a mismatch';
+        resetBtn.style.display = group.mismatchSince ? '' : 'none';
+      }
       info.appendChild(title);
       info.appendChild(meta);
       info.appendChild(status);
+      info.appendChild(flowStatus);
       var buttons = entityActions([]);
       var checkBtn = actionLink('Check now', function () {
         checkBtn.disabled = true;
@@ -283,8 +296,18 @@ function onHomeyReady(Homey) {
         });
       });
       var editBtn = actionLink('Edit', function () { startEdit(group); });
+      var resetBtn = actionLink('Reset Flow status', function () {
+        confirmAction('Let "' + group.name + '" report a new mismatch to Flow again? Use this if it stopped firing even though a mismatch is really happening.', function () {
+          api('POST', '/groups/' + group.id + '/clear-mismatch').then(function (updated) {
+            group.mismatchSince = updated.mismatchSince;
+            renderFlowStatus();
+          }).catch(function (error) { Homey.alert(error.message || String(error)); });
+        });
+      }, true);
+      renderFlowStatus();
       buttons.appendChild(checkBtn);
       buttons.appendChild(editBtn);
+      buttons.appendChild(resetBtn);
       row.appendChild(info);
       row.appendChild(buttons);
       groupsEl.appendChild(row);

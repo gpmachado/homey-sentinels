@@ -18,6 +18,7 @@
     { "name": "average_current", "type": "number", "title": { "en": "Average current (A)" } },
     { "name": "max_current", "type": "number", "title": { "en": "Peak current (A)" } },
     { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } },
+    { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
     { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]
 }
