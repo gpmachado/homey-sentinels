@@ -11,7 +11,16 @@ async function fakeHomey(devices, loaded = true) {
   const store = new SentinelStore(fakeSettings());
   await store.load();
   const directory = { requested: 0, hasLoaded: () => loaded, request() { this.requested += 1; }, list: () => devices };
-  return { app: { store, directory, _assertGroupDevice: assertGroupDevice } };
+  // The live watch is what the app starts after a create/update; here it is only recorded.
+  const watched = [];
+  const app = {
+    store, directory, watched, _assertGroupDevice: assertGroupDevice,
+    inAppContext: (fn) => Promise.resolve().then(fn),
+    _startGroupWatch: (group) => watched.push(group.id),
+    _unwatchGroup: () => {},
+    error: () => {}
+  };
+  return { app };
 }
 const light = (id) => ({ id, name: id, capabilities: ['onoff'] });
 const contact = (id) => ({ id, name: id, capabilities: ['alarm_contact'] });
@@ -21,6 +30,8 @@ test('api.createGroup creates a group from at least two compatible devices', asy
   const group = await api.createGroup({ homey, body: { name: 'Luzes', type: 'light', expectedState: true, deviceIds: ['d1', 'd2'] } });
   assert.equal(group.type, 'light');
   assert.equal(group.devices.length, 2);
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(homey.app.watched, [group.id]); // the group starts being watched live
   await assert.rejects(api.createGroup({ homey, body: { name: 'X', type: 'light', deviceIds: ['d1'] } }), /at least two/);
 });
 

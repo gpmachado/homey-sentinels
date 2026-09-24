@@ -147,3 +147,34 @@ test('groupDailyBreakdown and groupStatistics keep one bucket per calendar day a
   assert.deepEqual(groupDailyBreakdown(group, 4, tz, now).map((d) => d.date), ['2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10']);
   assert.equal(groupStatistics(group, 'week', tz, now).mismatch_seconds, 60);
 });
+
+test('evaluateGroup: a device that is gone counts as a mismatch under its own stored name (not a neighbour\'s)', () => {
+  const { evaluateGroup } = require('../lib/groups');
+  const group = { name: 'Fontes', type: 'switch', expectedState: true, conjunction: 'and', devices: [{ id: 'a', name: 'Alfa' }, { id: 'b', name: 'Beta' }, { id: 'c', name: 'Gama' }], messageTemplateZero: '', messageTemplateOne: '', messageTemplateMany: '' };
+  const on = (name) => ({ name, capabilitiesObj: { onoff: { value: true } } });
+  // Beta is off, Gama no longer exists: the names must come out as Beta and Gama, not shifted.
+  const result = evaluateGroup(group, [on('Alfa'), { name: 'Beta', capabilitiesObj: { onoff: { value: false } } }, null]);
+  assert.equal(result.mismatchList, 'Beta\nGama');
+  assert.equal(result.matchCount, 1);
+});
+
+test('readGroupMembers: a deleted device comes back as null; any other failure still throws', async () => {
+  const { readGroupMembers, readGroupDevices } = require('../lib/groups');
+  const group = { devices: [{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }] };
+  const gateway = { getDevice: async (id) => { if (id === 'b') throw Object.assign(new Error('Not Found: Device with ID b'), { statusCode: 404 }); return { id }; } };
+  assert.deepEqual(await readGroupMembers(group, gateway), [{ id: 'a' }, null]);
+  const flaky = { getDevice: async () => { throw new Error('socket hang up'); } };
+  await assert.rejects(readGroupMembers(group, flaky), /socket hang up/);
+  await assert.rejects(readGroupDevices({ devices: [{ id: 'a', name: 'A' }] }, gateway), /at least two/);
+});
+
+test('evaluateGroup: ignoreMissing leaves a deleted member out of the count (the on-demand check still shows it)', () => {
+  const { evaluateGroup } = require('../lib/groups');
+  const group = { name: 'G', type: 'switch', expectedState: true, devices: [{ id: 'a', name: 'A' }, { id: 'b', name: 'B' }, { id: 'c', name: 'C' }], messageTemplateZero: '', messageTemplateOne: '', messageTemplateMany: '' };
+  const on = (name) => ({ name, capabilitiesObj: { onoff: { value: true } } });
+  const devices = [on('A'), on('B'), null];
+  const strict = evaluateGroup(group, devices);
+  assert.deepEqual([strict.mismatchCount, strict.checkedCount, strict.mismatchList], [1, 3, 'C']);
+  const lenient = evaluateGroup(group, devices, undefined, { ignoreMissing: true });
+  assert.deepEqual([lenient.mismatchCount, lenient.checkedCount, lenient.matchCount], [0, 2, 2]);
+});

@@ -16,6 +16,16 @@ function loadedDevices(homey) {
   return directory.list();
 }
 
+// (Re)starts the live watch of a group after it was created or its members/type changed. Subscribing
+// touches the Homey API, which a route must not do itself, so it runs in app context and the route does
+// not wait for it (the watch retries on its own if the devices are not ready).
+function watchGroupInApp(homey, groupId) {
+  homey.app.inAppContext(() => {
+    const group = homey.app.store.data.groups[groupId];
+    if (group) homey.app._startGroupWatch(group);
+  }).catch((error) => homey.app.error('Could not start watching group', error));
+}
+
 module.exports = {
   // The full device list is read on demand: this only asks the app to (re)load it in the background
   // and answers with what is loaded now (empty on the very first call); the page polls
@@ -197,6 +207,7 @@ module.exports = {
     selected.forEach((device) => homey.app._assertGroupDevice({ type }, device));
     const group = homey.app.store.createGroup({ name, type, expectedState, devices: selected, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany });
     await homey.app.store.save();
+    watchGroupInApp(homey, group.id);
     return group;
   },
   async updateGroup({ homey, params, body }) {
@@ -219,6 +230,7 @@ module.exports = {
     homey.app.store.updateGroup(group, { name, type, expectedState, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany });
     if (Array.isArray(deviceIds)) homey.app.store.setGroupDevices(group, selected);
     await homey.app.store.save();
+    watchGroupInApp(homey, group.id);
     return group;
   },
   // On-demand only (not fetched automatically when the Groups tab loads) — a check reads
@@ -237,7 +249,15 @@ module.exports = {
     await homey.app.clearGroupMismatchFlag(group);
     return group;
   },
+  // "Clean up" in Settings: reads every member now and removes the ones Homey no longer has. Reads devices,
+  // so it runs in app context (a route must not call the Homey API itself).
+  async cleanupGroup({ homey, params }) {
+    const group = homey.app.store.data.groups[params.id];
+    if (!group) throw new Error('Group not found.');
+    return homey.app.inAppContext(() => homey.app.cleanupGroupMissing(group));
+  },
   async deleteGroup({ homey, params }) {
+    homey.app._unwatchGroup(params.id);
     homey.app.store.deleteGroup(params.id);
     await homey.app.store.save();
     return { ok: true };

@@ -81,6 +81,8 @@ class StatisticTrackerApp extends Homey.App {
       mismatchDetected: this.homey.flow.getTriggerCard('group_mismatch_detected'),
       matchedAgain: this.homey.flow.getTriggerCard('group_matched_again')
     };
+    this._groupLive = new Map(); // groupId -> live member values (see lib/app/groups.js)
+    this._groupMissing = new Map(); // groupId -> Map(deviceId -> polls in a row it was missing from Homey)
     this.availabilityCards = {
       unavailable: this.homey.flow.getTriggerCard('device_became_unavailable'),
       available: this.homey.flow.getTriggerCard('device_became_available'),
@@ -142,6 +144,7 @@ class StatisticTrackerApp extends Homey.App {
     resume('monitor', 'monitors', (monitor) => this._watch(monitor));
     resume('voltage monitor', 'voltageMonitors', (monitor) => this._watchVoltage(monitor));
     resume('state monitor', 'stateMonitors', (monitor) => this._watchState(monitor));
+    Object.values(this.store.data.groups).forEach((group) => this._startGroupWatch(group));
   }
 
   // A plain setInterval calling something network-dependent (device cache, system timezone)

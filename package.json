@@ -4,7 +4,8 @@
   "main": "app.js",
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",
-    "stamp": "node scripts/write-build-info.js"
+    "stamp": "node scripts/write-build-info.js",
+    "hooks": "node scripts/install-git-hooks.js"
   },
   "dependencies": {
     "homey-api": "^3.19.3"

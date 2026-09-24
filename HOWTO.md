@@ -2,8 +2,8 @@
 
 Sentinels observes devices you've already paired to Homey and turns their raw events into
 state, incidents, and statistics. It never sends a command to a device — everything here is
-read-only. There's nothing to configure at install time; every monitor is created through a
-Flow card, and managed afterwards from the app's Settings page.
+read-only. There's nothing to configure at install time; monitors are created through a
+Flow card or the Settings page, and managed from there afterwards. The availability scan starts on its own.
 
 ## Which one do I need?
 
@@ -29,7 +29,8 @@ the one to use:
    exchange for you deciding exactly what "on" means instead of a threshold guessing it.
 6. **Is it about voltage staying in range**, not power/duration? → **Voltage Monitor**.
 7. **Do you just want to know if a device stops working entirely** — not its activity, just
-   whether it's still there and reporting? → **Availability Watchdog**.
+   whether it's still there and reporting? → **Availability**. Nothing to set up: the scan already
+   checks every device; add a **watchdog** only to one you want a Flow for, with its own limit.
 
 ## 1. Activity Monitor — power-based devices
 
@@ -146,69 +147,120 @@ devices of the same logical type.
    card) — give it a name, a type (contact/light/switch/valve/garage door), and pick which devices belong
    to it (at least two, all compatible with the chosen type).
 2. Use **"Check state group"** in a Flow whenever you want the live result — it reads every
-   device in the group right then, there's no background subscription or history. Tokens:
-   matched/mismatch counts and a rendered message (edit the wording per match-count in the
-   group's own settings, same token-insert pattern as above).
+   device in the group right then. Tokens: matched/mismatch counts and a rendered message (edit
+   the wording per match-count in the group's own settings, same token-insert pattern as above).
 3. Condition **"[Group] has a mismatch"** works directly in a Flow's `AND`/`OR` — no separate
    "all match" card exists, since Homey's own condition-card negation toggle already covers
    that case.
-4. Triggers **"Group mismatch detected"** / **"Group matched again"** fire on their own, off a
-   background poll every few minutes — no Flow needs to call "Check state group" itself.
-   "Detected" fires once when a mismatch first appears, not again on every following poll while
-   it stays that way; "matched again" fires once it clears. This can lag the real moment by up
-   to the poll interval — for a true instant check, call "Check state group" from your own
-   Flow (e.g. off the group members' own native triggers) instead.
+4. Triggers **"Group mismatch detected"** / **"Group matched again"** fire on their own, the
+   moment a member device changes: every member is watched live, so a door opening fires the
+   trigger at once, and closing it fires "matched again". "Detected" fires once per mismatch, not
+   again while it stays that way. A 5-minute check underneath catches what an event cannot (a
+   member that turned unavailable) and keeps the daily "time mismatched" estimate.
+5. A group is judged only once every member has reported a value; right after the app starts,
+   the first check settles that.
 
-**Known limitation**: a group still has no per-device history — it can't tell you "how many
-times did any door open today," only "is it currently mismatched, and for how long has today's
-polling seen it mismatched."
+**If a device of the group is deleted from Homey**: the group keeps working with the others (the deleted
+one is not counted as a mismatch). After it has been missing for three checks in a row (about 15 minutes) it
+is removed from the group on its own and a line is added to the event log. To do it right away, use
+**Clean up** on the group's row in Settings → Groups (it appears when a member is no longer in Homey), or
+open **Edit**: the deleted members are listed in red under the device list, with **Remove now**. Saving the
+form also drops them. A group left with fewer than two devices is kept but no longer checked: add a device
+or delete it.
 
-## 6. Availability Watchdog — flag a device going offline
+**If the trigger never fires although "Check now" shows a mismatch**: in Settings → Groups the
+row says whether Flow thinks a mismatch was already reported ("Flow: mismatch reported since
+..."). If it is stuck there, press **Reset Flow status**; the next change fires the trigger again.
+"Check now" and the "Check state group" card never touch that state, which is why they can show a
+mismatch the trigger did not report.
 
-For any Homey device you want to know about if it stops working — not a Sentinels monitor,
-just a plain device.
+**Known limitation**: a group has no per-device history — it can't tell you "how many times did
+any door open today," only "is it currently mismatched, and for how long today's checks have
+seen it mismatched" (an estimate). For exact per-device numbers, add a State Monitor to those
+devices.
 
-1. In Settings → Availability tab, click **Add watchdog** next to a device (or use the **"Add
-   availability watchdog"** Flow card) — set how many hours it can go without reporting anything
-   before you're alerted. 12h is a reasonable default for most mains-powered devices; a
-   battery/sleepy sensor that reports rarely on its own needs a longer one.
-2. Two independent signals can trigger it: the device's own "available" flag turning false
-   (instant, but only accurate for drivers that actually manage it), or simply going longer than
-   the configured threshold with no capability update at all (catches the many drivers that
-   never touch "available"). Either way fires **"Device became unavailable"**; recovering either
-   way fires **"Device became available"** (with a `downtime` token).
-3. Condition **"[Device] is available"** checks the raw flag directly, no watchdog required —
-   useful as a quick guard, but remember it's only accurate for well-behaved drivers.
+## 6. Availability — find the devices that stopped talking
 
-**Known limitation**: no per-device-type default threshold — a single global default (12h) is
-suggested, but there's no built-in distinction between a router-class always-on device and a
-battery sensor that reports once a day; set the threshold per device to match.
+For any Homey device — not a Sentinels monitor, just a plain device. There are two layers with the
+same rules.
+
+**The all-devices scan (on by default).** Every device without a watchdog is checked with the
+defaults, about two minutes after the app starts and then once an hour:
+
+- **Not reporting** — silent for longer than the limit (12 h by default; a device Homey has never
+  heard from is not called silent),
+- **Unavailable** — the driver's own `available` flag is false (optionally only after staying so for
+  a number of seconds),
+- **Low battery** — `measure_battery` at or below the warning percent (30 by default).
+
+Settings → Availability shows a tile for each, and tapping a tile filters the list. **Scan now**
+runs it right away. Each row has an amber **Silent N d** badge when a device says `available` but
+has gone quiet — battery sensors never flip that flag when they die. Per device you can **Ignore**
+it. The **Apps** list lets you tick whole apps that the scan should not monitor (virtual devices that
+only report when used, such as a light switched by a Flow) and give an app its **own silence limit in
+hours** — solar panels are silent all night, so 36 h there keeps a real failure visible without a daily
+false alarm.
+
+New problems are announced **once**: the trigger **"A device needs attention"** (tokens: device, zone,
+last seen, reason `stale`/`unavailable`/`low_battery`, battery; at most 10 per scan) and one entry in
+the Homey timeline. The very first scan only records what is already wrong. A device that is merely
+**silent** is not announced unless you tick "Also announce devices that are only silent" in Watchdog
+defaults — a switch that only reports when pressed is silent all day.
+
+**Watchdogs (opt-in, per device)** — for a device you care about more, with its own limit:
+
+1. In Settings → Availability, click **Add watchdog** next to a device (or use the **"Add
+   availability watchdog"** Flow card) and set how many hours it may go without reporting. Tick
+   *Ignore the "unavailable" status* for an appliance that goes unavailable on purpose (a washer that
+   a cloud app marks offline when switched off): then only silence counts.
+2. It fires **"Device became unavailable"** (token `reason`: `unavailable` or `stale`) and, on
+   recovery, **"Device became available"** (with a `downtime` token). **"Watched device battery is
+   low"** fires when its battery drops to the warning level.
+3. Condition **"[Device] is available"** checks the raw flag directly, no watchdog required — a quick
+   guard, accurate only for well-behaved drivers.
+4. A watchdog whose device is no longer in Homey is flagged after a few checks, and Settings offers to
+   remove it.
+
+**Watchdog defaults** (Settings → Availability → Watchdog defaults): hours without reporting for new
+watchdogs and for the scan, minutes to wait after the app starts, seconds a device must stay
+unavailable and a battery stay low before it counts, the battery warning (0 turns it off), Homey timeline
+entries, whether to scan everything and how often.
+
+**Widget**: "Sentinels Watchdogs" shows the same tiles on a dashboard, with a **Check now** button.
 
 ## The Settings page
 
 Open the app's Settings from Homey. Three tabs:
 
 - **Monitors** — sub-tabs for Activity / State / Voltage / Binary, each with its own table
-  (state, stats, a small trend sparkline) and Reset stats / Delete buttons per row. A shared
+  (state, stats, a small trend sparkline) and Edit / Reset stats / Delete buttons per row. A shared
   Today/7 Days/30 Days period selector applies across all four.
-- **Availability** — every Homey device, last seen and current availability. Add/Edit/Remove
-  watchdog per device row, no Flow required.
-- **Groups** — existing groups (with a "Check now" button for a live status check) and the
-  Add/Edit form.
+- **Availability** — the scan tiles and **Scan now**, **Watchdog defaults**, the **Apps** list, and every
+  Homey device with its badge, last seen and its Add/Edit/Remove watchdog and Ignore actions.
+- **Groups** — existing groups (with a "Check now" for a live status, the state Flow holds and a
+  reset for it) and the Add/Edit form.
 
 **Reset stats** wipes cycles/history/live state while keeping the monitor's own configuration
 (device, capability, threshold, settings) — for when the data itself was wrong (e.g. a
 misconfigured capability recorded garbage before being fixed). **Delete** removes the monitor
 entirely.
 
-## The widget
+## The widgets
 
-Add the "Sentinela" widget to a Homey dashboard, then pick a monitor or group in its settings
-(search by name). It shows current status, a Today/7 Days/30 Days period switch, the relevant
-headline numbers for that monitor type, and a small daily chart. A group widget always shows
-live matched/mismatch counts and the rendered message; switching to 7 Days/30 Days additionally
-shows a sparkline and total of how much of that period the group spent mismatched, sourced from
-the same background poll that drives the "Group mismatch detected" trigger.
+Widgets show on the Homey mobile app and dashboards; they do not work in the web app. All of them
+refresh every 30 seconds while on screen, and their settings can be changed after adding them.
+
+- **Sentinel** — pick one monitor or group in its settings (search by name). Shows current status, a
+  Today/7 Days/30 Days switch, the headline numbers for that type and a small daily chart. A group
+  always shows live matched/mismatch counts and the rendered message; 7 Days/30 Days add how much of
+  the period it spent mismatched.
+- **Sentinels Overview** — up to five picked items as one compact list, or **Show every monitor**
+  (optionally only one kind), problems first, with an optional title.
+- **Sentinels Timeline** — the latest events across all monitors.
+- **Sentinels Watchdogs** — tiles for not reporting / unavailable / low battery / OK that filter the
+  list, the zone of each device, a **Check now** button, an optional title and "only devices with a
+  problem".
+- **Sentinels Voltage** — each voltage monitor's current reading against its configured band.
 
 ## Common pitfalls, all in one place
 
@@ -223,3 +275,9 @@ the same background poll that drives the "Group mismatch detected" trigger.
   selectable cards in the Advanced Flow editor; Homey hides any action card with output tokens
   from the standard editor entirely. There's no token-free variant — react to a monitor's own
   trigger cards in a Standard Flow instead, they already carry a ready-to-use `message` token.
+- **`timestamp` is UTC, `time` is local.** Triggers with a moment carry both: `timestamp` is an ISO
+  string in UTC (`2026-09-23T13:14:14.591Z`, for scripts), `time` is `2026-09-23 10:14:14` in your time
+  zone. Use `time` (or `%time%` in a template) for a person; the Homey timeline already shows when each
+  entry was made, so the `message` alone is usually enough there.
+- **"Check now" and the trigger can disagree** for a group — see State Group above (Reset Flow status).
+- **A device with `last seen never`** is not treated as silent; there is no date to compare.

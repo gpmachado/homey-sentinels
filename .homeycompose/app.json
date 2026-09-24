@@ -177,6 +177,10 @@
       "method": "GET",
       "path": "/groups/:id/check"
     },
+    "cleanupGroup": {
+      "method": "POST",
+      "path": "/groups/:id/cleanup"
+    },
     "clearGroupMismatch": {
       "method": "POST",
       "path": "/groups/:id/clear-mismatch"

@@ -3,6 +3,12 @@
 ## Pending (2026-09-20)
 
 ### To verify on the Homey (built and unit-tested, not yet seen running)
+- **Deleted group member**: delete a device that is in a group. The poll should stop failing with `Not Found`,
+  the group should keep working, and after 3 polls (or with **Clean up** / **Remove now** in Edit) the device
+  should leave the group with a line in the event log.
+- **Groups by event**: turn a member of "Fontes" off and the mismatch trigger / timeline entry should come at
+  once (log line `group mismatch detected ...`), and again on turning it back on; try a quick off / on / off.
+  Watch the PSS after start: about one subscription per member device was added (the three groups have 25 members).
 - Availability tab: scan tiles and filters, **Scan now**, **Ignore** / **Ignore app** / include again, the
   amber **Silent N d** badge, low battery badge, the "Watchdog defaults" form (incl. scan on/off + interval),
   the "Device no longer in Homey" section and its cleanup button.
@@ -26,17 +32,20 @@
   kWh price, top zone or consumers. (KPI Monitor is closed source; only its store page and settings are known.)
 - More widgets: group members, running now, 24 h chart, compact badge; 365-day daily summaries / a "year" period.
 - Sentinel Group virtual device (section below): the only view of a group in the web app.
-- Docs: README / HOWTO for the scan and the new trigger; NL / DE translations are low priority.
+- Docs are up to date as of 2026-09-23 (README, HOWTO, SPEC, CONTRIBUTING). Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
 - Tests do not cover the Settings HTML, the widgets or real Homey I/O.
 
 ### Housekeeping
-- Commit and push the scan work, the SPEC update and the 1.0.2 version alignment (working tree only right now).
+- Push the commits and the tags (`git push --follow-tags`); the tags `v1.0.1` and `v1.0.2` exist locally only.
 - Promote build 1.0.2 in the Homey developer dashboard; write the 1.0.3 changelog for the scan
   (no double quotes or apostrophes in `.homeychangelog.json`: the CLI's own commit breaks on them).
-- `.git/hooks/post-commit` is missing on this clone, so the build stamp in the log goes stale; run `npm run stamp`
-  before `homey app run -r` (or recreate the hook).
+- The post-commit hook (build stamp) is reinstalled on a fresh clone with `npm run hooks`; GitHub Actions CI
+  (`.github/workflows/ci.yml`: tests on Node 22 + `homey app validate`) runs on every push once pushed.
 - Delete the throwaway probe app `/Users/gabriel/HomeyApp/memprobe` and its dev install on the Homey.
 - Ask the Athom forum whether apps will move to Node 24 (no way to select the Node version from the app; v22.23 now).
+
+- Activity / State / Voltage monitors and Availability watchdogs of a device that was deleted keep retrying
+  (`Not Found` in the log every few minutes). Watchdogs already flag it for cleanup; monitors do not.
 
 ### Decided against
 - Watchdog opt-out by default was replaced by the scan with sane defaults; a device-class adaptive threshold

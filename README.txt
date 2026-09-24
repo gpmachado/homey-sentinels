@@ -1,3 +1,5 @@
 Every smart home fills up with devices that could tell you more than they do — a freezer whose compressor cycles all day, a washer that finishes and nobody notices, a plug quietly reporting watts nobody ever checks. Sentinels turns that raw noise into a running history: how long something was actually on, how many times it cycled today, how much energy it used, and the exact moment it starts or stops — all without touching a single switch.
 
 Point it at a device you already own and it works out the rest, learning where standby ends and real activity begins instead of asking you for a number to guess with. Every answer comes back as a plain sentence, ready to drop straight into a Flow or a push notification, so knowing what your house is doing stops requiring you to go check.
+
+It also keeps an eye on the devices that have gone quiet: a scan of every device flags the ones that stopped reporting, went unavailable or are running out of battery, so a dead sensor no longer goes unnoticed for weeks. Groups of doors, lights or switches tell you the moment one is out of place, and five dashboard widgets show it all at a glance.

@@ -247,7 +247,9 @@ function onHomeyReady(Homey) {
   // value ("switch", "light") read as a rough placeholder, not a real label, especially since
   // light/switch share the same onoff capability and are easy to pick between by mistake.
   var GROUP_TYPE_LABELS = { contact: 'Contact (doors/windows)', light: 'Light', switch: 'Switch/plug', valve: 'Valve', garage: 'Garage door' };
+  var lastGroups = [];
   function renderGroups(groups) {
+    lastGroups = groups;
     groupsEl.innerHTML = '';
     if (!groups.length) {
       groupsEl.innerHTML = '<p class="hint">No groups created yet.</p>';
@@ -262,7 +264,9 @@ function onHomeyReady(Homey) {
       title.textContent = group.name;
       var meta = document.createElement('div');
       meta.className = 'meta';
-      meta.textContent = (GROUP_TYPE_LABELS[group.type] || group.type) + ' · ' + group.devices.length + ' device(s) · expected: ' + (group.expectedState ? 'on/open' : 'off/closed');
+      var gone = missingMembers(group);
+      meta.textContent = (GROUP_TYPE_LABELS[group.type] || group.type) + ' · ' + group.devices.length + ' device(s) · expected: ' + (group.expectedState ? 'on/open' : 'off/closed')
+        + (gone.length ? ' · no longer in Homey: ' + gone.map(function (m) { return m.name; }).join(', ') : '');
       var status = document.createElement('div');
       status.className = 'meta';
       status.textContent = 'Status not checked yet';
@@ -296,6 +300,14 @@ function onHomeyReady(Homey) {
         });
       });
       var editBtn = actionLink('Edit', function () { startEdit(group); });
+      var cleanBtn = actionLink('Clean up', function () {
+        api('POST', '/groups/' + group.id + '/cleanup').then(function (result) {
+          Homey.alert(result.removed.length
+            ? 'Removed from the group (no longer in Homey): ' + result.removed.join(', ') + '. ' + result.remaining + ' device(s) left.'
+            : 'Every device of this group is still in Homey.');
+          return loadAll();
+        }).catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
       var resetBtn = actionLink('Reset Flow status', function () {
         confirmAction('Let "' + group.name + '" report a new mismatch to Flow again? Use this if it stopped firing even though a mismatch is really happening.', function () {
           api('POST', '/groups/' + group.id + '/clear-mismatch').then(function (updated) {
@@ -307,10 +319,42 @@ function onHomeyReady(Homey) {
       renderFlowStatus();
       buttons.appendChild(checkBtn);
       buttons.appendChild(editBtn);
+      buttons.appendChild(cleanBtn);
       buttons.appendChild(resetBtn);
       row.appendChild(info);
       row.appendChild(buttons);
       groupsEl.appendChild(row);
+    });
+  }
+
+  // Members of a group that the loaded device list no longer has (a sensor that was deleted from Homey). The
+  // checkbox list is built from the current devices, so without this they were invisible and could not be
+  // removed. Only judged once the list has loaded, or every member would look missing.
+  function missingMembers(group) {
+    if (!allDevices.length) return [];
+    return group.devices.filter(function (member) { return !allDevices.some(function (device) { return device.id === member.id; }); });
+  }
+  var missingBox = document.getElementById('group-missing');
+  function renderMissingBox(group) {
+    missingBox.innerHTML = '';
+    var missing = group ? missingMembers(group) : [];
+    missingBox.classList.toggle('hidden', !missing.length);
+    if (!missing.length) return;
+    var title = document.createElement('div');
+    title.textContent = 'No longer in Homey (not in the list above). They are removed from the group when you save.';
+    missingBox.appendChild(title);
+    missing.forEach(function (member) {
+      var row = document.createElement('div');
+      row.className = 'missing-name';
+      var name = document.createElement('span');
+      name.textContent = member.name;
+      row.appendChild(name);
+      row.appendChild(actionLink('Remove now', function () {
+        api('POST', '/groups/' + group.id + '/cleanup').then(function () { return loadAll(); }).then(function () {
+          resetForm();
+        }).catch(function (error) { Homey.alert(error.message || String(error)); });
+      }, true));
+      missingBox.appendChild(row);
     });
   }
 
@@ -323,6 +367,7 @@ function onHomeyReady(Homey) {
     document.getElementById('expectedState').value = String(group.expectedState);
     renderDeviceList();
     setCheckedDeviceIds(group.devices.map(function (d) { return d.id; }));
+    renderMissingBox(group);
     document.getElementById('conjunction').value = group.conjunction || '';
     document.getElementById('messageTemplateZero').value = group.messageTemplateZero || '';
     document.getElementById('messageTemplateOne').value = group.messageTemplateOne || '';
@@ -1325,6 +1370,7 @@ function onHomeyReady(Homey) {
           allDevices = list;
           renderDeviceList();
           renderAvailability(allDevices, lastAvailabilityWatchdogs || []);
+          renderGroups(lastGroups); // the groups were drawn while the list was still loading: redo them to spot deleted members
         });
       }
       if (attempt < 60) {
