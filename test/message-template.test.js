@@ -28,3 +28,19 @@ test('numbers are shown without float noise, integers and text are untouched', (
   assert.equal(renderMessage('%count% cycles, %energy%', { count: 15, energy: 0 }), '15 cycles, 0');
   assert.equal(renderMessage('%x%', { x: NaN }), 'NaN');
 });
+
+test('decimal comma: numbers in a message use a comma when asked, and only then', () => {
+  const { renderMessage, setDecimalComma } = require('../lib/message-template');
+  try {
+    assert.equal(renderMessage('%energy% kWh, %power% W', { energy: 1.5, power: 1427.82 }), '1.5 kWh, 1427.82 W');
+    setDecimalComma(true);
+    assert.equal(renderMessage('%energy% kWh, %power% W', { energy: 1.5, power: 1427.82 }), '1,5 kWh, 1427,82 W');
+    assert.equal(renderMessage('%count% de %total%', { count: 3, total: 10 }), '3 de 10'); // integers are untouched
+    assert.equal(renderMessage('%x%', { x: 0.5899999999999999 }), '0,59'); // float noise still rounded away
+    assert.equal(renderMessage('%name% %x%', { name: 'a.b', x: 2 }), 'a.b 2'); // text keeps its dots
+    assert.equal(renderMessage('%x%', { x: -0.25 }), '-0,25');
+  } finally {
+    setDecimalComma(false);
+  }
+  assert.equal(renderMessage('%x%', { x: 1.5 }), '1.5');
+});

@@ -11,7 +11,8 @@ const { startMemoryGuard } = require('./lib/memory-guard');
 const { DeviceDirectory } = require('./lib/device-directory');
 const { resumeWithRetry } = require('./lib/resume');
 const { openHistoryDb } = require('./lib/history-db');
-const { DEVICE_CACHE_REFRESH_MS, HISTORY_CONSOLIDATION_MS, EVENT_LOG_MAX, GROUP_POLL_INTERVAL_MS, AVAILABILITY_POLL_INTERVAL_MS, SAVE_DEBOUNCE_MS } = require('./lib/app/constants');
+const { setDecimalComma } = require('./lib/message-template');
+const { MEMORY_LOG, DEVICE_CACHE_REFRESH_MS, HISTORY_CONSOLIDATION_MS, EVENT_LOG_MAX, GROUP_POLL_INTERVAL_MS, AVAILABILITY_POLL_INTERVAL_MS, SAVE_DEBOUNCE_MS } = require('./lib/app/constants');
 
 // Regenerated on every commit (see scripts/write-build-info.js, .git/hooks/post-commit) — the
 // app's own version stays 1.0.0 across every dev iteration, so without this a pasted log has no
@@ -33,6 +34,7 @@ class StatisticTrackerApp extends Homey.App {
     await this.store.load();
     if (this.store.migratedFrom) this.log(`Storage migrated from ${this.store.migratedFrom}.`);
     this.store.warnings.forEach((warning) => this.log(`Storage warning: ${warning}`));
+    setDecimalComma(this.store.getMessageSettings().decimalComma);
     this.log(`History storage: ${this._history ? `SQLite (${Math.round(this._history.sizeBytes() / 1024)} KB)` : 'settings key (SQLite unavailable)'}`);
     // The device list used to be persisted here; it now lives in memory only (see the gateway), and
     // the old copy would keep inflating every settings write.
@@ -104,11 +106,9 @@ class StatisticTrackerApp extends Homey.App {
     // A crash inside a few minutes leaves nothing between startup and the abort — a memory trail
     // makes it possible to tell steady growth from a single large allocation. Dense for the first
     // three minutes (that's when the startup/migration work happens), then every five.
-    // Verbose by default (this is what earlier crash hunts relied on); set SENTINELS_MEMORY_LOG=0
-    // in env.json to quiet both this and the whole-Homey/other-apps log below while debugging
-    // something else. env.json is gitignored on purpose, so this is a local-only switch. It reaches
-    // the app as `Homey.env` (the top-level module, not `this.homey` or `process.env`).
-    if ((Homey.env || {}).SENTINELS_MEMORY_LOG !== '0') {
+    // Off by default: MEMORY_LOG (lib/app/constants.js) turns on both this and the whole-Homey/
+    // other-apps log below, which is what earlier crash hunts relied on.
+    if (MEMORY_LOG) {
       let memoryTick = 0;
       this.homey.setInterval(() => {
         memoryTick += 1;

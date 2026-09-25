@@ -762,3 +762,20 @@ test('consolidateHistory drops cycles older than the cycle retention window but 
   assert.equal(monitor.cycles.length, 1);
   assert.equal(monitor.totals.cycleCount, 2);
 });
+
+test('message settings: default off, kept when set, and old data without them loads', async () => {
+  const data = {};
+  const settings = { get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} };
+  const store = new SentinelStore(settings);
+  await store.load();
+  assert.deepEqual(store.getMessageSettings(), { decimalComma: false });
+  store.updateMessageSettings({ decimalComma: true });
+  assert.equal(store.getMessageSettings().decimalComma, true);
+  store.updateMessageSettings({ decimalComma: 'nonsense' });
+  assert.equal(store.getMessageSettings().decimalComma, false); // only a real true (or the string "true") counts
+  store.updateMessageSettings({ decimalComma: 'true' });
+  await store.save();
+  const reloaded = new SentinelStore(settings);
+  await reloaded.load();
+  assert.equal(reloaded.getMessageSettings().decimalComma, true);
+});

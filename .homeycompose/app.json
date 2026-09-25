@@ -1,6 +1,6 @@
 {
   "id": "com.gpm.sentinels",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "compatibility": ">=12.4.0",
   "sdk": 3,
   "runtime": "nodejs",
@@ -184,6 +184,14 @@
     "clearGroupMismatch": {
       "method": "POST",
       "path": "/groups/:id/clear-mismatch"
+    },
+    "getMessageSettings": {
+      "method": "GET",
+      "path": "/message-settings"
+    },
+    "setMessageSettings": {
+      "method": "POST",
+      "path": "/message-settings"
     },
     "getTimezone": {
       "method": "GET",

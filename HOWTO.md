@@ -262,6 +262,36 @@ refresh every 30 seconds while on screen, and their settings can be changed afte
   problem".
 - **Sentinels Voltage** — each voltage monitor's current reading against its configured band.
 
+## Message wording — examples in Portuguese
+
+Homey's own interface has no Portuguese, so Sentinels never forces its English default on you: every message
+is a template you write once, in your own language, under the monitor's **Message** action in Settings (the
+token buttons insert the `%placeholders%`). Some ready-made ones, to copy and adjust:
+
+| Where | Template |
+|---|---|
+| Activity, started | `%monitor% ligou (%power% W)` |
+| Activity, finished | `%monitor% desligou: %duration_human%, %energy% kWh (%count% %count:ciclo|ciclos% hoje)` |
+| Activity, with the time | `%time% - %monitor% terminou em %duration_human%, consumo de %energy% kWh` |
+| State (door, motion), started | `%monitor% agora está %label%` |
+| State, finished | `%monitor% voltou a %label% depois de %duration_human% (%count% hoje)` |
+| Voltage, undervoltage | `Tensão baixa em %monitor%: %voltage% V` |
+| Voltage, overvoltage | `Tensão alta em %monitor%: %voltage% V` |
+| Voltage, back to normal | `%monitor% normalizou depois de %duration_human% (mínimo %min_voltage% V, máximo %max_voltage% V)` |
+| Group, everything matches | `Tudo certo em %group%.` |
+| Group, one mismatch | `Atenção: %items% está fora do esperado em %group%.` |
+| Group, several mismatches | `Há %count% %count:item aberto|itens abertos% em %group%: %items%.` |
+| Binary counter | `%counter% registrado %count% %count:vez|vezes% hoje (%total% no total)` |
+
+Notes:
+- Accents (`á ã ç é ê í ó õ ú`) are fine and cost nothing extra. Emoji, the long dash and curly quotes work in
+  a message but make every settings write use twice the memory, so plain punctuation is kinder to the Homey.
+- `%count:vez|vezes%` picks the first word when the count is exactly 1 and the second otherwise.
+- For "1,5 kWh" instead of "1.5 kWh", tick **Use a comma as the decimal separator** at the bottom of
+  Settings → Monitors. It only changes the wording of messages; Flow tokens of type number keep the dot.
+- `%time%` writes the local time of the event; the Homey timeline already shows when each entry was made,
+  so leave it out there.
+
 ## Common pitfalls, all in one place
 
 - **Power vs Voltage capability** on a multi-phase device — the capability pickers for

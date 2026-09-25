@@ -1457,5 +1457,15 @@ function onHomeyReady(Homey) {
     }).catch(function (error) { Homey.alert(error.message || String(error)); });
   });
 
+  // Message format: one switch for every message the app writes.
+  var decimalCommaBox = document.getElementById('message-decimal-comma');
+  api('GET', '/message-settings').then(function (settings) { decimalCommaBox.checked = settings.decimalComma === true; }).catch(function () {});
+  decimalCommaBox.addEventListener('change', function () {
+    api('POST', '/message-settings', { decimalComma: decimalCommaBox.checked }).catch(function (error) {
+      decimalCommaBox.checked = !decimalCommaBox.checked;
+      Homey.alert(error.message || String(error));
+    });
+  });
+
   loadAll().catch(function (error) { Homey.alert(error.message || String(error)); });
 }

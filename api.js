@@ -1,6 +1,7 @@
 'use strict';
 
 const { GROUP_TYPES } = require('./lib/groups');
+const { setDecimalComma } = require('./lib/message-template');
 
 // How old the device list may be before opening the page triggers a new read of it.
 const DEVICE_LIST_MAX_AGE_MS = 5 * 60 * 1000;
@@ -51,6 +52,15 @@ module.exports = {
   },
   async setAvailabilityExclusion({ homey, body }) {
     return homey.app.setAvailabilityExclusion(body || {});
+  },
+  async getMessageSettings({ homey }) {
+    return homey.app.store.getMessageSettings();
+  },
+  async setMessageSettings({ homey, body }) {
+    const settings = homey.app.store.updateMessageSettings(body);
+    setDecimalComma(settings.decimalComma); // takes effect for the next message rendered
+    await homey.app.store.save();
+    return settings;
   },
   async getAvailabilitySettings({ homey }) {
     return homey.app.store.getAvailabilitySettings();

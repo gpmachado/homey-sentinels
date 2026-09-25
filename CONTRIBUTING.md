@@ -28,8 +28,9 @@ npm run hooks          # once per clone: refreshes build-info.json after every c
 - The startup log line names the commit that was installed (`build abc1234+dirty`). It comes from
   `build-info.json`, which `npm run stamp` writes (the post-commit hook does it for you). If the log names an
   old commit, you are looking at an old build.
-- `env.json` (gitignored, local only) holds debug switches, read as `Homey.env`. Today there is one:
-  `{ "SENTINELS_MEMORY_LOG": "0" }` silences the periodic memory log lines.
+- `MEMORY_LOG` in `lib/app/constants.js` (default `false`) turns the periodic memory log lines on. Set it to `true`
+  only while chasing a crash or a memory problem, and back to `false` before committing. There is no `env.json`
+  any more: the CLI sends it with every `homey app publish`.
 - Homey apps run on **Node 22** with the built-in `node:sqlite` (that is what stores the history). The
   `ExperimentalWarning` about SQLite in the log is expected.
 

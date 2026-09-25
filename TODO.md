@@ -35,8 +35,37 @@
 - Docs are up to date as of 2026-09-23 (README, HOWTO, SPEC, CONTRIBUTING). Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
 - Tests do not cover the Settings HTML, the widgets or real Homey I/O.
 
+### Ideas collected 2026-09-24 (widgets, functions, analysis) - with the verdict of each
+
+Order chosen: 1, 2, then 3, 4. Each was checked against what the app already keeps.
+
+1. **"Home health" widget** (IN PROGRESS): one card with the state of the house: devices with a problem
+   (scan + watchdogs), monitors active now, voltage outside its band, groups in mismatch. Everything is in the
+   store already (`_availabilityScan`, watchdogs, monitor `state`, `group.mismatchSince`), no API call.
+2. **Estimated cost** (IN PROGRESS): a price per kWh (and currency symbol) in Settings; a `cost` token and
+   `%cost%` in the message of finished cycles, and cost in the statistics tokens. Also feeds the Shelly Pro
+   energy widget idea above.
+3. **Top consumers / last cycles widget**: cycles already keep duration, energy and time; the day's energy per
+   monitor is in `_statistics(monitor, 'day')`. Only for monitors that have energy data.
+4. **Group status widget with live members**: the event-driven groups keep every member's value in memory
+   (`_groupLive`), so a widget can show which member is out of place without any API call.
+5. **Frequent / erratic cycling** trigger (pump or compressor turning on and off N times in M minutes): cycles
+   have timestamps; needs a per-monitor limit, a new trigger and the fields in Settings.
+6. **Baseline drift** (median duration / energy of the last 30 days against the 30 before, "maintenance
+   suggested"): cycles are kept 365 days, so the data exists; only useful after about 60 days, and prone to
+   false alarms, so later.
+7. **Weekly house summary as text** (Flow action): `generate_text_report` exists but is per monitor or group and in
+   English; a house-wide one needs a template the user writes, like the messages.
+8. **MTBF per watchdog** ("goes offline on average every 14 days"): needs a short history of outages per device
+   (last ~50 start/end pairs, tiny). **Availability sparkline** needs the same history; do them together.
+9. Not now: **virtual summary devices** (driver work, memory, and groups are state-based, not power);
+   **voltage drop / device offline correlation** (speculative, would invent links).
+- Performance notes from the same review are already how the app works: calculations in memory with saves
+  batched every 15 s and only changed history rows written to SQLite; widgets read the app's 5 s cache and
+  pause when not on screen.
+
 ### Housekeeping
-- Push the commits and the tags (`git push --follow-tags`); the tags `v1.0.1` and `v1.0.2` exist locally only.
+- Push the commits and the tags (`git push --follow-tags`); the tags exist locally only.
 - Promote build 1.0.2 in the Homey developer dashboard; write the 1.0.3 changelog for the scan
   (no double quotes or apostrophes in `.homeychangelog.json`: the CLI's own commit breaks on them).
 - The post-commit hook (build stamp) is reinstalled on a fresh clone with `npm run hooks`; GitHub Actions CI
