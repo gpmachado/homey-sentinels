@@ -65,18 +65,47 @@ test('weeklyTrend reports "no prior baseline" when the previous week had zero of
   assert.match(trend.summary, /no prior baseline/);
 });
 
-test('weeklyTrend computes a real percent change when both weeks have data', () => {
+test('weeklyTrend computes a real percent change when both weeks have enough data', () => {
+  const now = Date.parse('2026-01-15T00:00:00Z');
+  const week = 7 * DAY;
+  const cyclesIn = (weeksAgo, count) => Array.from({ length: count }, (_, i) => ({ endedAt: now - weeksAgo * week - (i + 1) * 0.5 * DAY, duration: 100, energy: 1 }));
+  const monitor = activityMonitor({ cycles: [...cyclesIn(0, 3), ...cyclesIn(1, 3)] });
+  const trend = weeklyTrend(monitor, now);
+  assert.equal(trend.cycleCount.hasBaseline, true);
+  assert.equal(trend.cycleCount.percent, 0); // 3 vs 3 cycles = no change
+  assert.equal(trend.enoughData, true);
+  const grown = weeklyTrend(activityMonitor({ cycles: [...cyclesIn(0, 6), ...cyclesIn(1, 3)] }), now);
+  assert.equal(grown.cycleCount.percent, 100);
+});
+
+test('weeklyTrend does not call one or two cycles a baseline: "not enough data" instead of +200 %', () => {
   const now = Date.parse('2026-01-15T00:00:00Z');
   const week = 7 * DAY;
   const monitor = activityMonitor({
     cycles: [
-      { endedAt: now - 2 * DAY, duration: 100, energy: 1 }, // this week
-      { endedAt: now - week - 2 * DAY, duration: 100, energy: 1 } // previous week
+      { endedAt: now - 1 * DAY, duration: 100, energy: 1 }, { endedAt: now - 2 * DAY, duration: 100, energy: 1 }, { endedAt: now - 3 * DAY, duration: 100, energy: 1 }, // this week: 3
+      { endedAt: now - week - 2 * DAY, duration: 100, energy: 1 } // the week before: 1
     ]
   });
   const trend = weeklyTrend(monitor, now);
-  assert.equal(trend.cycleCount.hasBaseline, true);
-  assert.equal(trend.cycleCount.percent, 0); // 1 vs 1 cycle = no change
+  assert.equal(trend.enoughData, false);
+  assert.equal(trend.cycleCount.hasBaseline, false);
+  assert.equal(trend.cycleCount.percent, 0);
+  assert.match(trend.summary, /not enough data/);
+});
+
+test('periodStatistics: quartiles of cycle duration and energy come with the median, and only with enough cycles', () => {
+  const now = Date.parse('2026-01-15T00:00:00Z');
+  const cycles = [10, 20, 30, 40, 50].map((duration, i) => ({ endedAt: now - (i + 1) * 3600000, duration, energy: duration / 10 }));
+  const stats = periodStatistics(activityMonitor({ cycles }), 0, now);
+  assert.equal(stats.median_duration, 30);
+  assert.equal(stats.p25_duration, 20);
+  assert.equal(stats.p75_duration, 40);
+  assert.equal(stats.p25_duration_human, '20s');
+  assert.equal(stats.p25_energy, 2);
+  assert.equal(stats.p75_energy, 4);
+  const few = periodStatistics(activityMonitor({ cycles: cycles.slice(0, 4) }), 0, now);
+  assert.deepEqual([few.median_duration, few.p25_duration, few.p75_duration, few.p25_energy], [null, null, null, null]);
 });
 
 test('statistics("day") windows to local midnight and merges the weekly trend fields in', () => {

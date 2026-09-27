@@ -90,8 +90,10 @@
 
         <label>Message — activity started</label>
         <input type="text" id="activity-messageTemplateStarted" class="activity-token-target" placeholder="E.g., %monitor% turned on (%power% W).">
+        <div class="message-preview" id="activity-message-preview-started" aria-live="polite"></div>
         <label>Message — activity finished</label>
         <input type="text" id="activity-messageTemplateFinished" class="activity-token-target" placeholder="E.g., %monitor% turned off %count% %count:time|times% today.">
+        <div class="message-preview" id="activity-message-preview-finished" aria-live="polite"></div>
         <p class="hint">
           Free text, in any language. Tap a token to insert it into the last-used message field:
           <button type="button" class="activity-token-btn" data-token="%device%">%device%</button>
@@ -183,8 +185,10 @@
 
         <label>Message — session started</label>
         <input type="text" id="state-messageTemplateStarted" class="state-token-target" placeholder="E.g., %monitor% is now %label%.">
+        <div class="message-preview" id="state-message-preview-started" aria-live="polite"></div>
         <label>Message — session finished</label>
         <input type="text" id="state-messageTemplateFinished" class="state-token-target" placeholder="E.g., %monitor% is now %label% (%count% %count:time|times% today).">
+        <div class="message-preview" id="state-message-preview-finished" aria-live="polite"></div>
         <p class="hint">
           Free text, in any language. Tap a token to insert it into the last-used message field:
           <button type="button" class="state-token-btn" data-token="%device%">%device%</button>
@@ -272,10 +276,13 @@
 
         <label>Message — undervoltage detected</label>
         <input type="text" id="messageTemplateUndervoltage" class="voltage-token-target" placeholder="E.g., %monitor% is in undervoltage — %voltage% V.">
+        <div class="message-preview" id="voltage-message-preview-undervoltage" aria-live="polite"></div>
         <label>Message — overvoltage detected</label>
         <input type="text" id="messageTemplateOvervoltage" class="voltage-token-target" placeholder="E.g., %monitor% is in overvoltage — %voltage% V.">
+        <div class="message-preview" id="voltage-message-preview-overvoltage" aria-live="polite"></div>
         <label>Message — returned to normal</label>
         <input type="text" id="messageTemplateNormalized" class="voltage-token-target" placeholder="E.g., %monitor% normalized after %duration_human% (min %min_voltage% V, max %max_voltage% V).">
+        <div class="message-preview" id="voltage-message-preview-normalized" aria-live="polite"></div>
         <p class="hint">
           Free text, in any language. Tap a token to insert it into the last-used message field:
           <button type="button" class="voltage-token-btn" data-token="%device%">%device%</button>
@@ -323,6 +330,7 @@
 
         <label>Message</label>
         <input type="text" id="binary-messageTemplate" placeholder="E.g., %counter% rang %count% %count:time|times% today.">
+        <div class="message-preview" id="binary-message-preview" aria-live="polite"></div>
         <p class="hint">
           Free text, in any language. Tap a token to insert:
           <button type="button" class="binary-token-btn" data-token="%counter%">%counter%</button>
@@ -497,10 +505,13 @@
 
       <label>Message — no mismatches</label>
       <input type="text" id="messageTemplateZero" class="token-target" placeholder="E.g., All good in %group%.">
+      <div class="message-preview" id="group-message-preview-zero" aria-live="polite"></div>
       <label>Message — 1 mismatch</label>
       <input type="text" id="messageTemplateOne" class="token-target" placeholder="E.g., %items% is a mismatch.">
+      <div class="message-preview" id="group-message-preview-one" aria-live="polite"></div>
       <label>Message — 2 or more mismatches</label>
       <input type="text" id="messageTemplateMany" class="token-target" placeholder="E.g., There are %count% %count:mismatch|mismatches%: %items%.">
+      <div class="message-preview" id="group-message-preview-many" aria-live="polite"></div>
       <p class="hint">
         Free text, in any language — doesn't depend on Homey's languages.
         Tap a token to insert it into the last-used message field:

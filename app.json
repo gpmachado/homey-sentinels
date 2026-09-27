@@ -2375,6 +2375,48 @@
             }
           },
           {
+            "name": "p25_duration",
+            "type": "number",
+            "title": {
+              "en": "Cycle duration, 25th percentile (seconds)"
+            }
+          },
+          {
+            "name": "p25_duration_human",
+            "type": "string",
+            "title": {
+              "en": "Cycle duration, 25th percentile"
+            }
+          },
+          {
+            "name": "p75_duration",
+            "type": "number",
+            "title": {
+              "en": "Cycle duration, 75th percentile (seconds)"
+            }
+          },
+          {
+            "name": "p75_duration_human",
+            "type": "string",
+            "title": {
+              "en": "Cycle duration, 75th percentile"
+            }
+          },
+          {
+            "name": "p25_energy",
+            "type": "number",
+            "title": {
+              "en": "Energy per cycle, 25th percentile (kWh)"
+            }
+          },
+          {
+            "name": "p75_energy",
+            "type": "number",
+            "title": {
+              "en": "Energy per cycle, 75th percentile (kWh)"
+            }
+          },
+          {
             "name": "energy_quality",
             "type": "string",
             "title": {
@@ -2647,6 +2689,34 @@
             "type": "string",
             "title": {
               "en": "Median session duration"
+            }
+          },
+          {
+            "name": "p25_duration",
+            "type": "number",
+            "title": {
+              "en": "Session duration, 25th percentile (seconds)"
+            }
+          },
+          {
+            "name": "p25_duration_human",
+            "type": "string",
+            "title": {
+              "en": "Session duration, 25th percentile"
+            }
+          },
+          {
+            "name": "p75_duration",
+            "type": "number",
+            "title": {
+              "en": "Session duration, 75th percentile (seconds)"
+            }
+          },
+          {
+            "name": "p75_duration_human",
+            "type": "string",
+            "title": {
+              "en": "Session duration, 75th percentile"
             }
           },
           {
@@ -3059,6 +3129,43 @@
           }
         ],
         "id": "reset_voltage_monitor"
+      },
+      {
+        "title": {
+          "en": "Set energy price"
+        },
+        "titleFormatted": {
+          "en": "Set the energy price to [[price]] per kWh [[currency]]"
+        },
+        "hint": {
+          "en": "Changes the price per kWh used for the cost of finished cycles (the same price as Settings, Monitors, Energy cost). Use it from your own Flows for a tariff that changes: at 18:00 set the peak price, at 21:00 the off-peak one, or follow the trigger of an energy-price app. A cycle is priced at the price in force when it finishes. A price of 0 turns the cost off. Leave the currency empty to keep the current one."
+        },
+        "args": [
+          {
+            "name": "price",
+            "type": "number",
+            "min": 0,
+            "step": 0.01,
+            "placeholder": {
+              "en": "0.85"
+            },
+            "title": {
+              "en": "Price per kWh"
+            }
+          },
+          {
+            "name": "currency",
+            "type": "text",
+            "required": false,
+            "placeholder": {
+              "en": "R$"
+            },
+            "title": {
+              "en": "Currency (optional)"
+            }
+          }
+        ],
+        "id": "set_energy_price"
       },
       {
         "title": {

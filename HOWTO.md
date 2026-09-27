@@ -53,7 +53,10 @@ machine.
    carries duration, energy, and average/peak power/current as tokens.
 3. Use **"Get activity statistics"** for a period (today/7 days/30 days/all) wherever you need
    the numbers without waiting for a trigger — cycle count, durations, energy, median cycle
-   duration, and a week-over-week trend.
+   duration (and its 25th / 75th percentile, `p25_duration` / `p75_duration`, `p25_energy` /
+   `p75_energy`, which show how much cycles vary around the median), and a week-over-week trend.
+   The median and percentiles need at least 5 cycles; the trend needs at least 3 cycles in the
+   previous week, otherwise it says "not enough data" instead of a misleading +200 %.
 4. Message wording works out of the box — a new monitor already has a sensible default
    (`"%monitor% turned on (%power% W)"` / `"%monitor% turned off — %duration_human%, %energy%
    kWh (%count% today)"`), edit it if you want something different in Settings (Monitors tab →
@@ -273,8 +276,12 @@ sign is not accepted, type `EUR`). From then on every finished cycle of an Activ
   turned it on), which is also available as `%cost_text%` and `%cost_today_text%` in message templates,
 - and the **Get activity statistics** action returns `total_cost` and `total_cost_text` for the period.
 
-The cost is the energy of the cycle times the price, kept to cents. It is an estimate for one flat price (no
-time-of-use tariffs). With no price set, the numbers are 0 and the texts are empty, so a message such as
+The cost is the energy of the cycle times the price, kept to cents. It is an estimate for one flat price.
+**For a tariff that changes** (peak and off-peak hours, or an energy-price app), use the Flow action
+**"Set energy price"** from your own Flows: at 18:00 set the peak price, at 21:00 the off-peak one, or follow the
+trigger of your price app. A cycle is priced at the price in force when it finishes (one that crosses a change is
+priced whole at the price of its end). A price of 0 turns the cost off; the currency is only changed when you fill
+it in. With no price set, the numbers are 0 and the texts are empty, so a message such as
 `... (%energy% kWh, %cost_text%)` stays clean.
 
 ## Message wording — examples in Portuguese
@@ -307,6 +314,21 @@ Notes:
   Settings → Monitors. It only changes the wording of messages; Flow tokens of type number keep the dot.
 - `%time%` writes the local time of the event; the Homey timeline already shows when each entry was made,
   so leave it out there.
+
+## If a device is deleted from Homey
+
+- **A monitor** (Activity, State or Voltage) whose device no longer exists is flagged with a red **Device
+  missing** badge in Settings and stops retrying (it used to log "Not Found" every few minutes for ever). The
+  flag comes from the hourly availability scan, or from the monitor failing to start five times in a row with
+  "Not Found" (about 8 minutes, so a Homey that is still starting up is not mistaken for a deletion). The monitor
+  and its history are **kept**: delete it in Settings if it is not needed. If the device comes back, the badge
+  goes away and the monitor is started again on its own.
+- **A group** keeps working with its other members and drops the missing one by itself after three checks (see
+  State Group).
+- **A watchdog** is flagged for cleanup (see Availability).
+
+The first line of the log after a start says what is running, for example `Watching: 5 activity, 3 state and 1
+voltage monitors, 2 counters, 3 groups (25 devices), 4 watchdogs; availability scan every 60 min`.
 
 ## Common pitfalls, all in one place
 

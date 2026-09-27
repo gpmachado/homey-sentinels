@@ -52,3 +52,34 @@ test('retries end when the monitor was deleted in the meantime', async () => {
   await flush();
   assert.equal(scheduled.length, 1);
 });
+
+test('a device that stays "not found" stops the retries after the configured attempts and reports it once', async () => {
+  const errors = [];
+  const scheduled = [];
+  const gaveUp = [];
+  const notFound = () => Object.assign(new Error('Not Found: Device with ID x'), { statusCode: 404 });
+  resumeWithRetry({
+    label: '[Bomba]', start: async () => { throw notFound(); },
+    schedule: (fn, ms) => scheduled.push({ fn, ms }), error: (m) => errors.push(m),
+    shouldGiveUp: (failure, attempt) => failure.statusCode === 404 && attempt >= 2, onGiveUp: () => gaveUp.push(true)
+  });
+  await flush();
+  for (let i = 0; i < 2; i += 1) { scheduled[i].fn(); await flush(); }
+  assert.equal(scheduled.length, 2); // retried twice, then the third failure gave up: no third wait
+  assert.deepEqual(gaveUp, [true]);
+  assert.match(errors[errors.length - 1], /gave up watching.*after 3 attempts/);
+});
+
+test('other failures are retried without limit, and onStarted is called when the start works', async () => {
+  const scheduled = [];
+  let started = 0;
+  let failures = 6;
+  resumeWithRetry({
+    label: '[A]', start: async () => { if (failures > 0) { failures -= 1; throw new Error('busy'); } },
+    schedule: (fn, ms) => scheduled.push({ fn, ms }), shouldGiveUp: (failure) => failure.statusCode === 404, onStarted: () => { started += 1; }
+  });
+  await flush();
+  for (let i = 0; i < 6; i += 1) { scheduled[i].fn(); await flush(); }
+  assert.equal(started, 1);
+  assert.equal(scheduled.length, 6);
+});

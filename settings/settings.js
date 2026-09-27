@@ -70,6 +70,55 @@ function onHomeyReady(Homey) {
     return Math.floor(minutes / 60) + 'h ' + (minutes % 60) + 'min';
   }
 
+  // Message templates are deliberately rendered here with representative values. This makes
+  // the value of a Flow message token visible before a user has to build a complete Flow or wait
+  // for a real event. Unknown tokens stay marked instead of disappearing, so a typo is visible.
+  function renderMessageExample(template, data) {
+    if (!template || !template.trim()) return 'No message configured yet.';
+    return template.replace(/%([a-zA-Z0-9_]+)(?::([^%|]*)\|([^%]*))?%/g, function (match, key, singular, plural) {
+      if (singular !== undefined) {
+        var count = Number(data[key]);
+        return isFinite(count) && count === 1 ? singular : plural;
+      }
+      var value = data[key];
+      if (value === undefined || value === null) return '‹' + key + '›';
+      return String(value);
+    });
+  }
+
+  var messagePreviewBindings = [];
+  function bindMessagePreview(inputId, previewId, data) {
+    var input = document.getElementById(inputId);
+    var preview = document.getElementById(previewId);
+    if (!input || !preview) return;
+    var update = function () {
+      preview.textContent = renderMessageExample(input.value, data);
+      preview.classList.toggle('message-preview-empty', !input.value.trim());
+    };
+    input.addEventListener('input', update);
+    messagePreviewBindings.push(update);
+    update();
+  }
+  function refreshMessagePreviews() { messagePreviewBindings.forEach(function (update) { update(); }); }
+  var activityPreviewData = { device: 'Example device', monitor: 'Washing machine', power: 850, duration_human: '42 min', energy: 0.6, average_power: 540, count: 3 };
+  var statePreviewData = { device: 'Example sensor', monitor: 'Front door', label: 'Open', duration_human: '12 min', count: 2 };
+  var voltagePreviewData = { device: 'Example meter', monitor: 'Main voltage', voltage: 228.5, duration_human: '5 min', min_voltage: 210, max_voltage: 240, average_voltage: 229 };
+  var binaryPreviewData = { counter: 'Doorbell', count: 2, total: 17 };
+  var groupPreviewZeroData = { group: 'Downstairs lights', count: 0, items: '' };
+  var groupPreviewOneData = { group: 'Downstairs lights', count: 1, items: 'Kitchen' };
+  var groupPreviewData = { group: 'Downstairs lights', count: 3, items: 'Kitchen, Hall and Porch' };
+  bindMessagePreview('activity-messageTemplateStarted', 'activity-message-preview-started', activityPreviewData);
+  bindMessagePreview('activity-messageTemplateFinished', 'activity-message-preview-finished', activityPreviewData);
+  bindMessagePreview('state-messageTemplateStarted', 'state-message-preview-started', statePreviewData);
+  bindMessagePreview('state-messageTemplateFinished', 'state-message-preview-finished', statePreviewData);
+  bindMessagePreview('messageTemplateUndervoltage', 'voltage-message-preview-undervoltage', voltagePreviewData);
+  bindMessagePreview('messageTemplateOvervoltage', 'voltage-message-preview-overvoltage', voltagePreviewData);
+  bindMessagePreview('messageTemplateNormalized', 'voltage-message-preview-normalized', voltagePreviewData);
+  bindMessagePreview('binary-messageTemplate', 'binary-message-preview', binaryPreviewData);
+  bindMessagePreview('messageTemplateZero', 'group-message-preview-zero', groupPreviewZeroData);
+  bindMessagePreview('messageTemplateOne', 'group-message-preview-one', groupPreviewOneData);
+  bindMessagePreview('messageTemplateMany', 'group-message-preview-many', groupPreviewData);
+
   // Monitor/device names are free text (typed into a Flow card's `name` arg, or a
   // Homey device's own name) built straight into innerHTML template strings below —
   // without this, a name like <img src=x onerror="..."> would execute in this page.
@@ -236,6 +285,10 @@ function onHomeyReady(Homey) {
   function resetForm() {
     editingGroupId = null;
     form.reset();
+    groupPreviewZeroData.group = 'Downstairs lights';
+    groupPreviewOneData.group = 'Downstairs lights';
+    groupPreviewData.group = 'Downstairs lights';
+    refreshMessagePreviews();
     formTitle.textContent = 'New group';
     cancelBtn.style.display = 'none';
     deleteBtn.style.display = 'none';
@@ -361,6 +414,9 @@ function onHomeyReady(Homey) {
   function startEdit(group) {
     editingGroupId = group.id;
     formTitle.textContent = 'Editing: ' + group.name;
+    groupPreviewZeroData.group = group.name;
+    groupPreviewOneData.group = group.name;
+    groupPreviewData.group = group.name;
     openModal(groupFormWrapper);
     document.getElementById('name').value = group.name;
     typeSelect.value = group.type;
@@ -372,6 +428,7 @@ function onHomeyReady(Homey) {
     document.getElementById('messageTemplateZero').value = group.messageTemplateZero || '';
     document.getElementById('messageTemplateOne').value = group.messageTemplateOne || '';
     document.getElementById('messageTemplateMany').value = group.messageTemplateMany || '';
+    refreshMessagePreviews();
     cancelBtn.style.display = '';
     deleteBtn.style.display = '';
   }
@@ -409,7 +466,7 @@ function onHomeyReady(Homey) {
       var stateBadge = monitor.calibrating
         ? '<span class="badge badge-calibrating" title="Using a default 40 W threshold until enough history confirms this device\'s real standby/active power split.">Calibrating</span>'
         : '<span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + (isActive ? 'Active' : 'Standby') + '</span>';
-      var nameHtml = escapeHtml(monitor.name) + ' ' + stateBadge;
+      var nameHtml = escapeHtml(monitor.name) + ' ' + stateBadge + (monitor.deviceMissing ? ' <span class="badge badge-danger" title="The device was deleted from Homey; this monitor no longer receives data. Delete it if it is not needed.">Device missing</span>' : '');
       // Energy (a total accumulated over the whole period) and average power (a rate,
       // measured only while active) are easy to mistake for two readings of "the same
       // thing" when shown side by side with bare numbers — labeling each explicitly avoids
@@ -459,7 +516,7 @@ function onHomeyReady(Homey) {
     monitors.slice().sort(byName).forEach(function (monitor) {
       var isActive = monitor.state === 'ACTIVE';
       var stateLabel = isActive ? monitor.trueLabel : monitor.falseLabel;
-      var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + escapeHtml(stateLabel) + '</span>';
+      var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + escapeHtml(stateLabel) + '</span>' + (monitor.deviceMissing ? ' <span class="badge badge-danger" title="The device was deleted from Homey; this monitor no longer receives data. Delete it if it is not needed.">Device missing</span>' : '');
       var metaBits = [
         escapeHtml(monitor.deviceName),
         monitor.cycleCount + ' session' + (monitor.cycleCount === 1 ? '' : 's'),
@@ -506,7 +563,7 @@ function onHomeyReady(Homey) {
       var isNormal = monitor.state === 'NORMAL';
       var range = (monitor.minVoltage !== null && monitor.maxVoltage !== null)
         ? monitor.minVoltage.toFixed(1) + '–' + monitor.maxVoltage.toFixed(1) + ' V' : '—';
-      var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isNormal ? 'badge-active' : 'badge-danger') + '">' + escapeHtml(monitor.state) + '</span>';
+      var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isNormal ? 'badge-active' : 'badge-danger') + '">' + escapeHtml(monitor.state) + '</span>' + (monitor.deviceMissing ? ' <span class="badge badge-danger" title="The device was deleted from Homey; this monitor no longer receives data. Delete it if it is not needed.">Device missing</span>' : '');
       var metaBits = [
         escapeHtml(monitor.deviceName),
         (monitor.currentVoltage !== null ? monitor.currentVoltage.toFixed(1) + ' V now' : 'no reading'),
@@ -590,9 +647,12 @@ function onHomeyReady(Homey) {
   function openVoltageMessageForm(monitor) {
     editingVoltageMonitorId = monitor.id;
     document.getElementById('voltage-message-form-name').textContent = monitor.name;
+    voltagePreviewData.device = monitor.name;
+    voltagePreviewData.monitor = monitor.name;
     document.getElementById('messageTemplateUndervoltage').value = monitor.messageTemplateUndervoltage || '';
     document.getElementById('messageTemplateOvervoltage').value = monitor.messageTemplateOvervoltage || '';
     document.getElementById('messageTemplateNormalized').value = monitor.messageTemplateNormalized || '';
+    refreshMessagePreviews();
     openModal(voltageMessageFormWrapper);
   }
   document.getElementById('voltage-message-cancel-btn').addEventListener('click', function () {
@@ -663,8 +723,11 @@ function onHomeyReady(Homey) {
   function openActivityMessageForm(monitor) {
     editingActivityMonitorId = monitor.id;
     document.getElementById('activity-message-form-name').textContent = monitor.name;
+    activityPreviewData.device = monitor.name;
+    activityPreviewData.monitor = monitor.name;
     document.getElementById('activity-messageTemplateStarted').value = monitor.messageTemplateStarted || '';
     document.getElementById('activity-messageTemplateFinished').value = monitor.messageTemplateFinished || '';
+    refreshMessagePreviews();
     openModal(activityMessageFormWrapper);
   }
   document.getElementById('activity-message-cancel-btn').addEventListener('click', function () {
@@ -737,8 +800,11 @@ function onHomeyReady(Homey) {
   function openStateMessageForm(monitor) {
     editingStateMonitorId = monitor.id;
     document.getElementById('state-message-form-name').textContent = monitor.name;
+    statePreviewData.device = monitor.name;
+    statePreviewData.monitor = monitor.name;
     document.getElementById('state-messageTemplateStarted').value = monitor.messageTemplateStarted || '';
     document.getElementById('state-messageTemplateFinished').value = monitor.messageTemplateFinished || '';
+    refreshMessagePreviews();
     openModal(stateMessageFormWrapper);
   }
   document.getElementById('state-message-cancel-btn').addEventListener('click', function () {
@@ -812,7 +878,9 @@ function onHomeyReady(Homey) {
   function openBinaryMessageForm(counter) {
     editingBinaryCounterId = counter.id;
     document.getElementById('binary-message-form-name').textContent = counter.name;
+    binaryPreviewData.counter = counter.name;
     binaryMessageInput.value = counter.messageTemplate || '';
+    refreshMessagePreviews();
     openModal(binaryMessageFormWrapper);
   }
   document.getElementById('binary-message-cancel-btn').addEventListener('click', function () {

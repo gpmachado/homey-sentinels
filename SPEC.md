@@ -256,9 +256,22 @@ Activity and State monitors share one `ActivityEngine` class:
   power/current stats exact for "month"/"all" queries regardless of how much period detail
   behind them has already been folded away. This is a deliberate Time-Machine-style retention
   choice, not indefinite raw history.
+- `percentile()` (linear interpolation, P50 = median) gives `p25_/p75_duration` and `p25_/p75_energy` under the same
+  `MEDIAN_MIN_CYCLES` gate; they are tokens of the activity statistics action (durations only for State monitors).
+- `weeklyTrend` needs `TREND_MIN_BASELINE_CYCLES` (3) cycles in the previous week; below that it reports
+  `enoughData: false` and "not enough data" (a previous week with 1 cycle against 3 used to read +200 %).
 - `median()` on duration/energy is gated by `MEDIAN_MIN_CYCLES` (5) — below that, the median is
   `null` ("still learning") rather than a number that looks more authoritative than a sample of
   1–2 cycles deserves.
+
+### Monitors whose device is deleted
+
+`resumeWithRetry` takes `shouldGiveUp` / `onGiveUp` / `onStarted`. `_resumeMonitor` (lib/app/monitor-admin.js)
+gives up after `MONITOR_MISSING_ATTEMPTS` (5) consecutive `isNotFoundError` failures and sets
+`monitor.deviceMissing`; the availability scan, which already holds the whole device list once per interval,
+also flags monitors whose `deviceId` is absent (a device deleted while the monitor was running fails nothing)
+and restarts the ones whose device is back. Summaries expose `deviceMissing` (a badge in Settings). Monitors and
+their history are never deleted automatically. `_startupSummary` logs what is running at start.
 
 ### Energy cost tokens
 
@@ -267,7 +280,7 @@ settings) and `decimalComma`. `lib/cost.js` (`costOf`: kWh times price, kept to 
 decimals with the app's decimal separator, empty with no price) feeds `_costTokens` in `lib/app/summaries.js`,
 which adds `cost`, `cost_today`, `cost_text` and `cost_today_text` to the finished-cycle data of Activity and
 State monitors (so they are Flow tokens and `%placeholders%`), and `total_cost(_text)` to the activity statistics
-action. A flat price only; time-of-use tariffs are not modelled.
+action. A flat price; the **Set energy price** Flow action changes it for tariffs that vary (priced at the price in force when the cycle ends). A price schedule inside the app is not modelled.
 
 ### Time in Flow tokens and messages
 

@@ -49,3 +49,40 @@ test('the finished-cycle tokens carry the cost, and are zero / empty while no pr
   const noPrice = { store: { getMessageSettings: () => ({ pricePerKwh: 0, currency: 'R$' }) } };
   assert.deepEqual(_costTokens.call(noPrice, 1.2, 3), { cost: 0, cost_today: 0, cost_text: '', cost_today_text: '' });
 });
+
+test('the "Set energy price" action changes the price, keeps the currency unless one is given, and 0 turns it off', async () => {
+  // Uses the real App class (with the `homey` module stubbed) and a fake flow manager that hands back the run
+  // listener of the card, so the registered handler itself is what is exercised.
+  const Module = require('node:module');
+  const path = require('node:path');
+  const originalLoad = Module._load;
+  Module._load = function (request, ...rest) {
+    if (request === 'homey') return { App: class { log() {} error() {} } };
+    return originalLoad.call(this, request, ...rest);
+  };
+  let App;
+  try { App = require(path.join(__dirname, '..', 'app.js')); } finally { Module._load = originalLoad; }
+
+  const data = {};
+  const store = new SentinelStore({ get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} });
+  await store.load();
+  store.updateMessageSettings({ pricePerKwh: 0.85, currency: 'R$' });
+  let listener = null;
+  const card = (id) => ({ registerRunListener: (fn) => { if (id === 'set_energy_price') listener = fn; }, registerArgumentAutocompleteListener() {} });
+  const anyCards = new Proxy({}, { get: () => card('other') });
+  const app = Object.create(App.prototype);
+  Object.assign(app, {
+    store, gateway: {}, directory: {}, log: () => {}, error: () => {},
+    cards: anyCards, stateCards: anyCards, voltageCards: anyCards, binaryCards: anyCards, groupCards: anyCards, availabilityCards: anyCards,
+    homey: { flow: { getActionCard: card, getConditionCard: card, getTriggerCard: card } }
+  });
+  app._registerFlowCards();
+  assert.equal(typeof listener, 'function', 'the set_energy_price card must be registered');
+
+  await listener({ price: 1.2, currency: '' }, {});
+  assert.deepEqual([store.getMessageSettings().pricePerKwh, store.getMessageSettings().currency], [1.2, 'R$']);
+  await listener({ price: 0.6, currency: 'EUR' }, {});
+  assert.deepEqual([store.getMessageSettings().pricePerKwh, store.getMessageSettings().currency], [0.6, 'EUR']);
+  await listener({ price: 0 }, {});
+  assert.equal(store.getMessageSettings().pricePerKwh, 0);
+});

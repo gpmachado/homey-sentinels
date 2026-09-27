@@ -47,6 +47,19 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .checkbox-row { display: flex; align-items: flex-start; gap: 8px; font-weight: 400; margin-top: 12px; }
 .checkbox-row input { margin-top: 2px; width: auto; }
 .hint { color: var(--color-muted); font-size: 12px; margin-top: 4px; }
+.message-preview {
+  margin: 6px 0 10px;
+  padding: 8px 10px;
+  border-left: 3px solid var(--color-accent);
+  border-radius: 0 7px 7px 0;
+  background: var(--color-accent-bg);
+  color: var(--color-text);
+  font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.message-preview::before { content: 'Example output: '; color: var(--color-muted); font-weight: 600; }
+.message-preview-empty { color: var(--color-muted); font-style: italic; }
 /* Every button/heading rule below is scoped under .container and marked !important: inside the
    Homey app the settings page gets Homey's own button/heading styles applied on top of ours, and
    without this the tab bar, pills and row actions all render as plain gray boxes (verified on a

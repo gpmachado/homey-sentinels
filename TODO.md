@@ -3,6 +3,10 @@
 ## Pending (2026-09-20)
 
 ### To verify on the Homey (built and unit-tested, not yet seen running)
+- **Deleted device under a monitor**: the red "Device missing" badge in Settings (after the hourly scan or ~8 min
+  after a restart), no more `Not Found` retries in the log; the first log line after start (`Watching: ...`).
+- **P25 / P75 tokens** of "Get activity statistics" (need 5 cycles) and the weekly trend "not enough data".
+- **"Set energy price"** action from a Flow (change the price, then finish a cycle and read the cost).
 - **Health widget**: add "Sentinels Health"; the four rows, the coloured lights, the overall pill and the names.
 - **Energy cost**: set a price and `R$`, finish a cycle of a monitor with energy data, and see `cost` / `%cost_text%`
   in the message and the Flow tokens; **decimal comma** in Settings -> Monitors -> Message format.
@@ -66,6 +70,50 @@ Order chosen: 1, 2, then 3, 4. Each was checked against what the app already kee
 - Performance notes from the same review are already how the app works: calculations in memory with saves
   batched every 15 s and only changed history rows written to SQLite; widgets read the app's 5 s cache and
   pause when not on screen.
+
+### Variable energy price (asked 2026-09-26)
+
+Today one flat price per kWh (Settings -> Monitors -> Energy cost); with no price the cost tokens are 0 and the
+texts empty, and `energy` (kWh) is always there for a Flow that does its own maths.
+- **"Set energy price" Flow action** (DONE 2026-09-27, to verify on the Homey): a card that changes the price (and optionally the currency),
+  so the user's own Flows handle time-of-use (18:00 set 1.20, 21:00 set 0.60) or a dynamic-tariff app's trigger.
+  A cycle is priced at the price in force when it ends (a cycle that crosses a change is priced whole at the end
+  price); say so in the card hint and HOWTO. No new permission.
+- **Price schedule inside the app** (later, only if exactness is needed): price bands by weekday and hour, the
+  cost of a cycle summed band by band from the periods (they keep energy with times, 7 days granular). Needs a
+  real editor in Settings, so it costs much more.
+
+Round of 2026-09-27: trend baseline floor, P25/P75 tokens, "Set energy price", cleanup of monitors of deleted
+devices and the startup summary line are DONE (to verify on the Homey). Next: 4) Ignore zone, Generate individual
+monitors, 5) top consumers / last cycles widget and the group members widget.
+
+### Statistics and reliability ideas (review of 2026-09-27), checked against the code
+
+Worth doing, cheap:
+- (DONE 2026-09-27) **Floor on the weekly trend baseline.** `weeklyTrend` in `lib/statistics.js` only checks `baseline !== 0`, so a
+  previous week with 1 cycle against 3 now reads +200 %. Require a minimum baseline (about 3 cycles, or a
+  small amount of energy) and otherwise say "not enough data".
+- (DONE 2026-09-27) **P25 / P75 of cycle duration and energy** as extra tokens of `get_activity_statistics` (the cycle list is
+  already there), so the spread is visible and not only the median.
+- (DONE 2026-09-27; monitors are flagged and stop retrying, never deleted automatically) **Clean up monitors of
+  deleted devices** (Activity / State / Voltage kept retrying with `Not Found`). Also a one-line **startup summary** in the log (monitors by kind, group
+  subscriptions, scan size) so a pasted log says at once what is running.
+- **Real mismatch time for groups**: with live events the time between the transitions can be accumulated
+  exactly, instead of the 5-minute poll estimate.
+- Already listed above and still valid: **Ignore zone** button, **Generate individual monitors**, widget
+  settings editable after adding (Voltage, Overview), erratic cycling and baseline drift triggers.
+
+Later, with care:
+- **Optional recalibration** of the activity threshold: today it calibrates once (`calibrating` goes false, and
+  also when the user types a threshold). Re-running `analyzeThreshold` every N days would have to apply only a
+  clearly different result, and never overwrite a value the user set by hand (needs a `userSetThreshold` flag).
+- **Median over a recent window** (14-30 days) as a separate token, to notice a change of behaviour.
+- **Show the `analyzeThreshold` result in Settings** (reason, low / high observed) instead of only in the log.
+- Duration-weighted average power as an extra token; `energy_quality: partial` when a gap over 4 h falls inside
+  the period; a daily average voltage kept in the daily summaries.
+
+Not needed: `activity_cycle_unusually_long` already exists (duration above a multiple of the median), so a "long
+cycle" anomaly is done; a statistics library, standard deviation / z-score on few cycles and k-means stay out.
 
 ### Housekeeping
 - Push the commits and the tags (`git push --follow-tags`); the tags exist locally only.

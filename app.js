@@ -9,7 +9,6 @@ const { isValidTimeZone } = require('./lib/time');
 const { punctuationToAscii } = require('./lib/text');
 const { startMemoryGuard } = require('./lib/memory-guard');
 const { DeviceDirectory } = require('./lib/device-directory');
-const { resumeWithRetry } = require('./lib/resume');
 const { openHistoryDb } = require('./lib/history-db');
 const { setDecimalComma } = require('./lib/message-template');
 const { MEMORY_LOG, DEVICE_CACHE_REFRESH_MS, HISTORY_CONSOLIDATION_MS, EVENT_LOG_MAX, GROUP_POLL_INTERVAL_MS, AVAILABILITY_POLL_INTERVAL_MS, SAVE_DEBOUNCE_MS } = require('./lib/app/constants');
@@ -133,18 +132,11 @@ class StatisticTrackerApp extends Homey.App {
     // Resuming a monitor needs its device: right after a Homey reboot the apps start before the
     // devices are ready, so a failed attempt is retried with growing waits instead of leaving the
     // monitor silent until the next restart.
-    const resume = (kind, collection, start) => Object.values(this.store.data[collection]).forEach((monitor) => resumeWithRetry({
-      label: `[${monitor.name}] ${kind}`,
-      start: () => start(monitor),
-      isStillWanted: () => Boolean(this.store.data[collection][monitor.id]),
-      schedule: (fn, ms) => this.homey.setTimeout(fn, ms),
-      log: (message) => this.log(message),
-      error: (message) => this.error(message)
-    }));
-    resume('monitor', 'monitors', (monitor) => this._watch(monitor));
-    resume('voltage monitor', 'voltageMonitors', (monitor) => this._watchVoltage(monitor));
-    resume('state monitor', 'stateMonitors', (monitor) => this._watchState(monitor));
+    for (const [kind, collection] of [['monitor', 'monitors'], ['voltage monitor', 'voltageMonitors'], ['state monitor', 'stateMonitors']]) {
+      Object.values(this.store.data[collection]).forEach((monitor) => this._resumeMonitor(kind, collection, monitor));
+    }
     Object.values(this.store.data.groups).forEach((group) => this._startGroupWatch(group));
+    this.log(this._startupSummary());
   }
 
   // A plain setInterval calling something network-dependent (device cache, system timezone)

@@ -324,3 +324,13 @@ test('wattage omitted behaves identically to before — stats fall back to the r
   assert.equal(events[0].type, 'finished');
   assert.equal(m.cycles[0].averagePower, 100);
 });
+
+test('percentile interpolates between neighbours and P50 is the median', () => {
+  const { percentile, median } = require('../lib/activity-engine');
+  assert.equal(percentile([], 0.5), null);
+  assert.equal(percentile([7], 0.9), 7);
+  assert.equal(percentile([10, 20, 30, 40, 50], 0.25), 20);
+  assert.equal(percentile([10, 20, 30, 40], 0.25), 17.5);
+  assert.equal(percentile([40, 10, 30, 20], 0.5), median([10, 20, 30, 40]));
+  assert.equal(percentile([1, 2, 3], 5), 3); // out of range is clamped
+});
