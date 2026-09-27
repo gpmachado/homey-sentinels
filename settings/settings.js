@@ -1459,7 +1459,20 @@ function onHomeyReady(Homey) {
 
   // Message format: one switch for every message the app writes.
   var decimalCommaBox = document.getElementById('message-decimal-comma');
-  api('GET', '/message-settings').then(function (settings) { decimalCommaBox.checked = settings.decimalComma === true; }).catch(function () {});
+  var priceInput = document.getElementById('energy-price');
+  var currencyInput = document.getElementById('energy-currency');
+  api('GET', '/message-settings').then(function (settings) {
+    decimalCommaBox.checked = settings.decimalComma === true;
+    priceInput.value = settings.pricePerKwh > 0 ? settings.pricePerKwh : '';
+    currencyInput.value = settings.currency || '';
+  }).catch(function () {});
+  document.getElementById('energy-cost-save').addEventListener('click', function () {
+    api('POST', '/message-settings', { pricePerKwh: priceInput.value, currency: currencyInput.value }).then(function (saved) {
+      priceInput.value = saved.pricePerKwh > 0 ? saved.pricePerKwh : '';
+      currencyInput.value = saved.currency || '';
+      Homey.alert(saved.pricePerKwh > 0 ? 'Saved. Finished cycles now carry their estimated cost.' : 'Saved. The cost is off (no price set).');
+    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+  });
   decimalCommaBox.addEventListener('change', function () {
     api('POST', '/message-settings', { decimalComma: decimalCommaBox.checked }).catch(function (error) {
       decimalCommaBox.checked = !decimalCommaBox.checked;

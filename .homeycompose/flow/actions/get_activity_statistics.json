@@ -15,6 +15,8 @@
     { "name": "active_duration", "type": "number", "title": { "en": "Active duration (seconds)" } },
     { "name": "standby_duration", "type": "number", "title": { "en": "Standby duration (seconds)" } },
     { "name": "total_energy", "type": "number", "title": { "en": "Energy (kWh)" } },
+    { "name": "total_cost", "type": "number", "title": { "en": "Total cost (needs an energy price in Settings)" } },
+    { "name": "total_cost_text", "type": "string", "title": { "en": "Total cost (text, with currency)" } },
     { "name": "active_energy", "type": "number", "title": { "en": "Active energy (kWh)" } },
     { "name": "standby_energy", "type": "number", "title": { "en": "Standby energy (kWh)" } },
     { "name": "average_power", "type": "number", "title": { "en": "Average power while active (W)" } },

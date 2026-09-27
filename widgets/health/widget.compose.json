@@ -1,0 +1,21 @@
+{
+  "name": {
+    "en": "Sentinels Health"
+  },
+  "height": 260,
+  "settings": [
+    {
+      "id": "title",
+      "type": "text",
+      "title": { "en": "Title" },
+      "hint": { "en": "Shown above the card. Leave empty for no title." },
+      "value": ""
+    }
+  ],
+  "api": {
+    "getSummary": {
+      "method": "GET",
+      "path": "/summary"
+    }
+  }
+}

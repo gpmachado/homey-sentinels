@@ -27,7 +27,7 @@ Defaults for both layers (silence hours, wait after app start, how long a device
 
 ## How it talks back
 
-Every monitor exposes Flow triggers, conditions, and actions with tokens for duration, energy, average/peak power and current, and a ready-to-use `message` token — the sentence is built from a template you write once per monitor (with a token-insert helper in Settings), not assembled card-by-card in every Flow. Templates are your own text, in whatever language you like (Homey's own UI has no Portuguese, so nothing is forced through its translations). HOWTO has ready-made Portuguese examples, and one switch in Settings turns `1.5 kWh` into `1,5 kWh` in messages.
+Every monitor exposes Flow triggers, conditions, and actions with tokens for duration, energy, average/peak power and current, and a ready-to-use `message` token — the sentence is built from a template you write once per monitor (with a token-insert helper in Settings), not assembled card-by-card in every Flow. Templates are your own text, in whatever language you like (Homey's own UI has no Portuguese, so nothing is forced through its translations). HOWTO has ready-made Portuguese examples, and one switch in Settings turns `1.5 kWh` into `1,5 kWh` in messages. Give it a price per kWh (Settings → Monitors → Energy cost) and every finished cycle also carries its estimated cost, as tokens and as `%cost_text%` ("R$ 1,02") in messages.
 
 Triggers that describe an event also carry the moment it happened: `timestamp` (ISO, UTC — for scripts) and `time` (`2026-09-23 10:14:14`, in your time zone — for a timeline entry or a message; `%time%` works inside message templates too).
 
@@ -35,11 +35,12 @@ Triggers that describe an event also carry the moment it happened: `timestamp` (
 
 The Settings page has three tabs. **Monitors** lists every monitor as a row — name, live state, key stats, a daily sparkline — with actions to edit, reset history or delete. **Availability** shows the scan tiles, the device list with badges, the per-app list and the watchdog defaults. **Groups** lists the groups with a live "Check now", the state Flow currently holds (and a reset for it if it ever gets stuck) and the add/edit form.
 
-Five dashboard widgets (they work in the Homey mobile app and dashboard, not in the web app):
+Six dashboard widgets (they work in the Homey mobile app and dashboard, not in the web app):
 
 - **Sentinel** — one monitor or group: status, a live session timer, a Today / 7 Days / 30 Days switch, headline numbers and a small chart.
 - **Sentinels Overview** — a compact list of up to five picked items, or every monitor and group at once ("Show every monitor", optionally by kind), problems first; with a title.
 - **Sentinels Timeline** — the latest events across all monitors.
+- **Sentinels Health** — the state of the house in one card: devices with a problem, monitors running now, voltage out of range and groups in mismatch, each with a coloured light, the names involved and an overall "All good / N need attention".
 - **Sentinels Watchdogs** — tiles for not reporting / unavailable / low battery / OK that filter the list, zone names, a **Check now** button, a title and an "only problems" option.
 - **Sentinels Voltage** — the current reading of each voltage monitor against its configured band.
 

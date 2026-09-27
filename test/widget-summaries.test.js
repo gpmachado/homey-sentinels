@@ -39,3 +39,41 @@ test('voltage: keeps the reading, today\'s range and episodes, and the configure
   assert.equal(summary.items[2].currentVoltage, null);
   assert.equal(summary.items[2].bandMin, null);
 });
+
+test('health: unavailable is bad, silent or low battery is a warning, everything fine is good', () => {
+  const { healthWidgetSummary } = require('../lib/widget-summaries');
+  const fine = healthWidgetSummary({ scan: { monitored: 10, problems: [] } });
+  assert.equal(fine.level, 'good');
+  assert.equal(fine.rows[0].text, 'All 10 fine');
+
+  const warn = healthWidgetSummary({ scan: { monitored: 10, problems: [{ name: 'Quiet', reason: 'stale' }, { name: 'Weak', reason: null, lowBattery: true }] } });
+  assert.equal(warn.level, 'warn');
+  assert.equal(warn.rows[0].text, '1 not reporting, 1 low battery');
+  assert.deepEqual(warn.rows[0].names, ['Quiet', 'Weak']);
+
+  const bad = healthWidgetSummary({ scan: { monitored: 10, problems: [{ name: 'Gone', reason: 'unavailable' }] }, watchdogs: [{ name: 'Pump', wentUnavailableAt: 1 }] });
+  assert.equal(bad.level, 'bad');
+  assert.equal(bad.rows[0].count, 2);
+});
+
+test('health: running monitors only inform, voltage outside its band is bad, a reported group mismatch is a warning', () => {
+  const { healthWidgetSummary } = require('../lib/widget-summaries');
+  const summary = healthWidgetSummary({
+    activityMonitors: [{ name: 'Washer', state: 'ACTIVE' }, { name: 'Fridge', state: 'STANDBY' }],
+    voltageSummaries: [{ name: 'Phase A', state: 'NORMAL' }, { name: 'Phase B', state: 'UNDERVOLTAGE' }],
+    groups: [{ name: 'Doors', devices: [{}, {}], mismatchSince: 5 }, { name: 'Lights', devices: [{}, {}], mismatchSince: null }, { name: 'Broken', devices: [{}], mismatchSince: 9 }]
+  });
+  const row = (key) => summary.rows.find((r) => r.key === key);
+  assert.deepEqual([row('running').level, row('running').text, row('running').names], ['info', '1 running', ['Washer']]);
+  assert.deepEqual([row('voltage').level, row('voltage').text], ['bad', '1 out of range']);
+  assert.deepEqual([row('groups').level, row('groups').count, row('groups').total], ['warn', 1, 2]); // a group with one device is not judged
+  assert.equal(summary.level, 'bad');
+  assert.equal(summary.attentionCount, 2); // voltage and groups; "running" never counts
+});
+
+test('health: nothing configured gives no rows, and long lists are cut to three names', () => {
+  const { healthWidgetSummary } = require('../lib/widget-summaries');
+  assert.deepEqual(healthWidgetSummary({}), { level: 'good', attentionCount: 0, scanning: false, rows: [] });
+  const many = healthWidgetSummary({ scan: { monitored: 9, problems: ['e', 'd', 'c', 'b', 'a'].map((name) => ({ name, reason: 'stale' })) } });
+  assert.deepEqual([many.rows[0].names, many.rows[0].more], [['a', 'b', 'c'], 2]);
+});

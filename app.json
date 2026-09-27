@@ -429,6 +429,34 @@
             }
           },
           {
+            "name": "cost",
+            "type": "number",
+            "title": {
+              "en": "Cost of this cycle"
+            }
+          },
+          {
+            "name": "cost_today",
+            "type": "number",
+            "title": {
+              "en": "Cost today"
+            }
+          },
+          {
+            "name": "cost_text",
+            "type": "string",
+            "title": {
+              "en": "Cost of this cycle (text, with currency)"
+            }
+          },
+          {
+            "name": "cost_today_text",
+            "type": "string",
+            "title": {
+              "en": "Cost today (text, with currency)"
+            }
+          },
+          {
             "name": "average_power",
             "type": "number",
             "title": {
@@ -949,6 +977,34 @@
             "type": "number",
             "title": {
               "en": "Energy today (kWh)"
+            }
+          },
+          {
+            "name": "cost",
+            "type": "number",
+            "title": {
+              "en": "Cost of this cycle"
+            }
+          },
+          {
+            "name": "cost_today",
+            "type": "number",
+            "title": {
+              "en": "Cost today"
+            }
+          },
+          {
+            "name": "cost_text",
+            "type": "string",
+            "title": {
+              "en": "Cost of this cycle (text, with currency)"
+            }
+          },
+          {
+            "name": "cost_today_text",
+            "type": "string",
+            "title": {
+              "en": "Cost today (text, with currency)"
             }
           },
           {
@@ -2242,6 +2298,20 @@
             }
           },
           {
+            "name": "total_cost",
+            "type": "number",
+            "title": {
+              "en": "Total cost (needs an energy price in Settings)"
+            }
+          },
+          {
+            "name": "total_cost_text",
+            "type": "string",
+            "title": {
+              "en": "Total cost (text, with currency)"
+            }
+          },
+          {
             "name": "active_energy",
             "type": "number",
             "title": {
@@ -3269,6 +3339,32 @@
         }
       },
       "id": "availability"
+    },
+    "health": {
+      "name": {
+        "en": "Sentinels Health"
+      },
+      "height": 260,
+      "settings": [
+        {
+          "id": "title",
+          "type": "text",
+          "title": {
+            "en": "Title"
+          },
+          "hint": {
+            "en": "Shown above the card. Leave empty for no title."
+          },
+          "value": ""
+        }
+      ],
+      "api": {
+        "getSummary": {
+          "method": "GET",
+          "path": "/summary"
+        }
+      },
+      "id": "health"
     },
     "overview": {
       "name": {

@@ -32,7 +32,7 @@ lib/                      Pure logic and storage (each file has a test)
   message-template.js     %token% rendering with singular/plural support
   time.js                 Timezone-aware local-day helpers and the local time text
 settings/                 Settings UI (tabs: Monitors, Availability, Groups), plain HTML/CSS/JS
-widgets/                  Dashboard widgets: sentinel, overview, timeline, availability (Watchdogs), voltage
+widgets/                  Dashboard widgets: sentinel, overview, timeline, availability (Watchdogs), voltage, health
 .homeycompose/            Source of truth for app.json (flow cards, capabilities, api routes)
 test/                     node:test suites (see section 8)
 ```
@@ -259,6 +259,15 @@ Activity and State monitors share one `ActivityEngine` class:
 - `median()` on duration/energy is gated by `MEDIAN_MIN_CYCLES` (5) — below that, the median is
   `null` ("still learning") rather than a number that looks more authoritative than a sample of
   1–2 cycles deserves.
+
+### Energy cost tokens
+
+`messageSettings` in the store holds `pricePerKwh`, `currency` (only characters up to U+00FF, since it lives in
+settings) and `decimalComma`. `lib/cost.js` (`costOf`: kWh times price, kept to cents; `costText`: currency and two
+decimals with the app's decimal separator, empty with no price) feeds `_costTokens` in `lib/app/summaries.js`,
+which adds `cost`, `cost_today`, `cost_text` and `cost_today_text` to the finished-cycle data of Activity and
+State monitors (so they are Flow tokens and `%placeholders%`), and `total_cost(_text)` to the activity statistics
+action. A flat price only; time-of-use tariffs are not modelled.
 
 ### Time in Flow tokens and messages
 

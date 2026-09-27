@@ -257,10 +257,25 @@ refresh every 30 seconds while on screen, and their settings can be changed afte
 - **Sentinels Overview** — up to five picked items as one compact list, or **Show every monitor**
   (optionally only one kind), problems first, with an optional title.
 - **Sentinels Timeline** — the latest events across all monitors.
+- **Sentinels Health** — one card with four rows: **Devices** (unavailable, not reporting, low battery, from the scan and the watchdogs), **Running now** (activity monitors that are active; it only informs), **Voltage** (monitors outside their band) and **Groups** (groups Flow has been told are mismatched). Each row has a coloured light and the names involved; the pill on top says "All good" or how many rows need attention. Rows with nothing configured are left out.
 - **Sentinels Watchdogs** — tiles for not reporting / unavailable / low battery / OK that filter the
   list, the zone of each device, a **Check now** button, an optional title and "only devices with a
   problem".
 - **Sentinels Voltage** — each voltage monitor's current reading against its configured band.
+
+## Energy cost
+
+Settings → Monitors → **Energy cost**: type the price of a kWh and a currency symbol (`R$`, `$`, `EUR`; a euro
+sign is not accepted, type `EUR`). From then on every finished cycle of an Activity or State monitor carries:
+
+- `cost` and `cost_today` (numbers, for maths in a Flow), the cost of that cycle and of all of today's cycles,
+- `cost_text` and `cost_today_text` (text with the currency and two decimals, `R$ 1,02`, using the comma if you
+  turned it on), which is also available as `%cost_text%` and `%cost_today_text%` in message templates,
+- and the **Get activity statistics** action returns `total_cost` and `total_cost_text` for the period.
+
+The cost is the energy of the cycle times the price, kept to cents. It is an estimate for one flat price (no
+time-of-use tariffs). With no price set, the numbers are 0 and the texts are empty, so a message such as
+`... (%energy% kWh, %cost_text%)` stays clean.
 
 ## Message wording — examples in Portuguese
 
@@ -273,6 +288,7 @@ token buttons insert the `%placeholders%`). Some ready-made ones, to copy and ad
 | Activity, started | `%monitor% ligou (%power% W)` |
 | Activity, finished | `%monitor% desligou: %duration_human%, %energy% kWh (%count% %count:ciclo|ciclos% hoje)` |
 | Activity, with the time | `%time% - %monitor% terminou em %duration_human%, consumo de %energy% kWh` |
+| Activity, with the cost | `%monitor% terminou: %duration_human%, %energy% kWh, custo %cost_text% (hoje %cost_today_text%)` |
 | State (door, motion), started | `%monitor% agora está %label%` |
 | State, finished | `%monitor% voltou a %label% depois de %duration_human% (%count% hoje)` |
 | Voltage, undervoltage | `Tensão baixa em %monitor%: %voltage% V` |

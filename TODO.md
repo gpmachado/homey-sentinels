@@ -3,6 +3,9 @@
 ## Pending (2026-09-20)
 
 ### To verify on the Homey (built and unit-tested, not yet seen running)
+- **Health widget**: add "Sentinels Health"; the four rows, the coloured lights, the overall pill and the names.
+- **Energy cost**: set a price and `R$`, finish a cycle of a monitor with energy data, and see `cost` / `%cost_text%`
+  in the message and the Flow tokens; **decimal comma** in Settings -> Monitors -> Message format.
 - **Deleted group member**: delete a device that is in a group. The poll should stop failing with `Not Found`,
   the group should keep working, and after 3 polls (or with **Clean up** / **Remove now** in Edit) the device
   should leave the group with a line in the event log.
@@ -39,10 +42,10 @@
 
 Order chosen: 1, 2, then 3, 4. Each was checked against what the app already keeps.
 
-1. **"Home health" widget** (IN PROGRESS): one card with the state of the house: devices with a problem
+1. **"Home health" widget** (DONE 2026-09-24, to verify on the Homey: widget "Sentinels Health"): one card with the state of the house: devices with a problem
    (scan + watchdogs), monitors active now, voltage outside its band, groups in mismatch. Everything is in the
    store already (`_availabilityScan`, watchdogs, monitor `state`, `group.mismatchSince`), no API call.
-2. **Estimated cost** (IN PROGRESS): a price per kWh (and currency symbol) in Settings; a `cost` token and
+2. **Estimated cost** (DONE 2026-09-24, to verify on the Homey: Settings -> Monitors -> Energy cost): a price per kWh (and currency symbol) in Settings; a `cost` token and
    `%cost%` in the message of finished cycles, and cost in the statistics tokens. Also feeds the Shelly Pro
    energy widget idea above.
 3. **Top consumers / last cycles widget**: cycles already keep duration, energy and time; the day's energy per

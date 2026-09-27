@@ -346,6 +346,17 @@
       Use a comma as the decimal separator in messages (1,5 kWh instead of 1.5 kWh)
     </label>
     <p class="hint">Only the wording of messages changes. Flow tokens of type number keep the dot, which Homey requires.</p>
+    <h2>Energy cost</h2>
+    <p class="hint">Set the price of a kWh to get the estimated cost of each finished cycle: the Flow tokens <code>cost</code>, <code>cost_today</code>, <code>cost_text</code> (with the currency, "R$ 1,02") and <code>%cost_text%</code> in message templates. Leave the price empty to turn it off.</p>
+    <div class="cost-row">
+      <label>Price per kWh
+        <input type="number" id="energy-price" min="0" step="0.01" placeholder="0.85">
+      </label>
+      <label>Currency
+        <input type="text" id="energy-currency" maxlength="6" placeholder="R$">
+      </label>
+      <button type="button" id="energy-cost-save">Save</button>
+    </div>
   </div>
 
   <div class="tab-panel hidden" data-tab="availability">

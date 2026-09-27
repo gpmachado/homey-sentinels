@@ -768,7 +768,7 @@ test('message settings: default off, kept when set, and old data without them lo
   const settings = { get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} };
   const store = new SentinelStore(settings);
   await store.load();
-  assert.deepEqual(store.getMessageSettings(), { decimalComma: false });
+  assert.deepEqual(store.getMessageSettings(), { decimalComma: false, pricePerKwh: 0, currency: '' });
   store.updateMessageSettings({ decimalComma: true });
   assert.equal(store.getMessageSettings().decimalComma, true);
   store.updateMessageSettings({ decimalComma: 'nonsense' });
