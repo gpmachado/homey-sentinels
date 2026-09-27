@@ -70,6 +70,28 @@ function onHomeyReady(Homey) {
     return Math.floor(minutes / 60) + 'h ' + (minutes % 60) + 'min';
   }
 
+  // "YYYY-MM-DD HH:mm:ss" of a moment, in the browser's own local time — a stand-in for the real %time% token
+  // (lib/time.js#localTimeText renders the same shape in the app's configured time zone). Good enough for a
+  // preview: exact only when the browser and the Homey are in the same time zone, which is the usual case.
+  function formatPreviewTime(date) {
+    var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+    return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + ' '
+      + pad(date.getHours()) + ':' + pad(date.getMinutes()) + ':' + pad(date.getSeconds());
+  }
+
+  // Mirrors lib/cost.js so the %cost%/%cost_text% preview matches what a real message would show: kept to
+  // cents, empty text with no price configured (0 is "not set", not "free"), the app's currency and decimal mark.
+  function previewCostOf(kwh, pricePerKwh) {
+    if (!isFinite(kwh) || !isFinite(pricePerKwh) || pricePerKwh <= 0) return 0;
+    return Math.round(kwh * pricePerKwh * 100) / 100;
+  }
+  function previewCostText(cost, pricePerKwh, currency, decimalComma) {
+    if (!isFinite(cost) || !isFinite(pricePerKwh) || pricePerKwh <= 0) return '';
+    var digits = cost.toFixed(2);
+    var number = decimalComma ? digits.replace('.', ',') : digits;
+    return currency ? currency + ' ' + number : number;
+  }
+
   // Message templates are deliberately rendered here with representative values. This makes
   // the value of a Flow message token visible before a user has to build a complete Flow or wait
   // for a real event. Unknown tokens stay marked instead of disappearing, so a typo is visible.
@@ -100,9 +122,26 @@ function onHomeyReady(Homey) {
     update();
   }
   function refreshMessagePreviews() { messagePreviewBindings.forEach(function (update) { update(); }); }
-  var activityPreviewData = { device: 'Example device', monitor: 'Washing machine', power: 850, duration_human: '42 min', energy: 0.6, average_power: 540, count: 3 };
-  var statePreviewData = { device: 'Example sensor', monitor: 'Front door', label: 'Open', duration_human: '12 min', count: 2 };
-  var voltagePreviewData = { device: 'Example meter', monitor: 'Main voltage', voltage: 228.5, duration_human: '5 min', min_voltage: 210, max_voltage: 240, average_voltage: 229 };
+  // One realistic value per token these templates can actually receive (matching the real trigger payloads in
+  // lib/app/activity.js, state.js, voltage.js) — every token below is a genuine one, so an unrecognized
+  // ‹token› in the preview means a typo, never a token this preview simply forgot about.
+  var previewTime = formatPreviewTime(new Date());
+  var activityPreviewData = {
+    device: 'Example device', monitor: 'Washing machine', power: 850, time: previewTime,
+    duration: 2520, duration_human: '42 min', energy: 0.6, energy_today: 1.8,
+    average_power: 540, max_power: 780, average_current: 2.4, max_current: 3.3, count: 3,
+    cost: 0, cost_today: 0, cost_text: '', cost_today_text: ''
+  };
+  var statePreviewData = {
+    device: 'Example sensor', monitor: 'Front door', label: 'Open', time: previewTime,
+    duration: 720, duration_human: '12 min', energy: 0, energy_today: 0,
+    average_power: 0, max_power: 0, average_current: 0, max_current: 0, count: 2,
+    cost: 0, cost_today: 0, cost_text: '', cost_today_text: ''
+  };
+  var voltagePreviewData = {
+    device: 'Example meter', monitor: 'Main voltage', voltage: 228.5, time: previewTime,
+    event_type: 'undervoltage', duration: 320, duration_human: '5 min', min_voltage: 210, max_voltage: 240, average_voltage: 229
+  };
   var binaryPreviewData = { counter: 'Doorbell', count: 2, total: 17 };
   var groupPreviewZeroData = { group: 'Downstairs lights', count: 0, items: '' };
   var groupPreviewOneData = { group: 'Downstairs lights', count: 1, items: 'Kitchen' };
@@ -1529,20 +1568,36 @@ function onHomeyReady(Homey) {
   var decimalCommaBox = document.getElementById('message-decimal-comma');
   var priceInput = document.getElementById('energy-price');
   var currencyInput = document.getElementById('energy-currency');
+  // The %cost%/%cost_text% preview only makes sense with the real price, currency and decimal-comma setting —
+  // recomputed here (once loaded, and again whenever the price/currency is saved) so it matches production.
+  function applyCostPreview(settings) {
+    var price = Number(settings.pricePerKwh) || 0;
+    [activityPreviewData, statePreviewData].forEach(function (data) {
+      data.cost = previewCostOf(data.energy, price);
+      data.cost_today = previewCostOf(data.energy_today, price);
+      data.cost_text = previewCostText(data.cost, price, settings.currency, settings.decimalComma);
+      data.cost_today_text = previewCostText(data.cost_today, price, settings.currency, settings.decimalComma);
+    });
+    refreshMessagePreviews();
+  }
   api('GET', '/message-settings').then(function (settings) {
     decimalCommaBox.checked = settings.decimalComma === true;
     priceInput.value = settings.pricePerKwh > 0 ? settings.pricePerKwh : '';
     currencyInput.value = settings.currency || '';
+    applyCostPreview(settings);
   }).catch(function () {});
   document.getElementById('energy-cost-save').addEventListener('click', function () {
     api('POST', '/message-settings', { pricePerKwh: priceInput.value, currency: currencyInput.value }).then(function (saved) {
       priceInput.value = saved.pricePerKwh > 0 ? saved.pricePerKwh : '';
       currencyInput.value = saved.currency || '';
+      applyCostPreview(saved);
       Homey.alert(saved.pricePerKwh > 0 ? 'Saved. Finished cycles now carry their estimated cost.' : 'Saved. The cost is off (no price set).');
     }).catch(function (error) { Homey.alert(error.message || String(error)); });
   });
   decimalCommaBox.addEventListener('change', function () {
-    api('POST', '/message-settings', { decimalComma: decimalCommaBox.checked }).catch(function (error) {
+    api('POST', '/message-settings', { decimalComma: decimalCommaBox.checked }).then(function (saved) {
+      applyCostPreview(saved);
+    }).catch(function (error) {
       decimalCommaBox.checked = !decimalCommaBox.checked;
       Homey.alert(error.message || String(error));
     });
