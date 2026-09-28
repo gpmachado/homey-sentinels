@@ -273,6 +273,25 @@ also flags monitors whose `deviceId` is absent (a device deleted while the monit
 and restarts the ones whose device is back. Summaries expose `deviceMissing` (a badge in Settings). Monitors and
 their history are never deleted automatically. `_startupSummary` logs what is running at start.
 
+### Cost threshold trigger
+
+`activity_cost_exceeded` fires once per configured amount, per day, per Flow: `energy_today` already
+includes the just-finished cycle, so `previousCost = cost_today - cost` is what today's total was right
+before it. The card's own `registerRunListener` checks `previousCost < args.amount <= costToday` (a real-
+valued generalisation of `activity_cycles_reached`'s exact-integer match) — several Flows can watch the
+same monitor for different amounts, each firing exactly once the day its own amount is first reached, with
+no state kept anywhere: the interval is recomputed from the same two numbers every time, and resets on its
+own at midnight since cost_today does. State monitors don't have this trigger yet (only Activity monitors
+track energy by default).
+
+### Voltage phase imbalance
+
+`voltageImbalancePercent(a, b)` (lib/statistics.js) is `|a - b| / ((a + b) / 2) * 100`, `null` if either
+reading is missing or their average is not positive. The condition `voltage_phase_imbalance` compares two
+existing Voltage monitors' `lastSample.voltage` with it — no new monitor type or stored state, since a
+multi-phase device is already watched one Voltage monitor per phase (see 2.3). More than two phases is
+several pairwise conditions chained with AND/OR in one Flow.
+
 ### Energy cost tokens
 
 `messageSettings` in the store holds `pricePerKwh`, `currency` (only characters up to U+00FF, since it lives in

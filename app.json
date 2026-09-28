@@ -216,6 +216,87 @@
     "triggers": [
       {
         "title": {
+          "en": "Cost today exceeds an amount"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] costs more than [[amount]] today"
+        },
+        "hint": {
+          "en": "Fires once per day, the moment a finished cycle pushes today's estimated cost for this monitor to or past the given amount. Needs a price set in Settings -> Monitors -> Energy cost, or change it from a Flow with 'Set energy price'. Resets at midnight."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Monitor"
+            },
+            "hint": {
+              "en": "Which activity monitor to watch."
+            }
+          },
+          {
+            "name": "amount",
+            "type": "number",
+            "min": 0,
+            "step": 0.01,
+            "title": {
+              "en": "Amount"
+            },
+            "hint": {
+              "en": "In the currency set in Energy cost."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "monitor",
+            "type": "string",
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "cost_today",
+            "type": "number",
+            "title": {
+              "en": "Cost today"
+            }
+          },
+          {
+            "name": "cost_today_text",
+            "type": "string",
+            "title": {
+              "en": "Cost today (text, with currency)"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message"
+            }
+          }
+        ],
+        "id": "activity_cost_exceeded"
+      },
+      {
+        "title": {
           "en": "Cycle unusually long"
         },
         "titleFormatted": {
@@ -1649,6 +1730,46 @@
           }
         ],
         "id": "voltage_is_state"
+      },
+      {
+        "title": {
+          "en": "!{{Two voltage monitors are|Two voltage monitors are not}} more than [[percent]]% apart"
+        },
+        "titleFormatted": {
+          "en": "!{{[[monitor_a]] and [[monitor_b]] differ by more than|do not differ by more than}} [[percent]]%"
+        },
+        "hint": {
+          "en": "Compares the current reading of two Voltage monitors (e.g. two phases of a three-phase meter, watched as separate monitors) as a percent of their average: |A - B| / ((A + B) / 2) x 100. For more than two phases, chain this condition once per pair with AND/OR. False while either monitor has no reading yet."
+        },
+        "args": [
+          {
+            "name": "monitor_a",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor A"
+            }
+          },
+          {
+            "name": "monitor_b",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor B"
+            }
+          },
+          {
+            "name": "percent",
+            "type": "number",
+            "min": 0,
+            "step": 0.5,
+            "placeholder": {
+              "en": "e.g. 5"
+            },
+            "title": {
+              "en": "Percent"
+            }
+          }
+        ],
+        "id": "voltage_phase_imbalance"
       }
     ],
     "actions": [

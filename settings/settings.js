@@ -109,23 +109,110 @@ function onHomeyReady(Homey) {
   }
 
   var messagePreviewBindings = [];
+  // Copies plain text to the clipboard from this webview (Homey's settings page, no HTTPS guarantee, so the
+  // modern clipboard API may be unavailable) — falls back to the old select+execCommand trick, and gives up
+  // quietly if neither works rather than throwing into a click handler.
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) return navigator.clipboard.writeText(text).catch(function () { copyTextFallback(text); });
+    copyTextFallback(text);
+    return Promise.resolve();
+  }
+  function copyTextFallback(text) {
+    var area = document.createElement('textarea');
+    area.value = text;
+    area.style.position = 'fixed';
+    area.style.opacity = '0';
+    document.body.appendChild(area);
+    area.focus();
+    area.select();
+    try { document.execCommand('copy'); } catch (e) { /* best effort */ }
+    document.body.removeChild(area);
+  }
+
   function bindMessagePreview(inputId, previewId, data) {
     var input = document.getElementById(inputId);
     var preview = document.getElementById(previewId);
     if (!input || !preview) return;
+    // A "ready-to-copy" button next to the example — the whole point of the preview is a finished sentence
+    // the user can already judge or hand to someone else, not just read on screen.
+    var wrapper = document.createElement('div');
+    wrapper.className = 'message-preview-row';
+    preview.parentNode.insertBefore(wrapper, preview);
+    wrapper.appendChild(preview);
+    var copyBtn = document.createElement('button');
+    copyBtn.type = 'button';
+    copyBtn.className = 'message-preview-copy-btn';
+    copyBtn.textContent = 'Copy';
+    wrapper.appendChild(copyBtn);
     var update = function () {
-      preview.textContent = renderMessageExample(input.value, data);
+      var text = renderMessageExample(input.value, data);
+      preview.textContent = text;
       preview.classList.toggle('message-preview-empty', !input.value.trim());
+      copyBtn.disabled = !input.value.trim();
+      copyBtn.title = input.value.trim() ? 'Copy "' + text + '"' : 'Type a template first';
     };
+    copyBtn.addEventListener('click', function () {
+      copyText(preview.textContent).then(function () {
+        copyBtn.textContent = 'Copied!';
+        copyBtn.classList.add('is-copied');
+        setTimeout(function () { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('is-copied'); }, 1500);
+      });
+    });
     input.addEventListener('input', update);
     messagePreviewBindings.push(update);
     update();
   }
   function refreshMessagePreviews() { messagePreviewBindings.forEach(function (update) { update(); }); }
+
   // One realistic value per token these templates can actually receive (matching the real trigger payloads in
   // lib/app/activity.js, state.js, voltage.js) — every token below is a genuine one, so an unrecognized
   // ‹token› in the preview means a typo, never a token this preview simply forgot about.
   var previewTime = formatPreviewTime(new Date());
+
+  // Name, category and a realistic example for every token a message template can use — matches the sample
+  // data fed to the preview above, so hovering a button answers "what is this, and what will it look like"
+  // without needing to type it first. Categories double as a colored left edge on the button (see style.css).
+  var TOKEN_INFO = {
+    device: { group: 'identification', type: 'text', example: 'Bomba do poço' },
+    monitor: { group: 'identification', type: 'text', example: 'Bomba do poço' },
+    label: { group: 'identification', type: 'text', example: 'Open' },
+    counter: { group: 'identification', type: 'text', example: 'Doorbell' },
+    group: { group: 'identification', type: 'text', example: 'Downstairs lights' },
+    event_type: { group: 'identification', type: 'text', example: 'UNDERVOLTAGE' },
+    time: { group: 'time', type: 'text', example: previewTime },
+    duration: { group: 'time', type: 'number (seconds)', example: '2520' },
+    duration_human: { group: 'time', type: 'text', example: '42 min' },
+    energy: { group: 'energy', type: 'number (kWh)', example: '0.6' },
+    energy_today: { group: 'energy', type: 'number (kWh)', example: '1.8' },
+    power: { group: 'power', type: 'number (W)', example: '850' },
+    average_power: { group: 'power', type: 'number (W)', example: '540' },
+    max_power: { group: 'power', type: 'number (W)', example: '780' },
+    average_current: { group: 'power', type: 'number (A)', example: '2.4' },
+    max_current: { group: 'power', type: 'number (A)', example: '3.3' },
+    voltage: { group: 'power', type: 'number (V)', example: '228.5' },
+    min_voltage: { group: 'power', type: 'number (V)', example: '210' },
+    max_voltage: { group: 'power', type: 'number (V)', example: '240' },
+    average_voltage: { group: 'power', type: 'number (V)', example: '229' },
+    cost: { group: 'cost', type: 'number', example: 'depends on the price set in Energy cost' },
+    cost_today: { group: 'cost', type: 'number', example: 'depends on the price set in Energy cost' },
+    cost_text: { group: 'cost', type: 'text', example: 'R$ 1.02 (empty with no price set)' },
+    cost_today_text: { group: 'cost', type: 'text', example: 'R$ 2.55 (empty with no price set)' },
+    count: { group: 'count', type: 'number', example: '3' },
+    total: { group: 'count', type: 'number', example: '17' },
+    items: { group: 'count', type: 'text', example: 'Kitchen, Hall and Porch' }
+  };
+  // "%count:time|times%" is its own token syntax, not a plain key — matched separately so it still gets a
+  // tooltip instead of falling through to "no info for this token".
+  function tokenInfoFor(rawToken) {
+    var key = rawToken.replace(/^%/, '').replace(/%$/, '').split(':')[0];
+    return TOKEN_INFO[key] || null;
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('button[data-token]'), function (btn) {
+    var info = tokenInfoFor(btn.getAttribute('data-token') || '');
+    if (!info) return;
+    btn.setAttribute('data-group', info.group);
+    btn.title = info.type + ' — e.g. ' + info.example;
+  });
   var activityPreviewData = {
     device: 'Example device', monitor: 'Washing machine', power: 850, time: previewTime,
     duration: 2520, duration_human: '42 min', energy: 0.6, energy_today: 1.8,
@@ -502,8 +589,20 @@ function onHomeyReady(Homey) {
       var isActive = monitor.state === 'ACTIVE';
       var avgPower = monitor.averagePower !== null && monitor.averagePower !== undefined ? Math.round(monitor.averagePower) + ' W' : '—';
       var suggestion = monitor.suggestedThreshold;
+      var progress = monitor.calibrationProgress;
+      // "Calibrating" used to be a bare spinner with no visible progress. With `progress` this says how far
+      // it got and, once enough samples exist without a clear standby/active split, why it's stuck — instead
+      // of a monitor that silently looks broken for days (see the pump that stayed "calibrating" over a week).
+      var calibratingTitle = 'Using a default 40 W threshold until enough history confirms this device\'s real standby/active power split.';
+      if (progress) {
+        if (progress.status === 'collecting') calibratingTitle = progress.valuesCollected + ' of ' + progress.valuesNeeded + ' power samples collected so far.';
+        else if (progress.status === 'inconclusive') {
+          calibratingTitle = progress.valuesCollected + ' samples collected (' + progress.min + '-' + progress.max + ' W), but no clear standby/active split yet'
+            + (progress.standbyHigh !== null ? ': the closest split seen is standby up to ' + progress.standbyHigh + ' W, active from ' + progress.activeLow + ' W, not different enough to trust.' : '.');
+        }
+      }
       var stateBadge = monitor.calibrating
-        ? '<span class="badge badge-calibrating" title="Using a default 40 W threshold until enough history confirms this device\'s real standby/active power split.">Calibrating</span>'
+        ? '<span class="badge badge-calibrating" title="' + escapeHtml(calibratingTitle) + '">Calibrating' + (progress && progress.status === 'collecting' ? ' (' + progress.valuesCollected + '/' + progress.valuesNeeded + ')' : '') + '</span>'
         : '<span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + (isActive ? 'Active' : 'Standby') + '</span>';
       var nameHtml = escapeHtml(monitor.name) + ' ' + stateBadge + (monitor.deviceMissing ? ' <span class="badge badge-danger" title="The device was deleted from Homey; this monitor no longer receives data. Delete it if it is not needed.">Device missing</span>' : '');
       // Energy (a total accumulated over the whole period) and average power (a rate,
@@ -516,7 +615,10 @@ function onHomeyReady(Homey) {
         '<span title="Total energy measured this period — active and standby draw combined.">' + formatEnergy(monitor.energy) + ' total</span>' + (monitor.energyQuality === 'meter_reset' ? ' <span class="badge badge-danger" title="A meter reset was detected in this period — energy may be understated.">reset</span>' : ''),
         '<span title="Average power measured only while active — not blended with standby time, and not the same as energy divided by the period length.">' + avgPower + ' while running</span>',
         monitor.threshold !== null && monitor.threshold !== undefined ? '<span class="chip" title="The Watts value that currently decides Active vs Standby for this monitor.">threshold ' + Math.round(monitor.threshold) + ' W</span>' : null,
-        suggestion ? '<span class="chip chip-accent" title="Based on ' + suggestion.sampleCount + ' power samples, split between ' + Math.round(suggestion.low) + ' W and ' + Math.round(suggestion.high) + ' W">suggested ~' + Math.round(suggestion.threshold) + ' W</span>' : null
+        suggestion ? '<span class="chip chip-accent" title="Based on ' + suggestion.sampleCount + ' power samples, split between ' + Math.round(suggestion.low) + ' W and ' + Math.round(suggestion.high) + ' W">suggested ~' + Math.round(suggestion.threshold) + ' W</span>' : null,
+        // A monitor with no completed cycle yet has nothing to show a median/trend from — without this the row
+        // just looks empty ("—" everywhere), which reads as broken rather than "still watching, nothing to report".
+        !monitor.calibrating && !monitor.hasCompletedCycles ? '<span class="hint">No completed cycles yet — stats need at least one.</span>' : null
       ];
       var row = entityRow(nameHtml, metaBits, renderSparkline(monitor.dailyBreakdown));
       // Messages/Reset/Delete only make sense against "today" — they'd otherwise act on
@@ -1602,6 +1704,29 @@ function onHomeyReady(Homey) {
       Homey.alert(error.message || String(error));
     });
   });
+
+  // Everything that can go from fine to broken on its own — a device deleted mid-session, a watchdog firing,
+  // a group's live mismatch — otherwise only ever appeared in the log: the page fetched every list once at
+  // open and never again, so a "Device missing" badge (or any other status change) only reached the screen if
+  // the person happened to reload it. Re-fetches the same lists loadAll() does, minus the full device
+  // directory (/devices) and its 300+-row Availability re-render, which stay on their own, cheaper triggers.
+  function refreshLiveStatus() {
+    if (document.hidden) return;
+    Promise.all([
+      api('GET', '/groups'), api('GET', '/monitors?period=' + monitorPeriod), api('GET', '/voltage-monitors?period=' + monitorPeriod),
+      api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs')
+    ]).then(function (results) {
+      renderGroups(results[0]);
+      renderMonitors(results[1]);
+      renderVoltageMonitors(results[2]);
+      renderBinaryCounters(results[3]);
+      renderStateMonitors(results[4]);
+      lastAvailabilityWatchdogs = results[5];
+      renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
+    }).catch(function () { /* a miss here just tries again next tick */ });
+  }
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshLiveStatus(); });
+  setInterval(refreshLiveStatus, 60000);
 
   loadAll().catch(function (error) { Homey.alert(error.message || String(error)); });
 }

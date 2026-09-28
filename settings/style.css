@@ -60,6 +60,20 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 }
 .message-preview::before { content: 'Example output: '; color: var(--color-muted); font-weight: 600; }
 .message-preview-empty { color: var(--color-muted); font-style: italic; }
+.message-preview-row { display: flex; align-items: flex-start; gap: 6px; }
+.message-preview-row .message-preview { flex: 1 1 auto; }
+.message-preview-copy-btn { flex: 0 0 auto; margin: 6px 0 10px; padding: 6px 10px; font-size: 12px; border-radius: 7px; border: 1px solid var(--color-border); background: var(--color-card); color: var(--color-text); cursor: pointer; }
+.message-preview-copy-btn:hover { border-color: var(--color-accent); }
+.message-preview-copy-btn.is-copied { border-color: var(--color-success); color: var(--color-success); }
+/* Token buttons: a colored left edge per category (Identification/Time/Energy/Power/Cost/Count), set via
+   data-group so a glance at the row already groups tokens without reflowing them; hover shows name, type
+   and an example (see TOKEN_INFO in settings.js). */
+button[data-token] { border-left-width: 3px; border-left-style: solid; border-left-color: var(--color-border); }
+button[data-token][data-group="time"] { border-left-color: #8a63d2; }
+button[data-token][data-group="energy"] { border-left-color: var(--color-success); }
+button[data-token][data-group="power"] { border-left-color: var(--color-accent); }
+button[data-token][data-group="cost"] { border-left-color: #b8860b; }
+button[data-token][data-group="count"] { border-left-color: var(--color-danger); }
 /* Every button/heading rule below is scoped under .container and marked !important: inside the
    Homey app the settings page gets Homey's own button/heading styles applied on top of ours, and
    without this the tab bar, pills and row actions all render as plain gray boxes (verified on a

@@ -4,7 +4,7 @@ const assert = require('node:assert/strict');
 const {
   periodStatistics, weeklyTrend, statistics, stateStatistics, voltageStatistics,
   binaryEventStatistics, dailyBreakdown, stateDailyBreakdown, binaryDailyBreakdown,
-  suggestedThreshold, generateTextReport
+  suggestedThreshold, calibrationProgress, voltageImbalancePercent, generateTextReport
 } = require('../lib/statistics');
 
 const DAY = 24 * 60 * 60 * 1000;
@@ -294,4 +294,55 @@ test('a single start-up transient between standby and active no longer blocks th
   assert.ok(result.suggestion.threshold > 5 && result.suggestion.threshold < 450, `threshold ${result.suggestion.threshold}`);
   assert.ok(result.suggestion.low < 5);
   assert.ok(result.suggestion.high > 400);
+});
+
+test('calibrationProgress: not enough periods yet reports "collecting" with what has been seen so far', () => {
+  const monitor = activityMonitor({ periods: Array.from({ length: 5 }, () => ({ minPower: 5, maxPower: 5 })) });
+  const progress = calibrationProgress(monitor);
+  assert.equal(progress.status, 'collecting');
+  assert.equal(progress.periodsCollected, 5);
+  assert.equal(progress.periodsNeeded, 15);
+  assert.equal(progress.valuesCollected, 0); // the values check never ran
+  assert.equal(progress.valuesNeeded, 30);
+  assert.equal(progress.reason, 'too_few_periods');
+});
+
+test('calibrationProgress: enough periods but a flat power history is "inconclusive" (no gap)', () => {
+  // Every reading exactly the same value: the widest gap between any two sorted values is 0 everywhere.
+  const monitor = activityMonitor({ periods: Array.from({ length: 20 }, () => ({ minPower: 55, maxPower: 55 })) });
+  const progress = calibrationProgress(monitor);
+  assert.equal(progress.status, 'inconclusive');
+  assert.equal(progress.reason, 'no_gap');
+  assert.equal(progress.valuesCollected, 40);
+  assert.equal(progress.standbyHigh, null);
+  assert.ok(progress.min !== null && progress.max !== null);
+});
+
+test('calibrationProgress: a gap that exists but is too small to trust reports the closest split observed', () => {
+  const low = Array.from({ length: 20 }, () => ({ minPower: 10, maxPower: 10 }));
+  const high = Array.from({ length: 20 }, () => ({ minPower: 15, maxPower: 15 })); // gap of 5, ratio far under 4x
+  const progress = calibrationProgress(activityMonitor({ periods: [...low, ...high] }));
+  assert.equal(progress.status, 'inconclusive');
+  assert.equal(progress.reason, 'gap_ratio_too_small');
+  assert.ok(Number.isFinite(progress.standbyHigh) && Number.isFinite(progress.activeLow));
+});
+
+test('calibrationProgress: a confident split reports "ready" with the suggestion, matching suggestedThreshold', () => {
+  const low = Array.from({ length: 20 }, () => ({ minPower: 2, maxPower: 2 }));
+  const high = Array.from({ length: 20 }, () => ({ minPower: 500, maxPower: 500 }));
+  const monitor = activityMonitor({ periods: [...low, ...high] });
+  const progress = calibrationProgress(monitor);
+  assert.equal(progress.status, 'ready');
+  assert.equal(progress.suggestedThreshold, suggestedThreshold(monitor).threshold);
+  assert.equal(progress.valuesNeeded, 30);
+});
+
+test('voltageImbalancePercent: percent difference from the average, symmetric, null with a missing reading', () => {
+  assert.equal(Math.round(voltageImbalancePercent(220, 240) * 100) / 100, 8.7);
+  assert.equal(voltageImbalancePercent(230, 230), 0);
+  assert.equal(voltageImbalancePercent(240, 220), voltageImbalancePercent(220, 240)); // order doesn't matter
+  assert.equal(voltageImbalancePercent(null, 220), null);
+  assert.equal(voltageImbalancePercent(220, undefined), null);
+  assert.equal(voltageImbalancePercent(NaN, 220), null);
+  assert.equal(voltageImbalancePercent(0, 0), null); // undefined average, not a 0% claim
 });

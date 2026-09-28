@@ -87,6 +87,39 @@ Round of 2026-09-27: trend baseline floor, P25/P75 tokens, "Set energy price", c
 devices and the startup summary line are DONE (to verify on the Homey). Next: 4) Ignore zone, Generate individual
 monitors, 5) top consumers / last cycles widget and the group members widget.
 
+### Round of 2026-09-27 (part 2): UX polish + two new Flow cards, checked against two AI reviews
+
+Done:
+- Token buttons in every "Message wording" form now show a category color (Identification/Time/Energy/
+  Power/Cost/Count) and a hover tooltip (type + example); a "Copy" button next to each live preview copies
+  the current rendered example. The %cost_text%/%time% tokens added earlier are covered by the preview data.
+- Calibrating monitors show progress in Settings (samples collected, and once enough exist without a clear
+  split, the closest standby/active split observed) instead of a bare spinner — `calibrationProgress()` in
+  lib/statistics.js. A monitor with no completed cycle yet says so instead of showing blank stats.
+- New trigger **activity_cost_exceeded** ("Cost today exceeds an amount"): fires once per amount per day,
+  reusing the finished-cycle's own cost_today/cost — no new stored state (see SPEC "Cost threshold trigger").
+- New condition **voltage_phase_imbalance** ("Two voltage monitors are more than N% apart"): compares two
+  existing Voltage monitors' current readings; no new monitor type (see SPEC "Voltage phase imbalance").
+
+Rejected from the "onboarding" review (Manus): a guided wizard and a device-scenario library are real
+improvements but large and better suited once the app has real first-time users (i.e. after publishing);
+"basic" (token-free) action-card variants for Standard Flow contradict the decision already in SPEC section
+7; several "new" high-level Flow cards it proposed already exist (activity_cycle_unusually_long,
+device_problem_detected + the scan, group_mismatch_detected/matched_again, now live).
+
+Rejected from the "statistics" review (a second AI pass): a whole new monitor type per idea (duration
+anomaly, "stuck state", incomplete cycle, standby monitor, daily cost monitor, phase imbalance monitor) —
+cheaper as conditions/triggers on the monitors that already exist, which is what got built here for the two
+that were genuinely new (cost, phase imbalance). A completion-time forecast and a MAD-based anomaly score
+were declined (same reasoning as the earlier rejection of z-scores on small cycle counts).
+
+### To verify on the Homey (built and unit-tested, not yet seen running)
+- **Token tooltips/colors + Copy button** in a "Message wording" form; **calibration progress** on a monitor
+  still calibrating (or freshly created with no history).
+- **activity_cost_exceeded**: set a price, set two Flows on the same monitor with different amounts, let a
+  cycle push past one of them — only that one should fire, once, and re-arm the next day.
+- **voltage_phase_imbalance**: two Voltage monitors with a real reading gap.
+
 ### Statistics and reliability ideas (review of 2026-09-27), checked against the code
 
 Worth doing, cheap:

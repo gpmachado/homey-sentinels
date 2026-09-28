@@ -74,3 +74,23 @@ test('the startup summary says what is running, and how many monitors have lost 
   assert.match(line, /1 groups \(3 devices\)/);
   assert.match(line, /availability scan every 60 min/);
 });
+
+test('flagging a monitor missing stops a retry loop already in flight, instead of it retrying for several more minutes on its own schedule', async () => {
+  const app = await fakeApp();
+  const m = monitor(app, 'a', 'gone');
+  app._watch = async () => { throw new Error('socket hang up'); }; // not "Not Found": this loop alone would never give up on its own
+  app._resumeMonitor('monitor', 'monitors', m); // fires the 1st attempt right away (failure #1, schedules #2)
+  await flush();
+  const runNextTimer = async () => { const next = app.timers.shift(); if (next) await next.fn(); await flush(); };
+  await runNextTimer(); // failure #2, schedules attempt #3
+  await runNextTimer(); // failure #3, schedules attempt #4
+  assert.equal(app.timers.length, 1);
+  // The hourly device-list scan (a real, non-empty list that just doesn't include this device any more) flags
+  // it independently of this loop; an EMPTY list means "could not be read", not "everything is gone" (see
+  // _checkMonitorDevices), so a real list with an unrelated device is used here on purpose.
+  app._checkMonitorDevices([{ id: 'unrelated' }]);
+  assert.equal(m.deviceMissing, true);
+  await runNextTimer(); // attempt #4 fires, but isStillWanted() is now false
+  assert.equal(app.timers.length, 0); // ...so it logged nothing and scheduled nothing further
+  assert.equal(app.logs.filter((l) => l.includes('could not start watching')).length, 3); // only failures #1-#3 logged
+});

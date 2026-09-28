@@ -64,7 +64,8 @@ class StatisticTrackerApp extends Homey.App {
       finished: this.homey.flow.getTriggerCard('activity_finished'),
       calibrated: this.homey.flow.getTriggerCard('threshold_calibrated'),
       cyclesReached: this.homey.flow.getTriggerCard('activity_cycles_reached'),
-      unusuallyLong: this.homey.flow.getTriggerCard('activity_cycle_unusually_long')
+      unusuallyLong: this.homey.flow.getTriggerCard('activity_cycle_unusually_long'),
+      costExceeded: this.homey.flow.getTriggerCard('activity_cost_exceeded')
     };
     this.stateCards = {
       started: this.homey.flow.getTriggerCard('state_started'),

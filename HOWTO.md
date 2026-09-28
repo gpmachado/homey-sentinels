@@ -124,6 +124,13 @@ a plain on/off switch you don't have power data for.
    you don't have to rebuild the sentence in every Flow. Tap a token button to insert it into
    whichever message field you last clicked.
 
+
+**Comparing two phases**: the condition **"Two voltage monitors are more than N% apart"** compares the
+current readings of two Voltage monitors (percent of their average — |A - B| / average x 100), so a
+three-phase meter watched as three separate monitors can flag `Fase B is 8.7% above Fase A` without a
+dedicated phase-imbalance monitor type. For more than two phases, chain it once per pair with AND/OR in
+the same Flow. Reads as false while either monitor has no sample yet.
+
 ## 4. Binary Counter — tally an occurrence, no duration
 
 For a fire-and-forget event: a doorbell press, a single motion pulse, a button click.
@@ -314,6 +321,14 @@ Notes:
   Settings → Monitors. It only changes the wording of messages; Flow tokens of type number keep the dot.
 - `%time%` writes the local time of the event; the Homey timeline already shows when each entry was made,
   so leave it out there.
+
+## Cost above an amount
+
+The trigger **"Cost today exceeds an amount"** fires once per day, the moment a finished cycle first
+pushes an Activity monitor's estimated cost for today to or past the amount you set (needs a price in
+Settings -> Monitors -> Energy cost). Different Flows can watch the same monitor for different amounts —
+each fires once, the day it is reached, and re-arms at midnight. Example: "O ar-condicionado já consumiu
+R$ 12,40 hoje." using `%monitor%` and `%cost_today_text%`.
 
 ## If a device is deleted from Homey
 
