@@ -87,6 +87,23 @@ Round of 2026-09-27: trend baseline floor, P25/P75 tokens, "Set energy price", c
 devices and the startup summary line are DONE (to verify on the Homey). Next: 4) Ignore zone, Generate individual
 monitors, 5) top consumers / last cycles widget and the group members widget.
 
+### Edit forms can't change a monitor's device or name (found live, 2026-09-28) — DONE
+
+Swapping the Shelly 3EM's driver gave it a new Homey device id; the three Voltage monitors pointed at the
+old one, which is now permanently gone (`deviceMissing`). There was no way to repoint an existing monitor at
+a different device, or even just fix a typo in its name, without deleting it and recreating it from scratch
+— which starts its history over (the old monitor's SQLite rows are orphaned, not carried across). The user
+hit both in the same session: a typo in "Voltagem B" and the device swap both meant delete + recreate.
+
+- **Change device**: the Edit form of an Activity/State/Voltage monitor now repoints `deviceId`/`deviceName`
+  to a newly picked device (same capability required), keeping the monitor's id, history and settings.
+- **Rename**: all three Edit forms now accept a `name`, validated the same way `updateGroup` already rejects
+  a blank name.
+
+Binary Counter still has no device (by design — it's a Flow-driven tally, not a capability monitor) and
+still has no rename either (only its message template is editable); worth adding the same `name`-on-edit fix
+there later, without the device-repoint part.
+
 ### Round of 2026-09-27 (part 2): UX polish + two new Flow cards, checked against two AI reviews
 
 Done:

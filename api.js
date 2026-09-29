@@ -105,7 +105,10 @@ module.exports = {
   async updateMonitor({ homey, params, body }) {
     const item = homey.app.store.data.monitors[params.id];
     if (!item) throw new Error('Monitor not found.');
-    await homey.app.updateActivityMonitorSettings(item, { threshold: body.threshold, continuityMinutes: body.continuityMinutes, minConfirmationSeconds: body.minConfirmationSeconds });
+    await homey.app.inAppContext(async () => {
+      if (body.name !== undefined || body.deviceId !== undefined) await homey.app.updateActivityMonitorIdentity(item, body);
+      await homey.app.updateActivityMonitorSettings(item, { threshold: body.threshold, continuityMinutes: body.continuityMinutes, minConfirmationSeconds: body.minConfirmationSeconds });
+    });
     return item;
   },
   async updateMonitorMessages({ homey, params, body }) {
@@ -137,7 +140,10 @@ module.exports = {
   async updateVoltageMonitor({ homey, params, body }) {
     const item = homey.app.store.data.voltageMonitors[params.id];
     if (!item) throw new Error('Voltage monitor not found.');
-    await homey.app.updateVoltageMonitorRange(item, { minVoltage: body.minVoltage, maxVoltage: body.maxVoltage, stabilizationMinutes: body.stabilizationMinutes });
+    await homey.app.inAppContext(async () => {
+      if (body.name !== undefined || body.deviceId !== undefined) await homey.app.updateVoltageMonitorIdentity(item, body);
+      await homey.app.updateVoltageMonitorRange(item, { minVoltage: body.minVoltage, maxVoltage: body.maxVoltage, stabilizationMinutes: body.stabilizationMinutes });
+    });
     return item;
   },
   async updateVoltageMonitorMessages({ homey, params, body }) {
@@ -169,8 +175,11 @@ module.exports = {
   async updateStateMonitor({ homey, params, body }) {
     const item = homey.app.store.data.stateMonitors[params.id];
     if (!item) throw new Error('State monitor not found.');
-    homey.app.store.updateStateMonitor(item, { trueLabel: body.trueLabel, falseLabel: body.falseLabel, activeValues: body.activeValues });
-    await homey.app.store.save();
+    await homey.app.inAppContext(async () => {
+      if (body.name !== undefined || body.deviceId !== undefined) await homey.app.updateStateMonitorIdentity(item, body);
+      homey.app.store.updateStateMonitor(item, { trueLabel: body.trueLabel, falseLabel: body.falseLabel, activeValues: body.activeValues });
+      await homey.app.store.save();
+    });
     homey.app.log(`[${item.name}] state monitor settings updated`);
     return item;
   },

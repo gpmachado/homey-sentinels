@@ -64,7 +64,13 @@
       <div class="modal-box">
       <form id="activity-edit-form">
         <h2>Edit settings — <span id="activity-edit-form-name"></span></h2>
-        <p class="hint">Device and capability can't be changed here — delete and re-add the monitor for that.</p>
+        <label>Name
+          <input type="text" id="activity-edit-name" required>
+        </label>
+        <label>Device (must have the existing capability)
+          <select id="activity-edit-device" required></select>
+        </label>
+        <p class="hint">Changing the device keeps this monitor's history. Use it when replacing or re-pairing the same physical device.</p>
         <label>Activity threshold (W)
           <input type="text" id="activity-edit-threshold" required>
         </label>
@@ -158,7 +164,13 @@
       <div class="modal-box">
       <form id="state-edit-form">
         <h2>Edit labels — <span id="state-edit-form-name"></span></h2>
-        <p class="hint">Device and capability can't be changed here — delete and re-add the monitor for that.</p>
+        <label>Name
+          <input type="text" id="state-edit-name" required>
+        </label>
+        <label>Device (must have the existing capability)
+          <select id="state-edit-device" required></select>
+        </label>
+        <p class="hint">Changing the device keeps this monitor's history. Use it when replacing or re-pairing the same physical device.</p>
         <label id="state-edit-active-values-wrap" class="hidden">Active value(s)
           <input type="text" id="state-edit-active-values" placeholder="e.g. Running, Rinse">
         </label>
@@ -250,7 +262,13 @@
       <div class="modal-box">
       <form id="voltage-edit-form">
         <h2>Edit range — <span id="voltage-edit-form-name"></span></h2>
-        <p class="hint">Device and capability can't be changed here — delete and re-add the monitor for that.</p>
+        <label>Name
+          <input type="text" id="voltage-edit-name" required>
+        </label>
+        <label>Device (must have the existing capability)
+          <select id="voltage-edit-device" required></select>
+        </label>
+        <p class="hint">Changing the device keeps this monitor's history. Use it when replacing or re-pairing the same physical device.</p>
         <label>Min voltage
           <input type="text" id="voltage-edit-min" required>
         </label>

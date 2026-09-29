@@ -744,6 +744,8 @@ function onHomeyReady(Homey) {
   function openVoltageEditForm(monitor) {
     editingVoltageRangeMonitorId = monitor.id;
     document.getElementById('voltage-edit-form-name').textContent = monitor.name;
+    document.getElementById('voltage-edit-name').value = monitor.name;
+    populateCompatibleDeviceSelect(document.getElementById('voltage-edit-device'), monitor.capability, monitor.deviceId, monitor.deviceName);
     document.getElementById('voltage-edit-min').value = monitor.configuredMinVoltage;
     document.getElementById('voltage-edit-max').value = monitor.configuredMaxVoltage;
     document.getElementById('voltage-edit-stabilization').value = monitor.stabilizationMinutes;
@@ -757,6 +759,8 @@ function onHomeyReady(Homey) {
     event.preventDefault();
     if (!editingVoltageRangeMonitorId) return;
     var payload = {
+      name: document.getElementById('voltage-edit-name').value,
+      deviceId: document.getElementById('voltage-edit-device').value,
       minVoltage: document.getElementById('voltage-edit-min').value,
       maxVoltage: document.getElementById('voltage-edit-max').value,
       stabilizationMinutes: document.getElementById('voltage-edit-stabilization').value
@@ -837,6 +841,8 @@ function onHomeyReady(Homey) {
   function openActivityEditForm(monitor) {
     editingActivityMonitorSettingsId = monitor.id;
     document.getElementById('activity-edit-form-name').textContent = monitor.name;
+    document.getElementById('activity-edit-name').value = monitor.name;
+    populateCompatibleDeviceSelect(document.getElementById('activity-edit-device'), monitor.capability, monitor.deviceId, monitor.deviceName);
     document.getElementById('activity-edit-threshold').value = monitor.threshold;
     document.getElementById('activity-edit-continuity').value = monitor.continuityMinutes || 0;
     document.getElementById('activity-edit-confirmation').value = monitor.minConfirmationSeconds || 0;
@@ -850,6 +856,8 @@ function onHomeyReady(Homey) {
     event.preventDefault();
     if (!editingActivityMonitorSettingsId) return;
     var payload = {
+      name: document.getElementById('activity-edit-name').value,
+      deviceId: document.getElementById('activity-edit-device').value,
       threshold: document.getElementById('activity-edit-threshold').value,
       continuityMinutes: document.getElementById('activity-edit-continuity').value,
       minConfirmationSeconds: document.getElementById('activity-edit-confirmation').value
@@ -911,6 +919,8 @@ function onHomeyReady(Homey) {
   function openStateEditForm(monitor) {
     editingStateMonitorLabelsId = monitor.id;
     document.getElementById('state-edit-form-name').textContent = monitor.name;
+    document.getElementById('state-edit-name').value = monitor.name;
+    populateCompatibleDeviceSelect(document.getElementById('state-edit-device'), monitor.capability, monitor.deviceId, monitor.deviceName);
     document.getElementById('state-edit-true-label').value = monitor.trueLabel || '';
     document.getElementById('state-edit-false-label').value = monitor.falseLabel || '';
     var isMultiValue = Array.isArray(monitor.activeValues) && monitor.activeValues.length > 0;
@@ -927,6 +937,8 @@ function onHomeyReady(Homey) {
     event.preventDefault();
     if (!editingStateMonitorLabelsId) return;
     var payload = {
+      name: document.getElementById('state-edit-name').value,
+      deviceId: document.getElementById('state-edit-device').value,
       trueLabel: document.getElementById('state-edit-true-label').value,
       falseLabel: document.getElementById('state-edit-false-label').value,
       activeValues: document.getElementById('state-edit-active-values').value
@@ -1413,6 +1425,24 @@ function onHomeyReady(Homey) {
         opt.textContent = device.name + (device.zoneName ? ' (' + device.zoneName + ')' : '');
         selectEl.appendChild(opt);
       });
+  }
+  function populateCompatibleDeviceSelect(selectEl, capability, currentId, currentName) {
+    selectEl.innerHTML = '';
+    allDevices.filter(function (device) { return (device.capabilities || []).indexOf(capability) !== -1; })
+      .sort(byName).forEach(function (device) {
+        var opt = document.createElement('option');
+        opt.value = device.id;
+        opt.textContent = device.name + (device.zoneName ? ' (' + device.zoneName + ')' : '');
+        selectEl.appendChild(opt);
+      });
+    if (currentId && Array.prototype.some.call(selectEl.options, function (option) { return option.value === currentId; })) selectEl.value = currentId;
+    else if (currentId) {
+      var missing = document.createElement('option');
+      missing.value = currentId;
+      missing.textContent = (currentName || 'Current device') + ' (not available)';
+      selectEl.appendChild(missing);
+      selectEl.value = currentId;
+    }
   }
   function populateCapabilitySelect(selectEl, device, kind, preselect) {
     selectEl.innerHTML = '';
