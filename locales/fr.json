@@ -1,24 +1,69 @@
 {
   "messageWording": {
     "light": {
-      "false": { "zero": "Toutes les lumières %group% sont éteintes.", "one": "%items% est allumée.", "many": "%count% lumières allumées : %items%." },
-      "true": { "zero": "Toutes les lumières %group% sont allumées.", "one": "%items% est éteinte.", "many": "%count% lumières éteintes : %items%." }
+      "false": {
+        "zero": "Toutes les lumières %group% sont éteintes.",
+        "one": "%items% est allumée.",
+        "many": "%count% lumières allumées : %items%."
+      },
+      "true": {
+        "zero": "Toutes les lumières %group% sont allumées.",
+        "one": "%items% est éteinte.",
+        "many": "%count% lumières éteintes : %items%."
+      }
     },
     "switch": {
-      "false": { "zero": "Tous les interrupteurs %group% sont éteints.", "one": "%items% est allumé.", "many": "%count% interrupteurs allumés : %items%." },
-      "true": { "zero": "Tous les interrupteurs %group% sont allumés.", "one": "%items% est éteint.", "many": "%count% interrupteurs éteints : %items%." }
+      "false": {
+        "zero": "Tous les interrupteurs %group% sont éteints.",
+        "one": "%items% est allumé.",
+        "many": "%count% interrupteurs allumés : %items%."
+      },
+      "true": {
+        "zero": "Tous les interrupteurs %group% sont allumés.",
+        "one": "%items% est éteint.",
+        "many": "%count% interrupteurs éteints : %items%."
+      }
     },
     "contact": {
-      "false": { "zero": "Toutes les %group% sont fermées.", "one": "%items% est ouverte.", "many": "%count% ouvertes : %items%." },
-      "true": { "zero": "Toutes les %group% sont ouvertes.", "one": "%items% est fermée.", "many": "%count% fermées : %items%." }
+      "false": {
+        "zero": "Toutes les %group% sont fermées.",
+        "one": "%items% est ouverte.",
+        "many": "%count% ouvertes : %items%."
+      },
+      "true": {
+        "zero": "Toutes les %group% sont ouvertes.",
+        "one": "%items% est fermée.",
+        "many": "%count% fermées : %items%."
+      }
     },
     "valve": {
-      "false": { "zero": "Toutes les vannes %group% sont fermées.", "one": "%items% est ouverte.", "many": "%count% vannes ouvertes : %items%." },
-      "true": { "zero": "Toutes les vannes %group% sont ouvertes.", "one": "%items% est fermée.", "many": "%count% vannes fermées : %items%." }
+      "false": {
+        "zero": "Toutes les vannes %group% sont fermées.",
+        "one": "%items% est ouverte.",
+        "many": "%count% vannes ouvertes : %items%."
+      },
+      "true": {
+        "zero": "Toutes les vannes %group% sont ouvertes.",
+        "one": "%items% est fermée.",
+        "many": "%count% vannes fermées : %items%."
+      }
     },
     "garage": {
-      "false": { "zero": "Toutes les portes de garage %group% sont fermées.", "one": "%items% est ouverte.", "many": "%count% portes de garage ouvertes : %items%." },
-      "true": { "zero": "Toutes les portes de garage %group% sont ouvertes.", "one": "%items% est fermée.", "many": "%count% portes de garage fermées : %items%." }
+      "false": {
+        "zero": "Toutes les portes de garage %group% sont fermées.",
+        "one": "%items% est ouverte.",
+        "many": "%count% portes de garage ouvertes : %items%."
+      },
+      "true": {
+        "zero": "Toutes les portes de garage %group% sont ouvertes.",
+        "one": "%items% est fermée.",
+        "many": "%count% portes de garage fermées : %items%."
+      }
     }
+  },
+  "voltageMessageDefaults": {
+    "undervoltage": "%monitor% est en sous-tension - %voltage% V.",
+    "overvoltage": "%monitor% est en surtension - %voltage% V.",
+    "normalized": "%monitor% normalisé après %duration_human% (min %min_voltage% V, max %max_voltage% V)."
   }
 }

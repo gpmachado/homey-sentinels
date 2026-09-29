@@ -20,5 +20,10 @@
       "false": { "zero": "Alle garagedeuren (%group%) zijn gesloten.", "one": "%items% staat open.", "many": "%count% garagedeuren open: %items%." },
       "true": { "zero": "Alle garagedeuren (%group%) staan open.", "one": "%items% is gesloten.", "many": "%count% garagedeuren gesloten: %items%." }
     }
+  },
+  "voltageMessageDefaults": {
+    "undervoltage": "%monitor% heeft onderspanning - %voltage% V.",
+    "overvoltage": "%monitor% heeft overspanning - %voltage% V.",
+    "normalized": "%monitor% genormaliseerd na %duration_human% (min %min_voltage% V, max %max_voltage% V)."
   }
 }

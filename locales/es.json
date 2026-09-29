@@ -1,24 +1,69 @@
 {
   "messageWording": {
     "light": {
-      "false": { "zero": "Todas las luces (%group%) están apagadas.", "one": "%items% está encendida.", "many": "%count% luces encendidas: %items%." },
-      "true": { "zero": "Todas las luces (%group%) están encendidas.", "one": "%items% está apagada.", "many": "%count% luces apagadas: %items%." }
+      "false": {
+        "zero": "Todas las luces (%group%) están apagadas.",
+        "one": "%items% está encendida.",
+        "many": "%count% luces encendidas: %items%."
+      },
+      "true": {
+        "zero": "Todas las luces (%group%) están encendidas.",
+        "one": "%items% está apagada.",
+        "many": "%count% luces apagadas: %items%."
+      }
     },
     "switch": {
-      "false": { "zero": "Todos los interruptores (%group%) están apagados.", "one": "%items% está encendido.", "many": "%count% interruptores encendidos: %items%." },
-      "true": { "zero": "Todos los interruptores (%group%) están encendidos.", "one": "%items% está apagado.", "many": "%count% interruptores apagados: %items%." }
+      "false": {
+        "zero": "Todos los interruptores (%group%) están apagados.",
+        "one": "%items% está encendido.",
+        "many": "%count% interruptores encendidos: %items%."
+      },
+      "true": {
+        "zero": "Todos los interruptores (%group%) están encendidos.",
+        "one": "%items% está apagado.",
+        "many": "%count% interruptores apagados: %items%."
+      }
     },
     "contact": {
-      "false": { "zero": "Todas las %group% están cerradas.", "one": "%items% está abierta.", "many": "%count% abiertas: %items%." },
-      "true": { "zero": "Todas las %group% están abiertas.", "one": "%items% está cerrada.", "many": "%count% cerradas: %items%." }
+      "false": {
+        "zero": "Todas las %group% están cerradas.",
+        "one": "%items% está abierta.",
+        "many": "%count% abiertas: %items%."
+      },
+      "true": {
+        "zero": "Todas las %group% están abiertas.",
+        "one": "%items% está cerrada.",
+        "many": "%count% cerradas: %items%."
+      }
     },
     "valve": {
-      "false": { "zero": "Todas las válvulas (%group%) están cerradas.", "one": "%items% está abierta.", "many": "%count% válvulas abiertas: %items%." },
-      "true": { "zero": "Todas las válvulas (%group%) están abiertas.", "one": "%items% está cerrada.", "many": "%count% válvulas cerradas: %items%." }
+      "false": {
+        "zero": "Todas las válvulas (%group%) están cerradas.",
+        "one": "%items% está abierta.",
+        "many": "%count% válvulas abiertas: %items%."
+      },
+      "true": {
+        "zero": "Todas las válvulas (%group%) están abiertas.",
+        "one": "%items% está cerrada.",
+        "many": "%count% válvulas cerradas: %items%."
+      }
     },
     "garage": {
-      "false": { "zero": "Todas las puertas de garaje (%group%) están cerradas.", "one": "%items% está abierta.", "many": "%count% puertas de garaje abiertas: %items%." },
-      "true": { "zero": "Todas las puertas de garaje (%group%) están abiertas.", "one": "%items% está cerrada.", "many": "%count% puertas de garaje cerradas: %items%." }
+      "false": {
+        "zero": "Todas las puertas de garaje (%group%) están cerradas.",
+        "one": "%items% está abierta.",
+        "many": "%count% puertas de garaje abiertas: %items%."
+      },
+      "true": {
+        "zero": "Todas las puertas de garaje (%group%) están abiertas.",
+        "one": "%items% está cerrada.",
+        "many": "%count% puertas de garaje cerradas: %items%."
+      }
     }
+  },
+  "voltageMessageDefaults": {
+    "undervoltage": "%monitor% está en subtensión - %voltage% V.",
+    "overvoltage": "%monitor% está en sobretensión - %voltage% V.",
+    "normalized": "%monitor% normalizado tras %duration_human% (mín %min_voltage% V, máx %max_voltage% V)."
   }
 }

@@ -310,7 +310,10 @@
           <button type="button" class="voltage-token-btn" data-token="%min_voltage%">%min_voltage%</button>
           <button type="button" class="voltage-token-btn" data-token="%max_voltage%">%max_voltage%</button>
           <button type="button" class="voltage-token-btn" data-token="%average_voltage%">%average_voltage%</button>
+          <button type="button" class="voltage-token-btn" data-token="%power%">%power%</button>
+          <button type="button" class="voltage-token-btn" data-token="%energy%">%energy%</button>
         </p>
+        <p class="hint"><code>%power%</code>/<code>%energy%</code> are only meaningful if this device also reports power/energy on the same measurement (e.g. a combined energy meter) — otherwise they render empty.</p>
 
         <div class="actions">
           <button type="submit" id="voltage-message-save-btn">Save</button>

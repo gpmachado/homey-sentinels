@@ -313,6 +313,45 @@ test('voltage monitor message templates default to real wording and can be updat
   assert.equal(monitor.minVoltage, 110); // untouched by a messages-only update
 });
 
+test('creates a voltage monitor with auxiliaryCapabilities and message-template overrides, both defaulting sensibly when omitted', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const bare = store.createVoltageMonitor({ device: { id: 'dev-1', name: 'Shelly 3EM' }, minVoltage: 110, maxVoltage: 130 });
+  assert.deepEqual(bare.auxiliaryCapabilities, []);
+  const withAux = store.createVoltageMonitor({
+    device: { id: 'dev-2', name: 'Sonoff Energy Meter' }, minVoltage: 110, maxVoltage: 130,
+    auxiliaryCapabilities: ['measure_power', 'meter_power'],
+    messageTemplateUndervoltage: '%monitor% baixa: %voltage% V (%power% W)'
+  });
+  assert.deepEqual(withAux.auxiliaryCapabilities, ['measure_power', 'meter_power']);
+  assert.equal(withAux.messageTemplateUndervoltage, '%monitor% baixa: %voltage% V (%power% W)');
+  // Overvoltage/normalized weren't overridden — still fall back to the English constant.
+  assert.equal(withAux.messageTemplateOvervoltage, '%monitor% is in overvoltage - %voltage% V.');
+});
+
+test('upsertVoltageMonitor passes auxiliaryCapabilities through on creation and can update it on an existing monitor', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const { monitor, created } = store.upsertVoltageMonitor({ device: { id: 'dev-1', name: 'Shelly 3EM' }, minVoltage: 110, maxVoltage: 130, auxiliaryCapabilities: ['measure_power'] });
+  assert.equal(created, true);
+  assert.deepEqual(monitor.auxiliaryCapabilities, ['measure_power']);
+  const second = store.upsertVoltageMonitor({ device: { id: 'dev-1', name: 'Shelly 3EM' }, minVoltage: 110, maxVoltage: 130, auxiliaryCapabilities: ['measure_power', 'meter_power'] });
+  assert.equal(second.created, false);
+  assert.deepEqual(second.monitor.auxiliaryCapabilities, ['measure_power', 'meter_power']);
+});
+
+test('updateVoltageMonitorIdentity resets auxiliaryCapabilities alongside the new device', async () => {
+  const store = new SentinelStore(fakeSettings());
+  await store.load();
+  const monitor = store.createVoltageMonitor({ device: { id: 'dev-1', name: 'Shelly 3EM' }, minVoltage: 110, maxVoltage: 130, auxiliaryCapabilities: ['measure_power'] });
+  store.updateVoltageMonitorIdentity(monitor, { device: { id: 'dev-2', name: 'New Meter' }, auxiliaryCapabilities: ['measure_power', 'measure_current'] });
+  assert.equal(monitor.deviceId, 'dev-2');
+  assert.deepEqual(monitor.auxiliaryCapabilities, ['measure_power', 'measure_current']);
+  // A device change with no auxiliaryCapabilities passed (new device has none) clears it, not leaves the old device's list stale.
+  store.updateVoltageMonitorIdentity(monitor, { device: { id: 'dev-3', name: 'No Power Meter' } });
+  assert.deepEqual(monitor.auxiliaryCapabilities, []);
+});
+
 test('deletes a voltage monitor', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();

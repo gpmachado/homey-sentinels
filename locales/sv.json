@@ -1,24 +1,69 @@
 {
   "messageWording": {
     "light": {
-      "false": { "zero": "Alla lampor (%group%) är avstängda.", "one": "%items% är på.", "many": "%count% lampor på: %items%." },
-      "true": { "zero": "Alla lampor (%group%) är på.", "one": "%items% är av.", "many": "%count% lampor av: %items%." }
+      "false": {
+        "zero": "Alla lampor (%group%) är avstängda.",
+        "one": "%items% är på.",
+        "many": "%count% lampor på: %items%."
+      },
+      "true": {
+        "zero": "Alla lampor (%group%) är på.",
+        "one": "%items% är av.",
+        "many": "%count% lampor av: %items%."
+      }
     },
     "switch": {
-      "false": { "zero": "Alla brytare (%group%) är avstängda.", "one": "%items% är på.", "many": "%count% brytare på: %items%." },
-      "true": { "zero": "Alla brytare (%group%) är på.", "one": "%items% är av.", "many": "%count% brytare av: %items%." }
+      "false": {
+        "zero": "Alla brytare (%group%) är avstängda.",
+        "one": "%items% är på.",
+        "many": "%count% brytare på: %items%."
+      },
+      "true": {
+        "zero": "Alla brytare (%group%) är på.",
+        "one": "%items% är av.",
+        "many": "%count% brytare av: %items%."
+      }
     },
     "contact": {
-      "false": { "zero": "Alla %group% är stängda.", "one": "%items% är öppen.", "many": "%count% öppna: %items%." },
-      "true": { "zero": "Alla %group% är öppna.", "one": "%items% är stängd.", "many": "%count% stängda: %items%." }
+      "false": {
+        "zero": "Alla %group% är stängda.",
+        "one": "%items% är öppen.",
+        "many": "%count% öppna: %items%."
+      },
+      "true": {
+        "zero": "Alla %group% är öppna.",
+        "one": "%items% är stängd.",
+        "many": "%count% stängda: %items%."
+      }
     },
     "valve": {
-      "false": { "zero": "Alla ventiler (%group%) är stängda.", "one": "%items% är öppen.", "many": "%count% ventiler öppna: %items%." },
-      "true": { "zero": "Alla ventiler (%group%) är öppna.", "one": "%items% är stängd.", "many": "%count% ventiler stängda: %items%." }
+      "false": {
+        "zero": "Alla ventiler (%group%) är stängda.",
+        "one": "%items% är öppen.",
+        "many": "%count% ventiler öppna: %items%."
+      },
+      "true": {
+        "zero": "Alla ventiler (%group%) är öppna.",
+        "one": "%items% är stängd.",
+        "many": "%count% ventiler stängda: %items%."
+      }
     },
     "garage": {
-      "false": { "zero": "Alla garageportar (%group%) är stängda.", "one": "%items% är öppen.", "many": "%count% garageportar öppna: %items%." },
-      "true": { "zero": "Alla garageportar (%group%) är öppna.", "one": "%items% är stängd.", "many": "%count% garageportar stängda: %items%." }
+      "false": {
+        "zero": "Alla garageportar (%group%) är stängda.",
+        "one": "%items% är öppen.",
+        "many": "%count% garageportar öppna: %items%."
+      },
+      "true": {
+        "zero": "Alla garageportar (%group%) är öppna.",
+        "one": "%items% är stängd.",
+        "many": "%count% garageportar stängda: %items%."
+      }
     }
+  },
+  "voltageMessageDefaults": {
+    "undervoltage": "%monitor% har underspänning - %voltage% V.",
+    "overvoltage": "%monitor% har överspänning - %voltage% V.",
+    "normalized": "%monitor% normaliserad efter %duration_human% (min %min_voltage% V, max %max_voltage% V)."
   }
 }

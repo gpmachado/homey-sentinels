@@ -20,5 +20,10 @@
       "false": { "zero": "All garage doors are closed.", "one": "%items% is open.", "many": "%count% garage doors open: %items%." },
       "true": { "zero": "All garage doors are open.", "one": "%items% is closed.", "many": "%count% garage doors closed: %items%." }
     }
+  },
+  "voltageMessageDefaults": {
+    "undervoltage": "%monitor% is in undervoltage - %voltage% V.",
+    "overvoltage": "%monitor% is in overvoltage - %voltage% V.",
+    "normalized": "%monitor% normalized after %duration_human% (min %min_voltage% V, max %max_voltage% V)."
   }
 }
