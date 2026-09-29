@@ -1,0 +1,24 @@
+{
+  "messageWording": {
+    "light": {
+      "false": { "zero": "Tutte le luci (%group%) sono spente.", "one": "%items% è accesa.", "many": "%count% luci accese: %items%." },
+      "true": { "zero": "Tutte le luci (%group%) sono accese.", "one": "%items% è spenta.", "many": "%count% luci spente: %items%." }
+    },
+    "switch": {
+      "false": { "zero": "Tutti gli interruttori (%group%) sono spenti.", "one": "%items% è acceso.", "many": "%count% interruttori accesi: %items%." },
+      "true": { "zero": "Tutti gli interruttori (%group%) sono accesi.", "one": "%items% è spento.", "many": "%count% interruttori spenti: %items%." }
+    },
+    "contact": {
+      "false": { "zero": "Tutti i %group% sono chiusi.", "one": "%items% è aperta.", "many": "%count% aperte: %items%." },
+      "true": { "zero": "Tutti i %group% sono aperti.", "one": "%items% è chiusa.", "many": "%count% chiuse: %items%." }
+    },
+    "valve": {
+      "false": { "zero": "Tutte le valvole (%group%) sono chiuse.", "one": "%items% è aperta.", "many": "%count% valvole aperte: %items%." },
+      "true": { "zero": "Tutte le valvole (%group%) sono aperte.", "one": "%items% è chiusa.", "many": "%count% valvole chiuse: %items%." }
+    },
+    "garage": {
+      "false": { "zero": "Tutte le porte del garage (%group%) sono chiuse.", "one": "%items% è aperta.", "many": "%count% porte del garage aperte: %items%." },
+      "true": { "zero": "Tutte le porte del garage (%group%) sono aperte.", "one": "%items% è chiusa.", "many": "%count% porte del garage chiuse: %items%." }
+    }
+  }
+}

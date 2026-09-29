@@ -1,0 +1,24 @@
+{
+  "messageWording": {
+    "light": {
+      "false": { "zero": "Alle lampen (%group%) zijn uit.", "one": "%items% is aan.", "many": "%count% lampen aan: %items%." },
+      "true": { "zero": "Alle lampen (%group%) zijn aan.", "one": "%items% is uit.", "many": "%count% lampen uit: %items%." }
+    },
+    "switch": {
+      "false": { "zero": "Alle schakelaars (%group%) zijn uit.", "one": "%items% is aan.", "many": "%count% schakelaars aan: %items%." },
+      "true": { "zero": "Alle schakelaars (%group%) zijn aan.", "one": "%items% is uit.", "many": "%count% schakelaars uit: %items%." }
+    },
+    "contact": {
+      "false": { "zero": "%group% zijn allemaal gesloten.", "one": "%items% staat open.", "many": "%count% open: %items%." },
+      "true": { "zero": "%group% staan allemaal open.", "one": "%items% is gesloten.", "many": "%count% gesloten: %items%." }
+    },
+    "valve": {
+      "false": { "zero": "Alle kleppen (%group%) zijn gesloten.", "one": "%items% staat open.", "many": "%count% kleppen open: %items%." },
+      "true": { "zero": "Alle kleppen (%group%) staan open.", "one": "%items% is gesloten.", "many": "%count% kleppen gesloten: %items%." }
+    },
+    "garage": {
+      "false": { "zero": "Alle garagedeuren (%group%) zijn gesloten.", "one": "%items% staat open.", "many": "%count% garagedeuren open: %items%." },
+      "true": { "zero": "Alle garagedeuren (%group%) staan open.", "one": "%items% is gesloten.", "many": "%count% garagedeuren gesloten: %items%." }
+    }
+  }
+}

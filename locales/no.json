@@ -1,0 +1,24 @@
+{
+  "messageWording": {
+    "light": {
+      "false": { "zero": "Alle lys (%group%) er av.", "one": "%items% er på.", "many": "%count% lys på: %items%." },
+      "true": { "zero": "Alle lys (%group%) er på.", "one": "%items% er av.", "many": "%count% lys av: %items%." }
+    },
+    "switch": {
+      "false": { "zero": "Alle brytere (%group%) er av.", "one": "%items% er på.", "many": "%count% brytere på: %items%." },
+      "true": { "zero": "Alle brytere (%group%) er på.", "one": "%items% er av.", "many": "%count% brytere av: %items%." }
+    },
+    "contact": {
+      "false": { "zero": "Alle %group% er lukket.", "one": "%items% er åpen.", "many": "%count% åpne: %items%." },
+      "true": { "zero": "Alle %group% er åpne.", "one": "%items% er lukket.", "many": "%count% lukket: %items%." }
+    },
+    "valve": {
+      "false": { "zero": "Alle ventiler (%group%) er lukket.", "one": "%items% er åpen.", "many": "%count% ventiler åpne: %items%." },
+      "true": { "zero": "Alle ventiler (%group%) er åpne.", "one": "%items% er lukket.", "many": "%count% ventiler lukket: %items%." }
+    },
+    "garage": {
+      "false": { "zero": "Alle garasjeporter (%group%) er lukket.", "one": "%items% er åpen.", "many": "%count% garasjeporter åpne: %items%." },
+      "true": { "zero": "Alle garasjeporter (%group%) er åpne.", "one": "%items% er lukket.", "many": "%count% garasjeporter lukket: %items%." }
+    }
+  }
+}

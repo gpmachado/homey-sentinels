@@ -1,0 +1,24 @@
+{
+  "messageWording": {
+    "light": {
+      "false": { "zero": "Alle Lichter (%group%) sind aus.", "one": "%items% ist an.", "many": "%count% Lichter an: %items%." },
+      "true": { "zero": "Alle Lichter (%group%) sind an.", "one": "%items% ist aus.", "many": "%count% Lichter aus: %items%." }
+    },
+    "switch": {
+      "false": { "zero": "Alle Schalter (%group%) sind aus.", "one": "%items% ist an.", "many": "%count% Schalter an: %items%." },
+      "true": { "zero": "Alle Schalter (%group%) sind an.", "one": "%items% ist aus.", "many": "%count% Schalter aus: %items%." }
+    },
+    "contact": {
+      "false": { "zero": "%group% sind alle geschlossen.", "one": "%items% ist offen.", "many": "%count% offen: %items%." },
+      "true": { "zero": "%group% sind alle offen.", "one": "%items% ist geschlossen.", "many": "%count% geschlossen: %items%." }
+    },
+    "valve": {
+      "false": { "zero": "Alle Ventile (%group%) sind geschlossen.", "one": "%items% ist offen.", "many": "%count% Ventile offen: %items%." },
+      "true": { "zero": "Alle Ventile (%group%) sind offen.", "one": "%items% ist geschlossen.", "many": "%count% Ventile geschlossen: %items%." }
+    },
+    "garage": {
+      "false": { "zero": "Alle Garagentore (%group%) sind geschlossen.", "one": "%items% ist offen.", "many": "%count% Garagentore offen: %items%." },
+      "true": { "zero": "Alle Garagentore (%group%) sind offen.", "one": "%items% ist geschlossen.", "many": "%count% Garagentore geschlossen: %items%." }
+    }
+  }
+}

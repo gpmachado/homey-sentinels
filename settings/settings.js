@@ -382,21 +382,18 @@ function onHomeyReady(Homey) {
   // "No mismatches" reads naturally when the expected state is the everyday-normal one
   // (lights off, doors closed) — the common case. Keyed by type + expected state so the
   // wording still makes sense if someone flips it (e.g. a group that expects lights ON).
-  var MESSAGE_WORDING_PRESETS = {
-    'light:false': { zero: 'All lights are off.', one: '%items% is on.', many: '%count% lights on: %items%.' },
-    'light:true': { zero: 'All lights are on.', one: '%items% is off.', many: '%count% lights off: %items%.' },
-    'switch:false': { zero: 'All switches are off.', one: '%items% is on.', many: '%count% switches on: %items%.' },
-    'switch:true': { zero: 'All switches are on.', one: '%items% is off.', many: '%count% switches off: %items%.' },
-    'contact:false': { zero: 'All doors and windows are closed.', one: '%items% is open.', many: '%count% doors/windows open: %items%.' },
-    'contact:true': { zero: 'All doors and windows are open.', one: '%items% is closed.', many: '%count% doors/windows closed: %items%.' },
-    'valve:false': { zero: 'All valves are closed.', one: '%items% is open.', many: '%count% valves open: %items%.' },
-    'valve:true': { zero: 'All valves are open.', one: '%items% is closed.', many: '%count% valves closed: %items%.' },
-    'garage:false': { zero: 'All garage doors are closed.', one: '%items% is open.', many: '%count% garage doors open: %items%.' },
-    'garage:true': { zero: 'All garage doors are open.', one: '%items% is closed.', many: '%count% garage doors closed: %items%.' }
-  };
+  //
+  // The wording itself lives in locales/<lang>.json under "messageWording", one set per
+  // Homey-supported language with real translation confidence (en, nl, de, fr, it, sv, no, es,
+  // da, pl — all Latin-alphabet; ru/ko/ar are skipped and Homey.__() falls back to English for
+  // them, same as for any language not covered here). This only ever fills the *default* wording,
+  // on an explicit click of "Fill default wording for this type" (with a confirm if something is
+  // already there) — it never touches a template the user already wrote, matching what a
+  // personalized message is for.
   document.getElementById('fill-wording-btn').addEventListener('click', function () {
-    var preset = MESSAGE_WORDING_PRESETS[typeSelect.value + ':' + document.getElementById('expectedState').value];
-    if (!preset) return;
+    var base = 'messageWording.' + typeSelect.value + '.' + document.getElementById('expectedState').value + '.';
+    var preset = { zero: Homey.__(base + 'zero'), one: Homey.__(base + 'one'), many: Homey.__(base + 'many') };
+    if (!preset.zero || !preset.one || !preset.many) return;
     var zero = document.getElementById('messageTemplateZero');
     var one = document.getElementById('messageTemplateOne');
     var many = document.getElementById('messageTemplateMany');
