@@ -1,5 +1,19 @@
 # TODO
 
+### Idea: an in-Settings language switcher, independent of Homey.getLanguage() (2026-09-28)
+
+Seen live in another app (MQTT Bridge): a small "English | Dansk" toggle in the corner of the
+Settings page — its own stored preference, not tied to Homey's own configured system language.
+Homey's officially supported languages don't include Portuguese, so `Homey.__()`/`Homey.getLanguage()`
+(what Voltage's and Group's default message wording use today) can never offer Portuguese defaults,
+no matter what the user's Homey is set to.
+
+A corner switcher like that, selecting between (at least) 2 languages, backed by an app setting
+instead of the Homey platform language, would let Portuguese become a first-class option for the
+default message wording (Voltage undervoltage/overvoltage/normalized, Group "Fill default wording")
+alongside the other locales — not just a "Custom" fallback. Not started; a later idea, discussed but
+deliberately deferred rather than built now.
+
 ## Pending (2026-09-20)
 
 ### To verify on the Homey (built and unit-tested, not yet seen running)
