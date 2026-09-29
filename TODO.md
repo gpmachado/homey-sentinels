@@ -11,8 +11,14 @@ no matter what the user's Homey is set to.
 A corner switcher like that, selecting between (at least) 2 languages, backed by an app setting
 instead of the Homey platform language, would let Portuguese become a first-class option for the
 default message wording (Voltage undervoltage/overvoltage/normalized, Group "Fill default wording")
-alongside the other locales — not just a "Custom" fallback. Not started; a later idea, discussed but
-deliberately deferred rather than built now.
+alongside the other locales — not just a "Custom" fallback.
+
+Important: this only changes where the *prefill* comes from. The free-text message field (Custom)
+must stay editable exactly as it is today either way — "Fill default wording" only ever writes into
+that same field on an explicit click (with a confirm if it's not empty), never locks it or replaces
+it. A language switcher is an additional, better-targeted starting point, not a replacement for
+typing your own message. Not started; a later idea, discussed but deliberately deferred rather than
+built now.
 
 ## Pending (2026-09-20)
 
