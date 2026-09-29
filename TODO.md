@@ -4,9 +4,15 @@
 
 Seen live in another app (MQTT Bridge): a small "English | Dansk" toggle in the corner of the
 Settings page — its own stored preference, not tied to Homey's own configured system language.
-Homey's officially supported languages don't include Portuguese, so `Homey.__()`/`Homey.getLanguage()`
-(what Voltage's and Group's default message wording use today) can never offer Portuguese defaults,
-no matter what the user's Homey is set to.
+
+To be clear, `locales/<lang>.json` + `Homey.__()` (what Voltage's and Group's default message
+wording use today) is not a stopgap — it's the same standard mechanism the rest of the Settings
+page's own text (currently plain English, hardcoded) would use if it's ever fully translated too,
+so today's approach already lines up with that, no rework needed later. This idea is specifically
+about Portuguese: Homey's officially supported languages don't include it, so no matter how complete
+the app's translation into Homey's own supported languages gets, `Homey.__()`/`Homey.getLanguage()`
+can never offer Portuguese defaults — that's a platform-language-list gap, not a translation-effort
+gap.
 
 A corner switcher like that, selecting between (at least) 2 languages, backed by an app setting
 instead of the Homey platform language, would let Portuguese become a first-class option for the
