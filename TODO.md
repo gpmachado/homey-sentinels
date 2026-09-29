@@ -101,8 +101,12 @@ hit both in the same session: a typo in "Voltagem B" and the device swap both me
   a blank name.
 
 Binary Counter still has no device (by design — it's a Flow-driven tally, not a capability monitor) and
-still has no rename either (only its message template is editable); worth adding the same `name`-on-edit fix
-there later, without the device-repoint part.
+still has no rename either (only its message template is editable). Decided 2026-09-28: not worth fixing —
+remove Binary Counter entirely instead (deemed not useful), in the next version after 1.0.7. Removal touches
+api.js (createBinaryCounter/deleteBinaryCounter/resetBinaryCounter/updateBinaryCounterMessage +
+.homeycompose/app.json routes), lib/store.js (upsertBinaryCounter and its data), the Settings UI section,
+the binary-counter Flow cards (add/remove/reset, log_binary_event, get_binary_event_statistics), and any
+docs/TODO mentions — plus a migration note for existing users who already have binary counters configured.
 
 ### Round of 2026-09-27 (part 2): UX polish + two new Flow cards, checked against two AI reviews
 
