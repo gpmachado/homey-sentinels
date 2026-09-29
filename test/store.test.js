@@ -301,13 +301,13 @@ test('updates a voltage monitor range and rejects an inverted update', async () 
   assert.throws(() => store.updateVoltageMonitor(monitor, { maxVoltage: 100 }));
 });
 
-test('voltage monitor message templates default to empty and can be updated independently of the range', async () => {
+test('voltage monitor message templates default to real wording and can be updated independently of the range', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();
   const monitor = store.createVoltageMonitor({ device: { id: 'dev-1', name: 'Shelly 3EM' }, minVoltage: 110, maxVoltage: 130 });
-  assert.equal(monitor.messageTemplateUndervoltage, '');
-  assert.equal(monitor.messageTemplateOvervoltage, '');
-  assert.equal(monitor.messageTemplateNormalized, '');
+  assert.equal(monitor.messageTemplateUndervoltage, '%monitor% is in undervoltage - %voltage% V.');
+  assert.equal(monitor.messageTemplateOvervoltage, '%monitor% is in overvoltage - %voltage% V.');
+  assert.equal(monitor.messageTemplateNormalized, '%monitor% normalized after %duration_human% (min %min_voltage% V, max %max_voltage% V).');
   store.updateVoltageMonitor(monitor, { messageTemplateUndervoltage: '%monitor% low: %voltage% V' });
   assert.equal(monitor.messageTemplateUndervoltage, '%monitor% low: %voltage% V');
   assert.equal(monitor.minVoltage, 110); // untouched by a messages-only update
