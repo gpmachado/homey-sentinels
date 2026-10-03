@@ -142,8 +142,8 @@ class StatisticTrackerApp extends Homey.App {
     // Resuming a monitor needs its device: right after a Homey reboot the apps start before the
     // devices are ready, so a failed attempt is retried with growing waits instead of leaving the
     // monitor silent until the next restart.
-    for (const [kind, collection] of [['monitor', 'monitors'], ['voltage monitor', 'voltageMonitors'], ['state monitor', 'stateMonitors']]) {
-      Object.values(this.store.data[collection]).forEach((monitor) => this._resumeMonitor(kind, collection, monitor));
+    for (const collection of ['monitors', 'voltageMonitors', 'stateMonitors']) {
+      Object.values(this.store.data[collection]).forEach((monitor) => this._resumeMonitor(collection, monitor));
     }
     Object.values(this.store.data.groups).forEach((group) => this._startGroupWatch(group));
     this.log(this._startupSummary());

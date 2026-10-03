@@ -50,7 +50,7 @@ test('a monitor whose device keeps answering Not Found is flagged after the atte
   const app = await fakeApp();
   const m = monitor(app, 'a', 'gone');
   app._watch = async () => { throw Object.assign(new Error('Not Found: Device with ID gone'), { statusCode: 404 }); };
-  app._resumeMonitor('monitor', 'monitors', m);
+  app._resumeMonitor('monitors', m);
   for (let i = 0; i < 5; i += 1) { await flush(); if (app.timers[i]) app.timers[i].fn(); }
   await flush();
   assert.equal(m.deviceMissing, true);
@@ -59,7 +59,7 @@ test('a monitor whose device keeps answering Not Found is flagged after the atte
   const other = monitor(app, 'b', 'busy');
   app.timers.length = 0;
   app._watch = async () => { throw new Error('socket hang up'); };
-  app._resumeMonitor('monitor', 'monitors', other);
+  app._resumeMonitor('monitors', other);
   for (let i = 0; i < 8; i += 1) { await flush(); if (app.timers[i]) app.timers[i].fn(); }
   assert.equal(Boolean(other.deviceMissing), false);
   assert.ok(app.timers.length >= 8); // it keeps trying
@@ -79,7 +79,7 @@ test('flagging a monitor missing stops a retry loop already in flight, instead o
   const app = await fakeApp();
   const m = monitor(app, 'a', 'gone');
   app._watch = async () => { throw new Error('socket hang up'); }; // not "Not Found": this loop alone would never give up on its own
-  app._resumeMonitor('monitor', 'monitors', m); // fires the 1st attempt right away (failure #1, schedules #2)
+  app._resumeMonitor('monitors', m); // fires the 1st attempt right away (failure #1, schedules #2)
   await flush();
   const runNextTimer = async () => { const next = app.timers.shift(); if (next) await next.fn(); await flush(); };
   await runNextTimer(); // failure #2, schedules attempt #3
