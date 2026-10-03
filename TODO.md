@@ -14,6 +14,17 @@ For the next changelog (1.0.9): Activity and State monitors now start with wordi
 message language setting with Portuguese. Still open: Polish (needs a native check), more languages only with someone
 who reads them, and the Settings page's own text, which is English only.
 
+### Binary Counter removed, and a capability-first Add form: DONE 2026-10-03 (not in a published version yet)
+
+Binary Counter (the device-less tally) is gone: store, statistics, the seven Flow cards, the five API routes, the Settings
+sub-tab, the widget branches and the tests; data an older version saved is dropped on load (tested). A Flow that used one of
+its cards shows it unavailable and has to be edited by hand, so say so in the changelog. The Add activity / state / voltage
+forms now go Capability, then Zone, then Device, each narrowing the next (Activity lists only power capabilities); checked in
+a browser against a stand-in Homey with devices in several zones, not on a real Homey with ~200 devices yet.
+For the next changelog (1.0.9), in this order: the Default message language (Portuguese included) and wording for Activity and
+State monitors; the Add forms picking the capability first; **Binary Counter removed (its Flow cards stop working, edit those
+Flows)**. Keep the text free of double quotes and apostrophes.
+
 ### Code-review findings of commit e25c760: fixed 2026-10-03
 
 The `/code-review max` of 2026-09-28 was only a report; re-checked against the code on 2026-10-02 and fixed on
@@ -45,8 +56,7 @@ Edit forms (and that the new device's history starts clean while the old rows st
 starting with real default wording instead of blank (existing blank ones were left alone on purpose); Group
 **Fill default wording** and new Voltage defaults in en/nl/de/fr/it/sv/no/es/da via `locales/` (superseded by the
 Default message language section above, which no longer uses Homey's `__()`); the five **wireframe widget previews** (Sentinel's own preview is still the old realistic,
-Portuguese one). Polish was drafted and pulled (flexion needs a native check). Binary Counter is to be removed in
-the version after 1.0.7 (see below).
+Portuguese one). Polish was drafted and pulled (flexion needs a native check).
 
 ## Pending (2026-09-20)
 
@@ -150,13 +160,7 @@ hit both in the same session: a typo in "Voltagem B" and the device swap both me
 - **Rename**: all three Edit forms now accept a `name`, validated the same way `updateGroup` already rejects
   a blank name.
 
-Binary Counter still has no device (by design — it's a Flow-driven tally, not a capability monitor) and
-still has no rename either (only its message template is editable). Decided 2026-09-28: not worth fixing —
-remove Binary Counter entirely instead (deemed not useful), in the next version after 1.0.7. Removal touches
-api.js (createBinaryCounter/deleteBinaryCounter/resetBinaryCounter/updateBinaryCounterMessage +
-.homeycompose/app.json routes), lib/store.js (upsertBinaryCounter and its data), the Settings UI section,
-the binary-counter Flow cards (add/remove/reset, log_binary_event, get_binary_event_statistics), and any
-docs/TODO mentions — plus a migration note for existing users who already have binary counters configured.
+Binary Counter was removed on 2026-10-03 (see the section on that near the top).
 
 ### Round of 2026-09-27 (part 2): UX polish + two new Flow cards, checked against two AI reviews
 

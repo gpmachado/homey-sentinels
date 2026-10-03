@@ -16,7 +16,7 @@ lib/app/                  The rest of the App's behaviour, one file per concern,
   availability-watchdogs.js         watchdog polling, delays, battery, timeline notes
   availability-scan.js              the all-devices availability scan
   summaries.js                      cached read-side summaries for Settings, widgets and Flow tokens
-  monitor-admin.js                  create / update / reset / remove monitors and counters
+  monitor-admin.js                  create / update / reset / remove monitors
   flow-cards.js                     Flow card registration, autocompletes, argument resolvers
   memory.js                         memory diagnostics, history consolidation
   constants.js                      shared constants and small formatters
@@ -46,8 +46,7 @@ resolves to a method.
 
 ## 2. Monitor families
 
-Five independent ways to watch something, each with its own Flow card family and (except
-Binary/Group) its own store collection. None of them control a device.
+Four independent ways to watch something (Activity, State, Voltage, Group), each with its own Flow card family and its own store collection. None of them control a device.
 
 ### 2.1 Activity Monitor (`store.data.monitors`)
 
@@ -139,18 +138,12 @@ voltage and duration are reported for the whole episode on return to normal.
   added after a real incident where a Power capability was picked instead of Voltage,
   producing false overvoltage alarms.
 
-### 2.4 Binary Counter (`store.data.binaryCounters`)
+### Binary Counter: removed
 
-For a fire-and-forget occurrence with no start/end pair — a doorbell press, a button click.
-No device/capability subscription at all: the user's own Flow (already triggered however they
-like) calls "Log binary event" to tally it. Just a count, no duration or energy.
-
-- Cards: `add_binary_counter` (upserts by name — the "Counter name" field is an autocomplete
-  that offers existing counters or a "Create new" option, not free text, so a typo can't
-  silently create a duplicate), `log_binary_event`, `remove_binary_counter`,
-  `reset_binary_counter`, `get_binary_event_statistics`.
-- Message wording lives in Settings, rendered by `log_binary_event`'s own tokens
-  (`%counter%`, `%count%`, `%total%`, `%count:word|word%`).
+There used to be a fifth family, a device-less tally bumped by the user's own Flow ("Log binary event"). It was removed
+as not useful: its cards, API routes, Settings sub-tab, widget branches and tests are gone, and a `binaryCounters`
+collection saved by an older version is deleted when the store loads (`load()` in lib/store.js) and disappears at the
+next save. A Flow still using one of its cards shows it as unavailable and must be edited by hand.
 
 ### 2.5 State Group (`store.data.groups`)
 
@@ -398,8 +391,8 @@ capability update (a door open/close) was silently dropped before ever reaching 
 ## 7. Known platform limitation
 
 Homey only shows an action card with output tokens (`get_activity_statistics`,
-`get_voltage_statistics`, `get_binary_event_statistics`, `get_state_statistics`,
-`check_state_group`, `log_binary_event`, `start_monitoring_device`, `stop_monitoring_device`)
+`get_voltage_statistics`, `get_state_statistics`,
+`check_state_group`, `start_monitoring_device`, `stop_monitoring_device`)
 in **Advanced Flow** — the standard Flow editor's `THEN` cards don't expose returned tokens to
 later cards. Deliberately no token-free "basic" sibling for any of these: checked a dozen
 real-world Homey apps (see `analise/modelos/`, gitignored) with token-bearing action cards —

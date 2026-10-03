@@ -16,8 +16,6 @@ Sentinels watches devices you already own and turns their raw capability updates
 
 **Voltage monitors** — flag under/overvoltage against a min/max range, per capability (so a three-phase meter can be watched phase by phase). Returning to normal waits for the reading to actually settle before closing the episode, so a grid recovering from a sag doesn't produce a burst of flapping notifications.
 
-**Binary counters** — a lightweight tally for instant events (a doorbell press, an alarm trip) driven entirely by your own Flow calling "Log binary event" — no device subscription needed.
-
 **Groups** — a set of same-type devices (doors, lights, switches, valves, garage doors) checked against an expected state. Every member is watched live, so `group_mismatch_detected` fires the moment one changes and `group_matched_again` when it clears; a 5-minute poll stays underneath as a safety net (a device that turned unavailable sends no event) and feeds the daily "time mismatched" estimate. "Check now" and the `check_state_group` card read the devices live on demand.
 
 **Availability** — tells you which devices have stopped talking, in two layers that share the same rules:

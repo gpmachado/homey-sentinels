@@ -10,28 +10,26 @@ voltage phase and a group with the tokens and messages you should get, and how t
 
 ## Which one do I need?
 
-Seven independent ways to watch something. Answer these in order — the first one that fits is
+Six independent ways to watch something. Answer these in order — the first one that fits is
 the one to use:
 
 1. **Is it a boolean sensor** — a door/window contact, a motion sensor, anything that's simply
    true/false? → **State Monitor**.
-2. **Do you just want to count how many times something happened**, with no duration to
-   track (a doorbell press, a button click)? → **Binary Counter**.
-3. **Are you comparing several devices of the same kind** — are all the doors closed, are all
+2. **Are you comparing several devices of the same kind** — are all the doors closed, are all
    the lights off? → **State Group**.
-4. **Is it a device that's on all the time**, cycling on its own with no single moment where a
+3. **Is it a device that's on all the time**, cycling on its own with no single moment where a
    person "turns it on" — a freezer, a fridge? → **Activity Monitor**, set up once with **"Add
    activity monitor"**. One card, done — the compressor's own power cycling drives everything
    automatically.
-5. **Is it a device with a distinct "on" moment, but the power reading during that on-time
+4. **Is it a device with a distinct "on" moment, but the power reading during that on-time
    isn't clean enough to trust on its own** — no indicator light, draws nothing while idle, or
    you'd just rather decide "on" from something else you already trust (a native trigger, a
    button)? → **Activity Monitor, driven manually**: one Flow with **"Start monitoring
    device"** wired to whatever tells you it started, a second Flow with **"Stop monitoring
    device"** wired to whatever tells you it stopped. Two Flows instead of one card, in
    exchange for you deciding exactly what "on" means instead of a threshold guessing it.
-6. **Is it about voltage staying in range**, not power/duration? → **Voltage Monitor**.
-7. **Do you just want to know if a device stops working entirely** — not its activity, just
+5. **Is it about voltage staying in range**, not power/duration? → **Voltage Monitor**.
+6. **Do you just want to know if a device stops working entirely** — not its activity, just
    whether it's still there and reporting? → **Availability**. Nothing to set up: the scan already
    checks every device; add a **watchdog** only to one you want a Flow for, with its own limit.
 
@@ -139,24 +137,7 @@ three-phase meter watched as three separate monitors can flag `Fase B is 8.7% ab
 dedicated phase-imbalance monitor type. For more than two phases, chain it once per pair with AND/OR in
 the same Flow. Reads as false while either monitor has no sample yet.
 
-## 4. Binary Counter — tally an occurrence, no duration
-
-For a fire-and-forget event: a doorbell press, a single motion pulse, a button click.
-
-1. Add a Flow with **"Add binary counter"**.
-   - **Counter name**: type a name. This field offers existing counters as you type (pick one
-     to update it) or a "Create new" option if it doesn't match anything — it's an identity
-     field, matched by exact text every time this card runs, so don't insert a live device tag
-     here (that would create a new counter on every run instead of updating the same one).
-2. Wherever the real occurrence happens (a doorbell's own trigger, a motion sensor firing),
-   add **"Log binary event"**, pick the counter — it bumps the count and renders the message
-   configured for it in Settings.
-3. Message wording (Settings → Monitors → Binary sub-tab → "Edit message") uses `%counter%`,
-   `%count%`, `%total%`, and `%count:singular|plural%` — the last one automatically picks the
-   first word when the count is exactly 1, the second otherwise (e.g.
-   `%count:time|times%` → "1 time" / "3 times").
-
-## 5. State Group — check several devices at once
+## 4. State Group — check several devices at once
 
 For "are all the doors closed", "are all the lights off" — any check across two or more
 devices of the same logical type.
@@ -197,7 +178,7 @@ any door open today," only "is it currently mismatched, and for how long today's
 seen it mismatched" (an estimate). For exact per-device numbers, add a State Monitor to those
 devices.
 
-## 6. Availability — find the devices that stopped talking
+## 5. Availability — find the devices that stopped talking
 
 For any Homey device — not a Sentinels monitor, just a plain device. There are two layers with the
 same rules.
@@ -250,13 +231,19 @@ entries, whether to scan everything and how often.
 
 Open the app's Settings from Homey. Three tabs:
 
-- **Monitors** — sub-tabs for Activity / State / Voltage / Binary, each with its own table
+- **Monitors** — sub-tabs for Activity / State / Voltage, each with its own table
   (state, stats, a small trend sparkline) and Edit / Reset stats / Delete buttons per row. A shared
-  Today/7 Days/30 Days period selector applies across all four.
+  Today/7 Days/30 Days period selector applies across all three.
 - **Availability** — the scan tiles and **Scan now**, **Watchdog defaults**, the **Apps** list, and every
   Homey device with its badge, last seen and its Add/Edit/Remove watchdog and Ignore actions.
 - **Groups** — existing groups (with a "Check now" for a live status, the state Flow holds and a
   reset for it) and the Add/Edit form.
+
+**Add monitor** (the button on each sub-tab) picks the device in three narrowing steps, because a long
+device list is the hard part: **Capability** first (what the devices actually offer, with how many devices have
+each — power for Activity, voltage for Voltage, on/off or multi-state for State), then **Zone** (only zones that
+have a device with that capability, with counts, or *All zones*), then the **Device** itself. Activity monitors
+list only power capabilities (`measure_power` and its phases).
 
 **Edit** on an Activity, State or Voltage monitor can also **rename** it and **change its device** (it must
 have the monitor's capability). The monitor keeps its history and settings, so a device that was re-paired
@@ -334,7 +321,6 @@ Latin-alphabet). The Portuguese default for a finished cycle is `%monitor% desli
 | Group, everything matches | `Tudo certo em %group%.` |
 | Group, one mismatch | `Atenção: %items% está fora do esperado em %group%.` |
 | Group, several mismatches | `Há %count% %count:item aberto|itens abertos% em %group%: %items%.` |
-| Binary counter | `%counter% registrado %count% %count:vez|vezes% hoje (%total% no total)` |
 
 Notes:
 - Accents (`á ã ç é ê í ó õ ú`) are fine and cost nothing extra. Emoji, the long dash and curly quotes work in
@@ -366,18 +352,16 @@ R$ 12,40 hoje." using `%monitor%` and `%cost_today_text%`.
 - **A watchdog** is flagged for cleanup (see Availability).
 
 The first line of the log after a start says what is running, for example `Watching: 5 activity, 3 state and 1
-voltage monitors, 2 counters, 3 groups (25 devices), 4 watchdogs; availability scan every 60 min`.
+voltage monitors, 3 groups (25 devices), 4 watchdogs; availability scan every 60 min`.
 
 ## Common pitfalls, all in one place
 
 - **Power vs Voltage capability** on a multi-phase device — the capability pickers for
   Activity and Voltage monitors filter to the right kind, but double-check the exact phase.
-- **Binary Counter's name field is an identity, not a label** — don't insert a live device tag
-  there.
 - **Token-returning cards need Advanced Flow** — `get_activity_statistics`,
-  `get_voltage_statistics`, `get_binary_event_statistics`, `get_state_statistics`,
+  `get_voltage_statistics`, `get_state_statistics`,
   `get_group_statistics`, `check_state_group`, `generate_text_report`, `export_data`,
-  `log_binary_event`, `start_monitoring_device`, and `stop_monitoring_device` only appear as
+  `start_monitoring_device`, and `stop_monitoring_device` only appear as
   selectable cards in the Advanced Flow editor; Homey hides any action card with output tokens
   from the standard editor entirely. There's no token-free variant — react to a monitor's own
   trigger cards in a Standard Flow instead, they already carry a ready-to-use `message` token.
