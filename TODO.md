@@ -1,30 +1,16 @@
 # TODO
 
-### Idea: an in-Settings language switcher, independent of Homey.getLanguage() (2026-09-28)
+### Default message language, Portuguese included: DONE 2026-10-03 (not in a published version yet)
 
-Seen live in another app (MQTT Bridge): a small "English | Dansk" toggle in the corner of the
-Settings page — its own stored preference, not tied to Homey's own configured system language.
-
-To be clear, `locales/<lang>.json` + `Homey.__()` (what Voltage's and Group's default message
-wording use today) is not a stopgap — it's the same standard mechanism the rest of the Settings
-page's own text (currently plain English, hardcoded) would use if it's ever fully translated too,
-so today's approach already lines up with that, no rework needed later. This idea is specifically
-about Portuguese: Homey's officially supported languages don't include it, so no matter how complete
-the app's translation into Homey's own supported languages gets, `Homey.__()`/`Homey.getLanguage()`
-can never offer Portuguese defaults — that's a platform-language-list gap, not a translation-effort
-gap.
-
-A corner switcher like that, selecting between (at least) 2 languages, backed by an app setting
-instead of the Homey platform language, would let Portuguese become a first-class option for the
-default message wording (Voltage undervoltage/overvoltage/normalized, Group "Fill default wording")
-alongside the other locales — not just a "Custom" fallback.
-
-Important: this only changes where the *prefill* comes from. The free-text message field (Custom)
-must stay editable exactly as it is today either way — "Fill default wording" only ever writes into
-that same field on an explicit click (with a confirm if it's not empty), never locks it or replaces
-it. A language switcher is an additional, better-targeted starting point, not a replacement for
-typing your own message. Not started; a later idea, discussed but deliberately deferred rather than
-built now.
+Settings → Monitors → Message format → *Default message language* (Same as Homey, or one of ten languages, Portuguese
+among them) decides the ready-made wording that **new** Activity, State and Voltage monitors start with and that a
+group's *Fill default wording* button writes; `lib/wording.js` reads it from `locales/<code>.json` (pt.json is new, and
+every language gained the Activity and State sentences). It only sets the starting text: the free-text fields stay as
+editable as before and existing monitors are never touched. Not seen on a real Homey yet: `homey.i18n.getLanguage()`
+(the "Same as Homey" choice; it falls back to English if it is missing) and the selector in the real settings page.
+For the next changelog (1.0.9): Activity and State monitors now start with wording in your language too, and a Default
+message language setting with Portuguese. Still open: Polish (needs a native check), more languages only with someone
+who reads them, and the Settings page's own text, which is English only.
 
 ### Code-review findings of commit e25c760: fixed 2026-10-03
 
@@ -55,9 +41,8 @@ Done 2026-09-28 to 2026-10-02, to verify on the Homey: **Change device / Rename*
 Edit forms (and that the new device's history starts clean while the old rows stay); Voltage messages with
 **`%power%` / `%energy%`** on a combined meter (empty, not 0, on a device without power) and new Voltage monitors
 starting with real default wording instead of blank (existing blank ones were left alone on purpose); Group
-**Fill default wording** and new Voltage defaults in en/nl/de/fr/it/sv/no/es/da via `locales/` (the call
-`Homey.__()` in Settings and `this.homey.__()` in the app were not seen working on a real Homey; both fall
-back to English); the five **wireframe widget previews** (Sentinel's own preview is still the old realistic,
+**Fill default wording** and new Voltage defaults in en/nl/de/fr/it/sv/no/es/da via `locales/` (superseded by the
+Default message language section above, which no longer uses Homey's `__()`); the five **wireframe widget previews** (Sentinel's own preview is still the old realistic,
 Portuguese one). Polish was drafted and pulled (flexion needs a native check). Binary Counter is to be removed in
 the version after 1.0.7 (see below).
 
@@ -101,7 +86,7 @@ the version after 1.0.7 (see below).
 - More widgets: group members, running now, 24 h chart, compact badge; 365-day daily summaries / a "year" period.
 - Sentinel Group virtual device (section below): the only view of a group in the web app.
 - Docs are up to date as of 2026-10-03 (README, HOWTO, SPEC, CONTRIBUTING, and the new TUTORIAL with worked examples and expected
-  tokens; SPEC was not re-read for the Voltage `%power%` / `%energy%` tokens and the `locales/` wording). Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
+  tokens; SPEC has the Voltage tokens, the default wording by language and the retry rule). Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
 - Tests do not cover the Settings HTML, the widgets or real Homey I/O. `test/settings-harness/` is a manual browser check for the
   Settings page (a scripted session against a stand-in Homey); it could become an automatic test if a DOM library is ever added.
 

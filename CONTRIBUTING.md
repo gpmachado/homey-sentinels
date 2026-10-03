@@ -73,7 +73,10 @@ method, so a typo or a method left in the wrong place fails the tests instead of
 7. **Changelog text** (`.homeychangelog.json`): no double quotes and no apostrophes. The Homey CLI builds a
    shell command from it for its own version-bump commit, and quotes break that command.
 8. **Homey has no Portuguese** (or many other languages) in its own UI. Message templates are text the user
-   writes in their own language on purpose; do not try to translate them through Homey's i18n.
+   writes in their own language on purpose, and the ready-made starting wording is read from `locales/` by
+   `lib/wording.js` with its own language choice in Settings; do not route it through Homey's `__()`, which
+   could never offer Portuguese. A new language is a new `locales/<code>.json` plus a line in `lib/wording.js`;
+   `test/wording.test.js` fails if a sentence is missing, invents a placeholder or leaves Latin-1.
 9. **No new dependencies without a reason.** `homey-api` is the only one. Statistics are a few pure functions
    in `lib/statistics.js`; a library would cost files, memory and install time on a Homey.
 

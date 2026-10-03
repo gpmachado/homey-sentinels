@@ -190,8 +190,11 @@ they are not separate Flow tokens on the voltage triggers.
 *has a mismatch*, and **Check state group** (Advanced Flow) for an on-demand reading.
 
 The three message boxes are the sentence for 0, 1 and several mismatches. *Fill default wording for this
-type* fills them in your Homey's language (English, Dutch, German, French, Italian, Swedish, Norwegian,
-Spanish or Danish; anything else gets English), and only when you click it, never over text you wrote.
+type* fills them in the *Default message language* chosen under Settings → Monitors → Message format (Same as
+Homey, English, Português, Nederlands, Deutsch, Français, Italiano, Svenska, Norsk, Español or Dansk; Homey's
+own language when it is left on *Same as Homey*, English if the app has no wording for it), and only when you
+click it, never over text you wrote. The same language is what a **new** Activity, State or Voltage monitor
+starts with; monitors that already exist keep their text.
 Placeholders: `%group%`, `%count%`, `%items%` and `%count:mismatch|mismatches%`.
 
 With the English defaults and the three devices *Porta da Sala*, *Janela do Quarto*, *Porta da Cozinha*:

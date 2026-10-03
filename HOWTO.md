@@ -126,9 +126,9 @@ a plain on/off switch you don't have power data for.
    tab → Voltage sub-tab → "Edit messages" on the monitor), not as a Flow card argument — so
    you don't have to rebuild the sentence in every Flow. Tap a token button to insert it into
    whichever message field you last clicked. A **new** monitor starts with a real sentence for each
-   (`%monitor% is in undervoltage - %voltage% V.` and so on) in your Homey's language when the app has it
-   (English, Dutch, German, French, Italian, Swedish, Norwegian, Spanish, Danish; otherwise English);
-   monitors created by an older version keep their empty messages until you fill them in.
+   (`%monitor% is in undervoltage - %voltage% V.` and so on) in the *Default message language* (see
+   "Message wording" below); monitors created by an older version keep their empty messages until you fill
+   them in.
 4. If the same device also reports power or energy (a combined energy meter), the messages can use
    `%power%` and `%energy%` too; they render empty on a device that does not report them.
 
@@ -308,10 +308,17 @@ it in. With no price set, the numbers are 0 and the texts are empty, so a messag
 
 Homey's own interface has no Portuguese, so nothing here is ever forced on you: every message is a template
 you write once, in your own language, under the monitor's **Message** action in Settings (the token buttons
-insert the `%placeholders%`), and you can always overwrite whatever it starts with. New Activity and State
-monitors start with English wording, new Voltage monitors with wording in your Homey's language where the app
-has it, and a group's **Fill default wording for this type** button fills its three boxes the same way (only
-when you click it). Some ready-made Portuguese ones, to copy and adjust:
+insert the `%placeholders%`), and you can always overwrite whatever it starts with.
+
+**Default message language** (Settings → Monitors → Message format) decides the ready-made sentences a **new**
+Activity, State or Voltage monitor starts with, and what a group's **Fill default wording for this type**
+button writes into its three boxes (only when you click it, asking before it replaces text). The choices are
+*Same as Homey* (Homey's own language, English when the app has no wording for it), English, **Português**,
+Nederlands, Deutsch, Français, Italiano, Svenska, Norsk, Español and Dansk — Portuguese can be chosen even
+though Homey is not available in it. It never changes a monitor that already exists or a message you wrote,
+and Polish, Russian, Korean and Arabic are not offered (Polish needs a native check; the others are not
+Latin-alphabet). The Portuguese default for a finished cycle is `%monitor% desligou - %duration_human%,
+%energy% kWh (%count% hoje)`. Some more ready-made Portuguese ones, to copy and adjust:
 
 | Where | Template |
 |---|---|

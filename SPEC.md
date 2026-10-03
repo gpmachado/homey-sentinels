@@ -125,9 +125,9 @@ voltage and duration are reported for the whole episode on return to normal.
 - `stabilization_minutes` suppresses events right after creation (a fresh reading needs a
   moment to settle before it's trusted).
 - Message wording (per event type) is edited in Settings, not passed as a card argument. A new monitor
-  starts with real wording (`DEFAULT_VOLTAGE_MESSAGES` in lib/store.js, the English fallback) taken from
-  `locales/<lang>.json` `voltageMessageDefaults` through `this.homey.__()` at creation time, so the platform
-  language and its English fallback decide it; monitors saved by older builds keep their empty templates.
+  starts with real wording (`DEFAULT_VOLTAGE_MESSAGES` in lib/store.js is the English fallback) taken from
+  `voltageMessageDefaults` in the default-wording files (see "Default wording by language" below) at creation
+  time; monitors saved by older builds keep their empty templates.
 - `auxiliaryCapabilities` are auto-detected like Activity/State (`AUXILIARY_CAPABILITY_CANDIDATES`), so a
   combined energy meter's voltage messages can use `%power%` / `%energy%`. They are read from the device
   object handed to the sample handler and are left `undefined` (rendered as nothing, not 0) when the device
@@ -314,6 +314,20 @@ decimals with the app's decimal separator, empty with no price) feeds `_costToke
 which adds `cost`, `cost_today`, `cost_text` and `cost_today_text` to the finished-cycle data of Activity and
 State monitors (so they are Flow tokens and `%placeholders%`), and `total_cost(_text)` to the activity statistics
 action. A flat price; the **Set energy price** Flow action changes it for tariffs that vary (priced at the price in force when the cycle ends). A price schedule inside the app is not modelled.
+
+### Default wording by language
+
+The ready-made sentences (Group `messageWording`, `voltageMessageDefaults`, `activityMessageDefaults`,
+`stateMessageDefaults`) live in `locales/<code>.json` for en, pt, nl, de, fr, it, sv, no, es and da. They are read
+by `lib/wording.js` directly, not through Homey's translation call, because Homey has no Portuguese and a user
+must be able to ask for it whatever their Homey is set to. The language is, in order: `messageLanguage` in the
+message settings (Settings → Message format → Default message language; blank means follow Homey), else the
+language `homey.i18n.getLanguage()` reports, else English; a sentence missing in that language falls back to
+the English one (`wordingFor`). It is used in exactly two places: when a monitor is created
+(`_defaultWording()` in lib/app/monitor-admin.js, passed to the store as starting templates) and when the Group
+form asks for it (`GET /default-wording`, which also returns the languages on offer). Nothing already stored is
+ever rewritten. `test/wording.test.js` checks every offered language has every sentence, invents no placeholder
+and stays within Latin-1 (the settings store charges double memory above U+00FF).
 
 ### Number tokens are rounded
 
