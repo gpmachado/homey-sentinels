@@ -346,3 +346,15 @@ test('voltageImbalancePercent: percent difference from the average, symmetric, n
   assert.equal(voltageImbalancePercent(NaN, 220), null);
   assert.equal(voltageImbalancePercent(0, 0), null); // undefined average, not a 0% claim
 });
+
+test('calibrationProgress: passing an analysis already computed gives the same answer as computing it inside', () => {
+  const { analyzeThreshold } = require('../lib/statistics');
+  const low = Array.from({ length: 20 }, () => ({ minPower: 2, maxPower: 2 }));
+  const high = Array.from({ length: 20 }, () => ({ minPower: 500, maxPower: 500 }));
+  const ready = activityMonitor({ periods: [...low, ...high] });
+  const collecting = activityMonitor({ periods: Array.from({ length: 5 }, () => ({ minPower: 5, maxPower: 5 })) });
+  for (const monitor of [ready, collecting]) {
+    assert.deepEqual(calibrationProgress(monitor, analyzeThreshold(monitor)), calibrationProgress(monitor));
+  }
+  assert.equal(calibrationProgress(ready, analyzeThreshold(ready)).status, 'ready');
+});

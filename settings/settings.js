@@ -596,6 +596,12 @@ function onHomeyReady(Homey) {
           calibratingTitle = progress.valuesCollected + ' samples collected (' + progress.min + '-' + progress.max + ' W), but no clear standby/active split yet'
             + (progress.standbyHigh !== null ? ': the closest split seen is standby up to ' + progress.standbyHigh + ' W, active from ' + progress.activeLow + ' W, not different enough to trust.' : '.');
         }
+        else if (progress.status === 'ready') {
+          // A split was found but the app only looks again after a back-off of up to 30 minutes, so this is
+          // visible for a while rather than for a moment.
+          calibratingTitle = 'A clear split was found (standby up to ' + progress.standbyHigh + ' W, active from ' + progress.activeLow + ' W): about '
+            + Math.round(progress.suggestedThreshold) + ' W will be applied at the next calibration check, which can take up to 30 minutes.';
+        }
       }
       var stateBadge = monitor.calibrating
         ? '<span class="badge badge-calibrating" title="' + escapeHtml(calibratingTitle) + '">Calibrating' + (progress && progress.status === 'collecting' ? ' (' + progress.valuesCollected + '/' + progress.valuesNeeded + ')' : '') + '</span>'
@@ -1624,23 +1630,32 @@ function onHomeyReady(Homey) {
     return false;
   }
 
-  function loadAll() {
+  // The lists that can change on their own. Shared by the first load and the 60 s refresh below, so a new list
+  // is added in one place (they had drifted into two hand-copied endpoint lists).
+  function fetchLiveLists() {
     return Promise.all([
-      api('GET', '/devices'), api('GET', '/groups'), api('GET', '/monitors?period=' + monitorPeriod), api('GET', '/voltage-monitors?period=' + monitorPeriod),
-      api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs'), api('GET', '/availability-settings'), api('GET', '/availability-scan')
-    ]).then(function (results) {
+      api('GET', '/groups'), api('GET', '/monitors?period=' + monitorPeriod), api('GET', '/voltage-monitors?period=' + monitorPeriod),
+      api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs')
+    ]).then(function (r) { return { groups: r[0], monitors: r[1], voltage: r[2], binary: r[3], state: r[4], watchdogs: r[5] }; });
+  }
+  function renderLiveLists(lists, devices) {
+    renderGroups(lists.groups);
+    renderMonitors(lists.monitors);
+    renderVoltageMonitors(lists.voltage);
+    renderBinaryCounters(lists.binary);
+    renderStateMonitors(lists.state);
+    renderAvailability(devices, lists.watchdogs);
+  }
+
+  function loadAll() {
+    return Promise.all([api('GET', '/devices'), fetchLiveLists(), api('GET', '/availability-settings'), api('GET', '/availability-scan')]).then(function (results) {
       allDevices = results[0];
-      availabilityDefaults = results[7];
-      lastScan = results[8];
+      availabilityDefaults = results[2];
+      lastScan = results[3];
       renderScanTiles();
       renderDeviceList();
-      renderGroups(results[1]);
-      renderMonitors(results[2]);
-      renderVoltageMonitors(results[3]);
-      renderBinaryCounters(results[4]);
-      renderStateMonitors(results[5]);
       deviceListLoading = !results[0].length;
-      renderAvailability(results[0], results[6]);
+      renderLiveLists(results[1], allDevices);
       return api('GET', '/devices/status').then(function (status) {
         if (status.loading || !allDevices.length) waitForDevices(0);
       });
@@ -1738,17 +1753,8 @@ function onHomeyReady(Homey) {
   // directory (/devices) and its 300+-row Availability re-render, which stay on their own, cheaper triggers.
   function refreshLiveStatus() {
     if (document.hidden) return;
-    Promise.all([
-      api('GET', '/groups'), api('GET', '/monitors?period=' + monitorPeriod), api('GET', '/voltage-monitors?period=' + monitorPeriod),
-      api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs')
-    ]).then(function (results) {
-      renderGroups(results[0]);
-      renderMonitors(results[1]);
-      renderVoltageMonitors(results[2]);
-      renderBinaryCounters(results[3]);
-      renderStateMonitors(results[4]);
-      lastAvailabilityWatchdogs = results[5];
-      renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
+    fetchLiveLists().then(function (lists) {
+      renderLiveLists(lists, lastAvailabilityDevices);
     }).catch(function () { /* a miss here just tries again next tick */ });
   }
   document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshLiveStatus(); });
