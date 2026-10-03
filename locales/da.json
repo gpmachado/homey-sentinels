@@ -65,5 +65,13 @@
     "undervoltage": "%monitor% har underspænding - %voltage% V.",
     "overvoltage": "%monitor% har overspænding - %voltage% V.",
     "normalized": "%monitor% normaliseret efter %duration_human% (min %min_voltage% V, maks %max_voltage% V)."
+  },
+  "activityMessageDefaults": {
+    "started": "%monitor% blev tændt (%power% W)",
+    "finished": "%monitor% blev slukket - %duration_human%, %energy% kWh (%count% i dag)"
+  },
+  "stateMessageDefaults": {
+    "started": "%monitor% er nu %label%",
+    "finished": "%monitor% er nu %label% (%count% i dag)"
   }
 }

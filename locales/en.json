@@ -1,29 +1,77 @@
 {
   "messageWording": {
     "light": {
-      "false": { "zero": "All lights are off.", "one": "%items% is on.", "many": "%count% lights on: %items%." },
-      "true": { "zero": "All lights are on.", "one": "%items% is off.", "many": "%count% lights off: %items%." }
+      "false": {
+        "zero": "All lights are off.",
+        "one": "%items% is on.",
+        "many": "%count% lights on: %items%."
+      },
+      "true": {
+        "zero": "All lights are on.",
+        "one": "%items% is off.",
+        "many": "%count% lights off: %items%."
+      }
     },
     "switch": {
-      "false": { "zero": "All switches are off.", "one": "%items% is on.", "many": "%count% switches on: %items%." },
-      "true": { "zero": "All switches are on.", "one": "%items% is off.", "many": "%count% switches off: %items%." }
+      "false": {
+        "zero": "All switches are off.",
+        "one": "%items% is on.",
+        "many": "%count% switches on: %items%."
+      },
+      "true": {
+        "zero": "All switches are on.",
+        "one": "%items% is off.",
+        "many": "%count% switches off: %items%."
+      }
     },
     "contact": {
-      "false": { "zero": "All doors and windows are closed.", "one": "%items% is open.", "many": "%count% doors/windows open: %items%." },
-      "true": { "zero": "All doors and windows are open.", "one": "%items% is closed.", "many": "%count% doors/windows closed: %items%." }
+      "false": {
+        "zero": "All doors and windows are closed.",
+        "one": "%items% is open.",
+        "many": "%count% doors/windows open: %items%."
+      },
+      "true": {
+        "zero": "All doors and windows are open.",
+        "one": "%items% is closed.",
+        "many": "%count% doors/windows closed: %items%."
+      }
     },
     "valve": {
-      "false": { "zero": "All valves are closed.", "one": "%items% is open.", "many": "%count% valves open: %items%." },
-      "true": { "zero": "All valves are open.", "one": "%items% is closed.", "many": "%count% valves closed: %items%." }
+      "false": {
+        "zero": "All valves are closed.",
+        "one": "%items% is open.",
+        "many": "%count% valves open: %items%."
+      },
+      "true": {
+        "zero": "All valves are open.",
+        "one": "%items% is closed.",
+        "many": "%count% valves closed: %items%."
+      }
     },
     "garage": {
-      "false": { "zero": "All garage doors are closed.", "one": "%items% is open.", "many": "%count% garage doors open: %items%." },
-      "true": { "zero": "All garage doors are open.", "one": "%items% is closed.", "many": "%count% garage doors closed: %items%." }
+      "false": {
+        "zero": "All garage doors are closed.",
+        "one": "%items% is open.",
+        "many": "%count% garage doors open: %items%."
+      },
+      "true": {
+        "zero": "All garage doors are open.",
+        "one": "%items% is closed.",
+        "many": "%count% garage doors closed: %items%."
+      }
     }
   },
   "voltageMessageDefaults": {
     "undervoltage": "%monitor% is in undervoltage - %voltage% V.",
     "overvoltage": "%monitor% is in overvoltage - %voltage% V.",
     "normalized": "%monitor% normalized after %duration_human% (min %min_voltage% V, max %max_voltage% V)."
+  },
+  "activityMessageDefaults": {
+    "started": "%monitor% turned on (%power% W)",
+    "finished": "%monitor% turned off - %duration_human%, %energy% kWh (%count% today)"
+  },
+  "stateMessageDefaults": {
+    "started": "%monitor% is now %label%",
+    "finished": "%monitor% is now %label% (%count% today)"
   }
 }

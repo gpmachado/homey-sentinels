@@ -2,6 +2,7 @@
 
 const { GROUP_TYPES } = require('./lib/groups');
 const { setDecimalComma } = require('./lib/message-template');
+const { LANGUAGES } = require('./lib/wording');
 
 // How old the device list may be before opening the page triggers a new read of it.
 const DEVICE_LIST_MAX_AGE_MS = 5 * 60 * 1000;
@@ -55,6 +56,11 @@ module.exports = {
   },
   async getMessageSettings({ homey }) {
     return homey.app.store.getMessageSettings();
+  },
+  // What the Settings page needs to offer the language choice and to fill a group's three message boxes: the
+  // language in use, the languages to choose from, and every ready-made group sentence in that language.
+  async getDefaultWording({ homey }) {
+    return { language: homey.app._messageLanguage(), languages: LANGUAGES, messageWording: homey.app._defaultWording().messageWording };
   },
   async setMessageSettings({ homey, body }) {
     const settings = homey.app.store.updateMessageSettings(body);

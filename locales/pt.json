@@ -1,0 +1,77 @@
+{
+  "messageWording": {
+    "light": {
+      "false": {
+        "zero": "Todas as luzes (%group%) estão apagadas.",
+        "one": "%items% está acesa.",
+        "many": "%count% luzes acesas: %items%."
+      },
+      "true": {
+        "zero": "Todas as luzes (%group%) estão acesas.",
+        "one": "%items% está apagada.",
+        "many": "%count% luzes apagadas: %items%."
+      }
+    },
+    "switch": {
+      "false": {
+        "zero": "Todos os interruptores (%group%) estão desligados.",
+        "one": "%items% está ligado.",
+        "many": "%count% interruptores ligados: %items%."
+      },
+      "true": {
+        "zero": "Todos os interruptores (%group%) estão ligados.",
+        "one": "%items% está desligado.",
+        "many": "%count% interruptores desligados: %items%."
+      }
+    },
+    "contact": {
+      "false": {
+        "zero": "Todas as portas e janelas estão fechadas.",
+        "one": "%items% está aberta.",
+        "many": "Há %count% itens abertos: %items%."
+      },
+      "true": {
+        "zero": "Todas as portas e janelas estão abertas.",
+        "one": "%items% está fechada.",
+        "many": "Há %count% itens fechados: %items%."
+      }
+    },
+    "valve": {
+      "false": {
+        "zero": "Todas as válvulas (%group%) estão fechadas.",
+        "one": "%items% está aberta.",
+        "many": "%count% válvulas abertas: %items%."
+      },
+      "true": {
+        "zero": "Todas as válvulas (%group%) estão abertas.",
+        "one": "%items% está fechada.",
+        "many": "%count% válvulas fechadas: %items%."
+      }
+    },
+    "garage": {
+      "false": {
+        "zero": "Todos os portões de garagem (%group%) estão fechados.",
+        "one": "%items% está aberto.",
+        "many": "%count% portões de garagem abertos: %items%."
+      },
+      "true": {
+        "zero": "Todos os portões de garagem (%group%) estão abertos.",
+        "one": "%items% está fechado.",
+        "many": "%count% portões de garagem fechados: %items%."
+      }
+    }
+  },
+  "voltageMessageDefaults": {
+    "undervoltage": "%monitor% está em subtensão - %voltage% V.",
+    "overvoltage": "%monitor% está em sobretensão - %voltage% V.",
+    "normalized": "%monitor% normalizou depois de %duration_human% (mínimo %min_voltage% V, máximo %max_voltage% V)."
+  },
+  "activityMessageDefaults": {
+    "started": "%monitor% ligou (%power% W)",
+    "finished": "%monitor% desligou - %duration_human%, %energy% kWh (%count% hoje)"
+  },
+  "stateMessageDefaults": {
+    "started": "%monitor% agora está %label%",
+    "finished": "%monitor% agora está %label% (%count% hoje)"
+  }
+}

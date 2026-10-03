@@ -807,7 +807,7 @@ test('message settings: default off, kept when set, and old data without them lo
   const settings = { get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} };
   const store = new SentinelStore(settings);
   await store.load();
-  assert.deepEqual(store.getMessageSettings(), { decimalComma: false, pricePerKwh: 0, currency: '' });
+  assert.deepEqual(store.getMessageSettings(), { messageLanguage: '', decimalComma: false, pricePerKwh: 0, currency: '' });
   store.updateMessageSettings({ decimalComma: true });
   assert.equal(store.getMessageSettings().decimalComma, true);
   store.updateMessageSettings({ decimalComma: 'nonsense' });
@@ -817,4 +817,39 @@ test('message settings: default off, kept when set, and old data without them lo
   const reloaded = new SentinelStore(settings);
   await reloaded.load();
   assert.equal(reloaded.getMessageSettings().decimalComma, true);
+});
+
+test('message settings: the default message language is kept when it is one the wording covers, and blank (follow Homey) otherwise', async () => {
+  const data = {};
+  const settings = { get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} };
+  const store = new SentinelStore(settings);
+  await store.load();
+  assert.equal(store.getMessageSettings().messageLanguage, '');
+  store.updateMessageSettings({ messageLanguage: 'pt' }); // Portuguese is not a Homey language but is covered by the wording files
+  assert.equal(store.getMessageSettings().messageLanguage, 'pt');
+  store.updateMessageSettings({ currency: 'R$' }); // an unrelated change keeps it
+  assert.equal(store.getMessageSettings().messageLanguage, 'pt');
+  store.updateMessageSettings({ messageLanguage: 'xx' });
+  assert.equal(store.getMessageSettings().messageLanguage, '');
+  store.updateMessageSettings({ messageLanguage: 'de' });
+  await store.save();
+  const reloaded = new SentinelStore(settings);
+  await reloaded.load();
+  assert.equal(reloaded.getMessageSettings().messageLanguage, 'de');
+});
+
+test('new Activity, State and manual monitors take the starting wording they are given, and the English constants otherwise', async () => {
+  const store = new SentinelStore({ get: () => undefined, set: async () => {}, unset: () => {} });
+  await store.load();
+  const given = { messageTemplateStarted: 'ligou', messageTemplateFinished: 'desligou' };
+  const a = store.createMonitor({ device: { id: 'a', name: 'A' }, ...given });
+  assert.deepEqual([a.messageTemplateStarted, a.messageTemplateFinished], ['ligou', 'desligou']);
+  const plain = store.createMonitor({ device: { id: 'b', name: 'B' } });
+  assert.equal(plain.messageTemplateStarted, '%monitor% turned on (%power% W)');
+  const m = store.upsertManualMonitor({ device: { id: 'c', name: 'C' }, ...given }).monitor;
+  assert.deepEqual([m.messageTemplateStarted, m.messageTemplateFinished], ['ligou', 'desligou']);
+  const s = store.upsertStateMonitor({ device: { id: 'd', name: 'D' }, capability: 'alarm_contact', ...given }).monitor;
+  assert.deepEqual([s.messageTemplateStarted, s.messageTemplateFinished], ['ligou', 'desligou']);
+  const s2 = store.createStateMonitor({ device: { id: 'e', name: 'E' }, capability: 'alarm_contact' });
+  assert.equal(s2.messageTemplateFinished, '%monitor% is now %label% (%count% today)');
 });

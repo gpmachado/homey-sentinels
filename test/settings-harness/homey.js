@@ -13,7 +13,8 @@
       { id: 'd9', name: 'Spare meter', zoneName: 'Well', capabilities: ['measure_power', 'measure_voltage'], capabilitiesObj: {} },
       { id: 'd2', name: 'Plug', zoneName: 'Hall', capabilities: ['alarm_contact', 'machine_state'], capabilitiesObj: { alarm_contact: { type: 'boolean' }, machine_state: { type: 'enum' } } }],
     '/devices/status': { loading: false }, '/availability-watchdogs': [], '/availability-settings': { defaultThresholdHours: 12 },
-    '/availability-scan': { enabled: false, excludedDevices: [], excludedApps: [], excludedZones: [] }, '/message-settings': {}
+    '/availability-scan': { enabled: false, excludedDevices: [], excludedApps: [], excludedZones: [] }, '/message-settings': { messageLanguage: '', decimalComma: false, pricePerKwh: 0, currency: '' },
+    '/default-wording': { language: 'en', languages: [{ code: 'en', name: 'English' }, { code: 'pt', name: 'Português' }, { code: 'de', name: 'Deutsch' }], messageWording: { contact: { 'false': { zero: 'All doors and windows are closed.', one: '%items% is open.', many: '%count% doors/windows open: %items%.' }, 'true': { zero: 'All open.', one: '%items% is closed.', many: '%count% closed: %items%.' } } } }
   };
   window.addEventListener('load', function () {
     var Homey = {
@@ -21,7 +22,7 @@
         if (typeof body === 'function') { cb = body; body = undefined; }
         log.push({ call: method + ' ' + path, body: body === undefined ? null : JSON.parse(JSON.stringify(body)) });
         var key = path.split('?')[0];
-        var result = method === 'GET' ? lists[key] : {};
+        var result = method === 'GET' ? lists[key] : (key === '/message-settings' ? Object.assign({}, lists[key], body) : {});
         setTimeout(function () { result === undefined ? cb(new Error('no fixture ' + key)) : cb(null, result); }, 0);
       },
       getLanguage: function () { return 'en'; }, __: function (k) { return k; },

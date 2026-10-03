@@ -73,6 +73,15 @@ window.runTrace = async () => {
       rec('row action | ' + body + ' | ' + label, { calls: since(m), rowsAfter: $(body).querySelectorAll('.entity-row').length });
     }
   }
+  // Default message language: the options, choosing one, and the group's Fill default wording using the app's wording
+  const lang = $('message-language');
+  rec('message language | options', { options: [...lang.options].map((o) => o.value + '=' + o.textContent), value: lang.value });
+  let lm = mark(); lang.value = 'pt'; lang.dispatchEvent(new Event('change')); await wait(120);
+  rec('message language | chosen', { calls: since(lm), value: lang.value });
+  $('type').value = 'contact'; $('expectedState').value = 'false';
+  ['messageTemplateZero', 'messageTemplateOne', 'messageTemplateMany'].forEach((id) => { $(id).value = ''; });
+  lm = mark(); click($('fill-wording-btn')); await wait(120);
+  rec('fill default wording', { calls: since(lm), fields: fields(['messageTemplateZero', 'messageTemplateOne', 'messageTemplateMany']) });
   // a week period hides the actions
   rec('actions per list on day period', ['monitors-body', 'state-monitors-body', 'voltage-monitors-body', 'binary-counters-body'].map((id) => [...$(id).querySelectorAll('.btn-link')].map((b) => b.textContent)));
   return trace;

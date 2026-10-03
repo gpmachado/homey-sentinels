@@ -386,6 +386,10 @@
       Use a comma as the decimal separator in messages (1,5 kWh instead of 1.5 kWh)
     </label>
     <p class="hint">Only the wording of messages changes. Flow tokens of type number keep the dot, which Homey requires.</p>
+    <label>Default message language
+      <select id="message-language"></select>
+    </label>
+    <p class="hint">The language of the ready-made wording: what a <strong>new</strong> monitor starts with, and what a group's <em>Fill default wording</em> button writes. <em>Same as Homey</em> follows Homey's own language (English when the app has no wording for it); Portuguese can be chosen here even though Homey is not available in it. It never changes a message you already wrote, and every message stays free text you can edit.</p>
     <h2>Energy cost</h2>
     <p class="hint">Set the price of a kWh to get the estimated cost of each finished cycle: the Flow tokens <code>cost</code>, <code>cost_today</code>, <code>cost_text</code> (with the currency, "R$ 1,02") and <code>%cost_text%</code> in message templates. Leave the price empty to turn it off.</p>
     <div class="cost-row">

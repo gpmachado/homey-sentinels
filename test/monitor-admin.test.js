@@ -117,3 +117,56 @@ test('voltage: moving needs a measure_voltage capability even if the device has 
   const item = add(app, 'voltage', 'a', { capability: 'measure_power' });
   await assert.rejects(() => app.updateVoltageMonitorIdentity(item, { deviceId: 'fresh' }), /voltage capability/);
 });
+
+// ---- default wording: the language a new monitor's sentences come in
+const api = require('../api');
+
+async function wordingApp({ chosen = '', homeyLanguage = 'en', brokenI18n = false } = {}) {
+  const devices = {
+    meter: { id: 'meter', name: 'Meter', capabilities: ['measure_power', 'measure_voltage', 'meter_power'], capabilitiesObj: { measure_power: {}, measure_voltage: {}, meter_power: {} } },
+    door: { id: 'door', name: 'Door', capabilities: ['alarm_contact'], capabilitiesObj: { alarm_contact: { type: 'boolean' } } }
+  };
+  const app = await fakeApp(devices);
+  app.store.updateMessageSettings({ messageLanguage: chosen });
+  app.homey.i18n = brokenI18n ? {} : { getLanguage: () => homeyLanguage };
+  app.log = () => {};
+  return app;
+}
+
+test('new monitors of every kind start with the wording of the language chosen in Settings, Portuguese included', async () => {
+  const app = await wordingApp({ chosen: 'pt', homeyLanguage: 'de' });
+  const activity = await app._createActivityMonitor({ deviceId: 'meter', threshold: 50 });
+  assert.equal(activity.messageTemplateFinished, '%monitor% desligou - %duration_human%, %energy% kWh (%count% hoje)');
+  const state = await app._createStateMonitor({ deviceId: 'door', capability: 'alarm_contact' });
+  assert.equal(state.messageTemplateStarted, '%monitor% agora está %label%');
+  const voltage = await app._createVoltageMonitor({ deviceId: 'meter', capability: 'measure_voltage', minVoltage: 210, maxVoltage: 240 });
+  assert.equal(voltage.messageTemplateUndervoltage, '%monitor% está em subtensão - %voltage% V.');
+});
+
+test('with no language chosen the language Homey reports is used, and English when the app has no wording for it', async () => {
+  let app = await wordingApp({ chosen: '', homeyLanguage: 'de' });
+  assert.equal((await app._createActivityMonitor({ deviceId: 'meter', threshold: 50 })).messageTemplateStarted, '%monitor% eingeschaltet (%power% W)');
+  app = await wordingApp({ chosen: '', homeyLanguage: 'ko' });
+  assert.equal((await app._createActivityMonitor({ deviceId: 'meter', threshold: 50 })).messageTemplateStarted, '%monitor% turned on (%power% W)');
+  app = await wordingApp({ brokenI18n: true }); // a firmware without homey.i18n
+  assert.equal(app._messageLanguage(), 'en');
+});
+
+test('choosing a language never touches the wording of a monitor that already exists', async () => {
+  const app = await wordingApp({ chosen: 'pt' });
+  const existing = add(app, 'activity', 'old', { messageTemplateStarted: 'my own text', messageTemplateFinished: 'my own finish' });
+  await app._createActivityMonitor({ deviceId: 'meter', threshold: 50 });
+  assert.deepEqual([existing.messageTemplateStarted, existing.messageTemplateFinished], ['my own text', 'my own finish']);
+});
+
+test('api.getDefaultWording offers the languages, says which is in use and serves the group sentences in it', async () => {
+  const app = await wordingApp({ chosen: 'pt' });
+  const homey = { app };
+  const info = await api.getDefaultWording({ homey });
+  assert.equal(info.language, 'pt');
+  assert.ok(info.languages.some((language) => language.code === 'pt' && language.name === 'Português'));
+  assert.equal(info.messageWording.contact.false.zero, 'Todas as portas e janelas estão fechadas.');
+  const saved = await api.setMessageSettings({ homey, body: { messageLanguage: 'de' } });
+  assert.equal(saved.messageLanguage, 'de');
+  assert.equal((await api.getDefaultWording({ homey })).messageWording.light.false.zero, 'Alle Lichter (%group%) sind aus.');
+});

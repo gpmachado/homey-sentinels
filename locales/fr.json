@@ -65,5 +65,13 @@
     "undervoltage": "%monitor% est en sous-tension - %voltage% V.",
     "overvoltage": "%monitor% est en surtension - %voltage% V.",
     "normalized": "%monitor% normalisé après %duration_human% (min %min_voltage% V, max %max_voltage% V)."
+  },
+  "activityMessageDefaults": {
+    "started": "%monitor% allumé (%power% W)",
+    "finished": "%monitor% éteint - %duration_human%, %energy% kWh (%count% aujourd'hui)"
+  },
+  "stateMessageDefaults": {
+    "started": "%monitor% est maintenant %label%",
+    "finished": "%monitor% est maintenant %label% (%count% aujourd'hui)"
   }
 }

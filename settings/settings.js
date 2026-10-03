@@ -433,26 +433,29 @@ function onHomeyReady(Homey) {
   // (lights off, doors closed) — the common case. Keyed by type + expected state so the
   // wording still makes sense if someone flips it (e.g. a group that expects lights ON).
   //
-  // The wording itself lives in locales/<lang>.json under "messageWording", one set per
-  // Homey-supported language with real translation confidence (en, nl, de, fr, it, sv, no, es, da —
-  // all Latin-alphabet; ru/ko/ar are skipped, Polish was pulled for a native check, and Homey.__()
-  // falls back to English for them, same as for any language not covered here). This only ever fills the *default* wording,
-  // on an explicit click of "Fill default wording for this type" (with a confirm if something is
-  // already there) — it never touches a template the user already wrote, matching what a
-  // personalized message is for.
+  // The wording itself lives in locales/<lang>.json under "messageWording", one set per language with real
+  // translation confidence (en, pt, nl, de, fr, it, sv, no, es, da: all Latin-alphabet; ru/ko/ar are skipped and Polish
+  // was pulled for a native check). The app picks the language (Settings -> Message format -> Default message
+  // language, else Homey's, else English) and serves it from /default-wording, asked again on every click so a
+  // language just changed applies at once. This only ever fills the *default* wording, on an explicit click of
+  // "Fill default wording for this type" (with a confirm if something is already there): it never touches a
+  // template the user already wrote, matching what a personalized message is for.
   document.getElementById('fill-wording-btn').addEventListener('click', function () {
-    var base = 'messageWording.' + typeSelect.value + '.' + document.getElementById('expectedState').value + '.';
-    var preset = { zero: Homey.__(base + 'zero'), one: Homey.__(base + 'one'), many: Homey.__(base + 'many') };
-    if (!preset.zero || !preset.one || !preset.many) return;
-    var zero = document.getElementById('messageTemplateZero');
-    var one = document.getElementById('messageTemplateOne');
-    var many = document.getElementById('messageTemplateMany');
-    var apply = function () { zero.value = preset.zero; one.value = preset.one; many.value = preset.many; };
-    if (zero.value || one.value || many.value) {
-      confirmAction('This will overwrite the current message wording. Continue?', apply);
-    } else {
-      apply();
-    }
+    var type = typeSelect.value;
+    var state = document.getElementById('expectedState').value;
+    api('GET', '/default-wording').then(function (info) {
+      var preset = info.messageWording[type] && info.messageWording[type][state];
+      if (!preset || !preset.zero || !preset.one || !preset.many) return;
+      var zero = document.getElementById('messageTemplateZero');
+      var one = document.getElementById('messageTemplateOne');
+      var many = document.getElementById('messageTemplateMany');
+      var apply = function () { zero.value = preset.zero; one.value = preset.one; many.value = preset.many; refreshMessagePreviews(); };
+      if (zero.value || one.value || many.value) {
+        confirmAction('This will overwrite the current message wording. Continue?', apply);
+      } else {
+        apply();
+      }
+    }).catch(function (error) { Homey.alert(error.message || String(error)); });
   });
 
   function resetForm() {
@@ -1582,7 +1585,34 @@ function onHomeyReady(Homey) {
     });
     refreshMessagePreviews();
   }
+  // Default message language: "Same as Homey" (blank) or one of the languages the app has wording for.
+  var messageLanguageSelect = document.getElementById('message-language');
+  function fillMessageLanguages(info, chosen) {
+    messageLanguageSelect.innerHTML = '';
+    var current = info.languages.filter(function (language) { return language.code === info.language; })[0];
+    [{ code: '', name: 'Same as Homey' + (!chosen && current ? ' (now ' + current.name + ')' : '') }].concat(info.languages).forEach(function (language) {
+      var option = document.createElement('option');
+      option.value = language.code;
+      option.textContent = language.name;
+      messageLanguageSelect.appendChild(option);
+    });
+    messageLanguageSelect.value = chosen || '';
+  }
+  messageLanguageSelect.addEventListener('change', function () {
+    var previous = messageLanguageSelect.getAttribute('data-saved') || '';
+    api('POST', '/message-settings', { messageLanguage: messageLanguageSelect.value }).then(function (saved) {
+      messageLanguageSelect.setAttribute('data-saved', saved.messageLanguage);
+      return api('GET', '/default-wording').then(function (info) { fillMessageLanguages(info, saved.messageLanguage); });
+    }).catch(function (error) {
+      messageLanguageSelect.value = previous;
+      Homey.alert(error.message || String(error));
+    });
+  });
   api('GET', '/message-settings').then(function (settings) {
+    api('GET', '/default-wording').then(function (info) {
+      messageLanguageSelect.setAttribute('data-saved', settings.messageLanguage || '');
+      fillMessageLanguages(info, settings.messageLanguage);
+    }).catch(function () {});
     decimalCommaBox.checked = settings.decimalComma === true;
     priceInput.value = settings.pricePerKwh > 0 ? settings.pricePerKwh : '';
     currencyInput.value = settings.currency || '';

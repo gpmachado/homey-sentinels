@@ -193,6 +193,10 @@
       "method": "POST",
       "path": "/message-settings"
     },
+    "getDefaultWording": {
+      "method": "GET",
+      "path": "/default-wording"
+    },
     "getTimezone": {
       "method": "GET",
       "path": "/timezone"
