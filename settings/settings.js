@@ -337,7 +337,7 @@ function onHomeyReady(Homey) {
         closeModal(wrapper);
         currentId = null;
         return api('GET', spec.listPath + '?period=' + monitorPeriod);
-      }).then(spec.render).catch(function (error) { Homey.alert(error.message || String(error)); });
+      }).then(spec.render).catch(showError);
     });
     return { open: function (id) { currentId = id; openModal(wrapper); } };
   }
@@ -351,7 +351,7 @@ function onHomeyReady(Homey) {
         api(method, path)
           .then(function () { return api('GET', spec.path + '?period=' + monitorPeriod); })
           .then(spec.render)
-          .catch(function (error) { Homey.alert(error.message || String(error)); });
+          .catch(showError);
       });
     }
     return [
@@ -375,6 +375,9 @@ function onHomeyReady(Homey) {
     resetForm();
     openModal(groupFormWrapper);
   });
+
+  // What every failed call ends in: the error's own message, in Homey's alert.
+  function showError(error) { Homey.alert(error.message || String(error)); }
 
   function api(method, path, body) {
     return new Promise(function (resolve, reject) {
@@ -452,7 +455,7 @@ function onHomeyReady(Homey) {
       } else {
         apply();
       }
-    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+    }).catch(showError);
   });
 
   function resetForm() {
@@ -532,14 +535,14 @@ function onHomeyReady(Homey) {
             ? 'Removed from the group (no longer in Homey): ' + result.removed.join(', ') + '. ' + result.remaining + ' device(s) left.'
             : 'Every device of this group is still in Homey.');
           return loadAll();
-        }).catch(function (error) { Homey.alert(error.message || String(error)); });
+        }).catch(showError);
       });
       var resetBtn = actionLink('Reset Flow status', function () {
         confirmAction('Let "' + group.name + '" report a new mismatch to Flow again? Use this if it stopped firing even though a mismatch is really happening.', function () {
           api('POST', '/groups/' + group.id + '/clear-mismatch').then(function (updated) {
             group.mismatchSince = updated.mismatchSince;
             renderFlowStatus();
-          }).catch(function (error) { Homey.alert(error.message || String(error)); });
+          }).catch(showError);
         });
       }, true);
       renderFlowStatus();
@@ -578,7 +581,7 @@ function onHomeyReady(Homey) {
       row.appendChild(actionLink('Remove now', function () {
         api('POST', '/groups/' + group.id + '/cleanup').then(function () { return loadAll(); }).then(function () {
           resetForm();
-        }).catch(function (error) { Homey.alert(error.message || String(error)); });
+        }).catch(showError);
       }, true));
       missingBox.appendChild(row);
     });
@@ -628,118 +631,142 @@ function onHomeyReady(Homey) {
     });
   }
 
-  function renderMonitors(monitors) {
-    var container = document.getElementById('monitors-body');
+  // Shown on a monitor whose device was deleted from Homey (see "If a device is deleted" in the HOWTO).
+  function deviceMissingBadge(monitor) {
+    return monitor.deviceMissing ? ' <span class="badge badge-danger" title="The device was deleted from Homey; this monitor no longer receives data. Delete it if it is not needed.">Device missing</span>' : '';
+  }
+
+  // The list every monitor kind draws: clear the container, say so when it is empty, otherwise one row per item by
+  // name. `describe(item)` gives { nameHtml, metaBits, sparkline }, `actions(item)` the kind's own links (Edit,
+  // Messages); Reset and Delete come from resetAndDeleteLinks, with `path`, `render` and `deleteWhat` from the spec.
+  // The links only make sense against "today": they would otherwise act on the monitor itself while the row is showing a
+  // week/month rollup, which reads as if the action applied to that whole period instead of the monitor as a whole.
+  function renderEntityList(spec) {
+    var container = document.getElementById(spec.containerId);
     container.innerHTML = '';
-    if (!monitors.length) { renderEmptyList(container, 'No activity monitors created yet.'); return; }
-    monitors.slice().sort(byName).forEach(function (monitor) {
-      var isActive = monitor.state === 'ACTIVE';
-      var avgPower = monitor.averagePower !== null && monitor.averagePower !== undefined ? Math.round(monitor.averagePower) + ' W' : '—';
-      var suggestion = monitor.suggestedThreshold;
-      var progress = monitor.calibrationProgress;
-      // "Calibrating" used to be a bare spinner with no visible progress. With `progress` this says how far
-      // it got and, once enough samples exist without a clear standby/active split, why it's stuck — instead
-      // of a monitor that silently looks broken for days (see the pump that stayed "calibrating" over a week).
-      var calibratingTitle = 'Using a default 40 W threshold until enough history confirms this device\'s real standby/active power split.';
-      if (progress) {
-        if (progress.status === 'collecting') calibratingTitle = progress.valuesCollected + ' of ' + progress.valuesNeeded + ' power samples collected so far.';
-        else if (progress.status === 'inconclusive') {
-          calibratingTitle = progress.valuesCollected + ' samples collected (' + progress.min + '-' + progress.max + ' W), but no clear standby/active split yet'
-            + (progress.standbyHigh !== null ? ': the closest split seen is standby up to ' + progress.standbyHigh + ' W, active from ' + progress.activeLow + ' W, not different enough to trust.' : '.');
-        }
-        else if (progress.status === 'ready') {
-          // A split was found but the app only looks again after a back-off of up to 30 minutes, so this is
-          // visible for a while rather than for a moment.
-          calibratingTitle = 'A clear split was found (standby up to ' + progress.standbyHigh + ' W, active from ' + progress.activeLow + ' W): about '
-            + Math.round(progress.suggestedThreshold) + ' W will be applied at the next calibration check, which can take up to 30 minutes.';
-        }
-      }
-      var stateBadge = monitor.calibrating
-        ? '<span class="badge badge-calibrating" title="' + escapeHtml(calibratingTitle) + '">Calibrating' + (progress && progress.status === 'collecting' ? ' (' + progress.valuesCollected + '/' + progress.valuesNeeded + ')' : '') + '</span>'
-        : '<span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + (isActive ? 'Active' : 'Standby') + '</span>';
-      var nameHtml = escapeHtml(monitor.name) + ' ' + stateBadge + (monitor.deviceMissing ? ' <span class="badge badge-danger" title="The device was deleted from Homey; this monitor no longer receives data. Delete it if it is not needed.">Device missing</span>' : '');
-      // Energy (a total accumulated over the whole period) and average power (a rate,
-      // measured only while active) are easy to mistake for two readings of "the same
-      // thing" when shown side by side with bare numbers — labeling each explicitly avoids
-      // that, instead of relying on the reader to infer it from the unit alone.
-      var metaBits = [
-        escapeHtml(monitor.deviceName),
-        monitor.cycleCount + ' cycle' + (monitor.cycleCount === 1 ? '' : 's'),
-        '<span title="Total energy measured this period — active and standby draw combined.">' + formatEnergy(monitor.energy) + ' total</span>' + (monitor.energyQuality === 'meter_reset' ? ' <span class="badge badge-danger" title="A meter reset was detected in this period — energy may be understated.">reset</span>' : ''),
-        '<span title="Average power measured only while active — not blended with standby time, and not the same as energy divided by the period length.">' + avgPower + ' while running</span>',
-        monitor.threshold !== null && monitor.threshold !== undefined ? '<span class="chip" title="The Watts value that currently decides Active vs Standby for this monitor.">threshold ' + Math.round(monitor.threshold) + ' W</span>' : null,
-        suggestion ? '<span class="chip chip-accent" title="Based on ' + suggestion.sampleCount + ' power samples, split between ' + Math.round(suggestion.low) + ' W and ' + Math.round(suggestion.high) + ' W">suggested ~' + Math.round(suggestion.threshold) + ' W</span>' : null,
-        // A monitor with no completed cycle yet has nothing to show a median/trend from — without this the row
-        // just looks empty ("—" everywhere), which reads as broken rather than "still watching, nothing to report".
-        !monitor.calibrating && !monitor.hasCompletedCycles ? '<span class="hint">No completed cycles yet — stats need at least one.</span>' : null
-      ];
-      var row = entityRow(nameHtml, metaBits, renderSparkline(monitor.dailyBreakdown));
-      // Messages/Reset/Delete only make sense against "today" — they'd otherwise act on
-      // the monitor itself while the row is showing a week/month rollup, which reads as
-      // if the action applied to that whole period instead of the monitor as a whole.
+    if (!spec.items.length) { renderEmptyList(container, spec.empty); return; }
+    spec.items.slice().sort(byName).forEach(function (item) {
+      var shown = spec.describe(item);
+      var row = entityRow(shown.nameHtml, shown.metaBits, shown.sparkline);
       if (monitorPeriod === 'day') {
-        row.appendChild(entityActions([
-          actionLink('Edit', function () { openActivityEditForm(monitor); }),
-          actionLink('Messages', function () { openActivityMessageForm(monitor); })
-        ].concat(resetAndDeleteLinks({ item: monitor, path: '/monitors', render: renderMonitors, resetKeeps: 'This keeps the monitor and its settings, only the history is wiped.', deleteWhat: 'monitor' }))));
+        row.appendChild(entityActions(spec.actions(item).concat(resetAndDeleteLinks({
+          item: item, path: spec.path, render: spec.render,
+          resetKeeps: 'This keeps the monitor and its settings, only the history is wiped.', deleteWhat: spec.deleteWhat
+        }))));
       }
       container.appendChild(row);
+    });
+  }
+
+  function renderMonitors(monitors) {
+    renderEntityList({
+      containerId: 'monitors-body', items: monitors, empty: 'No activity monitors created yet.',
+      path: '/monitors', render: renderMonitors, deleteWhat: 'monitor',
+      describe: function (monitor) {
+        var isActive = monitor.state === 'ACTIVE';
+        var avgPower = monitor.averagePower !== null && monitor.averagePower !== undefined ? Math.round(monitor.averagePower) + ' W' : '—';
+        var suggestion = monitor.suggestedThreshold;
+        var progress = monitor.calibrationProgress;
+        // "Calibrating" used to be a bare spinner with no visible progress. With `progress` this says how far
+        // it got and, once enough samples exist without a clear standby/active split, why it's stuck — instead
+        // of a monitor that silently looks broken for days (see the pump that stayed "calibrating" over a week).
+        var calibratingTitle = 'Using a default 40 W threshold until enough history confirms this device\'s real standby/active power split.';
+        if (progress) {
+          if (progress.status === 'collecting') calibratingTitle = progress.valuesCollected + ' of ' + progress.valuesNeeded + ' power samples collected so far.';
+          else if (progress.status === 'inconclusive') {
+            calibratingTitle = progress.valuesCollected + ' samples collected (' + progress.min + '-' + progress.max + ' W), but no clear standby/active split yet'
+              + (progress.standbyHigh !== null ? ': the closest split seen is standby up to ' + progress.standbyHigh + ' W, active from ' + progress.activeLow + ' W, not different enough to trust.' : '.');
+          }
+          else if (progress.status === 'ready') {
+            // A split was found but the app only looks again after a back-off of up to 30 minutes, so this is
+            // visible for a while rather than for a moment.
+            calibratingTitle = 'A clear split was found (standby up to ' + progress.standbyHigh + ' W, active from ' + progress.activeLow + ' W): about '
+              + Math.round(progress.suggestedThreshold) + ' W will be applied at the next calibration check, which can take up to 30 minutes.';
+          }
+        }
+        var stateBadge = monitor.calibrating
+          ? '<span class="badge badge-calibrating" title="' + escapeHtml(calibratingTitle) + '">Calibrating' + (progress && progress.status === 'collecting' ? ' (' + progress.valuesCollected + '/' + progress.valuesNeeded + ')' : '') + '</span>'
+          : '<span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + (isActive ? 'Active' : 'Standby') + '</span>';
+        var nameHtml = escapeHtml(monitor.name) + ' ' + stateBadge + deviceMissingBadge(monitor);
+        // Energy (a total accumulated over the whole period) and average power (a rate,
+        // measured only while active) are easy to mistake for two readings of "the same
+        // thing" when shown side by side with bare numbers — labeling each explicitly avoids
+        // that, instead of relying on the reader to infer it from the unit alone.
+        var metaBits = [
+          escapeHtml(monitor.deviceName),
+          monitor.cycleCount + ' cycle' + (monitor.cycleCount === 1 ? '' : 's'),
+          '<span title="Total energy measured this period — active and standby draw combined.">' + formatEnergy(monitor.energy) + ' total</span>' + (monitor.energyQuality === 'meter_reset' ? ' <span class="badge badge-danger" title="A meter reset was detected in this period — energy may be understated.">reset</span>' : ''),
+          '<span title="Average power measured only while active — not blended with standby time, and not the same as energy divided by the period length.">' + avgPower + ' while running</span>',
+          monitor.threshold !== null && monitor.threshold !== undefined ? '<span class="chip" title="The Watts value that currently decides Active vs Standby for this monitor.">threshold ' + Math.round(monitor.threshold) + ' W</span>' : null,
+          suggestion ? '<span class="chip chip-accent" title="Based on ' + suggestion.sampleCount + ' power samples, split between ' + Math.round(suggestion.low) + ' W and ' + Math.round(suggestion.high) + ' W">suggested ~' + Math.round(suggestion.threshold) + ' W</span>' : null,
+          // A monitor with no completed cycle yet has nothing to show a median/trend from — without this the row
+          // just looks empty ("—" everywhere), which reads as broken rather than "still watching, nothing to report".
+          !monitor.calibrating && !monitor.hasCompletedCycles ? '<span class="hint">No completed cycles yet — stats need at least one.</span>' : null
+        ];
+        return { nameHtml: nameHtml, metaBits: metaBits, sparkline: renderSparkline(monitor.dailyBreakdown) };
+      },
+      actions: function (monitor) {
+        return [
+          actionLink('Edit', function () { openActivityEditForm(monitor); }),
+          actionLink('Messages', function () { openActivityMessageForm(monitor); })
+        ];
+      }
     });
   }
 
   function renderStateMonitors(monitors) {
-    var container = document.getElementById('state-monitors-body');
-    container.innerHTML = '';
-    if (!monitors.length) { renderEmptyList(container, 'No state monitors created yet.'); return; }
-    monitors.slice().sort(byName).forEach(function (monitor) {
-      var isActive = monitor.state === 'ACTIVE';
-      var stateLabel = isActive ? monitor.trueLabel : monitor.falseLabel;
-      var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + escapeHtml(stateLabel) + '</span>' + (monitor.deviceMissing ? ' <span class="badge badge-danger" title="The device was deleted from Homey; this monitor no longer receives data. Delete it if it is not needed.">Device missing</span>' : '');
-      var metaBits = [
-        escapeHtml(monitor.deviceName),
-        monitor.cycleCount + ' session' + (monitor.cycleCount === 1 ? '' : 's'),
-        escapeHtml(monitor.trueLabel) + ' ' + formatDuration(monitor.trueDuration),
-        escapeHtml(monitor.falseLabel) + ' ' + formatDuration(monitor.falseDuration),
-        // Only present when this monitor also tracks an auxiliary power capability — a
-        // plain door/motion monitor's row stays exactly as it was. Labeled the same explicit
-        // way as renderMonitors' energy/avg-power bits, for the same reason.
-        monitor.energy !== undefined ? '<span title="Total energy measured this period — active and standby draw combined.">' + formatEnergy(monitor.energy) + ' total</span>' : null,
-        monitor.averagePower !== null && monitor.averagePower !== undefined ? '<span title="Average power measured only while active — not blended with standby time, and not the same as energy divided by the period length.">' + Math.round(monitor.averagePower) + ' W while running</span>' : null
-      ];
-      var row = entityRow(nameHtml, metaBits, renderSparkline(monitor.dailyBreakdown, 'trueDuration', formatDuration));
-      if (monitorPeriod === 'day') {
-        row.appendChild(entityActions([
+    renderEntityList({
+      containerId: 'state-monitors-body', items: monitors, empty: 'No state monitors created yet.',
+      path: '/state-monitors', render: renderStateMonitors, deleteWhat: 'monitor',
+      describe: function (monitor) {
+        var isActive = monitor.state === 'ACTIVE';
+        var stateLabel = isActive ? monitor.trueLabel : monitor.falseLabel;
+        var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isActive ? 'badge-active' : 'badge-standby') + '">' + escapeHtml(stateLabel) + '</span>' + deviceMissingBadge(monitor);
+        var metaBits = [
+          escapeHtml(monitor.deviceName),
+          monitor.cycleCount + ' session' + (monitor.cycleCount === 1 ? '' : 's'),
+          escapeHtml(monitor.trueLabel) + ' ' + formatDuration(monitor.trueDuration),
+          escapeHtml(monitor.falseLabel) + ' ' + formatDuration(monitor.falseDuration),
+          // Only present when this monitor also tracks an auxiliary power capability — a
+          // plain door/motion monitor's row stays exactly as it was. Labeled the same explicit
+          // way as renderMonitors' energy/avg-power bits, for the same reason.
+          monitor.energy !== undefined ? '<span title="Total energy measured this period — active and standby draw combined.">' + formatEnergy(monitor.energy) + ' total</span>' : null,
+          monitor.averagePower !== null && monitor.averagePower !== undefined ? '<span title="Average power measured only while active — not blended with standby time, and not the same as energy divided by the period length.">' + Math.round(monitor.averagePower) + ' W while running</span>' : null
+        ];
+        return { nameHtml: nameHtml, metaBits: metaBits, sparkline: renderSparkline(monitor.dailyBreakdown, 'trueDuration', formatDuration) };
+      },
+      actions: function (monitor) {
+        return [
           actionLink('Edit', function () { openStateEditForm(monitor); }),
           actionLink('Messages', function () { openStateMessageForm(monitor); })
-        ].concat(resetAndDeleteLinks({ item: monitor, path: '/state-monitors', render: renderStateMonitors, resetKeeps: 'This keeps the monitor and its settings, only the history is wiped.', deleteWhat: 'monitor' }))));
+        ];
       }
-      container.appendChild(row);
     });
   }
 
   function renderVoltageMonitors(monitors) {
-    var container = document.getElementById('voltage-monitors-body');
-    container.innerHTML = '';
-    if (!monitors.length) { renderEmptyList(container, 'No voltage monitors created yet.'); return; }
-    monitors.slice().sort(byName).forEach(function (monitor) {
-      var isNormal = monitor.state === 'NORMAL';
-      var range = (monitor.minVoltage !== null && monitor.maxVoltage !== null)
-        ? monitor.minVoltage.toFixed(1) + '–' + monitor.maxVoltage.toFixed(1) + ' V' : '—';
-      var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isNormal ? 'badge-active' : 'badge-danger') + '">' + escapeHtml(monitor.state) + '</span>' + (monitor.deviceMissing ? ' <span class="badge badge-danger" title="The device was deleted from Homey; this monitor no longer receives data. Delete it if it is not needed.">Device missing</span>' : '');
-      var metaBits = [
-        escapeHtml(monitor.deviceName),
-        (monitor.currentVoltage !== null ? monitor.currentVoltage.toFixed(1) + ' V now' : 'no reading'),
-        'range ' + range,
-        (monitor.undervoltageCount || 0) + ' under · ' + (monitor.overvoltageCount || 0) + ' over'
-      ];
-      var row = entityRow(nameHtml, metaBits);
-      if (monitorPeriod === 'day') {
-        row.appendChild(entityActions([
+    renderEntityList({
+      containerId: 'voltage-monitors-body', items: monitors, empty: 'No voltage monitors created yet.',
+      path: '/voltage-monitors', render: renderVoltageMonitors, deleteWhat: 'voltage monitor',
+      describe: function (monitor) {
+        var isNormal = monitor.state === 'NORMAL';
+        var range = (monitor.minVoltage !== null && monitor.maxVoltage !== null)
+          ? monitor.minVoltage.toFixed(1) + '–' + monitor.maxVoltage.toFixed(1) + ' V' : '—';
+        var nameHtml = escapeHtml(monitor.name) + ' <span class="badge ' + (isNormal ? 'badge-active' : 'badge-danger') + '">' + escapeHtml(monitor.state) + '</span>' + deviceMissingBadge(monitor);
+        var metaBits = [
+          escapeHtml(monitor.deviceName),
+          (monitor.currentVoltage !== null ? monitor.currentVoltage.toFixed(1) + ' V now' : 'no reading'),
+          'range ' + range,
+          (monitor.undervoltageCount || 0) + ' under · ' + (monitor.overvoltageCount || 0) + ' over'
+        ];
+        return { nameHtml: nameHtml, metaBits: metaBits };
+      },
+      actions: function (monitor) {
+        return [
           actionLink('Edit', function () { openVoltageEditForm(monitor); }),
           actionLink('Messages', function () { openVoltageMessageForm(monitor); })
-        ].concat(resetAndDeleteLinks({ item: monitor, path: '/voltage-monitors', render: renderVoltageMonitors, resetKeeps: 'This keeps the monitor and its settings, only the history is wiped.', deleteWhat: 'voltage monitor' }))));
+        ];
       }
-      container.appendChild(row);
     });
   }
 
@@ -942,7 +969,7 @@ function onHomeyReady(Homey) {
       lastScan = summary;
       renderScanTiles();
       renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
-    }).catch(function (error) { Homey.alert(error.message || String(error)); }).then(function () { button.disabled = false; });
+    }).catch(showError).then(function () { button.disabled = false; });
   });
   // One row per app that owns devices, with how many devices it has, how many the scan flags, and a switch to
   // skip the whole app. Built from the device list already on the page, so it costs nothing extra.
@@ -1006,21 +1033,21 @@ function onHomeyReady(Homey) {
       setTimeout(function () {
         api('GET', '/availability-scan').then(function (fresh) { lastScan = fresh; renderScanTiles(); renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs); }).catch(function () {});
       }, 4000);
-    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+    }).catch(showError);
   }
   function setAppExclusion(uri, excluded) {
     api('POST', '/availability-exclusions', { app: uri, excluded: excluded }).then(function (summary) {
       lastScan = summary;
       renderScanTiles();
       renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
-    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+    }).catch(showError);
   }
   function setExclusion(device, excluded) {
     api('POST', '/availability-exclusions', { deviceId: device.id, name: device.name, excluded: excluded }).then(function (summary) {
       lastScan = summary;
       renderScanTiles();
       renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
-    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+    }).catch(showError);
   }
   var DEFAULT_FIELDS = ['defaultThresholdHours', 'startupGraceMinutes', 'unavailableDelaySeconds', 'batteryWarnPercent', 'batteryDelaySeconds', 'scanIntervalMinutes'];
   var defaultsFormWrapper = document.getElementById('availability-defaults-form-wrapper');
@@ -1036,7 +1063,7 @@ function onHomeyReady(Homey) {
       availabilityDefaults = settings;
       fillDefaultsForm(settings);
       openModal(defaultsFormWrapper);
-    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+    }).catch(showError);
   });
   document.getElementById('availability-defaults-cancel-btn').addEventListener('click', function () { closeModal(defaultsFormWrapper); });
   document.getElementById('availability-defaults-form').addEventListener('submit', function (event) {
@@ -1047,11 +1074,11 @@ function onHomeyReady(Homey) {
       availabilityDefaults = saved;
       closeModal(defaultsFormWrapper);
       loadAll();
-    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+    }).catch(showError);
   });
   document.getElementById('availability-cleanup-btn').addEventListener('click', function () {
     confirmAction('Remove every watchdog whose device is no longer in Homey?', function () {
-      api('POST', '/availability-watchdogs-cleanup').then(loadAll).catch(function (error) { Homey.alert(error.message || String(error)); });
+      api('POST', '/availability-watchdogs-cleanup').then(loadAll).catch(showError);
     });
   });
   function openAvailabilityWatchdogForm(device, watchdog) {
@@ -1072,7 +1099,7 @@ function onHomeyReady(Homey) {
       closeModal(availabilityWatchdogFormWrapper);
       editingWatchdogDeviceId = null;
       return loadAll();
-    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+    }).catch(showError);
   });
 
   // Re-rendered from the last data received rather than hiding/showing existing rows (like
@@ -1083,35 +1110,21 @@ function onHomeyReady(Homey) {
   var lastAvailabilityWatchdogs = [];
   availabilityFilterEl.addEventListener('input', function () { renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs); });
 
-  function renderAvailability(devices, watchdogs) {
-    lastAvailabilityDevices = devices;
-    lastAvailabilityWatchdogs = watchdogs;
-    var container = document.getElementById('availability-body');
-    renderAppList(devices, watchdogs);
-    var missingCount = (watchdogs || []).filter(function (w) { return w.missing; }).length;
-    document.getElementById('availability-cleanup-btn').classList.toggle('hidden', !missingCount);
-    if (!devices.length) { renderEmptyList(container, deviceListLoading ? 'Loading devices...' : 'No devices found.'); return; }
-    var query = availabilityFilterEl.value.trim().toLowerCase();
-    var filtered = query ? devices.filter(function (d) { return d.name.toLowerCase().indexOf(query) !== -1; }) : devices;
-    if (!filtered.length) { renderEmptyList(container, 'No devices match "' + escapeHtml(query) + '".'); return; }
-    var watchdogByDeviceId = {};
-    (watchdogs || []).forEach(function (w) { watchdogByDeviceId[w.deviceId] = w; });
-    // Unavailable first, then the longest-unseen; devices with a watchdog are listed first in their own
-    // section, so a watchdog that was just added is easy to find in a list of 300 devices.
-    function byRisk(a, b) {
-      if (a.available !== b.available) return a.available ? 1 : -1;
-      return (a.lastSeenAt || '').localeCompare(b.lastSeenAt || '');
-    }
-    // Two devices can carry the same name (a washer and its second plug, a re-paired device): show a
-    // short id on those so a watchdog can be told apart from the other one.
-    var nameCount = {};
-    devices.forEach(function (d) { nameCount[d.name] = (nameCount[d.name] || 0) + 1; });
-    var watched = filtered.filter(function (d) { return watchdogByDeviceId[d.id]; }).sort(byRisk);
+  // Unavailable first, then the longest-unseen.
+  function byAvailabilityRisk(a, b) {
+    if (a.available !== b.available) return a.available ? 1 : -1;
+    return (a.lastSeenAt || '').localeCompare(b.lastSeenAt || '');
+  }
+
+  // The devices shown in the three sections of the list: those with a watchdog (listed first, so a watchdog that was
+  // just added is easy to find in a list of 300 devices), the ones the scan ignores, and everything else. A tapped scan
+  // tile narrows the list to the devices the scan put in that group, and then only "everything else" is shown.
+  function splitAvailabilityDevices(filtered, watchdogByDeviceId) {
     var scanOn = lastScan && lastScan.enabled;
-    var ignored = scanOn ? filtered.filter(function (d) { return isScanIgnored(d) && !watchdogByDeviceId[d.id]; }).sort(byRisk) : [];
-    var others = filtered.filter(function (d) { return !watchdogByDeviceId[d.id] && !(scanOn && isScanIgnored(d)); }).sort(byRisk);
+    var watched = filtered.filter(function (d) { return watchdogByDeviceId[d.id]; }).sort(byAvailabilityRisk);
+    var ignored = scanOn ? filtered.filter(function (d) { return isScanIgnored(d) && !watchdogByDeviceId[d.id]; }).sort(byAvailabilityRisk) : [];
+    var others = filtered.filter(function (d) { return !watchdogByDeviceId[d.id] && !(scanOn && isScanIgnored(d)); }).sort(byAvailabilityRisk);
     if (scanOn && scanFilter) {
-      // A tapped scan tile narrows the list to the devices the scan put in that group.
       others = others.filter(function (d) {
         var problem = scanProblemById[d.id];
         if (scanFilter === 'ok') return !problem;
@@ -1121,83 +1134,111 @@ function onHomeyReady(Homey) {
       watched = [];
       ignored = [];
     }
-    container.innerHTML = '';
-    function renderRow(device) {
-      var watchdog = watchdogByDeviceId[device.id];
-      // A device that stays "available" while it has said nothing for days is not healthy: sleepy sensors
-      // never flip the flag when their battery dies. The same silence rule the watchdog uses (its own hours,
-      // or the default for devices without one) shows here as an amber "Silent" badge.
-      var lastSeenMs = device.lastSeenAt ? Date.parse(device.lastSeenAt) : NaN;
-      var silentMs = isNaN(lastSeenMs) ? 0 : Math.max(0, Date.now() - lastSeenMs);
-      var appLimit = lastScan && lastScan.appHours && device.ownerUri ? lastScan.appHours[device.ownerUri] : 0;
-      var silentLimitHours = watchdog ? watchdog.thresholdHours : (appLimit || availabilityDefaults.defaultThresholdHours);
-      var silent = device.available && silentMs > silentLimitHours * 3600000;
-      var statusBadge = !device.available
-        ? '<span class="badge badge-danger">Unavailable</span>'
-        : (silent ? '<span class="badge ' + (watchdog && watchdog.wentUnavailableAt ? 'badge-danger' : 'badge-warn') + '">Silent ' + silenceLabel(silentMs) + '</span>' : '<span class="badge badge-active">Available</span>');
-      var nameHtml = escapeHtml(device.name) + ' ' + statusBadge
-        + (watchdog ? ' <span class="badge">Watchdog ' + watchdog.thresholdHours + 'h' + (watchdog.ignoreUnavailable ? ', silence only' : '') + '</span>' : '')
-        + (watchdog && watchdog.lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(watchdog.battery) + '%</span>' : '')
-        + (watchdog && Number.isFinite(watchdog.battery) && !watchdog.lowBattery ? ' <span class="badge">Battery ' + Math.round(watchdog.battery) + '%</span>' : '')
-        + (!watchdog && scanProblemById[device.id] && scanProblemById[device.id].lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(scanProblemById[device.id].battery) + '%</span>' : '');
-      var metaBits = [
-        escapeHtml(device.zoneName || ''),
-        nameCount[device.name] > 1 ? 'same name as another device - id ' + escapeHtml(String(device.id).slice(0, 8)) : null,
-        'last seen ' + formatLastSeen(device.lastSeenAt),
-        scanOn && device.ownerUri ? 'app ' + escapeHtml(shortApp(device.ownerUri)) : null,
-        !device.available && device.unavailableMessage ? escapeHtml(device.unavailableMessage) : null
-      ];
-      var row = entityRow(nameHtml, metaBits);
-      if (!device.available) row.classList.add('unavailable-row');
-      var actionButtons = [actionLink(watchdog ? 'Edit watchdog' : 'Add watchdog', function () { openAvailabilityWatchdogForm(device, watchdog); })];
-      if (!watchdog && scanOn) {
-        if (device.ownerUri && excludedAppIds[device.ownerUri]) {
-          actionButtons.push(actionLink('Include app', function () { setAppExclusion(device.ownerUri, false); }));
-        } else if (excludedIds[device.id]) {
-          actionButtons.push(actionLink('Include in scan', function () { setExclusion(device, false); }));
-        } else {
-          actionButtons.push(actionLink('Ignore', function () { setExclusion(device, true); }));
-          if (device.ownerUri) {
-            actionButtons.push(actionLink('Ignore app', function () {
-              confirmAction('Ignore every device of the app "' + shortApp(device.ownerUri) + '" in the scan?', function () { setAppExclusion(device.ownerUri, true); });
-            }));
-          }
+    return { watched: watched, ignored: ignored, others: others };
+  }
+
+  // One device in the list: its name with status badges, the meta line and the actions that fit its state.
+  // `nameCount` is how many devices carry each name: two with the same name (a washer and its second plug, a
+  // re-paired device) get a short id so a watchdog can be told apart from the other one.
+  function availabilityRow(device, watchdog, nameCount) {
+    var scanOn = lastScan && lastScan.enabled;
+    // A device that stays "available" while it has said nothing for days is not healthy: sleepy sensors
+    // never flip the flag when their battery dies. The same silence rule the watchdog uses (its own hours,
+    // or the default for devices without one) shows here as an amber "Silent" badge.
+    var lastSeenMs = device.lastSeenAt ? Date.parse(device.lastSeenAt) : NaN;
+    var silentMs = isNaN(lastSeenMs) ? 0 : Math.max(0, Date.now() - lastSeenMs);
+    var appLimit = lastScan && lastScan.appHours && device.ownerUri ? lastScan.appHours[device.ownerUri] : 0;
+    var silentLimitHours = watchdog ? watchdog.thresholdHours : (appLimit || availabilityDefaults.defaultThresholdHours);
+    var silent = device.available && silentMs > silentLimitHours * 3600000;
+    var statusBadge = !device.available
+      ? '<span class="badge badge-danger">Unavailable</span>'
+      : (silent ? '<span class="badge ' + (watchdog && watchdog.wentUnavailableAt ? 'badge-danger' : 'badge-warn') + '">Silent ' + silenceLabel(silentMs) + '</span>' : '<span class="badge badge-active">Available</span>');
+    var nameHtml = escapeHtml(device.name) + ' ' + statusBadge
+      + (watchdog ? ' <span class="badge">Watchdog ' + watchdog.thresholdHours + 'h' + (watchdog.ignoreUnavailable ? ', silence only' : '') + '</span>' : '')
+      + (watchdog && watchdog.lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(watchdog.battery) + '%</span>' : '')
+      + (watchdog && Number.isFinite(watchdog.battery) && !watchdog.lowBattery ? ' <span class="badge">Battery ' + Math.round(watchdog.battery) + '%</span>' : '')
+      + (!watchdog && scanProblemById[device.id] && scanProblemById[device.id].lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(scanProblemById[device.id].battery) + '%</span>' : '');
+    var metaBits = [
+      escapeHtml(device.zoneName || ''),
+      nameCount[device.name] > 1 ? 'same name as another device - id ' + escapeHtml(String(device.id).slice(0, 8)) : null,
+      'last seen ' + formatLastSeen(device.lastSeenAt),
+      scanOn && device.ownerUri ? 'app ' + escapeHtml(shortApp(device.ownerUri)) : null,
+      !device.available && device.unavailableMessage ? escapeHtml(device.unavailableMessage) : null
+    ];
+    var row = entityRow(nameHtml, metaBits);
+    if (!device.available) row.classList.add('unavailable-row');
+    var actionButtons = [actionLink(watchdog ? 'Edit watchdog' : 'Add watchdog', function () { openAvailabilityWatchdogForm(device, watchdog); })];
+    if (!watchdog && scanOn) {
+      if (device.ownerUri && excludedAppIds[device.ownerUri]) {
+        actionButtons.push(actionLink('Include app', function () { setAppExclusion(device.ownerUri, false); }));
+      } else if (excludedIds[device.id]) {
+        actionButtons.push(actionLink('Include in scan', function () { setExclusion(device, false); }));
+      } else {
+        actionButtons.push(actionLink('Ignore', function () { setExclusion(device, true); }));
+        if (device.ownerUri) {
+          actionButtons.push(actionLink('Ignore app', function () {
+            confirmAction('Ignore every device of the app "' + shortApp(device.ownerUri) + '" in the scan?', function () { setAppExclusion(device.ownerUri, true); });
+          }));
         }
       }
-      if (watchdog) {
-        actionButtons.push(actionLink('Remove watchdog', function () {
-          confirmAction('Stop watching "' + device.name + '" for availability?', function () {
-            api('DELETE', '/availability-watchdogs/' + device.id).then(loadAll).catch(function (error) { Homey.alert(error.message || String(error)); });
-          });
-        }, true));
-      }
-      row.appendChild(entityActions(actionButtons));
-      container.appendChild(row);
     }
+    if (watchdog) {
+      actionButtons.push(actionLink('Remove watchdog', function () {
+        confirmAction('Stop watching "' + device.name + '" for availability?', function () {
+          api('DELETE', '/availability-watchdogs/' + device.id).then(loadAll).catch(showError);
+        });
+      }, true));
+    }
+    row.appendChild(entityActions(actionButtons));
+    return row;
+  }
+
+  // A watchdog whose device is gone from Homey: nothing to show but its name, and a way to remove it.
+  function missingWatchdogRow(w) {
+    var row = entityRow(escapeHtml(w.name) + ' <span class="badge badge-danger">Not found</span>', [escapeHtml(w.zoneName || ''), 'watchdog ' + w.thresholdHours + 'h']);
+    row.appendChild(entityActions([actionLink('Remove watchdog', function () {
+      api('DELETE', '/availability-watchdogs/' + w.deviceId).then(loadAll).catch(showError);
+    }, true)]));
+    return row;
+  }
+
+  function renderAvailability(devices, watchdogs) {
+    lastAvailabilityDevices = devices;
+    lastAvailabilityWatchdogs = watchdogs;
+    var container = document.getElementById('availability-body');
+    renderAppList(devices, watchdogs);
+    var missing = (watchdogs || []).filter(function (w) { return w.missing; });
+    document.getElementById('availability-cleanup-btn').classList.toggle('hidden', !missing.length);
+    if (!devices.length) { renderEmptyList(container, deviceListLoading ? 'Loading devices...' : 'No devices found.'); return; }
+    var query = availabilityFilterEl.value.trim().toLowerCase();
+    var filtered = query ? devices.filter(function (d) { return d.name.toLowerCase().indexOf(query) !== -1; }) : devices;
+    if (!filtered.length) { renderEmptyList(container, 'No devices match "' + escapeHtml(query) + '".'); return; }
+    var watchdogByDeviceId = {};
+    (watchdogs || []).forEach(function (w) { watchdogByDeviceId[w.deviceId] = w; });
+    var nameCount = {};
+    devices.forEach(function (d) { nameCount[d.name] = (nameCount[d.name] || 0) + 1; });
+    var sections = splitAvailabilityDevices(filtered, watchdogByDeviceId);
+    container.innerHTML = '';
     function appendSection(title) {
       var heading = document.createElement('div');
       heading.className = 'entity-section';
       heading.textContent = title;
       container.appendChild(heading);
     }
-    var missing = (watchdogs || []).filter(function (w) { return w.missing; });
+    function appendRows(list) {
+      list.forEach(function (device) { container.appendChild(availabilityRow(device, watchdogByDeviceId[device.id], nameCount)); });
+    }
     if (missing.length) {
       appendSection('Device no longer in Homey (' + missing.length + ')');
-      missing.forEach(function (w) {
-        var row = entityRow(escapeHtml(w.name) + ' <span class="badge badge-danger">Not found</span>', [escapeHtml(w.zoneName || ''), 'watchdog ' + w.thresholdHours + 'h']);
-        row.appendChild(entityActions([actionLink('Remove watchdog', function () {
-          api('DELETE', '/availability-watchdogs/' + w.deviceId).then(loadAll).catch(function (error) { Homey.alert(error.message || String(error)); });
-        }, true)]));
-        container.appendChild(row);
-      });
+      missing.forEach(function (w) { container.appendChild(missingWatchdogRow(w)); });
     }
-    if (watched.length) appendSection('Watched by a watchdog (' + watched.length + ')');
-    watched.forEach(renderRow);
-    if (watched.length && others.length) appendSection('All other devices (' + others.length + ')');
-    others.forEach(renderRow);
-    if (ignored.length) {
-      appendSection('Ignored by the scan (' + ignored.length + ')');
-      ignored.forEach(renderRow);
+    if (sections.watched.length) appendSection('Watched by a watchdog (' + sections.watched.length + ')');
+    appendRows(sections.watched);
+    if (sections.watched.length && sections.others.length) appendSection('All other devices (' + sections.others.length + ')');
+    appendRows(sections.others);
+    if (sections.ignored.length) {
+      appendSection('Ignored by the scan (' + sections.ignored.length + ')');
+      appendRows(sections.ignored);
     }
   }
 
@@ -1374,102 +1415,75 @@ function onHomeyReady(Homey) {
     return { refresh: refresh };
   }
 
-  // --- Add activity monitor ---
-  var activityAddWrapper = document.getElementById('activity-add-form-wrapper');
-  var activityAddForm = document.getElementById('activity-add-form');
-  var activityAddDevice = document.getElementById('activity-add-device');
-  var activityAddCapability = document.getElementById('activity-add-capability');
-  var activityPicker = setupDeviceCapabilityPicker('activity-add', 'activity', { preselectCapability: 'measure_power' });
-  document.getElementById('add-activity-monitor-btn').addEventListener('click', function () {
-    if (!requireDevices()) return;
-    activityAddForm.reset();
-    activityPicker.refresh();
-    openModal(activityAddWrapper);
-  });
-  document.getElementById('activity-add-cancel-btn').addEventListener('click', function () { closeModal(activityAddWrapper); });
-  activityAddForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    var payload = {
-      deviceId: activityAddDevice.value,
-      capability: activityAddCapability.value,
-      name: document.getElementById('activity-add-name').value,
-      threshold: document.getElementById('activity-add-threshold').value
-    };
-    api('POST', '/monitors', payload).then(function () {
-      closeModal(activityAddWrapper);
-      return api('GET', '/monitors?period=' + monitorPeriod);
-    }).then(renderMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+  // "Add monitor": the button opens a form whose pickers are filled from the loaded device list, Save POSTs the fields and
+  // the list is fetched again. `picker` is the form's Capability / Zone / Device picker.
+  function setupAddForm(spec) {
+    var wrapper = document.getElementById(spec.wrapperId);
+    var form = document.getElementById(spec.formId);
+    document.getElementById(spec.buttonId).addEventListener('click', function () {
+      if (!requireDevices()) return;
+      form.reset();
+      spec.picker.refresh();
+      openModal(wrapper);
+    });
+    document.getElementById(spec.cancelId).addEventListener('click', function () { closeModal(wrapper); });
+    form.addEventListener('submit', function (event) {
+      event.preventDefault();
+      api('POST', spec.path, spec.payload()).then(function () {
+        closeModal(wrapper);
+        return api('GET', spec.path + '?period=' + monitorPeriod);
+      }).then(spec.render).catch(showError);
+    });
+  }
+
+  setupAddForm({
+    buttonId: 'add-activity-monitor-btn', wrapperId: 'activity-add-form-wrapper', formId: 'activity-add-form', cancelId: 'activity-add-cancel-btn',
+    picker: setupDeviceCapabilityPicker('activity-add', 'activity', { preselectCapability: 'measure_power' }),
+    path: '/monitors', render: renderMonitors,
+    payload: function () {
+      return {
+        deviceId: fieldValue('activity-add-device'), capability: fieldValue('activity-add-capability'),
+        name: fieldValue('activity-add-name'), threshold: fieldValue('activity-add-threshold')
+      };
+    }
   });
 
-  // --- Add voltage monitor ---
-  var voltageAddWrapper = document.getElementById('voltage-add-form-wrapper');
-  var voltageAddForm = document.getElementById('voltage-add-form');
-  var voltageAddDevice = document.getElementById('voltage-add-device');
-  var voltageAddCapability = document.getElementById('voltage-add-capability');
-  var voltagePicker = setupDeviceCapabilityPicker('voltage-add', 'voltage');
-  document.getElementById('add-voltage-monitor-btn').addEventListener('click', function () {
-    if (!requireDevices()) return;
-    voltageAddForm.reset();
-    voltagePicker.refresh();
-    openModal(voltageAddWrapper);
-  });
-  document.getElementById('voltage-add-cancel-btn').addEventListener('click', function () { closeModal(voltageAddWrapper); });
-  voltageAddForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    var payload = {
-      deviceId: voltageAddDevice.value,
-      capability: voltageAddCapability.value,
-      name: document.getElementById('voltage-add-name').value,
-      minVoltage: document.getElementById('voltage-add-min').value,
-      maxVoltage: document.getElementById('voltage-add-max').value,
-      stabilizationMinutes: document.getElementById('voltage-add-stabilization').value
-    };
-    api('POST', '/voltage-monitors', payload).then(function () {
-      closeModal(voltageAddWrapper);
-      return api('GET', '/voltage-monitors?period=' + monitorPeriod);
-    }).then(renderVoltageMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+  setupAddForm({
+    buttonId: 'add-voltage-monitor-btn', wrapperId: 'voltage-add-form-wrapper', formId: 'voltage-add-form', cancelId: 'voltage-add-cancel-btn',
+    picker: setupDeviceCapabilityPicker('voltage-add', 'voltage'),
+    path: '/voltage-monitors', render: renderVoltageMonitors,
+    payload: function () {
+      return {
+        deviceId: fieldValue('voltage-add-device'), capability: fieldValue('voltage-add-capability'), name: fieldValue('voltage-add-name'),
+        minVoltage: fieldValue('voltage-add-min'), maxVoltage: fieldValue('voltage-add-max'), stabilizationMinutes: fieldValue('voltage-add-stabilization')
+      };
+    }
   });
 
-  // --- Add state monitor ---
-  var stateAddWrapper = document.getElementById('state-add-form-wrapper');
-  var stateAddForm = document.getElementById('state-add-form');
-  var stateAddDevice = document.getElementById('state-add-device');
-  var stateAddCapability = document.getElementById('state-add-capability');
-  var stateAddActiveValuesWrap = document.getElementById('state-add-active-values-wrap');
-  var stateAddActiveValuesHint = document.getElementById('state-add-active-values-hint');
+  // A multi-state capability needs to be told which value(s) count as active; a plain on/off one does not.
   function refreshStateActiveValuesVisibility() {
-    var device = findDevice(stateAddDevice.value);
-    var type = device && device.capabilitiesObj && device.capabilitiesObj[stateAddCapability.value] && device.capabilitiesObj[stateAddCapability.value].type;
+    var device = findDevice(fieldValue('state-add-device'));
+    var capability = fieldValue('state-add-capability');
+    var type = device && device.capabilitiesObj && device.capabilitiesObj[capability] && device.capabilitiesObj[capability].type;
     var needsActiveValues = type === 'enum' || type === 'string';
-    stateAddActiveValuesWrap.classList.toggle('hidden', !needsActiveValues);
-    stateAddActiveValuesHint.classList.toggle('hidden', !needsActiveValues);
+    document.getElementById('state-add-active-values-wrap').classList.toggle('hidden', !needsActiveValues);
+    document.getElementById('state-add-active-values-hint').classList.toggle('hidden', !needsActiveValues);
   }
   var statePicker = setupDeviceCapabilityPicker('state-add', 'state', {
     onChange: refreshStateActiveValuesVisibility,
     showAll: function () { return document.getElementById('state-add-show-all').checked; }
   });
   document.getElementById('state-add-show-all').addEventListener('change', function () { statePicker.refresh(); });
-  document.getElementById('add-state-monitor-btn').addEventListener('click', function () {
-    if (!requireDevices()) return;
-    stateAddForm.reset();
-    statePicker.refresh();
-    openModal(stateAddWrapper);
-  });
-  document.getElementById('state-add-cancel-btn').addEventListener('click', function () { closeModal(stateAddWrapper); });
-  stateAddForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    var payload = {
-      deviceId: stateAddDevice.value,
-      capability: stateAddCapability.value,
-      trueLabel: document.getElementById('state-add-true-label').value,
-      falseLabel: document.getElementById('state-add-false-label').value,
-      name: document.getElementById('state-add-name').value,
-      activeValues: document.getElementById('state-add-active-values').value
-    };
-    api('POST', '/state-monitors', payload).then(function () {
-      closeModal(stateAddWrapper);
-      return api('GET', '/state-monitors?period=' + monitorPeriod);
-    }).then(renderStateMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
+  setupAddForm({
+    buttonId: 'add-state-monitor-btn', wrapperId: 'state-add-form-wrapper', formId: 'state-add-form', cancelId: 'state-add-cancel-btn',
+    picker: statePicker, path: '/state-monitors', render: renderStateMonitors,
+    payload: function () {
+      return {
+        deviceId: fieldValue('state-add-device'), capability: fieldValue('state-add-capability'),
+        trueLabel: fieldValue('state-add-true-label'), falseLabel: fieldValue('state-add-false-label'),
+        name: fieldValue('state-add-name'), activeValues: fieldValue('state-add-active-values')
+      };
+    }
   });
 
   // The device list is read by the app on demand (it is large, and reading it costs the app memory), so
@@ -1552,7 +1566,7 @@ function onHomeyReady(Homey) {
       api('DELETE', '/groups/' + editingGroupId).then(function () {
         resetForm();
         return loadAll();
-      }).catch(function (error) { Homey.alert(error.message || String(error)); });
+      }).catch(showError);
     });
   });
 
@@ -1579,7 +1593,7 @@ function onHomeyReady(Homey) {
     request.then(function () {
       resetForm();
       return loadAll();
-    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+    }).catch(showError);
   });
 
   // Message format: one switch for every message the app writes.
@@ -1637,7 +1651,7 @@ function onHomeyReady(Homey) {
       currencyInput.value = saved.currency || '';
       applyCostPreview(saved);
       Homey.alert(saved.pricePerKwh > 0 ? 'Saved. Finished cycles now carry their estimated cost.' : 'Saved. The cost is off (no price set).');
-    }).catch(function (error) { Homey.alert(error.message || String(error)); });
+    }).catch(showError);
   });
   decimalCommaBox.addEventListener('change', function () {
     api('POST', '/message-settings', { decimalComma: decimalCommaBox.checked }).then(function (saved) {
@@ -1662,5 +1676,5 @@ function onHomeyReady(Homey) {
   document.addEventListener('visibilitychange', function () { if (!document.hidden) refreshLiveStatus(); });
   setInterval(refreshLiveStatus, 60000);
 
-  loadAll().catch(function (error) { Homey.alert(error.message || String(error)); });
+  loadAll().catch(showError);
 }

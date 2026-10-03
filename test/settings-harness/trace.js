@@ -14,6 +14,28 @@ window.runTrace = async () => {
   await wait(400);
   rec('initial', { calls: window.__log.map((x) => x.call || x.alert || x.confirm).filter(Boolean).length, rows: ['monitors-body', 'state-monitors-body', 'voltage-monitors-body'].map((id) => $(id).querySelectorAll('.entity-row').length) });
 
+  // What each list actually shows: the HTML of every row (names, badges, meta line, sparkline, actions)
+  const lists = ['monitors-body', 'state-monitors-body', 'voltage-monitors-body'];
+  rec('rendered lists | day', lists.map((id) => $(id).innerHTML));
+  click(document.querySelector('.period-btn[data-period="week"]')); await wait(120);
+  rec('rendered lists | week', lists.map((id) => $(id).innerHTML));
+  click(document.querySelector('.period-btn[data-period="day"]')); await wait(120);
+
+  // The Availability tab: scan tiles, the device list in its sections (watched, other, ignored, no longer in Homey), the
+  // badges and each row's actions, then a name filter and a tapped scan tile
+  const avail = () => ({ tiles: $('availability-scan-tiles').innerHTML, stamp: $('availability-scan-stamp').textContent.replace(/last scan .*? \. Silent/, 'last scan X. Silent'), body: $('availability-body').innerHTML, apps: $('availability-apps-body') ? $('availability-apps-body').innerHTML : null, cleanupHidden: $('availability-cleanup-btn').classList.contains('hidden') });
+  rec('availability | list', avail());
+  const filterBox = $('availability-filter'); filterBox.value = 'plug'; filterBox.dispatchEvent(new Event('input', { bubbles: true })); await wait();
+  rec('availability | filtered by name', avail().body);
+  filterBox.value = ''; filterBox.dispatchEvent(new Event('input', { bubbles: true })); await wait();
+  const staleTile = [...document.querySelectorAll('#availability-scan-tiles .tile')][0]; click(staleTile); await wait();
+  rec('availability | stale tile tapped', avail().body);
+  click([...document.querySelectorAll('#availability-scan-tiles .tile')][0]); await wait();
+  let am = mark(); click(link('availability-body', 'Remove watchdog')); await wait(120);
+  rec('availability | remove watchdog', since(am));
+  am = mark(); click([...$('availability-body').querySelectorAll('button')].find((b) => b.textContent === 'Ignore app')); await wait(120);
+  rec('availability | ignore app', since(am));
+
   const forms = [
     { name: 'activity edit', body: 'monitors-body', open: 'Edit', wrapper: 'activity-edit-form-wrapper', form: 'activity-edit-form', cancel: 'activity-edit-cancel-btn', ids: ['activity-edit-name', 'activity-edit-device', 'activity-edit-threshold', 'activity-edit-continuity', 'activity-edit-confirmation'], set: { 'activity-edit-name': 'Pump renamed', 'activity-edit-threshold': '55' } },
     { name: 'activity messages', body: 'monitors-body', open: 'Messages', wrapper: 'activity-message-form-wrapper', form: 'activity-message-form', cancel: 'activity-message-cancel-btn', ids: ['activity-messageTemplateStarted', 'activity-messageTemplateFinished'], set: { 'activity-messageTemplateFinished': 'done %monitor%' } },
