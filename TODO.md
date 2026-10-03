@@ -26,6 +26,44 @@ it. A language switcher is an additional, better-targeted starting point, not a 
 typing your own message. Not started; a later idea, discussed but deliberately deferred rather than
 built now.
 
+### Open in the code, re-checked against it on 2026-10-02
+
+Left over from the `/code-review max` of commit e25c760 (2026-09-28); the review was only a report, none of
+these was fixed, and each was confirmed still present in the code today:
+- **`activity_cost_exceeded` can skip a Flow for the rest of the day**: `previousCost` in `lib/app/activity.js:123`
+  subtracts two values that were each already rounded to cents (`cost_today - cost`) instead of rounding the real
+  previous total once, so a threshold that equals the exact previous amount can be missed.
+- **`activity_cost_exceeded` with amount 0 can never fire**: `lib/app/flow-cards.js:90` tests
+  `amount > previousCost` and `previousCost` is never below 0, yet the card allows `min: 0`.
+- **Token colours and the Copy button's green "Copied!" never show**: `settings/style.css:83` sets
+  `.container button { border/color ... !important }`, which beats the new non-`!important` category and
+  `.is-copied` rules; the "Identification" category also has no rule at all. Same page: `TOKEN_INFO` defines
+  tooltips for tokens that have no button in `settings/index.html` (dead entries).
+- **`resumeWithRetry` only checks `isStillWanted()` when a retry fails** (`lib/resume.js:22`), never on success,
+  so a monitor or group deleted / flagged missing while an attempt is in flight can still "start" and clear the
+  flag. `lib/app/groups.js:93` also still has the old `isStillWanted` that only tests the group exists (monitors
+  got the `&& !deviceMissing` half in `lib/app/monitor-admin.js`).
+- **Calibration "ready" status has no UI branch**: `calibrationProgress()` can return `ready` (up to
+  `CALIBRATION_MAX_RETRY_MS`, 30 min, not "momentary" as its comment says) but Settings only renders
+  `collecting` and `inconclusive`. `analyzeThreshold` also runs twice per calibrating monitor per summary
+  (suggested threshold + progress) and is now polled every 60 s by `refreshLiveStatus`, which duplicates
+  `loadAll`'s endpoint wiring.
+- **`voltage_phase_imbalance` throws on a deleted monitor** (`lib/app/flow-cards.js:290`, via
+  `_voltageMonitor()`) instead of evaluating to false; its text says "more than N %" but the code uses `>=`.
+- **`removeStateMonitor` leaks its auxiliary subscriptions** (`lib/app/monitor-admin.js:78` passes `[]`; only
+  `removeVoltageMonitor` was fixed, with the Voltage `auxiliaryCapabilities` work).
+- Commit e25c760 bundled several unrelated topics against CONTRIBUTING's "one topic per commit" (history, not code).
+
+Done 2026-09-28 to 2026-10-02, to verify on the Homey: **Change device / Rename** on the Activity, State and Voltage
+Edit forms (and that the new device's history starts clean while the old rows stay); Voltage messages with
+**`%power%` / `%energy%`** on a combined meter (empty, not 0, on a device without power) and new Voltage monitors
+starting with real default wording instead of blank (existing blank ones were left alone on purpose); Group
+**Fill default wording** and new Voltage defaults in en/nl/de/fr/it/sv/no/es/da via `locales/` (the call
+`Homey.__()` in Settings and `this.homey.__()` in the app were not seen working on a real Homey; both fall
+back to English); the five **wireframe widget previews** (Sentinel's own preview is still the old realistic,
+Portuguese one). Polish was drafted and pulled (flexion needs a native check). Binary Counter is to be removed in
+the version after 1.0.7 (see below).
+
 ## Pending (2026-09-20)
 
 ### To verify on the Homey (built and unit-tested, not yet seen running)
@@ -65,7 +103,9 @@ built now.
   kWh price, top zone or consumers. (KPI Monitor is closed source; only its store page and settings are known.)
 - More widgets: group members, running now, 24 h chart, compact badge; 365-day daily summaries / a "year" period.
 - Sentinel Group virtual device (section below): the only view of a group in the web app.
-- Docs are up to date as of 2026-09-23 (README, HOWTO, SPEC, CONTRIBUTING). Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
+- Docs were up to date as of 2026-09-23 but are NOT any more (checked 2026-10-02): README/HOWTO/SPEC say nothing about
+  Change device / Rename on the Edit forms, the Voltage `%power%` / `%energy%` tokens, or the per-language default wording
+  in `locales/`. Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
 - Tests do not cover the Settings HTML, the widgets or real Homey I/O.
 
 ### Ideas collected 2026-09-24 (widgets, functions, analysis) - with the verdict of each
@@ -196,16 +236,16 @@ Not needed: `activity_cycle_unusually_long` already exists (duration above a mul
 cycle" anomaly is done; a statistics library, standard deviation / z-score on few cycles and k-means stay out.
 
 ### Housekeeping
-- Push the commits and the tags (`git push --follow-tags`); the tags exist locally only.
-- Promote build 1.0.2 in the Homey developer dashboard; write the 1.0.3 changelog for the scan
-  (no double quotes or apostrophes in `.homeychangelog.json`: the CLI's own commit breaks on them).
+- Push the commits and the tags (`git push --follow-tags`): as of 2026-10-02 `main` is 10 commits ahead of
+  `origin/main`, and the only local tags are v1.0.1, v1.0.2 and v1.0.4 (no v1.0.5 / v1.0.6 / v1.0.7).
+- 1.0.7 is bumped and has a real changelog, but is not published yet (1.0.6 already is). Keep
+  `.homeychangelog.json` free of double quotes and apostrophes: the CLI's own commit breaks on them (the 1.0.7
+  text had some, removed 2026-10-02).
 - The post-commit hook (build stamp) is reinstalled on a fresh clone with `npm run hooks`; GitHub Actions CI
   (`.github/workflows/ci.yml`: tests on Node 22 + `homey app validate`) runs on every push once pushed.
-- Delete the throwaway probe app `/Users/gabriel/HomeyApp/memprobe` and its dev install on the Homey.
 - Ask the Athom forum whether apps will move to Node 24 (no way to select the Node version from the app; v22.23 now).
-
-- Activity / State / Voltage monitors and Availability watchdogs of a device that was deleted keep retrying
-  (`Not Found` in the log every few minutes). Watchdogs already flag it for cleanup; monitors do not.
+- (Done, removed from the list: the throwaway `memprobe` app is gone; monitors of a deleted device are now flagged
+  `deviceMissing` and stop retrying, see the 2026-09-27 round.)
 
 ### Decided against
 - Watchdog opt-out by default was replaced by the scan with sane defaults; a device-class adaptive threshold
