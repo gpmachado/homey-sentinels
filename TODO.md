@@ -11,8 +11,8 @@ a new monitor in Portuguese, and after deleting it and choosing Spanish a new mo
 "Same as Homey" choice (`homey.i18n.getLanguage()`; it falls back to English if it is missing) and the group form's
 *Fill default wording* button with a chosen language.
 For the next changelog (1.0.9): Activity and State monitors now start with wording in your language too, and a Default
-message language setting with Portuguese. Still open: Polish (needs a native check), more languages only with someone
-who reads them, and the Settings page's own text, which is English only.
+message language setting with Portuguese. Still open: Polish (parked on purpose: only if someone who reads it turns up to check the wording), more languages only with
+someone who reads them, and the Settings page's own text, which is English only.
 
 ### Binary Counter removed, and a capability-first Add form: DONE 2026-10-03 (not in a published version yet)
 
@@ -55,8 +55,7 @@ Edit forms (and that the new device's history starts clean while the old rows st
 **`%power%` / `%energy%`** on a combined meter (empty, not 0, on a device without power) and new Voltage monitors
 starting with real default wording instead of blank (existing blank ones were left alone on purpose); Group
 **Fill default wording** and new Voltage defaults in en/nl/de/fr/it/sv/no/es/da via `locales/` (superseded by the
-Default message language section above, which no longer uses Homey's `__()`); the five **wireframe widget previews** (Sentinel's own preview is still the old realistic,
-Portuguese one). Polish was drafted and pulled (flexion needs a native check).
+Default message language section above, which no longer uses Homey's `__()`); the six **wireframe widget previews** (Sentinel's was redone on 2026-10-03, so all six match). Polish was drafted and pulled (flexion needs a native check).
 
 ## Pending (2026-09-20)
 
