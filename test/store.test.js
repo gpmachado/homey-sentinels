@@ -471,67 +471,6 @@ test('consolidateHistory merges a new voltage daily summary into an existing one
   assert.equal(monitor.dailySummaries[0].maxVoltage, 120);
 });
 
-test('creates a binary counter and rejects one with no name', async () => {
-  const store = new SentinelStore(fakeSettings());
-  await store.load();
-  const counter = store.createBinaryCounter({ name: 'Campainha' });
-  assert.equal(counter.name, 'Campainha');
-  assert.equal(counter.totalCount, 0);
-  assert.deepEqual(counter.dailyCounts, []);
-  assert.throws(() => store.createBinaryCounter({ name: '  ' }));
-});
-
-test('upsertBinaryCounter matches by name (case-insensitive) instead of creating a duplicate', async () => {
-  const store = new SentinelStore(fakeSettings());
-  await store.load();
-  const { counter: first, created: firstCreated } = store.upsertBinaryCounter({ name: 'Campainha' });
-  assert.equal(firstCreated, true);
-  const { counter: second, created: secondCreated } = store.upsertBinaryCounter({ name: 'campainha' });
-  assert.equal(secondCreated, false);
-  assert.equal(second.id, first.id);
-  assert.equal(Object.keys(store.data.binaryCounters).length, 1);
-});
-
-test('recordBinaryEvent bumps the total and the same day bucket for repeat events on one day', async () => {
-  const store = new SentinelStore(fakeSettings());
-  await store.load();
-  const counter = store.createBinaryCounter({ name: 'Campainha' });
-  const t1 = Date.parse('2026-08-29T10:00:00Z');
-  const t2 = Date.parse('2026-08-29T15:00:00Z'); // same UTC day
-  const todayCount1 = store.recordBinaryEvent(counter, t1, 'UTC');
-  const todayCount2 = store.recordBinaryEvent(counter, t2, 'UTC');
-  assert.equal(todayCount1, 1);
-  assert.equal(todayCount2, 2);
-  assert.equal(counter.totalCount, 2);
-  assert.equal(counter.dailyCounts.length, 1);
-  assert.equal(counter.dailyCounts[0].count, 2);
-  assert.equal(counter.lastEventAt, t2);
-});
-
-test('recordBinaryEvent opens a new day bucket for an event on a different calendar day', async () => {
-  const store = new SentinelStore(fakeSettings());
-  await store.load();
-  const counter = store.createBinaryCounter({ name: 'Campainha' });
-  store.recordBinaryEvent(counter, Date.parse('2026-08-29T10:00:00Z'), 'UTC');
-  store.recordBinaryEvent(counter, Date.parse('2026-08-30T10:00:00Z'), 'UTC');
-  assert.equal(counter.dailyCounts.length, 2);
-  assert.equal(counter.totalCount, 2);
-});
-
-test('resetBinaryCounter wipes counts and last-event but keeps name and message template', async () => {
-  const store = new SentinelStore(fakeSettings());
-  await store.load();
-  const counter = store.createBinaryCounter({ name: 'Campainha' });
-  store.updateBinaryCounter(counter, { messageTemplate: '%counter% tocou %count% vezes hoje' });
-  store.recordBinaryEvent(counter, Date.now(), 'UTC');
-  store.resetBinaryCounter(counter);
-  assert.equal(counter.totalCount, 0);
-  assert.deepEqual(counter.dailyCounts, []);
-  assert.equal(counter.lastEventAt, null);
-  assert.equal(counter.name, 'Campainha');
-  assert.equal(counter.messageTemplate, '%counter% tocou %count% vezes hoje');
-});
-
 test('upsertAvailabilityWatchdog creates one keyed by deviceId, defaulting the threshold to 12h', async () => {
   const store = new SentinelStore(fakeSettings());
   await store.load();
@@ -740,14 +679,6 @@ test('migrateVoltageMonitor defaults stabilizationMinutes to 5 for monitors save
   assert.equal(monitor.pendingNormalSince, null);
 });
 
-test('migrateBinaryCounter backfills counter fields', () => {
-  const counter = {};
-  SentinelStore.migrateBinaryCounter(counter);
-  assert.equal(counter.totalCount, 0);
-  assert.deepEqual(counter.dailyCounts, []);
-  assert.equal(counter.messageTemplate, '');
-});
-
 test('compactVoltagePeriods merges adjacent same-state periods into one bucket without losing min/max/sum/count', () => {
   const { compactVoltagePeriods } = require('../lib/store');
   const { VOLTAGE_BUCKET_MS } = require('../lib/voltage-engine');
@@ -852,4 +783,19 @@ test('new Activity, State and manual monitors take the starting wording they are
   assert.deepEqual([s.messageTemplateStarted, s.messageTemplateFinished], ['ligou', 'desligou']);
   const s2 = store.createStateMonitor({ device: { id: 'e', name: 'E' }, capability: 'alarm_contact' });
   assert.equal(s2.messageTemplateFinished, '%monitor% is now %label% (%count% today)');
+});
+
+test('binary counters saved by an older version are dropped on load and do not come back at the next save', async () => {
+  const data = {};
+  const settings = { get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} };
+  const store = new SentinelStore(settings);
+  await store.load();
+  store.data.binaryCounters = { b1: { id: 'b1', name: 'Campainha', totalCount: 5, dailyCounts: [], lastEventAt: null, messageTemplate: '' } };
+  await store.save();
+  assert.ok(JSON.stringify(data).includes('Campainha')); // an older build's data really is in storage
+  const reloaded = new SentinelStore(settings);
+  await reloaded.load();
+  assert.equal(reloaded.data.binaryCounters, undefined);
+  await reloaded.save();
+  assert.equal(JSON.stringify(data).includes('Campainha'), false);
 });

@@ -73,7 +73,7 @@ test('the "Set energy price" action changes the price, keeps the currency unless
   const app = Object.create(App.prototype);
   Object.assign(app, {
     store, gateway: {}, directory: {}, log: () => {}, error: () => {},
-    cards: anyCards, stateCards: anyCards, voltageCards: anyCards, binaryCards: anyCards, groupCards: anyCards, availabilityCards: anyCards,
+    cards: anyCards, stateCards: anyCards, voltageCards: anyCards, groupCards: anyCards, availabilityCards: anyCards,
     homey: { flow: { getActionCard: card, getConditionCard: card, getTriggerCard: card } }
   });
   app._registerFlowCards();
@@ -111,7 +111,7 @@ test('"Cost today exceeds" fires exactly for the amounts this cycle\'s cost cros
       started: card('activity_started'), finished: card('activity_finished'), calibrated: card('threshold_calibrated'),
       cyclesReached: card('activity_cycles_reached'), unusuallyLong: card('activity_cycle_unusually_long'), costExceeded: card('activity_cost_exceeded')
     },
-    stateCards: anyCards, voltageCards: anyCards, binaryCards: anyCards, groupCards: anyCards, availabilityCards: anyCards,
+    stateCards: anyCards, voltageCards: anyCards, groupCards: anyCards, availabilityCards: anyCards,
     homey: { flow: { getActionCard: card, getConditionCard: card, getTriggerCard: card } }
   });
   app._registerFlowCards();
@@ -153,7 +153,7 @@ test('voltage_phase_imbalance condition compares the two monitors\' current read
     } } },
     gateway: {}, directory: {}, log: () => {}, error: () => {},
     cards: new Proxy({}, { get: () => card() }), stateCards: new Proxy({}, { get: () => card() }),
-    voltageCards: new Proxy({}, { get: () => card() }), binaryCards: new Proxy({}, { get: () => card() }),
+    voltageCards: new Proxy({}, { get: () => card() }),
     groupCards: new Proxy({}, { get: () => card() }), availabilityCards: new Proxy({}, { get: () => card() }),
     homey: {
       flow: {

@@ -87,9 +87,6 @@
           var allMatch = summary.mismatchCount === 0;
           return { text: allMatch ? 'All match' : summary.mismatchCount + ' mismatch' + (summary.mismatchCount === 1 ? '' : 'es'), cls: allMatch ? 'is-good' : 'is-bad' };
         }
-        if (summary.kind === 'binary') {
-          return { text: (summary.eventCount || 0) + ' today', cls: '' };
-        }
         return { text: '—', cls: '' };
       }
 

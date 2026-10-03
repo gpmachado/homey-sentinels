@@ -20,7 +20,6 @@
       <button type="button" class="subtab-btn active" data-subtab="activity">Activity</button>
       <button type="button" class="subtab-btn" data-subtab="state">State</button>
       <button type="button" class="subtab-btn" data-subtab="voltage">Voltage</button>
-      <button type="button" class="subtab-btn" data-subtab="binary">Binary</button>
     </div>
     <div class="period-tabs">
       <button type="button" class="period-btn active" data-period="day">Today</button>
@@ -335,51 +334,6 @@
       </div>
     </div>
 
-    <div class="subtab-panel hidden" data-subtab="binary">
-      <div class="actions"><button type="button" id="add-binary-counter-btn">Add binary counter</button></div>
-      <div class="entity-list" id="binary-counters-body"><div class="entity-empty">Loading…</div></div>
-
-      <div id="binary-add-form-wrapper" class="hidden modal-overlay">
-      <div class="modal-box">
-      <h2>New binary counter</h2>
-      <form id="binary-add-form">
-        <label>Counter name
-          <input type="text" id="binary-add-name" required>
-        </label>
-        <div class="actions">
-          <button type="submit">Save</button>
-          <button type="button" id="binary-add-cancel-btn">Cancel</button>
-        </div>
-      </form>
-      </div>
-      </div>
-
-      <div id="binary-message-form-wrapper" class="hidden modal-overlay">
-      <div class="modal-box">
-      <form id="binary-message-form">
-        <h2>Message wording — <span id="binary-message-form-name"></span></h2>
-        <p class="hint">Written once here, used automatically by "Log binary event"'s <code>message</code> token — no need to build the sentence again in every Flow.</p>
-
-        <label>Message</label>
-        <input type="text" id="binary-messageTemplate" placeholder="E.g., %counter% rang %count% %count:time|times% today.">
-        <div class="message-preview" id="binary-message-preview" aria-live="polite"></div>
-        <p class="hint">
-          Free text, in any language. Tap a token to insert:
-          <button type="button" class="binary-token-btn" data-token="%counter%">%counter%</button>
-          <button type="button" class="binary-token-btn" data-token="%count%">%count%</button>
-          <button type="button" class="binary-token-btn" data-token="%total%">%total%</button>
-          <button type="button" class="binary-token-btn" data-token="%count:time|times%">%count:time|times%</button>
-          — the last token automatically switches singular/plural when count is exactly 1.
-        </p>
-
-        <div class="actions">
-          <button type="submit" id="binary-message-save-btn">Save</button>
-          <button type="button" id="binary-message-cancel-btn">Cancel</button>
-        </div>
-      </form>
-      </div>
-      </div>
-    </div>
     <h2>Message format</h2>
     <label class="checkbox-row">
       <input type="checkbox" id="message-decimal-comma">

@@ -1,8 +1,0 @@
-{
-  "title": { "en": "Reset binary counter" },
-  "titleFormatted": { "en": "Reset binary counter [[counter]]" },
-  "hint": { "en": "Wipes the count and history — keeps the counter itself and its message wording. To remove the counter entirely instead, use \"Remove binary counter\"." },
-  "args": [
-    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter" } }
-  ]
-}

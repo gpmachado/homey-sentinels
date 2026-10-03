@@ -52,7 +52,6 @@ function onHomeyReady(Homey) {
       api('GET', '/monitors?period=' + monitorPeriod).then(renderMonitors);
       api('GET', '/state-monitors?period=' + monitorPeriod).then(renderStateMonitors);
       api('GET', '/voltage-monitors?period=' + monitorPeriod).then(renderVoltageMonitors);
-      api('GET', '/binary-counters?period=' + monitorPeriod).then(renderBinaryCounters);
     });
   });
 
@@ -228,7 +227,6 @@ function onHomeyReady(Homey) {
     event_type: 'undervoltage', duration: 320, duration_human: '5 min', min_voltage: 210, max_voltage: 240, average_voltage: 229,
     power: 850, energy: 12.4
   };
-  var binaryPreviewData = { counter: 'Doorbell', count: 2, total: 17 };
   var groupPreviewZeroData = { group: 'Downstairs lights', count: 0, items: '' };
   var groupPreviewOneData = { group: 'Downstairs lights', count: 1, items: 'Kitchen' };
   var groupPreviewData = { group: 'Downstairs lights', count: 3, items: 'Kitchen, Hall and Porch' };
@@ -239,7 +237,6 @@ function onHomeyReady(Homey) {
   bindMessagePreview('messageTemplateUndervoltage', 'voltage-message-preview-undervoltage', voltagePreviewData);
   bindMessagePreview('messageTemplateOvervoltage', 'voltage-message-preview-overvoltage', voltagePreviewData);
   bindMessagePreview('messageTemplateNormalized', 'voltage-message-preview-normalized', voltagePreviewData);
-  bindMessagePreview('binary-messageTemplate', 'binary-message-preview', binaryPreviewData);
   bindMessagePreview('messageTemplateZero', 'group-message-preview-zero', groupPreviewZeroData);
   bindMessagePreview('messageTemplateOne', 'group-message-preview-one', groupPreviewOneData);
   bindMessagePreview('messageTemplateMany', 'group-message-preview-many', groupPreviewData);
@@ -877,43 +874,6 @@ function onHomeyReady(Homey) {
     stateMessageForm.open(monitor.id);
   }
 
-  function renderBinaryCounters(counters) {
-    var container = document.getElementById('binary-counters-body');
-    container.innerHTML = '';
-    if (!counters.length) { renderEmptyList(container, 'No binary counters created yet. Use the "Add binary counter" Flow action to create one.'); return; }
-    counters.slice().sort(byName).forEach(function (counter) {
-      var metaBits = [
-        formatNumberOrDash(counter.eventCount) + ' event' + (counter.eventCount === 1 ? '' : 's'),
-        'total ' + formatNumberOrDash(counter.totalCount),
-        'last ' + formatLastSeen(counter.lastEventAt)
-      ];
-      var row = entityRow(escapeHtml(counter.name), metaBits);
-      if (monitorPeriod === 'day') {
-      row.appendChild(entityActions([
-        actionLink('Message', function () { openBinaryMessageForm(counter); })
-      ].concat(resetAndDeleteLinks({ item: counter, path: '/binary-counters', render: renderBinaryCounters, resetKeeps: 'This keeps the counter and its message, only the count/history is wiped.', deleteWhat: 'binary counter' }))));
-      }
-      container.appendChild(row);
-    });
-  }
-  function formatNumberOrDash(value) { return value === null || value === undefined ? '—' : String(value); }
-
-  var binaryMessageInput = document.getElementById('binary-messageTemplate');
-  bindTokenInserter('.binary-token-btn', null, binaryMessageInput);
-  var binaryMessageForm = setupModalForm({
-    wrapperId: 'binary-message-form-wrapper', formId: 'binary-message-form', cancelId: 'binary-message-cancel-btn',
-    listPath: '/binary-counters', render: renderBinaryCounters,
-    putPath: function (id) { return '/binary-counters/' + id + '/message'; },
-    payload: function () { return { messageTemplate: binaryMessageInput.value }; }
-  });
-  function openBinaryMessageForm(counter) {
-    document.getElementById('binary-message-form-name').textContent = counter.name;
-    binaryPreviewData.counter = counter.name;
-    binaryMessageInput.value = counter.messageTemplate || '';
-    refreshMessagePreviews();
-    binaryMessageForm.open(counter.id);
-  }
-
   var availabilityWatchdogFormWrapper = document.getElementById('availability-watchdog-form-wrapper');
   var availabilityWatchdogForm = document.getElementById('availability-watchdog-form');
   var availabilityWatchdogThresholdInput = document.getElementById('availability-watchdog-thresholdHours');
@@ -1442,22 +1402,6 @@ function onHomeyReady(Homey) {
     }).then(renderStateMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
   });
 
-  // --- Add binary counter ---
-  var binaryAddWrapper = document.getElementById('binary-add-form-wrapper');
-  var binaryAddForm = document.getElementById('binary-add-form');
-  document.getElementById('add-binary-counter-btn').addEventListener('click', function () {
-    binaryAddForm.reset();
-    openModal(binaryAddWrapper);
-  });
-  document.getElementById('binary-add-cancel-btn').addEventListener('click', function () { closeModal(binaryAddWrapper); });
-  binaryAddForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    api('POST', '/binary-counters', { name: document.getElementById('binary-add-name').value }).then(function () {
-      closeModal(binaryAddWrapper);
-      return api('GET', '/binary-counters?period=' + monitorPeriod);
-    }).then(renderBinaryCounters).catch(function (error) { Homey.alert(error.message || String(error)); });
-  });
-
   // The device list is read by the app on demand (it is large, and reading it costs the app memory), so
   // it can still be empty or stale when the page first asks: poll its status and re-render when the
   // read has finished.
@@ -1497,14 +1441,13 @@ function onHomeyReady(Homey) {
   function fetchLiveLists() {
     return Promise.all([
       api('GET', '/groups'), api('GET', '/monitors?period=' + monitorPeriod), api('GET', '/voltage-monitors?period=' + monitorPeriod),
-      api('GET', '/binary-counters?period=' + monitorPeriod), api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs')
-    ]).then(function (r) { return { groups: r[0], monitors: r[1], voltage: r[2], binary: r[3], state: r[4], watchdogs: r[5] }; });
+      api('GET', '/state-monitors?period=' + monitorPeriod), api('GET', '/availability-watchdogs')
+    ]).then(function (r) { return { groups: r[0], monitors: r[1], voltage: r[2], state: r[3], watchdogs: r[4] }; });
   }
   function renderLiveLists(lists, devices) {
     renderGroups(lists.groups);
     renderMonitors(lists.monitors);
     renderVoltageMonitors(lists.voltage);
-    renderBinaryCounters(lists.binary);
     renderStateMonitors(lists.state);
     renderAvailability(devices, lists.watchdogs);
   }

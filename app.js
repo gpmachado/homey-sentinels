@@ -84,9 +84,6 @@ class StatisticTrackerApp extends Homey.App {
       overvoltage: trigger('voltage_overvoltage_detected'),
       normalized: trigger('voltage_returned_to_normal')
     };
-    this.binaryCards = {
-      logged: trigger('binary_event_logged')
-    };
     this.groupCards = {
       mismatchDetected: trigger('group_mismatch_detected'),
       matchedAgain: trigger('group_matched_again')
@@ -227,9 +224,9 @@ class StatisticTrackerApp extends Homey.App {
 
   // Homey sometimes stores the widget setting's full autocomplete result ({name, data:{id}}),
   // not just the id string it appears to be from the picker — unwrap defensively either way.
-  // Called right alongside every real trigger (started/finished/under-/over-voltage/normalized/
-  // binary event) — see the call sites in _handleActivityEvents/_handleStateEvents/
-  // _handleVoltageEvents/log_binary_event — with the exact message already rendered for that
+  // Called right alongside every real trigger (started/finished/under-/over-voltage/normalized)
+  // — see the call sites in _handleActivityEvents/_handleStateEvents/
+  // _handleVoltageEvents — with the exact message already rendered for that
   // Flow card's own `message` token, so there's nothing new to compute here. Not called for
   // 'continuity_pending' (not a real event yet) or the "used to be" Flow cards' own token
   // fallbacks (_startedSnapshot/_finishedSnapshot are just what a card returns when nothing

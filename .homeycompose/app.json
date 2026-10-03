@@ -141,26 +141,6 @@
       "method": "PUT",
       "path": "/voltage-monitors/:id/messages"
     },
-    "getBinaryCountersSummary": {
-      "method": "GET",
-      "path": "/binary-counters"
-    },
-    "createBinaryCounter": {
-      "method": "POST",
-      "path": "/binary-counters"
-    },
-    "deleteBinaryCounter": {
-      "method": "DELETE",
-      "path": "/binary-counters/:id"
-    },
-    "resetBinaryCounter": {
-      "method": "POST",
-      "path": "/binary-counters/:id/reset"
-    },
-    "updateBinaryCounterMessage": {
-      "method": "PUT",
-      "path": "/binary-counters/:id/message"
-    },
     "createGroup": {
       "method": "POST",
       "path": "/groups"

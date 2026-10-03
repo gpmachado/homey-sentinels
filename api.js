@@ -197,33 +197,6 @@ module.exports = {
     await homey.app.store.save();
     return item;
   },
-  async getBinaryCountersSummary({ homey, query }) {
-    return homey.app.getBinaryCountersSummary(query.period);
-  },
-  async createBinaryCounter({ homey, body }) {
-    const counter = homey.app.store.upsertBinaryCounter({ name: body.name });
-    await homey.app.store.save();
-    return counter;
-  },
-  async deleteBinaryCounter({ homey, params }) {
-    const item = homey.app.store.data.binaryCounters[params.id];
-    if (!item) throw new Error('Binary counter not found.');
-    await homey.app.removeBinaryCounter(item);
-    return { ok: true };
-  },
-  async resetBinaryCounter({ homey, params }) {
-    const item = homey.app.store.data.binaryCounters[params.id];
-    if (!item) throw new Error('Binary counter not found.');
-    await homey.app.resetBinaryCounterStats(item);
-    return { ok: true };
-  },
-  async updateBinaryCounterMessage({ homey, params, body }) {
-    const item = homey.app.store.data.binaryCounters[params.id];
-    if (!item) throw new Error('Binary counter not found.');
-    homey.app.store.updateBinaryCounter(item, { messageTemplate: body.messageTemplate });
-    await homey.app.store.save();
-    return item;
-  },
   async createGroup({ homey, body }) {
     const { name, type, expectedState, deviceIds = [], conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany } = body;
     if (deviceIds.length < 2) throw new Error('Select at least two devices.');

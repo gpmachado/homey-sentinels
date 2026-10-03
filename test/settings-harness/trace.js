@@ -12,7 +12,7 @@ window.runTrace = async () => {
   const click = (el) => el.dispatchEvent(new MouseEvent('click', { bubbles: true }));
   const fields = (ids) => Object.fromEntries(ids.map((id) => [id, $(id).value]));
   await wait(400);
-  rec('initial', { calls: window.__log.map((x) => x.call || x.alert || x.confirm).filter(Boolean).length, rows: ['monitors-body', 'state-monitors-body', 'voltage-monitors-body', 'binary-counters-body'].map((id) => $(id).querySelectorAll('.entity-row').length) });
+  rec('initial', { calls: window.__log.map((x) => x.call || x.alert || x.confirm).filter(Boolean).length, rows: ['monitors-body', 'state-monitors-body', 'voltage-monitors-body'].map((id) => $(id).querySelectorAll('.entity-row').length) });
 
   const forms = [
     { name: 'activity edit', body: 'monitors-body', open: 'Edit', wrapper: 'activity-edit-form-wrapper', form: 'activity-edit-form', cancel: 'activity-edit-cancel-btn', ids: ['activity-edit-name', 'activity-edit-device', 'activity-edit-threshold', 'activity-edit-continuity', 'activity-edit-confirmation'], set: { 'activity-edit-name': 'Pump renamed', 'activity-edit-threshold': '55' } },
@@ -21,7 +21,6 @@ window.runTrace = async () => {
     { name: 'state messages', body: 'state-monitors-body', open: 'Messages', wrapper: 'state-message-form-wrapper', form: 'state-message-form', cancel: 'state-message-cancel-btn', ids: ['state-messageTemplateStarted', 'state-messageTemplateFinished'], set: { 'state-messageTemplateStarted': 'opened' } },
     { name: 'voltage edit', body: 'voltage-monitors-body', open: 'Edit', wrapper: 'voltage-edit-form-wrapper', form: 'voltage-edit-form', cancel: 'voltage-edit-cancel-btn', ids: ['voltage-edit-name', 'voltage-edit-device', 'voltage-edit-min', 'voltage-edit-max', 'voltage-edit-stabilization'], set: { 'voltage-edit-max': '245' } },
     { name: 'voltage messages', body: 'voltage-monitors-body', open: 'Messages', wrapper: 'voltage-message-form-wrapper', form: 'voltage-message-form', cancel: 'voltage-message-cancel-btn', ids: ['messageTemplateUndervoltage', 'messageTemplateOvervoltage', 'messageTemplateNormalized'], set: { messageTemplateOvervoltage: 'high %voltage%' } },
-    { name: 'binary message', body: 'binary-counters-body', open: 'Message', wrapper: 'binary-message-form-wrapper', form: 'binary-message-form', cancel: 'binary-message-cancel-btn', ids: ['binary-messageTemplate'], set: { 'binary-messageTemplate': 'rang %count%' } }
   ];
   for (const f of forms) {
     // submitting with nothing open must do nothing
@@ -62,12 +61,10 @@ window.runTrace = async () => {
   click($('activity-message-cancel-btn'));
   await insert('state', async () => { click(link('state-monitors-body', 'Messages')); await wait(); }, 'state-messageTemplateStarted', '.state-token-btn[data-token="%label%"]');
   click($('state-message-cancel-btn'));
-  await insert('binary', async () => { click(link('binary-counters-body', 'Message')); await wait(); }, 'binary-messageTemplate', '.binary-token-btn[data-token="%total%"]', false);
-  click($('binary-message-cancel-btn'));
   await insert('group', async () => {}, 'messageTemplateMany', '.token-btn[data-token="%items%"]');
 
   // Reset and Delete on every list: confirm text, calls, and the list re-fetched afterwards
-  for (const [body, labels] of [['monitors-body', ['Reset', 'Delete']], ['state-monitors-body', ['Reset', 'Delete']], ['voltage-monitors-body', ['Reset', 'Delete']], ['binary-counters-body', ['Reset', 'Delete']]]) {
+  for (const [body, labels] of [['monitors-body', ['Reset', 'Delete']], ['state-monitors-body', ['Reset', 'Delete']], ['voltage-monitors-body', ['Reset', 'Delete']]]) {
     for (const label of labels) {
       const m = mark(); click(link(body, label)); await wait(120);
       rec('row action | ' + body + ' | ' + label, { calls: since(m), rowsAfter: $(body).querySelectorAll('.entity-row').length });
@@ -83,6 +80,6 @@ window.runTrace = async () => {
   lm = mark(); click($('fill-wording-btn')); await wait(120);
   rec('fill default wording', { calls: since(lm), fields: fields(['messageTemplateZero', 'messageTemplateOne', 'messageTemplateMany']) });
   // a week period hides the actions
-  rec('actions per list on day period', ['monitors-body', 'state-monitors-body', 'voltage-monitors-body', 'binary-counters-body'].map((id) => [...$(id).querySelectorAll('.btn-link')].map((b) => b.textContent)));
+  rec('actions per list on day period', ['monitors-body', 'state-monitors-body', 'voltage-monitors-body'].map((id) => [...$(id).querySelectorAll('.btn-link')].map((b) => b.textContent)));
   return trace;
 };

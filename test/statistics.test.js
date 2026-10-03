@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const {
   periodStatistics, weeklyTrend, statistics, stateStatistics, voltageStatistics,
-  binaryEventStatistics, dailyBreakdown, stateDailyBreakdown, binaryDailyBreakdown,
+  dailyBreakdown, stateDailyBreakdown,
   suggestedThreshold, calibrationProgress, voltageImbalancePercent, generateTextReport
 } = require('../lib/statistics');
 
@@ -174,17 +174,6 @@ test('voltageStatistics counts under/overvoltage events independently', () => {
   assert.equal(stats.overvoltage_duration, 50);
 });
 
-test('binaryEventStatistics("all") reads counter.totalCount directly, ignoring dailyCounts', () => {
-  const counter = { totalCount: 42, dailyCounts: [{ date: '2020-01-01', count: 999 }], lastEventAt: null };
-  assert.equal(binaryEventStatistics(counter, 'all').event_count, 42);
-});
-
-test('binaryEventStatistics("day") sums only dailyCounts on/after the window start', () => {
-  const now = Date.parse('2026-01-15T12:00:00Z');
-  const counter = { totalCount: 100, lastEventAt: now, dailyCounts: [{ date: '2026-01-14', count: 5 }, { date: '2026-01-15', count: 3 }] };
-  assert.equal(binaryEventStatistics(counter, 'day', TZ, now).event_count, 3);
-});
-
 test('dailyBreakdown returns one entry per day, oldest first, with that day\'s energy', () => {
   const now = Date.parse('2026-01-15T12:00:00Z');
   const dayStart = Date.parse('2026-01-15T00:00:00Z');
@@ -202,14 +191,6 @@ test('stateDailyBreakdown reports trueDuration instead of energy', () => {
   const monitor = activityMonitor({ periods: [{ startedAt: dayStart, endedAt: dayStart + 500000, state: 'ACTIVE', energy: 0 }] });
   const breakdown = stateDailyBreakdown(monitor, 1, TZ, now);
   assert.equal(breakdown[0].trueDuration, 500);
-});
-
-test('binaryDailyBreakdown pads zero for days with no recorded event', () => {
-  const now = Date.parse('2026-01-15T12:00:00Z');
-  const counter = { dailyCounts: [{ date: '2026-01-15', count: 4 }] };
-  const breakdown = binaryDailyBreakdown(counter, 2, TZ, now);
-  assert.equal(breakdown[0].count, 0);
-  assert.equal(breakdown[1].count, 4);
 });
 
 test('suggestedThreshold returns null below THRESHOLD_SUGGESTION_MIN_SAMPLES', () => {
@@ -243,22 +224,13 @@ test('suggestedThreshold reads minPower/maxPower from bucketed periods (see Acti
 test('generateTextReport builds one sentence per entity kind and throws for an unknown id', () => {
   const data = {
     monitors: { m1: { id: 'm1', name: 'Freezer', periods: [], cycles: [{ endedAt: 1000, duration: 60, energy: 0.1 }] } },
-    voltageMonitors: {}, stateMonitors: {}, binaryCounters: { c1: { id: 'c1', name: 'Doorbell', totalCount: 3, dailyCounts: [{ date: '1970-01-01', count: 3 }] } }
+    voltageMonitors: {}, stateMonitors: {}
   };
   const report = generateTextReport('m1', 'day', data, TZ, 2000);
   assert.match(report, /Freezer:/);
-  const counterReport = generateTextReport('c1', 'day', data, TZ, 2000);
-  assert.match(counterReport, /Doorbell: 3 events/);
   assert.throws(() => generateTextReport('nope', 'day', data, TZ, 2000), /not found/);
 });
 
-test('binaryDailyBreakdown keeps one bucket per calendar day across a DST change', () => {
-  const { binaryDailyBreakdown } = require('../lib/statistics');
-  const counter = { dailyCounts: [{ date: '2026-03-08', count: 2 }] };
-  const result = binaryDailyBreakdown(counter, 4, 'America/New_York', Date.parse('2026-03-10T15:00:00Z'));
-  assert.deepEqual(result.map((d) => d.date), ['2026-03-07', '2026-03-08', '2026-03-09', '2026-03-10']);
-  assert.equal(result[1].count, 2);
-});
 
 test('"all" cycle_count uses the lifetime counter once old cycles have been pruned, other periods still count cycles[]', () => {
   const { statistics } = require('../lib/statistics');

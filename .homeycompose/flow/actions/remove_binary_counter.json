@@ -1,7 +1,0 @@
-{
-  "title": { "en": "Remove binary counter" },
-  "titleFormatted": { "en": "Remove binary counter [[counter]]" },
-  "args": [
-    { "name": "counter", "type": "autocomplete", "title": { "en": "Counter" } }
-  ]
-}
