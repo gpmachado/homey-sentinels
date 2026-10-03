@@ -26,33 +26,30 @@ it. A language switcher is an additional, better-targeted starting point, not a 
 typing your own message. Not started; a later idea, discussed but deliberately deferred rather than
 built now.
 
-### Open in the code, re-checked against it on 2026-10-02
+### Code-review findings of commit e25c760: fixed 2026-10-03
 
-Left over from the `/code-review max` of commit e25c760 (2026-09-28); the review was only a report, none of
-these was fixed, and each was confirmed still present in the code today:
-- **`activity_cost_exceeded` can skip a Flow for the rest of the day**: `previousCost` in `lib/app/activity.js:123`
-  subtracts two values that were each already rounded to cents (`cost_today - cost`) instead of rounding the real
-  previous total once, so a threshold that equals the exact previous amount can be missed.
-- **`activity_cost_exceeded` with amount 0 can never fire**: `lib/app/flow-cards.js:90` tests
-  `amount > previousCost` and `previousCost` is never below 0, yet the card allows `min: 0`.
-- **Token colours and the Copy button's green "Copied!" never show**: `settings/style.css:83` sets
-  `.container button { border/color ... !important }`, which beats the new non-`!important` category and
-  `.is-copied` rules; the "Identification" category also has no rule at all. Same page: `TOKEN_INFO` defines
-  tooltips for tokens that have no button in `settings/index.html` (dead entries).
-- **`resumeWithRetry` only checks `isStillWanted()` when a retry fails** (`lib/resume.js:22`), never on success,
-  so a monitor or group deleted / flagged missing while an attempt is in flight can still "start" and clear the
-  flag. `lib/app/groups.js:93` also still has the old `isStillWanted` that only tests the group exists (monitors
-  got the `&& !deviceMissing` half in `lib/app/monitor-admin.js`).
-- **Calibration "ready" status has no UI branch**: `calibrationProgress()` can return `ready` (up to
-  `CALIBRATION_MAX_RETRY_MS`, 30 min, not "momentary" as its comment says) but Settings only renders
-  `collecting` and `inconclusive`. `analyzeThreshold` also runs twice per calibrating monitor per summary
-  (suggested threshold + progress) and is now polled every 60 s by `refreshLiveStatus`, which duplicates
-  `loadAll`'s endpoint wiring.
-- **`voltage_phase_imbalance` throws on a deleted monitor** (`lib/app/flow-cards.js:290`, via
-  `_voltageMonitor()`) instead of evaluating to false; its text says "more than N %" but the code uses `>=`.
-- **`removeStateMonitor` leaks its auxiliary subscriptions** (`lib/app/monitor-admin.js:78` passes `[]`; only
-  `removeVoltageMonitor` was fixed, with the Voltage `auxiliaryCapabilities` work).
-- Commit e25c760 bundled several unrelated topics against CONTRIBUTING's "one topic per commit" (history, not code).
+The `/code-review max` of 2026-09-28 was only a report; re-checked against the code on 2026-10-02 and fixed on
+2026-10-03 (one commit per topic, each with tests where the code is testable):
+- `activity_cost_exceeded`: the previous total is priced from the energy and rounded once (`_costBeforeCycle`)
+  instead of `cost_today - cost`; the amount argument now has `min: 0.01` (0 could never fire).
+- `voltage_phase_imbalance` is strictly "more than N %" (it was `>=`, so a 0 % limit was true for equal readings).
+- Settings token colours and the Copy button's green "Copied!" now render (they lost to the `!important`
+  `.container button` rules); the tokens that had a tooltip but no button (`%time%`, `%duration%`, `%energy_today%`,
+  `%max_power%`, the currents, `%cost_text%`, `%cost_today_text%`, `%event_type%`) now have buttons in the forms.
+- `resumeWithRetry` also checks `isStillWanted()` when an attempt succeeds (new `onAbandoned` hook unsubscribes it);
+  a restarted group watch no longer has an older retry loop replacing it; `removeStateMonitor` unsubscribes the
+  auxiliary capabilities too.
+- Calibration "ready" has its own tooltip in Settings, the threshold analysis runs once per monitor per summary, and
+  `loadAll` / `refreshLiveStatus` share one list fetch and render.
+
+Kept on purpose: `voltage_phase_imbalance` still throws "Voltage monitor not found" when one of its monitors was
+deleted, like every other Voltage condition card, so a broken Flow shows an error instead of reading as "no imbalance".
+(Commit e25c760 bundling several topics against CONTRIBUTING is history, not code.)
+
+To verify on the Homey for these: the token colours and the Copy button inside the real Homey settings page (they
+looked right in a normal browser before and still failed there, so a browser is not proof), a Flow with
+`activity_cost_exceeded` at an exact running total, and deleting a monitor or editing a group while its device is
+unavailable (no leftover subscription, no duplicate "watching" log lines).
 
 Done 2026-09-28 to 2026-10-02, to verify on the Homey: **Change device / Rename** on the Activity, State and Voltage
 Edit forms (and that the new device's history starts clean while the old rows stay); Voltage messages with
