@@ -11,7 +11,7 @@ const { startMemoryGuard } = require('./lib/memory-guard');
 const { DeviceDirectory } = require('./lib/device-directory');
 const { openHistoryDb } = require('./lib/history-db');
 const { setDecimalComma } = require('./lib/message-template');
-const { MEMORY_LOG, DEVICE_CACHE_REFRESH_MS, HISTORY_CONSOLIDATION_MS, EVENT_LOG_MAX, GROUP_POLL_INTERVAL_MS, AVAILABILITY_POLL_INTERVAL_MS, SAVE_DEBOUNCE_MS } = require('./lib/app/constants');
+const { MEMORY_LOG, DEVICE_CACHE_REFRESH_MS, HISTORY_CONSOLIDATION_MS, EVENT_LOG_MAX, GROUP_POLL_INTERVAL_MS, AVAILABILITY_POLL_INTERVAL_MS, SAVE_DEBOUNCE_MS, roundTokens } = require('./lib/app/constants');
 
 // Regenerated on every commit (see scripts/write-build-info.js, .git/hooks/post-commit) — the
 // app's own version stays 1.0.0 across every dev iteration, so without this a pasted log has no
@@ -59,38 +59,46 @@ class StatisticTrackerApp extends Homey.App {
       error: (message, error) => this.error(message, error),
       onRefreshed: () => { if (this._stopMemoryGuard && this._stopMemoryGuard.reclaim) this._stopMemoryGuard.reclaim('device list'); }
     });
+    // Every trigger card hands its number tokens to the Flow rounded (3 decimals, like the message templates):
+    // a kWh total summed from small steps otherwise shows up as 3.9199999999999997 in the Flow's own text.
+    const trigger = (id) => {
+      const card = this.homey.flow.getTriggerCard(id);
+      const fire = card.trigger.bind(card);
+      card.trigger = (tokens, state) => fire(roundTokens(tokens), state);
+      return card;
+    };
     this.cards = {
-      started: this.homey.flow.getTriggerCard('activity_started'),
-      finished: this.homey.flow.getTriggerCard('activity_finished'),
-      calibrated: this.homey.flow.getTriggerCard('threshold_calibrated'),
-      cyclesReached: this.homey.flow.getTriggerCard('activity_cycles_reached'),
-      unusuallyLong: this.homey.flow.getTriggerCard('activity_cycle_unusually_long'),
-      costExceeded: this.homey.flow.getTriggerCard('activity_cost_exceeded')
+      started: trigger('activity_started'),
+      finished: trigger('activity_finished'),
+      calibrated: trigger('threshold_calibrated'),
+      cyclesReached: trigger('activity_cycles_reached'),
+      unusuallyLong: trigger('activity_cycle_unusually_long'),
+      costExceeded: trigger('activity_cost_exceeded')
     };
     this.stateCards = {
-      started: this.homey.flow.getTriggerCard('state_started'),
-      finished: this.homey.flow.getTriggerCard('state_finished')
+      started: trigger('state_started'),
+      finished: trigger('state_finished')
     };
     this.voltageCards = {
-      undervoltage: this.homey.flow.getTriggerCard('voltage_undervoltage_detected'),
-      overvoltage: this.homey.flow.getTriggerCard('voltage_overvoltage_detected'),
-      normalized: this.homey.flow.getTriggerCard('voltage_returned_to_normal')
+      undervoltage: trigger('voltage_undervoltage_detected'),
+      overvoltage: trigger('voltage_overvoltage_detected'),
+      normalized: trigger('voltage_returned_to_normal')
     };
     this.binaryCards = {
-      logged: this.homey.flow.getTriggerCard('binary_event_logged')
+      logged: trigger('binary_event_logged')
     };
     this.groupCards = {
-      mismatchDetected: this.homey.flow.getTriggerCard('group_mismatch_detected'),
-      matchedAgain: this.homey.flow.getTriggerCard('group_matched_again')
+      mismatchDetected: trigger('group_mismatch_detected'),
+      matchedAgain: trigger('group_matched_again')
     };
     this._groupLive = new Map(); // groupId -> live member values (see lib/app/groups.js)
     this._groupWatchGeneration = new Map(); // groupId -> how many times its watch was (re)started, so older retry loops stop
     this._groupMissing = new Map(); // groupId -> Map(deviceId -> polls in a row it was missing from Homey)
     this.availabilityCards = {
-      unavailable: this.homey.flow.getTriggerCard('device_became_unavailable'),
-      available: this.homey.flow.getTriggerCard('device_became_available'),
-      batteryLow: this.homey.flow.getTriggerCard('device_battery_low'),
-      problem: this.homey.flow.getTriggerCard('device_problem_detected')
+      unavailable: trigger('device_became_unavailable'),
+      available: trigger('device_became_available'),
+      batteryLow: trigger('device_battery_low'),
+      problem: trigger('device_problem_detected')
     };
     this._registerFlowCards();
     this._registerWidgets();
