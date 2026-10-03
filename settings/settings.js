@@ -193,8 +193,6 @@ function onHomeyReady(Homey) {
     min_voltage: { group: 'power', type: 'number (V)', example: '210' },
     max_voltage: { group: 'power', type: 'number (V)', example: '240' },
     average_voltage: { group: 'power', type: 'number (V)', example: '229' },
-    cost: { group: 'cost', type: 'number', example: 'depends on the price set in Energy cost' },
-    cost_today: { group: 'cost', type: 'number', example: 'depends on the price set in Energy cost' },
     cost_text: { group: 'cost', type: 'text', example: 'R$ 1.02 (empty with no price set)' },
     cost_today_text: { group: 'cost', type: 'text', example: 'R$ 2.55 (empty with no price set)' },
     count: { group: 'count', type: 'number', example: '3' },
@@ -227,7 +225,8 @@ function onHomeyReady(Homey) {
   };
   var voltagePreviewData = {
     device: 'Example meter', monitor: 'Main voltage', voltage: 228.5, time: previewTime,
-    event_type: 'undervoltage', duration: 320, duration_human: '5 min', min_voltage: 210, max_voltage: 240, average_voltage: 229
+    event_type: 'undervoltage', duration: 320, duration_human: '5 min', min_voltage: 210, max_voltage: 240, average_voltage: 229,
+    power: 850, energy: 12.4
   };
   var binaryPreviewData = { counter: 'Doorbell', count: 2, total: 17 };
   var groupPreviewZeroData = { group: 'Downstairs lights', count: 0, items: '' };

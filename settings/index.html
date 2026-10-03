@@ -106,10 +106,18 @@
           <button type="button" class="activity-token-btn" data-token="%monitor%">%monitor%</button>
           <button type="button" class="activity-token-btn" data-token="%power%">%power%</button>
           <button type="button" class="activity-token-btn" data-token="%duration_human%">%duration_human%</button>
+          <button type="button" class="activity-token-btn" data-token="%duration%">%duration%</button>
+          <button type="button" class="activity-token-btn" data-token="%time%">%time%</button>
           <button type="button" class="activity-token-btn" data-token="%energy%">%energy%</button>
+          <button type="button" class="activity-token-btn" data-token="%energy_today%">%energy_today%</button>
           <button type="button" class="activity-token-btn" data-token="%average_power%">%average_power%</button>
+          <button type="button" class="activity-token-btn" data-token="%max_power%">%max_power%</button>
+          <button type="button" class="activity-token-btn" data-token="%average_current%">%average_current%</button>
+          <button type="button" class="activity-token-btn" data-token="%max_current%">%max_current%</button>
           <button type="button" class="activity-token-btn" data-token="%count%">%count%</button>
           <button type="button" class="activity-token-btn" data-token="%count:time|times%">%count:time|times%</button>
+          <button type="button" class="activity-token-btn" data-token="%cost_text%">%cost_text%</button>
+          <button type="button" class="activity-token-btn" data-token="%cost_today_text%">%cost_today_text%</button>
           — <code>%power%</code> only applies to "started", <code>%duration_human%</code>/<code>%energy%</code>/<code>%average_power%</code>/<code>%count%</code> only to "finished".
         </p>
 
@@ -207,6 +215,7 @@
           <button type="button" class="state-token-btn" data-token="%monitor%">%monitor%</button>
           <button type="button" class="state-token-btn" data-token="%label%">%label%</button>
           <button type="button" class="state-token-btn" data-token="%duration_human%">%duration_human%</button>
+          <button type="button" class="state-token-btn" data-token="%time%">%time%</button>
           <button type="button" class="state-token-btn" data-token="%count%">%count%</button>
           <button type="button" class="state-token-btn" data-token="%count:time|times%">%count:time|times%</button>
           — <code>%duration_human%</code>/<code>%count%</code> only apply to "finished".
@@ -312,6 +321,8 @@
           <button type="button" class="voltage-token-btn" data-token="%average_voltage%">%average_voltage%</button>
           <button type="button" class="voltage-token-btn" data-token="%power%">%power%</button>
           <button type="button" class="voltage-token-btn" data-token="%energy%">%energy%</button>
+          <button type="button" class="voltage-token-btn" data-token="%event_type%">%event_type%</button>
+          <button type="button" class="voltage-token-btn" data-token="%time%">%time%</button>
         </p>
         <p class="hint"><code>%power%</code>/<code>%energy%</code> are only meaningful if this device also reports power/energy on the same measurement (e.g. a combined energy meter) — otherwise they render empty.</p>
 

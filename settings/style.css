@@ -64,16 +64,6 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .message-preview-row .message-preview { flex: 1 1 auto; }
 .message-preview-copy-btn { flex: 0 0 auto; margin: 6px 0 10px; padding: 6px 10px; font-size: 12px; border-radius: 7px; border: 1px solid var(--color-border); background: var(--color-card); color: var(--color-text); cursor: pointer; }
 .message-preview-copy-btn:hover { border-color: var(--color-accent); }
-.message-preview-copy-btn.is-copied { border-color: var(--color-success); color: var(--color-success); }
-/* Token buttons: a colored left edge per category (Identification/Time/Energy/Power/Cost/Count), set via
-   data-group so a glance at the row already groups tokens without reflowing them; hover shows name, type
-   and an example (see TOKEN_INFO in settings.js). */
-button[data-token] { border-left-width: 3px; border-left-style: solid; border-left-color: var(--color-border); }
-button[data-token][data-group="time"] { border-left-color: #8a63d2; }
-button[data-token][data-group="energy"] { border-left-color: var(--color-success); }
-button[data-token][data-group="power"] { border-left-color: var(--color-accent); }
-button[data-token][data-group="cost"] { border-left-color: #b8860b; }
-button[data-token][data-group="count"] { border-left-color: var(--color-danger); }
 /* Every button/heading rule below is scoped under .container and marked !important: inside the
    Homey app the settings page gets Homey's own button/heading styles applied on top of ours, and
    without this the tab bar, pills and row actions all render as plain gray boxes (verified on a
@@ -86,6 +76,20 @@ button[data-token][data-group="count"] { border-left-color: var(--color-danger);
 .container button[type=submit]:hover { filter: brightness(1.08) !important; background: var(--color-accent) !important; }
 .container button:focus-visible { outline: 2px solid var(--color-accent) !important; outline-offset: 2px !important; }
 .container button[data-token] { padding: 3px 8px !important; font-size: 11px !important; font-weight: 600 !important; border-radius: 6px !important; color: var(--color-muted) !important; }
+/* Token buttons: a colored left edge per category (Identification/Time/Energy/Power/Cost/Count), set via
+   data-group so a glance at the row already groups tokens without reflowing them; hover shows name, type
+   and an example (see TOKEN_INFO in settings.js). These need !important and the .container scope like every
+   button rule above: ".container button" sets the whole border with !important and would otherwise win. */
+.container button[data-token] { border-left: 3px solid var(--color-border) !important; }
+.container button[data-token][data-group="identification"] { border-left-color: var(--color-muted) !important; }
+.container button[data-token][data-group="time"] { border-left-color: #8a63d2 !important; }
+.container button[data-token][data-group="energy"] { border-left-color: var(--color-success) !important; }
+.container button[data-token][data-group="power"] { border-left-color: var(--color-accent) !important; }
+.container button[data-token][data-group="cost"] { border-left-color: #b8860b !important; }
+.container button[data-token][data-group="count"] { border-left-color: var(--color-danger) !important; }
+/* The Copy button next to a live preview: same reason, its size and its green "Copied!" feedback. */
+.container .message-preview-copy-btn { padding: 6px 10px !important; font-size: 12px !important; border-radius: 7px !important; }
+.container .message-preview-copy-btn.is-copied { border-color: var(--color-success) !important; color: var(--color-success) !important; }
 .hidden { display: none; }
 
 /* Row-based entity lists (monitors, counters, devices) — replaces wide multi-column
