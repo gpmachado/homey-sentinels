@@ -6,8 +6,10 @@ Settings → Monitors → Message format → *Default message language* (Same as
 among them) decides the ready-made wording that **new** Activity, State and Voltage monitors start with and that a
 group's *Fill default wording* button writes; `lib/wording.js` reads it from `locales/<code>.json` (pt.json is new, and
 every language gained the Activity and State sentences). It only sets the starting text: the free-text fields stay as
-editable as before and existing monitors are never touched. Not seen on a real Homey yet: `homey.i18n.getLanguage()`
-(the "Same as Homey" choice; it falls back to English if it is missing) and the selector in the real settings page.
+editable as before and existing monitors are never touched. Seen working on a real Homey (2026-10-03, phone): the selector,
+a new monitor in Portuguese, and after deleting it and choosing Spanish a new monitor in Spanish. Not seen yet: the
+"Same as Homey" choice (`homey.i18n.getLanguage()`; it falls back to English if it is missing) and the group form's
+*Fill default wording* button with a chosen language.
 For the next changelog (1.0.9): Activity and State monitors now start with wording in your language too, and a Default
 message language setting with Portuguese. Still open: Polish (needs a native check), more languages only with someone
 who reads them, and the Settings page's own text, which is English only.
