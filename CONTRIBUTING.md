@@ -105,6 +105,9 @@ and mention it in HOWTO. A card that returns tokens only shows in Advanced Flow 
 into a pure function in `lib/` with a test; the mixins are tested with the real code and a fake gateway
 (`test/groups-live.test.js` shows the pattern). The Settings HTML, the widgets and real device I/O are **not**
 covered by tests; check those by hand with `homey app run -r` and say what you checked in the pull request.
+`test/settings-harness/` runs the real Settings page in a browser against a stand-in for Homey's settings runtime,
+which is enough to prove a refactor of `settings/settings.js` did not change what the page does (see its README);
+it is not part of `npm test` and does not replace trying the page on a Homey.
 
 ## Commits and releases
 

@@ -102,7 +102,8 @@ the version after 1.0.7 (see below).
 - Sentinel Group virtual device (section below): the only view of a group in the web app.
 - Docs are up to date as of 2026-10-03 (README, HOWTO, SPEC, CONTRIBUTING, and the new TUTORIAL with worked examples and expected
   tokens; SPEC was not re-read for the Voltage `%power%` / `%energy%` tokens and the `locales/` wording). Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
-- Tests do not cover the Settings HTML, the widgets or real Homey I/O.
+- Tests do not cover the Settings HTML, the widgets or real Homey I/O. `test/settings-harness/` is a manual browser check for the
+  Settings page (a scripted session against a stand-in Homey); it could become an automatic test if a DOM library is ever added.
 
 ### Ideas collected 2026-09-24 (widgets, functions, analysis) - with the verdict of each
 
