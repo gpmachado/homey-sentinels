@@ -25,5 +25,8 @@
   },
   "1.0.8": {
     "en": "Voltage messages can use power and energy placeholders and new Voltage monitors start with wording in your Homey language. Cost threshold and phase imbalance fixes, clearer token buttons in Settings, and fixes for deleted or edited monitors and groups."
+  },
+  "1.0.9": {
+    "en": "Default message language setting (Portuguese included) for the starting wording of new monitors and groups. Add monitor forms now pick the capability first, then zone and device. Binary Counter removed: Flows using its cards must be edited."
   }
 }
