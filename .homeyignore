@@ -6,6 +6,7 @@ SUGESTOES_E_OTIMIZACOES.md
 test/
 package-lock.json
 *.md
+/logs/
 
 # OS
 .DS_Store

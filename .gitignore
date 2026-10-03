@@ -8,7 +8,7 @@ SUGESTOES_E_OTIMIZACOES.md
 
 # Personal research/reference material and HomeyScript scratch files — not part of the app
 /analise/
-
+/logs/
 # Terminal output saved while testing on the Homey (e.g. `homey app run -r 2>&1 | tee homey-*.log`)
 *.log
 
