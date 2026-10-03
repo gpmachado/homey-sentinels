@@ -1235,8 +1235,15 @@ function onHomeyReady(Homey) {
   // the device list itself. `getDevices()` only gives us each device's resolved zoneName
   // (no zoneId), so filtering matches on that string directly — fine, since it's what's
   // actually shown to the user anyway.
-  function devicesWithCapability(capability) {
-    return allDevices.filter(function (device) { return (device.capabilities || []).indexOf(capability) !== -1; });
+  // "measure_voltage.a", ".b", ".pv1" and plain "measure_voltage" are one thing to a person (a voltage), so the first
+  // choice is the family (the id before the first dot) and the phase or channel is only asked at the end, for a device
+  // that has more than one in that family.
+  function capabilityFamily(id) { return String(id).split('.')[0]; }
+  function familyCapabilities(device, kind, family, showAll) {
+    return eligibleCapabilities(device, kind, showAll).filter(function (cap) { return capabilityFamily(cap) === family; });
+  }
+  function devicesInFamily(kind, family, showAll) {
+    return allDevices.filter(function (device) { return familyCapabilities(device, kind, family, showAll).length > 0; });
   }
   function emptyOption(selectEl, text) {
     var opt = document.createElement('option');
@@ -1244,18 +1251,32 @@ function onHomeyReady(Homey) {
     opt.textContent = text;
     selectEl.appendChild(opt);
   }
-  // Every capability a monitor of this kind can use, among all devices, with how many devices have it.
-  function populateCapabilitySelect(selectEl, kind, preselect, showAll) {
+  function capabilityTitle(device, cap) {
+    var title = device.capabilitiesObj && device.capabilitiesObj[cap] && device.capabilitiesObj[cap].title;
+    return title || cap;
+  }
+  function humanizeId(id) {
+    var text = String(id).replace(/^measure_/, '').replace(/[_-]+/g, ' ');
+    return text.charAt(0).toUpperCase() + text.slice(1);
+  }
+  // Every family a monitor of this kind can use, among all devices, with how many devices have something in it. Named
+  // after the family's own capability when some device has it ("Voltage" for measure_voltage), else from the id.
+  function populateFamilySelect(selectEl, kind, preselect, showAll) {
     selectEl.innerHTML = '';
     var found = {};
     allDevices.forEach(function (device) {
+      var seen = {};
       eligibleCapabilities(device, kind, showAll).forEach(function (cap) {
-        var title = device.capabilitiesObj && device.capabilitiesObj[cap] && device.capabilitiesObj[cap].title;
-        found[cap] = found[cap] || { id: cap, title: title || cap, count: 0 };
-        found[cap].count += 1;
+        var family = capabilityFamily(cap);
+        found[family] = found[family] || { id: family, title: null, count: 0 };
+        if (cap === family) found[family].title = capabilityTitle(device, cap);
+        if (!seen[family]) { seen[family] = true; found[family].count += 1; }
       });
     });
-    var list = Object.keys(found).map(function (cap) { return found[cap]; }).sort(function (a, b) { return a.title.localeCompare(b.title); });
+    var list = Object.keys(found).map(function (family) {
+      found[family].title = found[family].title || humanizeId(family);
+      return found[family];
+    }).sort(function (a, b) { return a.title.localeCompare(b.title); });
     if (!list.length) { emptyOption(selectEl, 'No device has a capability this monitor can use'); return; }
     list.forEach(function (item) {
       var opt = document.createElement('option');
@@ -1265,13 +1286,13 @@ function onHomeyReady(Homey) {
     });
     selectEl.value = found[preselect] ? preselect : list[0].id;
   }
-  // Only the zones that have a device with the chosen capability; the zone already picked stays if it still fits.
-  function populateZoneSelect(selectEl, capability) {
+  // Only the zones that have a device in the chosen family; the zone already picked stays if it still fits.
+  function populateZoneSelect(selectEl, kind, family, showAll) {
     var current = selectEl.value;
     selectEl.innerHTML = '';
     emptyOption(selectEl, 'All zones');
     var counts = {};
-    devicesWithCapability(capability).forEach(function (d) { if (d.zoneName) counts[d.zoneName] = (counts[d.zoneName] || 0) + 1; });
+    devicesInFamily(kind, family, showAll).forEach(function (d) { if (d.zoneName) counts[d.zoneName] = (counts[d.zoneName] || 0) + 1; });
     Object.keys(counts).sort().forEach(function (zone) {
       var opt = document.createElement('option');
       opt.value = zone;
@@ -1280,9 +1301,9 @@ function onHomeyReady(Homey) {
     });
     selectEl.value = counts[current] ? current : '';
   }
-  function populateDeviceSelect(selectEl, zoneName, capability) {
+  function populateDeviceSelect(selectEl, zoneName, kind, family, showAll) {
     selectEl.innerHTML = '';
-    devicesWithCapability(capability)
+    devicesInFamily(kind, family, showAll)
       .filter(function (device) { return !zoneName || device.zoneName === zoneName; })
       .sort(byName)
       .forEach(function (device) {
@@ -1291,6 +1312,19 @@ function onHomeyReady(Homey) {
         opt.textContent = device.name + (device.zoneName ? ' (' + device.zoneName + ')' : '');
         selectEl.appendChild(opt);
       });
+  }
+  // The chosen device's own capabilities in the family (its phases or channels), the family's own id first when it has it.
+  function populateCapabilitySelect(selectEl, device, kind, family, showAll) {
+    selectEl.innerHTML = '';
+    var caps = device ? familyCapabilities(device, kind, family, showAll) : [];
+    caps.sort(function (a, b) { return (a === family ? -1 : b === family ? 1 : a.localeCompare(b)); });
+    caps.forEach(function (cap) {
+      var opt = document.createElement('option');
+      opt.value = cap;
+      opt.textContent = capabilityTitle(device, cap) + ' (' + cap + ')';
+      selectEl.appendChild(opt);
+    });
+    return caps.length;
   }
   function populateCompatibleDeviceSelect(selectEl, capability, currentId, currentName) {
     selectEl.innerHTML = '';
@@ -1310,23 +1344,33 @@ function onHomeyReady(Homey) {
       selectEl.value = currentId;
     }
   }
-  // Wires Capability -> Zone -> Device for all three "Add monitor" forms (one place instead of a hand-wired
-  // copy per form). `refresh()` fills everything from the loaded device list; `options.preselectCapability` mirrors
-  // Activity's "default to measure_power"; `options.onChange` is how State shows its active-values field for a
-  // multi-state capability, and runs whenever the capability or the device changes; `options.showAll()` says whether to
+  // Wires Capability (family) -> Zone -> Device -> phase/channel for all three "Add monitor" forms (one place instead of
+  // a hand-wired copy per form). The last step only shows when the chosen device has more than one in the family.
+  // `refresh()` fills everything from the loaded device list; `options.preselectCapability` is the family to start on
+  // (Activity: measure_power); `options.onChange` is how State shows its active-values field for a multi-state
+  // capability, and runs whenever the family, the device or the capability changes; `options.showAll()` says whether to
   // list every capability instead of only the ones that fit the kind best (State).
   function setupDeviceCapabilityPicker(prefix, kind, options) {
     options = options || {};
-    var capabilityEl = document.getElementById(prefix + '-capability');
+    var familyEl = document.getElementById(prefix + '-family');
     var zoneEl = document.getElementById(prefix + '-zone');
     var deviceEl = document.getElementById(prefix + '-device');
+    var capabilityEl = document.getElementById(prefix + '-capability');
+    var capabilityWrap = document.getElementById(prefix + '-capability-wrap');
+    function showAll() { return options.showAll ? options.showAll() : false; }
     function changed() { if (options.onChange) options.onChange(); }
-    function refreshDevices() { populateDeviceSelect(deviceEl, zoneEl.value, capabilityEl.value); changed(); }
-    function refreshZones() { populateZoneSelect(zoneEl, capabilityEl.value); refreshDevices(); }
-    function refresh() { populateCapabilitySelect(capabilityEl, kind, options.preselectCapability, options.showAll ? options.showAll() : false); refreshZones(); }
-    capabilityEl.addEventListener('change', refreshZones);
+    function refreshCapabilities() {
+      var count = populateCapabilitySelect(capabilityEl, findDevice(deviceEl.value), kind, familyEl.value, showAll());
+      capabilityWrap.classList.toggle('hidden', count < 2);
+      changed();
+    }
+    function refreshDevices() { populateDeviceSelect(deviceEl, zoneEl.value, kind, familyEl.value, showAll()); refreshCapabilities(); }
+    function refreshZones() { populateZoneSelect(zoneEl, kind, familyEl.value, showAll()); refreshDevices(); }
+    function refresh() { populateFamilySelect(familyEl, kind, options.preselectCapability, showAll()); refreshZones(); }
+    familyEl.addEventListener('change', refreshZones);
     zoneEl.addEventListener('change', refreshDevices);
-    deviceEl.addEventListener('change', changed);
+    deviceEl.addEventListener('change', refreshCapabilities);
+    capabilityEl.addEventListener('change', changed);
     return { refresh: refresh };
   }
 

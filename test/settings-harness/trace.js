@@ -70,15 +70,16 @@ window.runTrace = async () => {
       rec('row action | ' + body + ' | ' + label, { calls: since(m), rowsAfter: $(body).querySelectorAll('.entity-row').length });
     }
   }
-  // The three Add forms: capability first, then the zones that have it, then the devices
+  // The three Add forms: the capability family first (a voltage is one choice, whatever its phases), then the zones that
+  // have it, then the devices, and the phase or channel only for a device that has several
   const opts = (id) => [...$(id).options].map((o) => o.value + '=' + o.textContent);
-  const pick = (id) => ({ capability: $(id + '-capability').value, capabilities: opts(id + '-capability'), zones: opts(id + '-zone'), devices: opts(id + '-device') });
+  const pick = (id) => ({ family: $(id + '-family').value, families: opts(id + '-family'), zones: opts(id + '-zone'), devices: opts(id + '-device'), device: $(id + '-device').value, which: $(id + '-capability').value, whichOptions: opts(id + '-capability'), whichVisible: !$(id + '-capability-wrap').classList.contains('hidden') });
   const change = (el, value) => { el.value = value; el.dispatchEvent(new Event('change', { bubbles: true })); };
   for (const [kind, button, payload] of [['activity', 'add-activity-monitor-btn', { 'activity-add-name': 'New pump' }], ['voltage', 'add-voltage-monitor-btn', { 'voltage-add-min': '210', 'voltage-add-max': '240' }], ['state', 'add-state-monitor-btn', {}]]) {
     click($(button)); await wait();
     rec('add ' + kind + ' | opened', pick(kind + '-add'));
-    const caps = [...$(kind + '-add-capability').options].map((o) => o.value).filter(Boolean);
-    if (caps.length > 1) { change($(kind + '-add-capability'), caps[caps.length - 1]); await wait(); rec('add ' + kind + ' | other capability', Object.assign(pick(kind + '-add'), { activeValuesHidden: kind === 'state' ? $('state-add-active-values-wrap').classList.contains('hidden') : null })); }
+    const families = [...$(kind + '-add-family').options].map((o) => o.value).filter(Boolean);
+    if (families.length > 1) { change($(kind + '-add-family'), families[families.length - 1]); await wait(); rec('add ' + kind + ' | other family', Object.assign(pick(kind + '-add'), { activeValuesHidden: kind === 'state' ? $('state-add-active-values-wrap').classList.contains('hidden') : null })); }
     const zones = [...$(kind + '-add-zone').options].map((o) => o.value).filter(Boolean);
     if (zones.length) { change($(kind + '-add-zone'), zones[0]); await wait(); rec('add ' + kind + ' | zone ' + zones[0], pick(kind + '-add')); }
     Object.entries(payload).forEach(([id, v]) => { $(id).value = v; });
@@ -86,10 +87,18 @@ window.runTrace = async () => {
     rec('add ' + kind + ' | submitted', since(m));
     click($(kind + '-add-cancel-btn')); await wait();
   }
+  // A device with several phases: choosing it shows the phase step, and the phase chosen is what gets sent
+  click($('add-voltage-monitor-btn')); await wait();
+  change($('voltage-add-device'), 'd5'); await wait();
+  const phases = pick('voltage-add');
+  change($('voltage-add-capability'), 'measure_voltage.b'); $('voltage-add-min').value = '210'; $('voltage-add-max').value = '240';
+  const pm = mark(); submit('voltage-add-form'); await wait(120);
+  rec('add voltage | a device with phases', { phases, sent: since(pm) });
+  click($('voltage-add-cancel-btn')); await wait();
 
   // State: by default only capabilities that read as a state; the checkbox lists every capability
   click($('add-state-monitor-btn')); await wait();
-  const stateIds = () => [...$('state-add-capability').options].map((o) => o.value);
+  const stateIds = () => [...$('state-add-family').options].map((o) => o.value);
   const defaultIds = stateIds();
   $('state-add-show-all').checked = true; $('state-add-show-all').dispatchEvent(new Event('change', { bubbles: true })); await wait();
   const allIds = stateIds();

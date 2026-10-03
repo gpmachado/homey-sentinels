@@ -239,13 +239,14 @@ Open the app's Settings from Homey. Three tabs:
 - **Groups** — existing groups (with a "Check now" for a live status, the state Flow holds and a
   reset for it) and the Add/Edit form.
 
-**Add monitor** (the button on each sub-tab) picks the device in three narrowing steps, because a long
-device list is the hard part: **Capability** first (what the devices actually offer, with how many devices have
-each — power for Activity, voltage for Voltage, on/off or multi-state for State), then **Zone** (only zones that
-have a device with that capability, with counts, or *All zones*), then the **Device** itself. Activity monitors
-list only power capabilities (`measure_power` and its phases). State monitors list, by default, only capabilities that describe a state (alarms, on/off, locks,
-door and cover state, connection, playing, and multi-state ones whose id ends in operation, state or status);
-tick **Show every capability** to also list buttons, settings and text.
+**Add monitor** (the button on each sub-tab) picks the device in narrowing steps, because a long device list is the
+hard part: **Capability** first, as one choice per family (a voltage is just *Voltage*, whatever its phases or
+channels, with how many devices have it), then **Zone** (only zones that have a device with it, with counts, or *All
+zones*), then the **Device**. Only when that device has more than one in the family (Phase A, B and C, or PV1 and PV2)
+a last step, **Which one**, asks for the phase or channel; one monitor watches one of them. Activity monitors list
+only power capabilities (`measure_power` and its phases). State monitors list, by default, only capabilities that
+describe a state (alarms, on/off, locks, door and cover state, connection, playing, and multi-state ones whose id ends
+in operation, state or status); tick **Show every capability** to also list buttons, settings and text.
 
 **Edit** on an Activity, State or Voltage monitor can also **rename** it and **change its device** (it must
 have the monitor's capability). The monitor keeps its history and settings, so a device that was re-paired

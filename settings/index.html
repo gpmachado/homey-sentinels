@@ -36,13 +36,16 @@
       <h2>New activity monitor</h2>
       <form id="activity-add-form">
         <label>Capability
-          <select id="activity-add-capability" required></select>
+          <select id="activity-add-family" required></select>
         </label>
         <label>Zone
           <select id="activity-add-zone"></select>
         </label>
         <label>Device
           <select id="activity-add-device" required></select>
+        </label>
+        <label id="activity-add-capability-wrap" class="hidden">Which one (phase or channel)
+          <select id="activity-add-capability" required></select>
         </label>
         <label>Name (optional)
           <input type="text" id="activity-add-name" placeholder="Defaults to the device name">
@@ -138,7 +141,7 @@
       <h2>New state monitor</h2>
       <form id="state-add-form">
         <label>Capability
-          <select id="state-add-capability" required></select>
+          <select id="state-add-family" required></select>
         </label>
         <label class="checkbox-row">
           <input type="checkbox" id="state-add-show-all">
@@ -150,6 +153,9 @@
         </label>
         <label>Device
           <select id="state-add-device" required></select>
+        </label>
+        <label id="state-add-capability-wrap" class="hidden">Which one (phase or channel)
+          <select id="state-add-capability" required></select>
         </label>
         <label id="state-add-active-values-wrap" class="hidden">Active value(s)
           <input type="text" id="state-add-active-values" placeholder="e.g. Running, Rinse">
@@ -243,13 +249,16 @@
       <h2>New voltage monitor</h2>
       <form id="voltage-add-form">
         <label>Capability
-          <select id="voltage-add-capability" required></select>
+          <select id="voltage-add-family" required></select>
         </label>
         <label>Zone
           <select id="voltage-add-zone"></select>
         </label>
         <label>Device
           <select id="voltage-add-device" required></select>
+        </label>
+        <label id="voltage-add-capability-wrap" class="hidden">Which one (phase or channel)
+          <select id="voltage-add-capability" required></select>
         </label>
         <label>Name (optional)
           <input type="text" id="voltage-add-name" placeholder="Defaults to the device name">
