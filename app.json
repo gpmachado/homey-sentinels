@@ -222,7 +222,7 @@
           "en": "[[monitor]] costs more than [[amount]] today"
         },
         "hint": {
-          "en": "Fires once per day, the moment a finished cycle pushes today's estimated cost for this monitor to or past the given amount. Needs a price set in Settings -> Monitors -> Energy cost, or change it from a Flow with 'Set energy price'. Resets at midnight."
+          "en": "Fires once per day, the moment a finished cycle pushes today's estimated cost for this monitor to or past the given amount (0.01 or more). Needs a price set in Settings -> Monitors -> Energy cost, or change it from a Flow with 'Set energy price'. Resets at midnight."
         },
         "args": [
           {
@@ -239,7 +239,7 @@
           {
             "name": "amount",
             "type": "number",
-            "min": 0,
+            "min": 0.01,
             "step": 0.01,
             "title": {
               "en": "Amount"

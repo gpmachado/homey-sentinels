@@ -148,7 +148,8 @@ test('voltage_phase_imbalance condition compares the two monitors\' current read
     store: { data: { voltageMonitors: {
       a: { id: 'a', name: 'Fase A', lastSample: { voltage: 220 } },
       b: { id: 'b', name: 'Fase B', lastSample: { voltage: 240 } },
-      c: { id: 'c', name: 'Fase C', lastSample: null }
+      c: { id: 'c', name: 'Fase C', lastSample: null },
+      d: { id: 'd', name: 'Fase D', lastSample: { voltage: 220 } }
     } } },
     gateway: {}, directory: {}, log: () => {}, error: () => {},
     cards: new Proxy({}, { get: () => card() }), stateCards: new Proxy({}, { get: () => card() }),
@@ -171,4 +172,18 @@ test('voltage_phase_imbalance condition compares the two monitors\' current read
   assert.equal(await run({ monitor_a: { id: 'a' }, monitor_b: { id: 'b' }, percent: 5 }), true); // ~8.7% apart
   assert.equal(await run({ monitor_a: { id: 'a' }, monitor_b: { id: 'b' }, percent: 10 }), false);
   assert.equal(await run({ monitor_a: { id: 'a' }, monitor_b: { id: 'c' }, percent: 0 }), false); // c has no reading yet
+  assert.equal(await run({ monitor_a: { id: 'a' }, monitor_b: { id: 'd' }, percent: 0 }), false); // identical readings are not "more than 0 %" apart
+});
+
+test('_costBeforeCycle prices the energy from before the cycle, rounded once, not cost_today minus cost', () => {
+  const { _costBeforeCycle } = require('../lib/app/summaries');
+  const app = { store: { getMessageSettings: () => ({ pricePerKwh: 1, currency: '' }) } };
+  // Today's total was already 1.00 before this 0.006 kWh cycle (0.998 kWh rounds to 1.00); subtracting the
+  // rounded costs gave 0.99, so a Flow set to exactly 1.00 would have fired a second time on this cycle.
+  assert.equal(costOf(1.004, 1) - costOf(0.006, 1), 0.99);
+  assert.equal(_costBeforeCycle.call(app, 0.006, 1.004), 1);
+  // Float noise or a first cycle of the day never goes below zero, and no price means 0.
+  assert.equal(_costBeforeCycle.call(app, 0.5, 0.5), 0);
+  assert.equal(_costBeforeCycle.call(app, 0.6, 0.5), 0);
+  assert.equal(_costBeforeCycle.call({ store: { getMessageSettings: () => ({ pricePerKwh: 0 }) } }, 0.2, 1), 0);
 });
