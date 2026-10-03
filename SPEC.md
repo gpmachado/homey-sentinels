@@ -124,7 +124,17 @@ voltage and duration are reported for the whole episode on return to normal.
   condition `is_voltage_normal`.
 - `stabilization_minutes` suppresses events right after creation (a fresh reading needs a
   moment to settle before it's trusted).
-- Message wording (per event type) is edited in Settings, not passed as a card argument.
+- Message wording (per event type) is edited in Settings, not passed as a card argument. A new monitor
+  starts with real wording (`DEFAULT_VOLTAGE_MESSAGES` in lib/store.js, the English fallback) taken from
+  `locales/<lang>.json` `voltageMessageDefaults` through `this.homey.__()` at creation time, so the platform
+  language and its English fallback decide it; monitors saved by older builds keep their empty templates.
+- `auxiliaryCapabilities` are auto-detected like Activity/State (`AUXILIARY_CAPABILITY_CANDIDATES`), so a
+  combined energy meter's voltage messages can use `%power%` / `%energy%`. They are read from the device
+  object handed to the sample handler and are left `undefined` (rendered as nothing, not 0) when the device
+  has no such capability; they are message placeholders only, not declared Flow tokens.
+- Edit can rename a monitor and move it to another device with the same capability
+  (`updateVoltageMonitorIdentity`): the live sample and `deviceMissing` are reset, the auxiliary capabilities
+  are recomputed for the new device, and the old subscriptions are dropped before the new ones start.
 - The capability picker filters to `measure_voltage*` only, with a runtime guard as backup —
   added after a real incident where a Power capability was picked instead of Voltage,
   producing false overvoltage alarms.
@@ -276,12 +286,14 @@ their history are never deleted automatically. `_startupSummary` logs what is ru
 ### Cost threshold trigger
 
 `activity_cost_exceeded` fires once per configured amount, per day, per Flow: `energy_today` already
-includes the just-finished cycle, so `previousCost = cost_today - cost` is what today's total was right
-before it. The card's own `registerRunListener` checks `previousCost < args.amount <= costToday` (a real-
+includes the just-finished cycle, so `previousCost` — `_costBeforeCycle(energy, energy_today)`, the energy of
+everything before this cycle priced and rounded once (not `cost_today - cost`, two values each already
+rounded to cents, which can land a cent off) — is what today's total was right before it. The card's own `registerRunListener` checks `previousCost < args.amount <= costToday` (a real-
 valued generalisation of `activity_cycles_reached`'s exact-integer match) — several Flows can watch the
 same monitor for different amounts, each firing exactly once the day its own amount is first reached, with
 no state kept anywhere: the interval is recomputed from the same two numbers every time, and resets on its
-own at midnight since cost_today does. State monitors don't have this trigger yet (only Activity monitors
+own at midnight since cost_today does. The amount argument has `min: 0.01`: a cycle's cost is added to a total
+that starts at 0, so an amount of 0 could never fall inside the interval. State monitors don't have this trigger yet (only Activity monitors
 track energy by default).
 
 ### Voltage phase imbalance
@@ -290,7 +302,9 @@ track energy by default).
 reading is missing or their average is not positive. The condition `voltage_phase_imbalance` compares two
 existing Voltage monitors' `lastSample.voltage` with it — no new monitor type or stored state, since a
 multi-phase device is already watched one Voltage monitor per phase (see 2.3). More than two phases is
-several pairwise conditions chained with AND/OR in one Flow.
+several pairwise conditions chained with AND/OR in one Flow. The comparison is strictly greater, as the
+card says ("more than N %"); a monitor that no longer exists makes the card throw, like the other Voltage
+conditions, so a broken Flow is visible instead of reading as "no imbalance".
 
 ### Energy cost tokens
 
@@ -300,6 +314,22 @@ decimals with the app's decimal separator, empty with no price) feeds `_costToke
 which adds `cost`, `cost_today`, `cost_text` and `cost_today_text` to the finished-cycle data of Activity and
 State monitors (so they are Flow tokens and `%placeholders%`), and `total_cost(_text)` to the activity statistics
 action. A flat price; the **Set energy price** Flow action changes it for tariffs that vary (priced at the price in force when the cycle ends). A price schedule inside the app is not modelled.
+
+### Number tokens are rounded
+
+Message templates round every number to three decimals (`formatNumber` in lib/message-template.js). The
+number tokens given to a Flow used to go out raw, so a kWh total summed from small steps showed as
+`3.9199999999999997` in a Flow's own text. `roundTokens` (lib/app/constants.js) applies the same rounding at
+the two boundaries: `app.js` wraps every trigger card's `trigger()` so its tokens are rounded as it fires, and
+the action wrapper in `lib/app/flow-cards.js` rounds what an action returns. Whole numbers and non-numbers are
+untouched, and the caller's object is not modified.
+
+### Retry loops outlive nothing
+
+`resumeWithRetry` (lib/resume.js) checks `isStillWanted()` both when an attempt fails and when it succeeds; a
+success that is no longer wanted skips `onStarted` and calls `onAbandoned`, which for monitors unsubscribes
+what that attempt set up. A group watch carries a generation number (`_groupWatchGeneration`), so a retry loop
+left over from before a restart stops instead of replacing the newer watch.
 
 ### Time in Flow tokens and messages
 

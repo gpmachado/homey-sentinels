@@ -100,9 +100,8 @@ the version after 1.0.7 (see below).
   kWh price, top zone or consumers. (KPI Monitor is closed source; only its store page and settings are known.)
 - More widgets: group members, running now, 24 h chart, compact badge; 365-day daily summaries / a "year" period.
 - Sentinel Group virtual device (section below): the only view of a group in the web app.
-- Docs were up to date as of 2026-09-23 but are NOT any more (checked 2026-10-02): README/HOWTO/SPEC say nothing about
-  Change device / Rename on the Edit forms, the Voltage `%power%` / `%energy%` tokens, or the per-language default wording
-  in `locales/`. Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
+- Docs are up to date as of 2026-10-03 (README, HOWTO, SPEC, CONTRIBUTING, and the new TUTORIAL with worked examples and expected
+  tokens; SPEC was not re-read for the Voltage `%power%` / `%energy%` tokens and the `locales/` wording). Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
 - Tests do not cover the Settings HTML, the widgets or real Homey I/O.
 
 ### Ideas collected 2026-09-24 (widgets, functions, analysis) - with the verdict of each

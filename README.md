@@ -3,6 +3,7 @@
 Sentinels watches devices you already own and turns their raw capability updates into activity history, cycle counts, energy totals, and plain-language notifications — without ever sending a command back to them. It's read-only by design: no dimming, no switching, no locking, just observation.
 
 - **[HOWTO.md](HOWTO.md)** — usage guide: how to set up each monitor type via Flow cards.
+- **[TUTORIAL.md](TUTORIAL.md)** — worked examples with the tokens and messages you should get back, for a pump, a door, a voltage phase, a group and availability.
 - **[SPEC.md](SPEC.md)** — technical specification: architecture, data model, retention, design decisions.
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to run, change and test the app, and the rules that keep it light.
 - **[TODO.md](TODO.md)** — what is pending, what still needs checking on a real Homey, and what was decided against.
@@ -28,6 +29,8 @@ Defaults for both layers (silence hours, wait after app start, how long a device
 ## How it talks back
 
 Every monitor exposes Flow triggers, conditions, and actions with tokens for duration, energy, average/peak power and current, and a ready-to-use `message` token — the sentence is built from a template you write once per monitor (with a token-insert helper in Settings), not assembled card-by-card in every Flow. Templates are your own text, in whatever language you like (Homey's own UI has no Portuguese, so nothing is forced through its translations). HOWTO has ready-made Portuguese examples, and one switch in Settings turns `1.5 kWh` into `1,5 kWh` in messages. Give it a price per kWh (Settings → Monitors → Energy cost) and every finished cycle also carries its estimated cost, as tokens and as `%cost_text%` ("R$ 1,02") in messages.
+
+Number tokens leave the app rounded to three decimals (`3.92`, not `3.9199999999999997`), the same as inside messages. Voltage messages can also use `%power%` / `%energy%` when the device reports them, and new Voltage monitors and a group's **Fill default wording** button start from wording in your Homey's language where the app has it (nine languages, Latin alphabet; Portuguese stays your own text). Editing a monitor can rename it and move it to another device without losing its history.
 
 Triggers that describe an event also carry the moment it happened: `timestamp` (ISO, UTC — for scripts) and `time` (`2026-09-23 10:14:14`, in your time zone — for a timeline entry or a message; `%time%` works inside message templates too).
 

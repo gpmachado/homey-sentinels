@@ -5,6 +5,9 @@ state, incidents, and statistics. It never sends a command to a device — every
 read-only. There's nothing to configure at install time; monitors are created through a
 Flow card or the Settings page, and managed from there afterwards. The availability scan starts on its own.
 
+Want to see what the cards actually return? **[TUTORIAL.md](TUTORIAL.md)** walks through a pump, a door, a
+voltage phase and a group with the tokens and messages you should get, and how to read them.
+
 ## Which one do I need?
 
 Seven independent ways to watch something. Answer these in order — the first one that fits is
@@ -58,7 +61,7 @@ machine.
    The median and percentiles need at least 5 cycles; the trend needs at least 3 cycles in the
    previous week, otherwise it says "not enough data" instead of a misleading +200 %.
 4. Message wording works out of the box — a new monitor already has a sensible default
-   (`"%monitor% turned on (%power% W)"` / `"%monitor% turned off — %duration_human%, %energy%
+   (`"%monitor% turned on (%power% W)"` / `"%monitor% turned off - %duration_human%, %energy%
    kWh (%count% today)"`), edit it if you want something different in Settings (Monitors tab →
    Activity sub-tab → "Edit messages"), same token-insert pattern as Voltage Monitor below. The
    "finished" message's `%count%` is today's cycle count, already including the one that just
@@ -122,7 +125,12 @@ a plain on/off switch you don't have power data for.
 3. Message wording for each of the three triggers is written **once, in Settings** (Monitors
    tab → Voltage sub-tab → "Edit messages" on the monitor), not as a Flow card argument — so
    you don't have to rebuild the sentence in every Flow. Tap a token button to insert it into
-   whichever message field you last clicked.
+   whichever message field you last clicked. A **new** monitor starts with a real sentence for each
+   (`%monitor% is in undervoltage - %voltage% V.` and so on) in your Homey's language when the app has it
+   (English, Dutch, German, French, Italian, Swedish, Norwegian, Spanish, Danish; otherwise English);
+   monitors created by an older version keep their empty messages until you fill them in.
+4. If the same device also reports power or energy (a combined energy meter), the messages can use
+   `%power%` and `%energy%` too; they render empty on a device that does not report them.
 
 
 **Comparing two phases**: the condition **"Two voltage monitors are more than N% apart"** compares the
@@ -250,6 +258,11 @@ Open the app's Settings from Homey. Three tabs:
 - **Groups** — existing groups (with a "Check now" for a live status, the state Flow holds and a
   reset for it) and the Add/Edit form.
 
+**Edit** on an Activity, State or Voltage monitor can also **rename** it and **change its device** (it must
+have the monitor's capability). The monitor keeps its history and settings, so a device that was re-paired
+under a new id — or a typo in the name — no longer means deleting and starting over; after a device change
+the live reading starts fresh and any "Device missing" badge clears.
+
 **Reset stats** wipes cycles/history/live state while keeping the monitor's own configuration
 (device, capability, threshold, settings) — for when the data itself was wrong (e.g. a
 misconfigured capability recorded garbage before being fixed). **Delete** removes the monitor
@@ -293,9 +306,12 @@ it in. With no price set, the numbers are 0 and the texts are empty, so a messag
 
 ## Message wording — examples in Portuguese
 
-Homey's own interface has no Portuguese, so Sentinels never forces its English default on you: every message
-is a template you write once, in your own language, under the monitor's **Message** action in Settings (the
-token buttons insert the `%placeholders%`). Some ready-made ones, to copy and adjust:
+Homey's own interface has no Portuguese, so nothing here is ever forced on you: every message is a template
+you write once, in your own language, under the monitor's **Message** action in Settings (the token buttons
+insert the `%placeholders%`), and you can always overwrite whatever it starts with. New Activity and State
+monitors start with English wording, new Voltage monitors with wording in your Homey's language where the app
+has it, and a group's **Fill default wording for this type** button fills its three boxes the same way (only
+when you click it). Some ready-made Portuguese ones, to copy and adjust:
 
 | Where | Template |
 |---|---|
@@ -358,6 +374,9 @@ voltage monitors, 2 counters, 3 groups (25 devices), 4 watchdogs; availability s
   selectable cards in the Advanced Flow editor; Homey hides any action card with output tokens
   from the standard editor entirely. There's no token-free variant — react to a monitor's own
   trigger cards in a Standard Flow instead, they already carry a ready-to-use `message` token.
+- **Number tokens are rounded to three decimals** as they leave the app, like inside messages
+  (`3.92`, not `3.9199999999999997`). Whole numbers are left alone, and a number with no data is `0`
+  (Homey rejects an empty number token).
 - **`timestamp` is UTC, `time` is local.** Triggers with a moment carry both: `timestamp` is an ISO
   string in UTC (`2026-09-23T13:14:14.591Z`, for scripts), `time` is `2026-09-23 10:14:14` in your time
   zone. Use `time` (or `%time%` in a template) for a person; the Homey timeline already shows when each
