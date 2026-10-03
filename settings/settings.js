@@ -300,6 +300,69 @@ function onHomeyReady(Homey) {
     container.innerHTML = '<div class="entity-empty">' + message + '</div>';
   }
 
+  function fieldValue(id) { return document.getElementById(id).value; }
+
+  // Tap a token button to put it into the message box focused last, at the caret (a caret at the very start
+  // counts as no caret, so the token goes to the end). `targetSelector` marks the boxes that take part; a form
+  // with a single box passes it as `initialTarget` and no selector.
+  function bindTokenInserter(buttonSelector, targetSelector, initialTarget) {
+    var last = initialTarget;
+    if (targetSelector) {
+      Array.prototype.forEach.call(document.querySelectorAll(targetSelector), function (el) {
+        el.addEventListener('focus', function () { last = el; });
+      });
+    }
+    Array.prototype.forEach.call(document.querySelectorAll(buttonSelector), function (btn) {
+      btn.addEventListener('click', function () {
+        var token = btn.getAttribute('data-token');
+        var start = last.selectionStart || last.value.length;
+        var end = last.selectionEnd || last.value.length;
+        last.value = last.value.slice(0, start) + token + last.value.slice(end);
+        last.focus();
+      });
+    });
+  }
+
+  // A modal form that PUTs its fields to one monitor or counter and then re-renders that list. The caller fills
+  // the fields and calls open(id); Cancel and a successful save forget the id, so a stray submit with nothing
+  // open does nothing. `listPath` is the list's own endpoint, fetched again after a save.
+  function setupModalForm(spec) {
+    var wrapper = document.getElementById(spec.wrapperId);
+    var currentId = null;
+    document.getElementById(spec.cancelId).addEventListener('click', function () {
+      currentId = null;
+      closeModal(wrapper);
+    });
+    document.getElementById(spec.formId).addEventListener('submit', function (event) {
+      event.preventDefault();
+      if (!currentId) return;
+      api('PUT', spec.putPath(currentId), spec.payload()).then(function () {
+        closeModal(wrapper);
+        currentId = null;
+        return api('GET', spec.listPath + '?period=' + monitorPeriod);
+      }).then(spec.render).catch(function (error) { Homey.alert(error.message || String(error)); });
+    });
+    return { open: function (id) { currentId = id; openModal(wrapper); } };
+  }
+
+  // The Reset and Delete links every monitor and counter row has: confirm, call the API, fetch that list again and
+  // draw it. `path` is the list's endpoint, `resetKeeps` finishes the Reset sentence, `deleteWhat` is the noun in the
+  // Delete one.
+  function resetAndDeleteLinks(spec) {
+    function run(method, path, text) {
+      confirmAction(text, function () {
+        api(method, path)
+          .then(function () { return api('GET', spec.path + '?period=' + monitorPeriod); })
+          .then(spec.render)
+          .catch(function (error) { Homey.alert(error.message || String(error)); });
+      });
+    }
+    return [
+      actionLink('Reset', function () { run('POST', spec.path + '/' + spec.item.id + '/reset', 'Reset statistics for "' + spec.item.name + '"? ' + spec.resetKeeps); }),
+      actionLink('Delete', function () { run('DELETE', spec.path + '/' + spec.item.id, 'Delete ' + spec.deleteWhat + ' "' + spec.item.name + '"?'); }, true)
+    ];
+  }
+
   var groupsEl = document.getElementById('groups');
   var devicesEl = document.getElementById('devices');
   var deviceFilterEl = document.getElementById('device-filter');
@@ -364,28 +427,16 @@ function onHomeyReady(Homey) {
     });
   }
 
-  var lastTokenTarget = document.getElementById('messageTemplateMany');
-  Array.prototype.forEach.call(document.querySelectorAll('.token-target'), function (el) {
-    el.addEventListener('focus', function () { lastTokenTarget = el; });
-  });
-  Array.prototype.forEach.call(document.querySelectorAll('.token-btn'), function (btn) {
-    btn.addEventListener('click', function () {
-      var token = btn.getAttribute('data-token');
-      var start = lastTokenTarget.selectionStart || lastTokenTarget.value.length;
-      var end = lastTokenTarget.selectionEnd || lastTokenTarget.value.length;
-      lastTokenTarget.value = lastTokenTarget.value.slice(0, start) + token + lastTokenTarget.value.slice(end);
-      lastTokenTarget.focus();
-    });
-  });
+  bindTokenInserter('.token-btn', '.token-target', document.getElementById('messageTemplateMany'));
 
   // "No mismatches" reads naturally when the expected state is the everyday-normal one
   // (lights off, doors closed) — the common case. Keyed by type + expected state so the
   // wording still makes sense if someone flips it (e.g. a group that expects lights ON).
   //
   // The wording itself lives in locales/<lang>.json under "messageWording", one set per
-  // Homey-supported language with real translation confidence (en, nl, de, fr, it, sv, no, es,
-  // da, pl — all Latin-alphabet; ru/ko/ar are skipped and Homey.__() falls back to English for
-  // them, same as for any language not covered here). This only ever fills the *default* wording,
+  // Homey-supported language with real translation confidence (en, nl, de, fr, it, sv, no, es, da —
+  // all Latin-alphabet; ru/ko/ar are skipped, Polish was pulled for a native check, and Homey.__()
+  // falls back to English for them, same as for any language not covered here). This only ever fills the *default* wording,
   // on an explicit click of "Fill default wording for this type" (with a confirm if something is
   // already there) — it never touches a template the user already wrote, matching what a
   // personalized message is for.
@@ -629,24 +680,8 @@ function onHomeyReady(Homey) {
       if (monitorPeriod === 'day') {
         row.appendChild(entityActions([
           actionLink('Edit', function () { openActivityEditForm(monitor); }),
-          actionLink('Messages', function () { openActivityMessageForm(monitor); }),
-          actionLink('Reset', function () {
-            confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
-              api('POST', '/monitors/' + monitor.id + '/reset')
-                .then(function () { return api('GET', '/monitors?period=' + monitorPeriod); })
-                .then(renderMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }),
-          actionLink('Delete', function () {
-            confirmAction('Delete monitor "' + monitor.name + '"?', function () {
-              api('DELETE', '/monitors/' + monitor.id)
-                .then(function () { return api('GET', '/monitors?period=' + monitorPeriod); })
-                .then(renderMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }, true)
-        ]));
+          actionLink('Messages', function () { openActivityMessageForm(monitor); })
+        ].concat(resetAndDeleteLinks({ item: monitor, path: '/monitors', render: renderMonitors, resetKeeps: 'This keeps the monitor and its settings, only the history is wiped.', deleteWhat: 'monitor' }))));
       }
       container.appendChild(row);
     });
@@ -675,24 +710,8 @@ function onHomeyReady(Homey) {
       if (monitorPeriod === 'day') {
         row.appendChild(entityActions([
           actionLink('Edit', function () { openStateEditForm(monitor); }),
-          actionLink('Messages', function () { openStateMessageForm(monitor); }),
-          actionLink('Reset', function () {
-            confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
-              api('POST', '/state-monitors/' + monitor.id + '/reset')
-                .then(function () { return api('GET', '/state-monitors?period=' + monitorPeriod); })
-                .then(renderStateMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }),
-          actionLink('Delete', function () {
-            confirmAction('Delete monitor "' + monitor.name + '"?', function () {
-              api('DELETE', '/state-monitors/' + monitor.id)
-                .then(function () { return api('GET', '/state-monitors?period=' + monitorPeriod); })
-                .then(renderStateMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }, true)
-        ]));
+          actionLink('Messages', function () { openStateMessageForm(monitor); })
+        ].concat(resetAndDeleteLinks({ item: monitor, path: '/state-monitors', render: renderStateMonitors, resetKeeps: 'This keeps the monitor and its settings, only the history is wiped.', deleteWhat: 'monitor' }))));
       }
       container.appendChild(row);
     });
@@ -717,82 +736,49 @@ function onHomeyReady(Homey) {
       if (monitorPeriod === 'day') {
         row.appendChild(entityActions([
           actionLink('Edit', function () { openVoltageEditForm(monitor); }),
-          actionLink('Messages', function () { openVoltageMessageForm(monitor); }),
-          actionLink('Reset', function () {
-            confirmAction('Reset statistics for "' + monitor.name + '"? This keeps the monitor and its settings, only the history is wiped.', function () {
-              api('POST', '/voltage-monitors/' + monitor.id + '/reset')
-                .then(function () { return api('GET', '/voltage-monitors?period=' + monitorPeriod); })
-                .then(renderVoltageMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }),
-          actionLink('Delete', function () {
-            confirmAction('Delete voltage monitor "' + monitor.name + '"?', function () {
-              api('DELETE', '/voltage-monitors/' + monitor.id)
-                .then(function () { return api('GET', '/voltage-monitors?period=' + monitorPeriod); })
-                .then(renderVoltageMonitors)
-                .catch(function (error) { Homey.alert(error.message || String(error)); });
-            });
-          }, true)
-        ]));
+          actionLink('Messages', function () { openVoltageMessageForm(monitor); })
+        ].concat(resetAndDeleteLinks({ item: monitor, path: '/voltage-monitors', render: renderVoltageMonitors, resetKeeps: 'This keeps the monitor and its settings, only the history is wiped.', deleteWhat: 'voltage monitor' }))));
       }
       container.appendChild(row);
     });
   }
 
-  var voltageEditFormWrapper = document.getElementById('voltage-edit-form-wrapper');
-  var voltageEditForm = document.getElementById('voltage-edit-form');
-  var editingVoltageRangeMonitorId = null;
+  var voltageEditForm = setupModalForm({
+    wrapperId: 'voltage-edit-form-wrapper', formId: 'voltage-edit-form', cancelId: 'voltage-edit-cancel-btn',
+    listPath: '/voltage-monitors', render: renderVoltageMonitors,
+    putPath: function (id) { return '/voltage-monitors/' + id; },
+    payload: function () {
+      return {
+        name: fieldValue('voltage-edit-name'), deviceId: fieldValue('voltage-edit-device'),
+        minVoltage: fieldValue('voltage-edit-min'), maxVoltage: fieldValue('voltage-edit-max'),
+        stabilizationMinutes: fieldValue('voltage-edit-stabilization')
+      };
+    }
+  });
   function openVoltageEditForm(monitor) {
-    editingVoltageRangeMonitorId = monitor.id;
     document.getElementById('voltage-edit-form-name').textContent = monitor.name;
     document.getElementById('voltage-edit-name').value = monitor.name;
     populateCompatibleDeviceSelect(document.getElementById('voltage-edit-device'), monitor.capability, monitor.deviceId, monitor.deviceName);
     document.getElementById('voltage-edit-min').value = monitor.configuredMinVoltage;
     document.getElementById('voltage-edit-max').value = monitor.configuredMaxVoltage;
     document.getElementById('voltage-edit-stabilization').value = monitor.stabilizationMinutes;
-    openModal(voltageEditFormWrapper);
+    voltageEditForm.open(monitor.id);
   }
-  document.getElementById('voltage-edit-cancel-btn').addEventListener('click', function () {
-    editingVoltageRangeMonitorId = null;
-    closeModal(voltageEditFormWrapper);
-  });
-  voltageEditForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    if (!editingVoltageRangeMonitorId) return;
-    var payload = {
-      name: document.getElementById('voltage-edit-name').value,
-      deviceId: document.getElementById('voltage-edit-device').value,
-      minVoltage: document.getElementById('voltage-edit-min').value,
-      maxVoltage: document.getElementById('voltage-edit-max').value,
-      stabilizationMinutes: document.getElementById('voltage-edit-stabilization').value
-    };
-    api('PUT', '/voltage-monitors/' + editingVoltageRangeMonitorId, payload).then(function () {
-      closeModal(voltageEditFormWrapper);
-      editingVoltageRangeMonitorId = null;
-      return api('GET', '/voltage-monitors?period=' + monitorPeriod);
-    }).then(renderVoltageMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
-  });
 
-  var voltageMessageFormWrapper = document.getElementById('voltage-message-form-wrapper');
-  var voltageMessageForm = document.getElementById('voltage-message-form');
-  var editingVoltageMonitorId = null;
-  var lastVoltageTokenTarget = document.getElementById('messageTemplateNormalized');
-  Array.prototype.forEach.call(document.querySelectorAll('.voltage-token-target'), function (el) {
-    el.addEventListener('focus', function () { lastVoltageTokenTarget = el; });
+  bindTokenInserter('.voltage-token-btn', '.voltage-token-target', document.getElementById('messageTemplateNormalized'));
+  var voltageMessageForm = setupModalForm({
+    wrapperId: 'voltage-message-form-wrapper', formId: 'voltage-message-form', cancelId: 'voltage-message-cancel-btn',
+    listPath: '/voltage-monitors', render: renderVoltageMonitors,
+    putPath: function (id) { return '/voltage-monitors/' + id + '/messages'; },
+    payload: function () {
+      return {
+        messageTemplateUndervoltage: fieldValue('messageTemplateUndervoltage'),
+        messageTemplateOvervoltage: fieldValue('messageTemplateOvervoltage'),
+        messageTemplateNormalized: fieldValue('messageTemplateNormalized')
+      };
+    }
   });
-  Array.prototype.forEach.call(document.querySelectorAll('.voltage-token-btn'), function (btn) {
-    btn.addEventListener('click', function () {
-      var token = btn.getAttribute('data-token');
-      var start = lastVoltageTokenTarget.selectionStart || lastVoltageTokenTarget.value.length;
-      var end = lastVoltageTokenTarget.selectionEnd || lastVoltageTokenTarget.value.length;
-      lastVoltageTokenTarget.value = lastVoltageTokenTarget.value.slice(0, start) + token + lastVoltageTokenTarget.value.slice(end);
-      lastVoltageTokenTarget.focus();
-    });
-  });
-
   function openVoltageMessageForm(monitor) {
-    editingVoltageMonitorId = monitor.id;
     document.getElementById('voltage-message-form-name').textContent = monitor.name;
     voltagePreviewData.device = monitor.name;
     voltagePreviewData.monitor = monitor.name;
@@ -800,126 +786,64 @@ function onHomeyReady(Homey) {
     document.getElementById('messageTemplateOvervoltage').value = monitor.messageTemplateOvervoltage || '';
     document.getElementById('messageTemplateNormalized').value = monitor.messageTemplateNormalized || '';
     refreshMessagePreviews();
-    openModal(voltageMessageFormWrapper);
+    voltageMessageForm.open(monitor.id);
   }
-  document.getElementById('voltage-message-cancel-btn').addEventListener('click', function () {
-    editingVoltageMonitorId = null;
-    closeModal(voltageMessageFormWrapper);
-  });
-  voltageMessageForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    if (!editingVoltageMonitorId) return;
-    var payload = {
-      messageTemplateUndervoltage: document.getElementById('messageTemplateUndervoltage').value,
-      messageTemplateOvervoltage: document.getElementById('messageTemplateOvervoltage').value,
-      messageTemplateNormalized: document.getElementById('messageTemplateNormalized').value
-    };
-    api('PUT', '/voltage-monitors/' + editingVoltageMonitorId + '/messages', payload).then(function () {
-      closeModal(voltageMessageFormWrapper);
-      editingVoltageMonitorId = null;
-      return api('GET', '/voltage-monitors?period=' + monitorPeriod);
-    }).then(renderVoltageMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
-  });
 
-  var activityMessageFormWrapper = document.getElementById('activity-message-form-wrapper');
-  var activityMessageForm = document.getElementById('activity-message-form');
-  var editingActivityMonitorId = null;
-  var lastActivityTokenTarget = document.getElementById('activity-messageTemplateFinished');
-  Array.prototype.forEach.call(document.querySelectorAll('.activity-token-target'), function (el) {
-    el.addEventListener('focus', function () { lastActivityTokenTarget = el; });
+  bindTokenInserter('.activity-token-btn', '.activity-token-target', document.getElementById('activity-messageTemplateFinished'));
+  var activityEditForm = setupModalForm({
+    wrapperId: 'activity-edit-form-wrapper', formId: 'activity-edit-form', cancelId: 'activity-edit-cancel-btn',
+    listPath: '/monitors', render: renderMonitors,
+    putPath: function (id) { return '/monitors/' + id; },
+    payload: function () {
+      return {
+        name: fieldValue('activity-edit-name'), deviceId: fieldValue('activity-edit-device'),
+        threshold: fieldValue('activity-edit-threshold'), continuityMinutes: fieldValue('activity-edit-continuity'),
+        minConfirmationSeconds: fieldValue('activity-edit-confirmation')
+      };
+    }
   });
-  Array.prototype.forEach.call(document.querySelectorAll('.activity-token-btn'), function (btn) {
-    btn.addEventListener('click', function () {
-      var token = btn.getAttribute('data-token');
-      var start = lastActivityTokenTarget.selectionStart || lastActivityTokenTarget.value.length;
-      var end = lastActivityTokenTarget.selectionEnd || lastActivityTokenTarget.value.length;
-      lastActivityTokenTarget.value = lastActivityTokenTarget.value.slice(0, start) + token + lastActivityTokenTarget.value.slice(end);
-      lastActivityTokenTarget.focus();
-    });
-  });
-  var activityEditFormWrapper = document.getElementById('activity-edit-form-wrapper');
-  var activityEditForm = document.getElementById('activity-edit-form');
-  var editingActivityMonitorSettingsId = null;
   function openActivityEditForm(monitor) {
-    editingActivityMonitorSettingsId = monitor.id;
     document.getElementById('activity-edit-form-name').textContent = monitor.name;
     document.getElementById('activity-edit-name').value = monitor.name;
     populateCompatibleDeviceSelect(document.getElementById('activity-edit-device'), monitor.capability, monitor.deviceId, monitor.deviceName);
     document.getElementById('activity-edit-threshold').value = monitor.threshold;
     document.getElementById('activity-edit-continuity').value = monitor.continuityMinutes || 0;
     document.getElementById('activity-edit-confirmation').value = monitor.minConfirmationSeconds || 0;
-    openModal(activityEditFormWrapper);
+    activityEditForm.open(monitor.id);
   }
-  document.getElementById('activity-edit-cancel-btn').addEventListener('click', function () {
-    editingActivityMonitorSettingsId = null;
-    closeModal(activityEditFormWrapper);
-  });
-  activityEditForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    if (!editingActivityMonitorSettingsId) return;
-    var payload = {
-      name: document.getElementById('activity-edit-name').value,
-      deviceId: document.getElementById('activity-edit-device').value,
-      threshold: document.getElementById('activity-edit-threshold').value,
-      continuityMinutes: document.getElementById('activity-edit-continuity').value,
-      minConfirmationSeconds: document.getElementById('activity-edit-confirmation').value
-    };
-    api('PUT', '/monitors/' + editingActivityMonitorSettingsId, payload).then(function () {
-      closeModal(activityEditFormWrapper);
-      editingActivityMonitorSettingsId = null;
-      return api('GET', '/monitors?period=' + monitorPeriod);
-    }).then(renderMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
-  });
 
+  var activityMessageForm = setupModalForm({
+    wrapperId: 'activity-message-form-wrapper', formId: 'activity-message-form', cancelId: 'activity-message-cancel-btn',
+    listPath: '/monitors', render: renderMonitors,
+    putPath: function (id) { return '/monitors/' + id + '/messages'; },
+    payload: function () {
+      return { messageTemplateStarted: fieldValue('activity-messageTemplateStarted'), messageTemplateFinished: fieldValue('activity-messageTemplateFinished') };
+    }
+  });
   function openActivityMessageForm(monitor) {
-    editingActivityMonitorId = monitor.id;
     document.getElementById('activity-message-form-name').textContent = monitor.name;
     activityPreviewData.device = monitor.name;
     activityPreviewData.monitor = monitor.name;
     document.getElementById('activity-messageTemplateStarted').value = monitor.messageTemplateStarted || '';
     document.getElementById('activity-messageTemplateFinished').value = monitor.messageTemplateFinished || '';
     refreshMessagePreviews();
-    openModal(activityMessageFormWrapper);
+    activityMessageForm.open(monitor.id);
   }
-  document.getElementById('activity-message-cancel-btn').addEventListener('click', function () {
-    editingActivityMonitorId = null;
-    closeModal(activityMessageFormWrapper);
-  });
-  activityMessageForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    if (!editingActivityMonitorId) return;
-    var payload = {
-      messageTemplateStarted: document.getElementById('activity-messageTemplateStarted').value,
-      messageTemplateFinished: document.getElementById('activity-messageTemplateFinished').value
-    };
-    api('PUT', '/monitors/' + editingActivityMonitorId + '/messages', payload).then(function () {
-      closeModal(activityMessageFormWrapper);
-      editingActivityMonitorId = null;
-      return api('GET', '/monitors?period=' + monitorPeriod);
-    }).then(renderMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
-  });
 
-  var stateMessageFormWrapper = document.getElementById('state-message-form-wrapper');
-  var stateMessageForm = document.getElementById('state-message-form');
-  var editingStateMonitorId = null;
-  var lastStateTokenTarget = document.getElementById('state-messageTemplateFinished');
-  Array.prototype.forEach.call(document.querySelectorAll('.state-token-target'), function (el) {
-    el.addEventListener('focus', function () { lastStateTokenTarget = el; });
+  bindTokenInserter('.state-token-btn', '.state-token-target', document.getElementById('state-messageTemplateFinished'));
+  var stateEditForm = setupModalForm({
+    wrapperId: 'state-edit-form-wrapper', formId: 'state-edit-form', cancelId: 'state-edit-cancel-btn',
+    listPath: '/state-monitors', render: renderStateMonitors,
+    putPath: function (id) { return '/state-monitors/' + id; },
+    payload: function () {
+      return {
+        name: fieldValue('state-edit-name'), deviceId: fieldValue('state-edit-device'),
+        trueLabel: fieldValue('state-edit-true-label'), falseLabel: fieldValue('state-edit-false-label'),
+        activeValues: fieldValue('state-edit-active-values')
+      };
+    }
   });
-  Array.prototype.forEach.call(document.querySelectorAll('.state-token-btn'), function (btn) {
-    btn.addEventListener('click', function () {
-      var token = btn.getAttribute('data-token');
-      var start = lastStateTokenTarget.selectionStart || lastStateTokenTarget.value.length;
-      var end = lastStateTokenTarget.selectionEnd || lastStateTokenTarget.value.length;
-      lastStateTokenTarget.value = lastStateTokenTarget.value.slice(0, start) + token + lastStateTokenTarget.value.slice(end);
-      lastStateTokenTarget.focus();
-    });
-  });
-  var stateEditFormWrapper = document.getElementById('state-edit-form-wrapper');
-  var stateEditForm = document.getElementById('state-edit-form');
-  var editingStateMonitorLabelsId = null;
   function openStateEditForm(monitor) {
-    editingStateMonitorLabelsId = monitor.id;
     document.getElementById('state-edit-form-name').textContent = monitor.name;
     document.getElementById('state-edit-name').value = monitor.name;
     populateCompatibleDeviceSelect(document.getElementById('state-edit-device'), monitor.capability, monitor.deviceId, monitor.deviceName);
@@ -929,56 +853,26 @@ function onHomeyReady(Homey) {
     document.getElementById('state-edit-active-values').value = isMultiValue ? monitor.activeValues.join(', ') : '';
     document.getElementById('state-edit-active-values-wrap').classList.toggle('hidden', !isMultiValue);
     document.getElementById('state-edit-active-values-hint').classList.toggle('hidden', !isMultiValue);
-    openModal(stateEditFormWrapper);
+    stateEditForm.open(monitor.id);
   }
-  document.getElementById('state-edit-cancel-btn').addEventListener('click', function () {
-    editingStateMonitorLabelsId = null;
-    closeModal(stateEditFormWrapper);
-  });
-  stateEditForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    if (!editingStateMonitorLabelsId) return;
-    var payload = {
-      name: document.getElementById('state-edit-name').value,
-      deviceId: document.getElementById('state-edit-device').value,
-      trueLabel: document.getElementById('state-edit-true-label').value,
-      falseLabel: document.getElementById('state-edit-false-label').value,
-      activeValues: document.getElementById('state-edit-active-values').value
-    };
-    api('PUT', '/state-monitors/' + editingStateMonitorLabelsId, payload).then(function () {
-      closeModal(stateEditFormWrapper);
-      editingStateMonitorLabelsId = null;
-      return api('GET', '/state-monitors?period=' + monitorPeriod);
-    }).then(renderStateMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
-  });
 
+  var stateMessageForm = setupModalForm({
+    wrapperId: 'state-message-form-wrapper', formId: 'state-message-form', cancelId: 'state-message-cancel-btn',
+    listPath: '/state-monitors', render: renderStateMonitors,
+    putPath: function (id) { return '/state-monitors/' + id + '/messages'; },
+    payload: function () {
+      return { messageTemplateStarted: fieldValue('state-messageTemplateStarted'), messageTemplateFinished: fieldValue('state-messageTemplateFinished') };
+    }
+  });
   function openStateMessageForm(monitor) {
-    editingStateMonitorId = monitor.id;
     document.getElementById('state-message-form-name').textContent = monitor.name;
     statePreviewData.device = monitor.name;
     statePreviewData.monitor = monitor.name;
     document.getElementById('state-messageTemplateStarted').value = monitor.messageTemplateStarted || '';
     document.getElementById('state-messageTemplateFinished').value = monitor.messageTemplateFinished || '';
     refreshMessagePreviews();
-    openModal(stateMessageFormWrapper);
+    stateMessageForm.open(monitor.id);
   }
-  document.getElementById('state-message-cancel-btn').addEventListener('click', function () {
-    editingStateMonitorId = null;
-    closeModal(stateMessageFormWrapper);
-  });
-  stateMessageForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    if (!editingStateMonitorId) return;
-    var payload = {
-      messageTemplateStarted: document.getElementById('state-messageTemplateStarted').value,
-      messageTemplateFinished: document.getElementById('state-messageTemplateFinished').value
-    };
-    api('PUT', '/state-monitors/' + editingStateMonitorId + '/messages', payload).then(function () {
-      closeModal(stateMessageFormWrapper);
-      editingStateMonitorId = null;
-      return api('GET', '/state-monitors?period=' + monitorPeriod);
-    }).then(renderStateMonitors).catch(function (error) { Homey.alert(error.message || String(error)); });
-  });
 
   function renderBinaryCounters(counters) {
     var container = document.getElementById('binary-counters-body');
@@ -993,64 +887,29 @@ function onHomeyReady(Homey) {
       var row = entityRow(escapeHtml(counter.name), metaBits);
       if (monitorPeriod === 'day') {
       row.appendChild(entityActions([
-        actionLink('Message', function () { openBinaryMessageForm(counter); }),
-        actionLink('Reset', function () {
-          confirmAction('Reset statistics for "' + counter.name + '"? This keeps the counter and its message, only the count/history is wiped.', function () {
-            api('POST', '/binary-counters/' + counter.id + '/reset')
-              .then(function () { return api('GET', '/binary-counters?period=' + monitorPeriod); })
-              .then(renderBinaryCounters)
-              .catch(function (error) { Homey.alert(error.message || String(error)); });
-          });
-        }),
-        actionLink('Delete', function () {
-          confirmAction('Delete binary counter "' + counter.name + '"?', function () {
-            api('DELETE', '/binary-counters/' + counter.id)
-              .then(function () { return api('GET', '/binary-counters?period=' + monitorPeriod); })
-              .then(renderBinaryCounters)
-              .catch(function (error) { Homey.alert(error.message || String(error)); });
-          });
-        }, true)
-      ]));
+        actionLink('Message', function () { openBinaryMessageForm(counter); })
+      ].concat(resetAndDeleteLinks({ item: counter, path: '/binary-counters', render: renderBinaryCounters, resetKeeps: 'This keeps the counter and its message, only the count/history is wiped.', deleteWhat: 'binary counter' }))));
       }
       container.appendChild(row);
     });
   }
   function formatNumberOrDash(value) { return value === null || value === undefined ? '—' : String(value); }
 
-  var binaryMessageFormWrapper = document.getElementById('binary-message-form-wrapper');
-  var binaryMessageForm = document.getElementById('binary-message-form');
-  var editingBinaryCounterId = null;
   var binaryMessageInput = document.getElementById('binary-messageTemplate');
-  Array.prototype.forEach.call(document.querySelectorAll('.binary-token-btn'), function (btn) {
-    btn.addEventListener('click', function () {
-      var token = btn.getAttribute('data-token');
-      var start = binaryMessageInput.selectionStart || binaryMessageInput.value.length;
-      var end = binaryMessageInput.selectionEnd || binaryMessageInput.value.length;
-      binaryMessageInput.value = binaryMessageInput.value.slice(0, start) + token + binaryMessageInput.value.slice(end);
-      binaryMessageInput.focus();
-    });
+  bindTokenInserter('.binary-token-btn', null, binaryMessageInput);
+  var binaryMessageForm = setupModalForm({
+    wrapperId: 'binary-message-form-wrapper', formId: 'binary-message-form', cancelId: 'binary-message-cancel-btn',
+    listPath: '/binary-counters', render: renderBinaryCounters,
+    putPath: function (id) { return '/binary-counters/' + id + '/message'; },
+    payload: function () { return { messageTemplate: binaryMessageInput.value }; }
   });
   function openBinaryMessageForm(counter) {
-    editingBinaryCounterId = counter.id;
     document.getElementById('binary-message-form-name').textContent = counter.name;
     binaryPreviewData.counter = counter.name;
     binaryMessageInput.value = counter.messageTemplate || '';
     refreshMessagePreviews();
-    openModal(binaryMessageFormWrapper);
+    binaryMessageForm.open(counter.id);
   }
-  document.getElementById('binary-message-cancel-btn').addEventListener('click', function () {
-    editingBinaryCounterId = null;
-    closeModal(binaryMessageFormWrapper);
-  });
-  binaryMessageForm.addEventListener('submit', function (event) {
-    event.preventDefault();
-    if (!editingBinaryCounterId) return;
-    api('PUT', '/binary-counters/' + editingBinaryCounterId + '/message', { messageTemplate: binaryMessageInput.value }).then(function () {
-      closeModal(binaryMessageFormWrapper);
-      editingBinaryCounterId = null;
-      return api('GET', '/binary-counters?period=' + monitorPeriod);
-    }).then(renderBinaryCounters).catch(function (error) { Homey.alert(error.message || String(error)); });
-  });
 
   var availabilityWatchdogFormWrapper = document.getElementById('availability-watchdog-form-wrapper');
   var availabilityWatchdogForm = document.getElementById('availability-watchdog-form');
