@@ -21,6 +21,6 @@
     "en": "Fixes"
   },
   "1.0.7": {
-    "en": "Activity, State and Voltage monitors can now have their device and name changed from the Edit form, instead of deleting and recreating the monitor (which used to lose its history).\n\"Fill default wording for this type\" (Group messages) now also covers Italian, Spanish, Swedish, Norwegian and Danish, on top of English, Dutch, German and French."
+    "en": "Activity, State and Voltage monitors can now have their device and name changed from the Edit form, instead of deleting and recreating the monitor (which used to lose its history).\nFill default wording for this type (Group messages) now also covers Italian, Spanish, Swedish, Norwegian and Danish, on top of English, Dutch, German and French."
   }
 }
