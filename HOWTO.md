@@ -243,7 +243,9 @@ Open the app's Settings from Homey. Three tabs:
 device list is the hard part: **Capability** first (what the devices actually offer, with how many devices have
 each — power for Activity, voltage for Voltage, on/off or multi-state for State), then **Zone** (only zones that
 have a device with that capability, with counts, or *All zones*), then the **Device** itself. Activity monitors
-list only power capabilities (`measure_power` and its phases).
+list only power capabilities (`measure_power` and its phases). State monitors list, by default, only capabilities that describe a state (alarms, on/off, locks,
+door and cover state, connection, playing, and multi-state ones whose id ends in operation, state or status);
+tick **Show every capability** to also list buttons, settings and text.
 
 **Edit** on an Activity, State or Voltage monitor can also **rename** it and **change its device** (it must
 have the monitor's capability). The monitor keeps its history and settings, so a device that was re-paired
