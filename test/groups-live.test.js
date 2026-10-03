@@ -17,6 +17,7 @@ async function fakeApp({ initial = {}, groupType = 'switch', expectedState = tru
   const app = Object.assign({
     store,
     _groupLive: new Map(),
+    _groupWatchGeneration: new Map(),
     _groupMissing: new Map(),
     log: () => {}, error: () => {}, _logEvent: () => {}, _scheduleSave: () => {}, _getTimezone: () => 'UTC',
     homey: { setTimeout: (fn, ms) => setTimeout(fn, ms) },
@@ -186,4 +187,27 @@ test('a group left with fewer than two devices is kept but no longer checked', a
   assert.equal(result.remaining, 1);
   await app._pollGroups(); // skipped: needs two devices, and must not throw
   assert.equal(group.devices.length, 1);
+});
+
+test('restarting a group watch makes an older failing retry loop stop instead of tearing down the newer watch', async () => {
+  const { app, group } = await fakeApp({ initial: { a: true, b: true, c: true } });
+  const timers = [];
+  app.homey.setTimeout = (fn) => { timers.push(fn); return timers.length; };
+  const real = app.gateway.subscribeCapabilities;
+  let failing = true;
+  app.gateway.subscribeCapabilities = async function (...args) {
+    if (failing) throw new Error('Homey not ready');
+    return real.apply(this, args);
+  };
+  app._startGroupWatch(group); // first start fails and schedules a retry
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(timers.length, 1);
+  failing = false;
+  app._startGroupWatch(group); // the group was edited: starts over and works
+  await new Promise((resolve) => setImmediate(resolve));
+  const liveAfterRestart = app._groupLive.get(group.id);
+  assert.ok(liveAfterRestart && liveAfterRestart.ready);
+  timers[0](); // the old loop wakes up
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(app._groupLive.get(group.id), liveAfterRestart, 'the old retry loop must not replace the newer watch');
 });

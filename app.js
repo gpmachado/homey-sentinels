@@ -84,6 +84,7 @@ class StatisticTrackerApp extends Homey.App {
       matchedAgain: this.homey.flow.getTriggerCard('group_matched_again')
     };
     this._groupLive = new Map(); // groupId -> live member values (see lib/app/groups.js)
+    this._groupWatchGeneration = new Map(); // groupId -> how many times its watch was (re)started, so older retry loops stop
     this._groupMissing = new Map(); // groupId -> Map(deviceId -> polls in a row it was missing from Homey)
     this.availabilityCards = {
       unavailable: this.homey.flow.getTriggerCard('device_became_unavailable'),

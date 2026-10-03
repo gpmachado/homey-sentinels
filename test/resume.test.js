@@ -83,3 +83,29 @@ test('other failures are retried without limit, and onStarted is called when the
   assert.equal(started, 1);
   assert.equal(scheduled.length, 6);
 });
+
+test('a start that works after the monitor stopped being wanted is not reported as started, and is undone', async () => {
+  const started = [];
+  const abandoned = [];
+  let wanted = true;
+  let finishStart;
+  resumeWithRetry({
+    label: '[Late]', start: () => new Promise((resolve) => { finishStart = resolve; }), isStillWanted: () => wanted,
+    schedule: () => {}, onStarted: () => started.push(1), onAbandoned: () => abandoned.push(1)
+  });
+  await flush();
+  wanted = false; // deleted (or flagged missing) while the attempt was in flight
+  finishStart();
+  await flush();
+  assert.deepEqual(started, []);
+  assert.deepEqual(abandoned, [1]);
+});
+
+test('a start that works while the monitor is still wanted reports started and does not abandon', async () => {
+  const started = [];
+  const abandoned = [];
+  resumeWithRetry({ label: '[Ok]', start: async () => {}, isStillWanted: () => true, schedule: () => {}, onStarted: () => started.push(1), onAbandoned: () => abandoned.push(1) });
+  await flush();
+  assert.deepEqual(started, [1]);
+  assert.deepEqual(abandoned, []);
+});
