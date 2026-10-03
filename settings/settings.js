@@ -1208,14 +1208,25 @@ function onHomeyReady(Homey) {
   // have a device with it, then the device.
   function byName(a, b) { return a.name.localeCompare(b.name); }
   function findDevice(id) { return allDevices.filter(function (d) { return d.id === id; })[0]; }
-  function eligibleCapabilities(device, kind) {
+  // A State monitor tracks something that holds for a while (open/closed, on/off, a washer running). A device also has
+  // dozens of capabilities that never are one: buttons, media controls, maintenance actions, settings, firmware, free
+  // text. By default only the ones that read as a state are offered, and "Show every capability" lists the rest.
+  // On/off-type: alarms, switches, lock, door and cover state, connection, playing. Multi-state: the id ends in
+  // operation, state or status (machine_state, WM-operation, DEVICE-state, status_string).
+  var STATE_LIKE_BOOLEAN = /^(alarm_|onoff|garagedoor_closed|locked|windowcoverings_closed|connected|speaker_playing)/;
+  var STATE_LIKE_MULTI = /(operation|state|status)(_string)?$/i;
+  function isStateLike(capabilityId, type) {
+    return type === 'boolean' ? STATE_LIKE_BOOLEAN.test(capabilityId) : STATE_LIKE_MULTI.test(capabilityId);
+  }
+  function eligibleCapabilities(device, kind, showAll) {
     if (!device) return [];
     var caps = device.capabilities || [];
     if (kind === 'activity') return caps.filter(function (c) { return c.indexOf('measure_power') === 0; });
     if (kind === 'voltage') return caps.filter(function (c) { return c.indexOf('measure_voltage') === 0; });
     if (kind === 'state') return caps.filter(function (c) {
       var type = device.capabilitiesObj && device.capabilitiesObj[c] && device.capabilitiesObj[c].type;
-      return type === 'boolean' || type === 'enum' || type === 'string';
+      if (type !== 'boolean' && type !== 'enum' && type !== 'string') return false;
+      return showAll || isStateLike(c, type);
     });
     return caps;
   }
@@ -1234,11 +1245,11 @@ function onHomeyReady(Homey) {
     selectEl.appendChild(opt);
   }
   // Every capability a monitor of this kind can use, among all devices, with how many devices have it.
-  function populateCapabilitySelect(selectEl, kind, preselect) {
+  function populateCapabilitySelect(selectEl, kind, preselect, showAll) {
     selectEl.innerHTML = '';
     var found = {};
     allDevices.forEach(function (device) {
-      eligibleCapabilities(device, kind).forEach(function (cap) {
+      eligibleCapabilities(device, kind, showAll).forEach(function (cap) {
         var title = device.capabilitiesObj && device.capabilitiesObj[cap] && device.capabilitiesObj[cap].title;
         found[cap] = found[cap] || { id: cap, title: title || cap, count: 0 };
         found[cap].count += 1;
@@ -1302,7 +1313,8 @@ function onHomeyReady(Homey) {
   // Wires Capability -> Zone -> Device for all three "Add monitor" forms (one place instead of a hand-wired
   // copy per form). `refresh()` fills everything from the loaded device list; `options.preselectCapability` mirrors
   // Activity's "default to measure_power"; `options.onChange` is how State shows its active-values field for a
-  // multi-state capability, and runs whenever the capability or the device changes.
+  // multi-state capability, and runs whenever the capability or the device changes; `options.showAll()` says whether to
+  // list every capability instead of only the ones that fit the kind best (State).
   function setupDeviceCapabilityPicker(prefix, kind, options) {
     options = options || {};
     var capabilityEl = document.getElementById(prefix + '-capability');
@@ -1311,7 +1323,7 @@ function onHomeyReady(Homey) {
     function changed() { if (options.onChange) options.onChange(); }
     function refreshDevices() { populateDeviceSelect(deviceEl, zoneEl.value, capabilityEl.value); changed(); }
     function refreshZones() { populateZoneSelect(zoneEl, capabilityEl.value); refreshDevices(); }
-    function refresh() { populateCapabilitySelect(capabilityEl, kind, options.preselectCapability); refreshZones(); }
+    function refresh() { populateCapabilitySelect(capabilityEl, kind, options.preselectCapability, options.showAll ? options.showAll() : false); refreshZones(); }
     capabilityEl.addEventListener('change', refreshZones);
     zoneEl.addEventListener('change', refreshDevices);
     deviceEl.addEventListener('change', changed);
@@ -1388,7 +1400,11 @@ function onHomeyReady(Homey) {
     stateAddActiveValuesWrap.classList.toggle('hidden', !needsActiveValues);
     stateAddActiveValuesHint.classList.toggle('hidden', !needsActiveValues);
   }
-  var statePicker = setupDeviceCapabilityPicker('state-add', 'state', { onChange: refreshStateActiveValuesVisibility });
+  var statePicker = setupDeviceCapabilityPicker('state-add', 'state', {
+    onChange: refreshStateActiveValuesVisibility,
+    showAll: function () { return document.getElementById('state-add-show-all').checked; }
+  });
+  document.getElementById('state-add-show-all').addEventListener('change', function () { statePicker.refresh(); });
   document.getElementById('add-state-monitor-btn').addEventListener('click', function () {
     if (!requireDevices()) return;
     stateAddForm.reset();

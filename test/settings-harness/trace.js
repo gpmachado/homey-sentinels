@@ -87,6 +87,17 @@ window.runTrace = async () => {
     click($(kind + '-add-cancel-btn')); await wait();
   }
 
+  // State: by default only capabilities that read as a state; the checkbox lists every capability
+  click($('add-state-monitor-btn')); await wait();
+  const stateIds = () => [...$('state-add-capability').options].map((o) => o.value);
+  const defaultIds = stateIds();
+  $('state-add-show-all').checked = true; $('state-add-show-all').dispatchEvent(new Event('change', { bubbles: true })); await wait();
+  const allIds = stateIds();
+  rec('add state | state-like only by default, everything with show-all', { defaultIds, extraWithShowAll: allIds.filter((id) => defaultIds.indexOf(id) === -1) });
+  $('state-add-show-all').checked = false; $('state-add-show-all').dispatchEvent(new Event('change', { bubbles: true })); await wait();
+  rec('add state | back to the short list', { ids: stateIds() });
+  click($('state-add-cancel-btn')); await wait();
+
   // Default message language: the options, choosing one, and the group's Fill default wording using the app's wording
   const lang = $('message-language');
   rec('message language | options', { options: [...lang.options].map((o) => o.value + '=' + o.textContent), value: lang.value });
