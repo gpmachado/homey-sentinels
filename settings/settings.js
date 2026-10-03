@@ -1201,14 +1201,17 @@ function onHomeyReady(Homey) {
     }
   }
 
-  // Shared by the three "Add monitor" forms below — same device-then-capability picker
-  // idea as the Flow cards' own autocomplete, just backed by the already-cached
-  // `allDevices` list instead of a live query.
+  // Shared by the three "Add monitor" forms below, backed by the already-cached `allDevices` list instead of a
+  // live query. With a couple of hundred devices a long list to scroll is the hard part, so the picker narrows
+  // from the most selective choice: the capability first (a monitor kind only ever uses one kind of capability:
+  // power for Activity, voltage for Voltage, on/off or multi-state for State), then the zone among the zones that
+  // have a device with it, then the device.
   function byName(a, b) { return a.name.localeCompare(b.name); }
   function findDevice(id) { return allDevices.filter(function (d) { return d.id === id; })[0]; }
   function eligibleCapabilities(device, kind) {
     if (!device) return [];
     var caps = device.capabilities || [];
+    if (kind === 'activity') return caps.filter(function (c) { return c.indexOf('measure_power') === 0; });
     if (kind === 'voltage') return caps.filter(function (c) { return c.indexOf('measure_voltage') === 0; });
     if (kind === 'state') return caps.filter(function (c) {
       var type = device.capabilitiesObj && device.capabilitiesObj[c] && device.capabilitiesObj[c].type;
@@ -1221,26 +1224,54 @@ function onHomeyReady(Homey) {
   // the device list itself. `getDevices()` only gives us each device's resolved zoneName
   // (no zoneId), so filtering matches on that string directly — fine, since it's what's
   // actually shown to the user anyway.
-  function populateZoneSelect(selectEl) {
-    var current = selectEl.value;
+  function devicesWithCapability(capability) {
+    return allDevices.filter(function (device) { return (device.capabilities || []).indexOf(capability) !== -1; });
+  }
+  function emptyOption(selectEl, text) {
+    var opt = document.createElement('option');
+    opt.value = '';
+    opt.textContent = text;
+    selectEl.appendChild(opt);
+  }
+  // Every capability a monitor of this kind can use, among all devices, with how many devices have it.
+  function populateCapabilitySelect(selectEl, kind, preselect) {
     selectEl.innerHTML = '';
-    var allOpt = document.createElement('option');
-    allOpt.value = '';
-    allOpt.textContent = 'All zones';
-    selectEl.appendChild(allOpt);
-    var seen = {};
-    allDevices.forEach(function (d) { if (d.zoneName) seen[d.zoneName] = true; });
-    Object.keys(seen).sort().forEach(function (zone) {
+    var found = {};
+    allDevices.forEach(function (device) {
+      eligibleCapabilities(device, kind).forEach(function (cap) {
+        var title = device.capabilitiesObj && device.capabilitiesObj[cap] && device.capabilitiesObj[cap].title;
+        found[cap] = found[cap] || { id: cap, title: title || cap, count: 0 };
+        found[cap].count += 1;
+      });
+    });
+    var list = Object.keys(found).map(function (cap) { return found[cap]; }).sort(function (a, b) { return a.title.localeCompare(b.title); });
+    if (!list.length) { emptyOption(selectEl, 'No device has a capability this monitor can use'); return; }
+    list.forEach(function (item) {
       var opt = document.createElement('option');
-      opt.value = zone;
-      opt.textContent = zone;
+      opt.value = item.id;
+      opt.textContent = item.title + ' (' + item.id + ') — ' + item.count + ' device' + (item.count === 1 ? '' : 's');
       selectEl.appendChild(opt);
     });
-    selectEl.value = current || '';
+    selectEl.value = found[preselect] ? preselect : list[0].id;
   }
-  function populateDeviceSelect(selectEl, zoneName) {
+  // Only the zones that have a device with the chosen capability; the zone already picked stays if it still fits.
+  function populateZoneSelect(selectEl, capability) {
+    var current = selectEl.value;
     selectEl.innerHTML = '';
-    allDevices.slice()
+    emptyOption(selectEl, 'All zones');
+    var counts = {};
+    devicesWithCapability(capability).forEach(function (d) { if (d.zoneName) counts[d.zoneName] = (counts[d.zoneName] || 0) + 1; });
+    Object.keys(counts).sort().forEach(function (zone) {
+      var opt = document.createElement('option');
+      opt.value = zone;
+      opt.textContent = zone + ' (' + counts[zone] + ')';
+      selectEl.appendChild(opt);
+    });
+    selectEl.value = counts[current] ? current : '';
+  }
+  function populateDeviceSelect(selectEl, zoneName, capability) {
+    selectEl.innerHTML = '';
+    devicesWithCapability(capability)
       .filter(function (device) { return !zoneName || device.zoneName === zoneName; })
       .sort(byName)
       .forEach(function (device) {
@@ -1268,41 +1299,23 @@ function onHomeyReady(Homey) {
       selectEl.value = currentId;
     }
   }
-  function populateCapabilitySelect(selectEl, device, kind, preselect) {
-    selectEl.innerHTML = '';
-    eligibleCapabilities(device, kind).forEach(function (cap) {
-      var opt = document.createElement('option');
-      opt.value = cap;
-      var title = device.capabilitiesObj && device.capabilitiesObj[cap] && device.capabilitiesObj[cap].title;
-      opt.textContent = (title || cap) + ' (' + cap + ')';
-      selectEl.appendChild(opt);
-    });
-    if (preselect) selectEl.value = preselect;
-  }
-
-  // Wires the Zone -> Device -> Capability cascade shared by all three "Add monitor" forms —
-  // previously each form (Activity/Voltage/State) hand-wired its own near-identical
-  // refreshXDevices/refreshXCapabilities pair on top of the populate* functions above; this
-  // factory is the one place that logic lives now. `options.preselectCapability` mirrors
-  // Activity's "default to measure_power" behavior; `options.onCapabilityChange` is how State
-  // hooks in its "show the active-values field for a multi-value capability" behavior.
+  // Wires Capability -> Zone -> Device for all three "Add monitor" forms (one place instead of a hand-wired
+  // copy per form). `refresh()` fills everything from the loaded device list; `options.preselectCapability` mirrors
+  // Activity's "default to measure_power"; `options.onChange` is how State shows its active-values field for a
+  // multi-state capability, and runs whenever the capability or the device changes.
   function setupDeviceCapabilityPicker(prefix, kind, options) {
     options = options || {};
+    var capabilityEl = document.getElementById(prefix + '-capability');
     var zoneEl = document.getElementById(prefix + '-zone');
     var deviceEl = document.getElementById(prefix + '-device');
-    var capabilityEl = document.getElementById(prefix + '-capability');
-    function refreshCapabilities() {
-      populateCapabilitySelect(capabilityEl, findDevice(deviceEl.value), kind, options.preselectCapability);
-      if (options.onCapabilityChange) options.onCapabilityChange();
-    }
-    function refreshDevices() {
-      populateDeviceSelect(deviceEl, zoneEl.value);
-      refreshCapabilities();
-    }
+    function changed() { if (options.onChange) options.onChange(); }
+    function refreshDevices() { populateDeviceSelect(deviceEl, zoneEl.value, capabilityEl.value); changed(); }
+    function refreshZones() { populateZoneSelect(zoneEl, capabilityEl.value); refreshDevices(); }
+    function refresh() { populateCapabilitySelect(capabilityEl, kind, options.preselectCapability); refreshZones(); }
+    capabilityEl.addEventListener('change', refreshZones);
     zoneEl.addEventListener('change', refreshDevices);
-    deviceEl.addEventListener('change', refreshCapabilities);
-    if (options.onCapabilityChange) capabilityEl.addEventListener('change', options.onCapabilityChange);
-    return { zoneEl: zoneEl, refreshDevices: refreshDevices };
+    deviceEl.addEventListener('change', changed);
+    return { refresh: refresh };
   }
 
   // --- Add activity monitor ---
@@ -1314,8 +1327,7 @@ function onHomeyReady(Homey) {
   document.getElementById('add-activity-monitor-btn').addEventListener('click', function () {
     if (!requireDevices()) return;
     activityAddForm.reset();
-    populateZoneSelect(activityPicker.zoneEl);
-    activityPicker.refreshDevices();
+    activityPicker.refresh();
     openModal(activityAddWrapper);
   });
   document.getElementById('activity-add-cancel-btn').addEventListener('click', function () { closeModal(activityAddWrapper); });
@@ -1342,8 +1354,7 @@ function onHomeyReady(Homey) {
   document.getElementById('add-voltage-monitor-btn').addEventListener('click', function () {
     if (!requireDevices()) return;
     voltageAddForm.reset();
-    populateZoneSelect(voltagePicker.zoneEl);
-    voltagePicker.refreshDevices();
+    voltagePicker.refresh();
     openModal(voltageAddWrapper);
   });
   document.getElementById('voltage-add-cancel-btn').addEventListener('click', function () { closeModal(voltageAddWrapper); });
@@ -1377,12 +1388,11 @@ function onHomeyReady(Homey) {
     stateAddActiveValuesWrap.classList.toggle('hidden', !needsActiveValues);
     stateAddActiveValuesHint.classList.toggle('hidden', !needsActiveValues);
   }
-  var statePicker = setupDeviceCapabilityPicker('state-add', 'state', { onCapabilityChange: refreshStateActiveValuesVisibility });
+  var statePicker = setupDeviceCapabilityPicker('state-add', 'state', { onChange: refreshStateActiveValuesVisibility });
   document.getElementById('add-state-monitor-btn').addEventListener('click', function () {
     if (!requireDevices()) return;
     stateAddForm.reset();
-    populateZoneSelect(statePicker.zoneEl);
-    statePicker.refreshDevices();
+    statePicker.refresh();
     openModal(stateAddWrapper);
   });
   document.getElementById('state-add-cancel-btn').addEventListener('click', function () { closeModal(stateAddWrapper); });

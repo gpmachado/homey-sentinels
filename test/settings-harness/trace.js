@@ -70,6 +70,23 @@ window.runTrace = async () => {
       rec('row action | ' + body + ' | ' + label, { calls: since(m), rowsAfter: $(body).querySelectorAll('.entity-row').length });
     }
   }
+  // The three Add forms: capability first, then the zones that have it, then the devices
+  const opts = (id) => [...$(id).options].map((o) => o.value + '=' + o.textContent);
+  const pick = (id) => ({ capability: $(id + '-capability').value, capabilities: opts(id + '-capability'), zones: opts(id + '-zone'), devices: opts(id + '-device') });
+  const change = (el, value) => { el.value = value; el.dispatchEvent(new Event('change', { bubbles: true })); };
+  for (const [kind, button, payload] of [['activity', 'add-activity-monitor-btn', { 'activity-add-name': 'New pump' }], ['voltage', 'add-voltage-monitor-btn', { 'voltage-add-min': '210', 'voltage-add-max': '240' }], ['state', 'add-state-monitor-btn', {}]]) {
+    click($(button)); await wait();
+    rec('add ' + kind + ' | opened', pick(kind + '-add'));
+    const caps = [...$(kind + '-add-capability').options].map((o) => o.value).filter(Boolean);
+    if (caps.length > 1) { change($(kind + '-add-capability'), caps[caps.length - 1]); await wait(); rec('add ' + kind + ' | other capability', Object.assign(pick(kind + '-add'), { activeValuesHidden: kind === 'state' ? $('state-add-active-values-wrap').classList.contains('hidden') : null })); }
+    const zones = [...$(kind + '-add-zone').options].map((o) => o.value).filter(Boolean);
+    if (zones.length) { change($(kind + '-add-zone'), zones[0]); await wait(); rec('add ' + kind + ' | zone ' + zones[0], pick(kind + '-add')); }
+    Object.entries(payload).forEach(([id, v]) => { $(id).value = v; });
+    const m = mark(); submit(kind + '-add-form'); await wait(120);
+    rec('add ' + kind + ' | submitted', since(m));
+    click($(kind + '-add-cancel-btn')); await wait();
+  }
+
   // Default message language: the options, choosing one, and the group's Fill default wording using the app's wording
   const lang = $('message-language');
   rec('message language | options', { options: [...lang.options].map((o) => o.value + '=' + o.textContent), value: lang.value });
