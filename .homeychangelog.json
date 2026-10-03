@@ -24,6 +24,6 @@
     "en": "Activity, State and Voltage monitors can now have their device and name changed from the Edit form, instead of deleting and recreating the monitor (which used to lose its history).\nFill default wording for this type (Group messages) now also covers Italian, Spanish, Swedish, Norwegian and Danish, on top of English, Dutch, German and French.\nNumber tokens given to Flows are rounded to three decimals, so a total like 3.9199999999999997 kWh now reads 3.92."
   },
   "1.0.8": {
-    "en": "Voltage messages can now use power and energy placeholders when the device reports them, and new Voltage monitors start with ready-made wording in your Homey language.\nThe Cost today exceeds an amount trigger no longer fires twice or misses an exact amount, and its smallest amount is now 0.01. The two voltage monitors apart condition now means strictly more than the percent you set.\nSettings: token buttons show their category color, the Copy button turns green when it copies, more tokens have buttons (time, duration, cost text and others), and a monitor that found its threshold says when it will be applied.\nFixes for monitors and groups that were deleted or edited while their device was unavailable."
+    "en": "Voltage messages can use power and energy placeholders and new Voltage monitors start with wording in your Homey language. Cost threshold and phase imbalance fixes, clearer token buttons in Settings, and fixes for deleted or edited monitors and groups."
   }
 }
