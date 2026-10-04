@@ -950,6 +950,7 @@ function onHomeyReady(Homey) {
     var wrapper = document.getElementById('availability-scan');
     var scanButton = document.getElementById('availability-scan-btn');
     var enabled = lastScan && lastScan.enabled;
+    document.getElementById('availability-scan-switch').checked = Boolean(enabled);
     scanButton.classList.toggle('hidden', !enabled);
     scanProblemById = {};
     excludedIds = {};
@@ -1083,13 +1084,26 @@ function onHomeyReady(Homey) {
       showError(error);
     });
   }
+  // The master switch: scan every device without a watchdog, or only watch the ones that have one. Turning it on
+  // runs a scan at once so the tiles are not empty until the next interval.
+  var scanSwitch = document.getElementById('availability-scan-switch');
+  scanSwitch.addEventListener('change', function () {
+    var on = scanSwitch.checked;
+    scanSwitch.disabled = true;
+    api('POST', '/availability-settings', { scanAll: on })
+      .then(function (saved) {
+        availabilityDefaults = saved;
+        return on ? api('POST', '/availability-scan').catch(function () { return null; }) : null;
+      })
+      .then(function () { scanSwitch.disabled = false; return loadAll(); })
+      .catch(function (error) { scanSwitch.disabled = false; scanSwitch.checked = !on; showError(error); });
+  });
   var DEFAULT_FIELDS = ['defaultThresholdHours', 'startupGraceMinutes', 'unavailableDelaySeconds', 'batteryWarnPercent', 'batteryDelaySeconds', 'scanIntervalMinutes'];
   var defaultsFormWrapper = document.getElementById('availability-defaults-form-wrapper');
   function defaultsField(name) { return document.getElementById('availability-defaults-' + name); }
   function fillDefaultsForm(settings) {
     DEFAULT_FIELDS.forEach(function (name) { defaultsField(name).value = settings[name]; });
     defaultsField('timelineNotifications').checked = settings.timelineNotifications !== false;
-    defaultsField('scanAll').checked = settings.scanAll !== false;
     defaultsField('scanAnnounceSilent').checked = settings.scanAnnounceSilent === true;
   }
   document.getElementById('availability-defaults-btn').addEventListener('click', function () {
@@ -1102,7 +1116,7 @@ function onHomeyReady(Homey) {
   document.getElementById('availability-defaults-cancel-btn').addEventListener('click', function () { closeModal(defaultsFormWrapper); });
   document.getElementById('availability-defaults-form').addEventListener('submit', function (event) {
     event.preventDefault();
-    var body = { timelineNotifications: defaultsField('timelineNotifications').checked, scanAll: defaultsField('scanAll').checked, scanAnnounceSilent: defaultsField('scanAnnounceSilent').checked };
+    var body = { timelineNotifications: defaultsField('timelineNotifications').checked, scanAnnounceSilent: defaultsField('scanAnnounceSilent').checked };
     DEFAULT_FIELDS.forEach(function (name) { body[name] = Number(defaultsField(name).value); });
     api('POST', '/availability-settings', body).then(function (saved) {
       availabilityDefaults = saved;

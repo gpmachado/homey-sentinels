@@ -374,6 +374,13 @@
   <div class="tab-panel hidden" data-tab="availability">
     <h2>Device availability</h2>
     <p class="hint">All of Homey's devices, no configuration needed to just look — last seen and current availability. Add a watchdog to a device to also fire a Flow when it goes unavailable or stops reporting.</p>
+    <label class="switch-card" for="availability-scan-switch">
+      <input type="checkbox" id="availability-scan-switch">
+      <span>
+        <span class="switch-card-title">Availability tracking</span>
+        <span class="switch-card-text">When on, Sentinels checks every device that has no watchdog of its own, with the watchdog defaults, and reports the ones that stopped reporting, went unavailable or have a low battery. When off, only the devices you gave a watchdog are watched. A single device can be left out with its Track switch.</span>
+      </span>
+    </label>
     <div id="availability-scan" class="hidden">
       <div class="tiles" id="availability-scan-tiles"></div>
       <p class="hint" id="availability-scan-stamp"></p>
@@ -413,11 +420,6 @@
       <label>Seconds a battery must stay low before it counts
         <input type="number" id="availability-defaults-batteryDelaySeconds" min="0" step="1" required>
       </label>
-      <label class="checkbox-row">
-        <input type="checkbox" id="availability-defaults-scanAll">
-        Check every device that has no watchdog, with these defaults
-      </label>
-      <p class="hint">Reads the whole device list once per interval below. Turn it off to watch only the devices you added a watchdog to.</p>
       <label class="checkbox-row">
         <input type="checkbox" id="availability-defaults-scanAnnounceSilent">
         Also announce devices that are only silent (timeline and Flow)

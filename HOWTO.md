@@ -209,7 +209,8 @@ defaults, about two minutes after the app starts and then once an hour:
 
 Settings → Availability shows a tile for each, and tapping a tile filters the list. **Scan now**
 runs it right away. Each row has an amber **Silent N d** badge when a device says `available` but
-has gone quiet — battery sensors never flip that flag when they die. Each device without a watchdog has a **Track** switch: turn it off and the scan leaves that
+has gone quiet — battery sensors never flip that flag when they die. At the top of the tab the **Availability tracking** switch turns the all-devices scan on or off (off: only devices
+with a watchdog are watched; turning it on scans at once). Each device without a watchdog also has a **Track** switch: turn it off and the scan leaves that
 device out (it still shows in the list), turn it on again to bring it back. The **Apps** list lets you tick whole apps that the scan should not monitor (virtual devices that
 only report when used, such as a light switched by a Flow) and give an app its **own silence limit in
 hours** — solar panels are silent all night, so 36 h there keeps a real failure visible without a daily
