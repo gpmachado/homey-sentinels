@@ -1645,7 +1645,7 @@
           "en": "!{{[[monitor_a]] and [[monitor_b]] differ by more than|do not differ by more than}} [[percent]]%"
         },
         "hint": {
-          "en": "Compares the current reading of two Voltage monitors (e.g. two phases of a three-phase meter, watched as separate monitors) as a percent of their average: |A - B| / ((A + B) / 2) x 100. For more than two phases, chain this condition once per pair with AND/OR. False while either monitor has no reading yet."
+          "en": "Compares the current reading of two Voltage monitors (e.g. two phases of a three-phase meter, watched as separate monitors) as a percent of their average: |A - B| / ((A + B) / 2) x 100. For more than two phases, chain this condition once per pair with AND/OR. Compare monitors that read the same thing (phase-neutral with phase-neutral, phase-phase with phase-phase). False while either monitor has no reading yet."
         },
         "args": [
           {

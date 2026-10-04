@@ -146,14 +146,16 @@ the median and percentiles and the trend, with the same rules as section 3.
 
 ## 5. Voltage: one monitor per phase
 
-**Set up.** **Add voltage monitor** (device: the meter, capability `Voltage Phase A`, range `210`–`240` V).
+**Set up.** **Add voltage monitor** (device: the meter, capability `Voltage Phase A`). The range depends on
+what that reading is: `108`–`132` V for a 120 V phase-to-neutral reading, `198`–`242` V for a 220 V one. The
+examples below use a 120 V phase.
 
-**Sample readings.** 229.8, 228.1 (normal), then 204.3 and 206.9 (low), then back to 228.4 and 229.0.
+**Sample readings.** 119.8, 118.1 (normal), then 104.3 and 106.9 (low), then back to 118.4 and 119.0.
 
 | Moment | Card | Tokens |
 |---|---|---|
-| first reading under 210 | **Undervoltage detected** | `voltage` = `204.3`, `time`, `timestamp`, `message` = `Voltagem Fase A is in undervoltage - 204.3 V.` |
-| reading back in range, once it holds | **Voltage returned to normal** | `event_type` = `UNDERVOLTAGE`, `duration` = `300`, `duration_human` = `5 min`, `voltage` = `228.4`, `min_voltage` = `204.3`, `max_voltage` = `206.9`, `average_voltage` = `205.6`, `time`, `message` = `Voltagem Fase A normalized after 5 min (min 204.3 V, max 206.9 V).` |
+| first reading under 108 | **Undervoltage detected** | `voltage` = `104.3`, `time`, `timestamp`, `message` = `Voltagem Fase A is in undervoltage - 104.3 V.` |
+| reading back in range, once it holds | **Voltage returned to normal** | `event_type` = `UNDERVOLTAGE`, `duration` = `300`, `duration_human` = `5 min`, `voltage` = `118.4`, `min_voltage` = `104.3`, `max_voltage` = `106.9`, `average_voltage` = `105.6`, `time`, `message` = `Voltagem Fase A normalized after 5 min (min 104.3 V, max 106.9 V).` |
 
 A long excursion is **one** incident: one "detected" when it starts and one "returned to normal" when it
 ends, with the whole episode's range. In "returned to normal", `min_voltage` / `max_voltage` / `average_voltage`
@@ -165,21 +167,32 @@ message can use `%power%` and `%energy%` — useful on a combined energy meter:
 
 ```
 %monitor%: %voltage% V while the pump draws %power% W
-→ Voltagem Fase A: 204.3 V while the pump draws 1480 W
+→ Voltagem Fase A: 104.3 V while the pump draws 1480 W
 ```
 
-On a device without a power capability the same template reads `Voltagem Fase A: 204.3 V while the pump
+On a device without a power capability the same template reads `Voltagem Fase A: 104.3 V while the pump
 draws  W` (the placeholder renders as nothing, not `0`). These two are available inside message templates;
 they are not separate Flow tokens on the voltage triggers.
 
+**What a meter reads.** A three-phase meter such as a Shelly 3EM has one current clamp (CT) on each phase and
+measures every phase against neutral, so its three voltages are the same kind of reading (on a 120 V
+installation, about 120 V each). A device without a CT reads whatever it is wired to: phase-to-neutral
+(about 120 V) or phase-to-phase (about 220 V). Only compare monitors that read the same thing: phase-neutral
+with phase-neutral, or phase-phase with phase-phase. Comparing a 120 V reading with a 220 V one shows a large
+"imbalance" that is only the wiring.
+
 **Comparing two phases.** The condition *Two voltage monitors are more than N% apart* uses
-|A − B| / ((A + B) / 2) × 100 of the two current readings.
+|A − B| / ((A + B) / 2) × 100 of the two current readings. With *Fase A* and *Fase B* on the same meter
+(phase-neutral):
 
 | Fase A | Fase B | Imbalance | "more than 5 %" | "more than 10 %" | "more than 0 %" |
 |---|---|---|---|---|---|
-| 220 V | 240 V | `8.7 %` | true | false | true |
-| 220 V | 220 V | `0 %` | false | false | false |
-| 220 V | (no reading yet) | — | false | false | false |
+| 118.0 V | 124.5 V | `5.4 %` | true | false | true |
+| 120.0 V | 120.0 V | `0 %` | false | false | false |
+| 118.0 V | (no reading yet) | — | false | false | false |
+| 120.0 V (phase-neutral) | 220.0 V (phase-phase) | `58.8 %` | true | true | true |
+
+The last row is the mistake to avoid: two different kinds of reading, so the number means nothing.
 
 "More than" is strict, so identical readings are never "more than 0 %" apart.
 

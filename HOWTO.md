@@ -137,9 +137,12 @@ a plain on/off switch you don't have power data for.
 
 **Comparing two phases**: the condition **"Two voltage monitors are more than N% apart"** compares the
 current readings of two Voltage monitors (percent of their average — |A - B| / average x 100), so a
-three-phase meter watched as three separate monitors can flag `Fase B is 8.7% above Fase A` without a
-dedicated phase-imbalance monitor type. For more than two phases, chain it once per pair with AND/OR in
-the same Flow. Reads as false while either monitor has no sample yet.
+three-phase meter watched as three separate monitors can flag `Fase B is 5.4% above Fase A` (118.0 V against
+124.5 V) without a dedicated phase-imbalance monitor type. For more than two phases, chain it once per pair
+with AND/OR in the same Flow. Reads as false while either monitor has no sample yet. Compare only monitors
+that read the same thing: a meter with a CT on each phase (a Shelly 3EM) reads every phase against neutral,
+but a device without a CT reads either phase-neutral (about 120 V) or phase-phase (about 220 V), and the
+two kinds must not be compared with each other.
 
 ## 4. State Group — check several devices at once
 

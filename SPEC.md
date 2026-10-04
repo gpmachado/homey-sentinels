@@ -306,7 +306,10 @@ existing Voltage monitors' `lastSample.voltage` with it — no new monitor type 
 multi-phase device is already watched one Voltage monitor per phase (see 2.3). More than two phases is
 several pairwise conditions chained with AND/OR in one Flow. The comparison is strictly greater, as the
 card says ("more than N %"); a monitor that no longer exists makes the card throw, like the other Voltage
-conditions, so a broken Flow is visible instead of reading as "no imbalance".
+conditions, so a broken Flow is visible instead of reading as "no imbalance". The app cannot tell whether a
+reading is phase-neutral or phase-phase (both are just `measure_voltage*`), so comparing monitors of different
+kinds (about 120 V against about 220 V) gives a large percentage that is only the wiring; the docs say to
+compare like with like.
 
 ### Energy cost tokens
 
