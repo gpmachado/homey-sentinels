@@ -286,6 +286,21 @@ function onHomeyReady(Homey) {
     return btn;
   }
 
+  // A labelled on/off switch for a row's actions; `onChange(checked)` runs when the person flips it.
+  function trackSwitch(checked, disabled, title, onChange) {
+    var label = document.createElement('label');
+    label.className = 'track-switch';
+    label.title = title;
+    var input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = checked;
+    input.disabled = disabled;
+    input.addEventListener('change', function () { onChange(input.checked); });
+    label.appendChild(input);
+    label.appendChild(document.createTextNode('Track'));
+    return label;
+  }
+
   function entityActions(buttons) {
     var wrap = document.createElement('div');
     wrap.className = 'entity-actions';
@@ -1063,7 +1078,10 @@ function onHomeyReady(Homey) {
       lastScan = summary;
       renderScanTiles();
       renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs);
-    }).catch(showError);
+    }).catch(function (error) {
+      renderAvailability(lastAvailabilityDevices, lastAvailabilityWatchdogs); // puts the switch back where it really is
+      showError(error);
+    });
   }
   var DEFAULT_FIELDS = ['defaultThresholdHours', 'startupGraceMinutes', 'unavailableDelaySeconds', 'batteryWarnPercent', 'batteryDelaySeconds', 'scanIntervalMinutes'];
   var defaultsFormWrapper = document.getElementById('availability-defaults-form-wrapper');
@@ -1185,17 +1203,16 @@ function onHomeyReady(Homey) {
     if (!device.available) row.classList.add('unavailable-row');
     var actionButtons = [actionLink(watchdog ? 'Edit watchdog' : 'Add watchdog', function () { openAvailabilityWatchdogForm(device, watchdog); })];
     if (!watchdog && scanOn) {
-      if (device.ownerUri && excludedAppIds[device.ownerUri]) {
+      var appIgnored = Boolean(device.ownerUri && excludedAppIds[device.ownerUri]);
+      var tracked = !appIgnored && !excludedIds[device.id];
+      // On: the all-devices scan checks this device. Off: it is left out (it still shows in the list).
+      actionButtons.unshift(trackSwitch(tracked, appIgnored, appIgnored ? 'Every device of this app is ignored: use Include app' : 'Check this device in the scan', function (on) { setExclusion(device, !on); }));
+      if (appIgnored) {
         actionButtons.push(actionLink('Include app', function () { setAppExclusion(device.ownerUri, false); }));
-      } else if (excludedIds[device.id]) {
-        actionButtons.push(actionLink('Include in scan', function () { setExclusion(device, false); }));
-      } else {
-        actionButtons.push(actionLink('Ignore', function () { setExclusion(device, true); }));
-        if (device.ownerUri) {
-          actionButtons.push(actionLink('Ignore app', function () {
-            confirmAction('Ignore every device of the app "' + shortApp(device.ownerUri) + '" in the scan?', function () { setAppExclusion(device.ownerUri, true); });
-          }));
-        }
+      } else if (tracked && device.ownerUri) {
+        actionButtons.push(actionLink('Ignore app', function () {
+          confirmAction('Ignore every device of the app "' + shortApp(device.ownerUri) + '" in the scan?', function () { setAppExclusion(device.ownerUri, true); });
+        }));
       }
     }
     if (watchdog) {

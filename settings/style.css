@@ -109,6 +109,13 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .entity-empty { padding: 16px 14px; color: var(--color-muted); font-size: 13px; }
 
 .container .btn-link { border: none !important; background: none !important; color: var(--color-accent) !important; font-size: 12px !important; font-weight: 600 !important; padding: 6px 8px !important; cursor: pointer !important; border-radius: 6px !important; font-family: inherit !important; white-space: nowrap !important; }
+/* An on/off switch (a checkbox drawn as a slider), used for "track this device" in the availability list. */
+.container .track-switch { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--color-muted); cursor: pointer; padding: 6px 8px; white-space: nowrap; }
+.container .track-switch input { appearance: none; -webkit-appearance: none; width: 32px; height: 18px; margin: 0; border-radius: 9px; background: var(--color-border); position: relative; cursor: pointer; transition: background 0.15s; }
+.container .track-switch input::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: var(--color-card); transition: left 0.15s; }
+.container .track-switch input:checked { background: var(--color-success); }
+.container .track-switch input:checked::after { left: 16px; }
+.container .track-switch input:disabled { opacity: 0.5; cursor: not-allowed; }
 .container .btn-link:hover { background: var(--color-accent-bg) !important; }
 .container .btn-link.btn-danger { color: var(--color-danger) !important; }
 .container .btn-link.btn-danger:hover { background: var(--color-danger-bg) !important; }

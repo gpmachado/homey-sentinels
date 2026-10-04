@@ -209,8 +209,8 @@ defaults, about two minutes after the app starts and then once an hour:
 
 Settings → Availability shows a tile for each, and tapping a tile filters the list. **Scan now**
 runs it right away. Each row has an amber **Silent N d** badge when a device says `available` but
-has gone quiet — battery sensors never flip that flag when they die. Per device you can **Ignore**
-it. The **Apps** list lets you tick whole apps that the scan should not monitor (virtual devices that
+has gone quiet — battery sensors never flip that flag when they die. Each device without a watchdog has a **Track** switch: turn it off and the scan leaves that
+device out (it still shows in the list), turn it on again to bring it back. The **Apps** list lets you tick whole apps that the scan should not monitor (virtual devices that
 only report when used, such as a light switched by a Flow) and give an app its **own silence limit in
 hours** — solar panels are silent all night, so 36 h there keeps a real failure visible without a daily
 false alarm.
@@ -250,7 +250,7 @@ Open the app's Settings from Homey. Three tabs:
   (state, stats, a small trend sparkline) and Edit / Reset stats / Delete buttons per row. A shared
   Today/7 Days/30 Days period selector applies across all three.
 - **Availability** — the scan tiles and **Scan now**, **Watchdog defaults**, the **Apps** list, and every
-  Homey device with its badge, last seen and its Add/Edit/Remove watchdog and Ignore actions.
+  Homey device with its badge, last seen and its Add/Edit/Remove watchdog actions and its Track switch.
 - **Groups** — existing groups (with a "Check now" for a live status, the state Flow holds and a
   reset for it) and the Add/Edit form.
 
