@@ -109,6 +109,16 @@ Default message language section above, which no longer uses Homey's `__()`); th
 - Check the amber badge on "Motion Sensor Despensa" (silent since 13/09): possibly a dead sensor, not a false alarm.
 
 ### To build
+- **Reminder (2026-10-04): feasibility test of a Homey API key instead of the `homey:manager:api` permission.** The permission
+  makes `homey app validate` warn (a more thorough review before publishing). An app cannot offer it as an optional mode: the
+  permission is in the manifest, so either the app declares it or it does not, which means a second app or an app that always
+  needs a key. The test: Settings fields for the key and the Homey address, and `lib/homey-device-gateway.js` using
+  `HomeyAPI.createLocalAPI({ address, token })` when a key is set (else `createAppAPI` as now). A key created in the Homey Web App
+  (Settings > API Keys) with read-only permissions. To find out first: how the app learns Homey's own address from inside, whether
+  capability listeners and `insights.getLogEntries` work through a key, which permission names the key offers (the support
+  article does not list them) and whether Athom accepts a published app that asks users for a key. Only if it works decide
+  between a second app and replacing `createAppAPI`. The code only calls read methods (devices, zones, insights, system info, app
+  usage, capability listeners); a test that fails on any write call was offered and not written yet.
 - **Generate individual monitors** button on a Group (design in the section below; not started).
 - **Ignore zone** in the Availability tab (the scan already honours excluded zones; only the button is missing).
 - Widget settings like the Energy KPI Monitor's, editable after creation: Voltage (which monitors, period
