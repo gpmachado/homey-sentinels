@@ -170,3 +170,17 @@ test('api.getDefaultWording offers the languages, says which is in use and serve
   assert.equal(saved.messageLanguage, 'de');
   assert.equal((await api.getDefaultWording({ homey })).messageWording.light.false.zero, 'Alle Lichter (%group%) sind aus.');
 });
+
+test('creating an Activity monitor without a threshold asks Insights for a starting one; with a threshold it does not', async () => {
+  const { _seedThresholdFromInsights } = require('../lib/app/activity');
+  for (const [threshold, expectedAsks] of [[undefined, 2], [50, 0]]) {
+    const app = await wordingApp();
+    app._seedThresholdFromInsights = _seedThresholdFromInsights;
+    const asked = [];
+    app.gateway.getInsightValues = async (deviceId, capability, resolution) => { asked.push([deviceId, capability, resolution]); return []; };
+    await app._createActivityMonitor({ deviceId: 'meter', threshold });
+    await flush();
+    assert.equal(asked.length, expectedAsks); // 24 hours, then 7 days, both empty here
+    if (expectedAsks) assert.deepEqual(asked[0], ['meter', 'measure_power', 'last24Hours']);
+  }
+});

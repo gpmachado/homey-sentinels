@@ -60,6 +60,15 @@ auto-detected on the device and tracked without separate configuration.
   `stop_monitoring_device` (manual override for a device with no reliable numeric signal —
   creates the monitor on first run if it doesn't exist yet, and starts/stops it, in one card),
   triggers `activity_started`/`activity_finished`, condition `is_active`.
+- A monitor created with no threshold starts at `DEFAULT_ACTIVITY_THRESHOLD` and `calibrating: true`. Right after
+  creation `_seedThresholdFromInsights` (lib/app/activity.js) reads the device's Homey Insights log for the power
+  capability through `gateway.getInsightValues` (`homey:device:<id>`, the capability id, window `last24Hours`, then
+  `last7Days`), feeds the readings to the same gap search (`thresholdFromReadings` in lib/statistics.js, one reading per
+  period, so at least 15) and uses the split as the starting threshold. It is only a starting value: `calibrating` stays
+  true and `_maybeAutoCalibrate` replaces it from the monitor's own periods once confident. It never throws and is not
+  awaited by creation; no Insights log, an API error, too few readings or no clear split leave the default (one log line
+  says which). A monitor deleted, or already calibrated, while Insights was answering is left alone. Insights are
+  downsampled as the window grows, so this is a rougher estimate than the monitor's own bucketed periods.
 - A monitor created via `start_monitoring_device` (or any monitor with `mode: 'manual'`) never
   decides ACTIVE/STANDBY from its own power reading — `stateFor()` returns its current state
   unchanged, so only `startNow`/`stopNow` ever move it. It still samples power/current/energy

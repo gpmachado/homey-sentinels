@@ -14,6 +14,17 @@ For the next changelog (1.0.9): Activity and State monitors now start with wordi
 message language setting with Portuguese. Still open: Polish (parked on purpose: only if someone who reads it turns up to check the wording), more languages only with
 someone who reads them, and the Settings page's own text, which is English only.
 
+### Starting threshold from Homey Insights: DONE 2026-10-04, to verify on the Homey
+
+A new Activity monitor without a threshold reads the device's Insights log (last 24 h, then 7 days) for its starting
+threshold instead of always 40 W, and keeps calibrating on its own readings (`_seedThresholdFromInsights`; HOWTO and SPEC
+describe it). To check on the Homey: create one on a pump or fridge plug that has run for a day, and read the log for
+`starting threshold ... from Homey Insights` (or `no Insights history to start from (...)`). Unverified assumptions, all
+falling back to the default if wrong: the log is addressed as `homey:device:<id>` with the capability id, and the
+resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the reference app insights2csv uses the same
+`getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
+day one.
+
 ### Binary Counter removed, and a capability-first Add form: DONE 2026-10-03 (not in a published version yet)
 
 Binary Counter (the device-less tally) is gone: store, statistics, the seven Flow cards, the five API routes, the Settings

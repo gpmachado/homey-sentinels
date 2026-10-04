@@ -43,7 +43,11 @@ machine.
    - **Capability**: leave blank to use `measure_power` — Sentinels auto-detects and tracks
      related capabilities (current, energy, voltage) on the same device, no need to add them.
    - **Activity threshold (W)**: the wattage above which the device counts as active. For a
-     pump this might be 50W; for a fridge compressor, 20W.
+     pump this might be 50W; for a fridge compressor, 20W. Leave it blank and the monitor looks at what
+     Homey's own **Insights** logged for that device (the last 24 hours, then the last 7 days) and starts
+     from the split it finds between standby and running power; with no Insights history, or no clear
+     split, it starts at 40 W. Either way it stays *Calibrating* and replaces that starting value as soon
+     as its own readings give a confident answer, and you can still type a number at any time.
    - Run this Flow once (e.g. on "Homey started", or manually) to create the monitor. It starts
      with no continuity/confirmation delay — if you later notice a device's power dips briefly
      between phases (a washer) and fragments into multiple cycles, or a noisy reading creates

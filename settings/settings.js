@@ -670,7 +670,7 @@ function onHomeyReady(Homey) {
         // "Calibrating" used to be a bare spinner with no visible progress. With `progress` this says how far
         // it got and, once enough samples exist without a clear standby/active split, why it's stuck — instead
         // of a monitor that silently looks broken for days (see the pump that stayed "calibrating" over a week).
-        var calibratingTitle = 'Using a default 40 W threshold until enough history confirms this device\'s real standby/active power split.';
+        var calibratingTitle = 'Using ' + (monitor.threshold !== null && monitor.threshold !== undefined ? Math.round(monitor.threshold) + ' W' : 'a default threshold') + ' as a starting value until enough history confirms this device\'s real standby/active power split.';
         if (progress) {
           if (progress.status === 'collecting') calibratingTitle = progress.valuesCollected + ' of ' + progress.valuesNeeded + ' power samples collected so far.';
           else if (progress.status === 'inconclusive') {
