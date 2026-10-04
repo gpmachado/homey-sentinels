@@ -701,16 +701,32 @@ function onHomeyReady(Homey) {
           suggestion ? '<span class="chip chip-accent" title="Based on ' + suggestion.sampleCount + ' power samples, split between ' + Math.round(suggestion.low) + ' W and ' + Math.round(suggestion.high) + ' W">suggested ~' + Math.round(suggestion.threshold) + ' W</span>' : null,
           // A monitor with no completed cycle yet has nothing to show a median/trend from — without this the row
           // just looks empty ("—" everywhere), which reads as broken rather than "still watching, nothing to report".
-          !monitor.calibrating && !monitor.hasCompletedCycles ? '<span class="hint">No completed cycles yet — stats need at least one.</span>' : null
+          !monitor.calibrating && !monitor.hasCompletedCycles ? '<span class="hint">No completed cycles yet — stats need at least one.</span>' : null,
+          monitor.rebuiltFromInsights ? '<span class="chip" title="Cycles and periods before this monitor started recording were estimated from Homey Insights (' + monitor.rebuiltFromInsights.cycles + ' cycles, from ' + escapeHtml(new Date(monitor.rebuiltFromInsights.from).toLocaleString()) + '). Coarser than live data. Reset the monitor to drop them.">history from Insights</span>' : null
         ];
         return { nameHtml: nameHtml, metaBits: metaBits, sparkline: renderSparkline(monitor.dailyBreakdown) };
       },
       actions: function (monitor) {
-        return [
+        var links = [
           actionLink('Edit', function () { openActivityEditForm(monitor); }),
           actionLink('Messages', function () { openActivityMessageForm(monitor); })
         ];
+        if (!monitor.mode && !monitor.rebuiltFromInsights) links.push(actionLink('Rebuild from Insights', function () { rebuildFromInsights(monitor); }));
+        return links;
       }
+    });
+  }
+
+  // Asks the app to estimate the history from before this monitor existed out of Homey's Insights (the last 7 days).
+  function rebuildFromInsights(monitor) {
+    confirmAction('Estimate the history of "' + monitor.name + '" before it started recording from Homey Insights (last 7 days)? Cycles, time and energy of those days are added in front of what it recorded itself. They are estimates, coarser than live data; Reset removes them.', function () {
+      api('POST', '/monitors/' + monitor.id + '/rebuild-history')
+        .then(function (result) {
+          Homey.alert('Added ' + result.cycles + ' estimated cycle' + (result.cycles === 1 ? '' : 's') + ' from ' + new Date(result.from).toLocaleString() + ' to ' + new Date(result.to).toLocaleString() + '.');
+          return api('GET', '/monitors?period=' + monitorPeriod);
+        })
+        .then(renderMonitors)
+        .catch(showError);
     });
   }
 

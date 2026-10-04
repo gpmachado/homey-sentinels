@@ -53,6 +53,14 @@ machine.
      between phases (a washer) and fragments into multiple cycles, or a noisy reading creates
      false starts, use **"Update activity monitor"** to add a continuity window or minimum
      confirmation without recreating the monitor.
+   - **History from before the monitor existed.** In Settings → Monitors, a threshold monitor has a
+     **Rebuild from Insights** link: the same detection rules are replayed over what Homey's Insights logged
+     for the device in the last 7 days, and the cycles, time and energy they give are added in front of what
+     the monitor recorded itself (the row then shows *history from Insights*). These are **estimates**:
+     Insights keeps coarser readings than the live listener sees, so a short cycle can be missed or merged,
+     and the energy is the power integrated over time. It works once per monitor; **Reset** removes the
+     estimated rows and allows it again. Monitors driven by Start/Stop cards or a state have no threshold to
+     replay and do not offer it.
 2. Build Flows off **"Activity started"** / **"Activity finished"** — pick the monitor in the
    card's dropdown (required, so you always know which one you're reacting to). "Finished"
    carries duration, energy, and average/peak power/current as tokens.

@@ -86,6 +86,10 @@
       "method": "POST",
       "path": "/monitors/:id/reset"
     },
+    "rebuildMonitorHistory": {
+      "method": "POST",
+      "path": "/monitors/:id/rebuild-history"
+    },
     "updateMonitor": {
       "method": "PUT",
       "path": "/monitors/:id"

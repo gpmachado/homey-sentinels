@@ -25,6 +25,19 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### Rebuild history from Insights: DONE 2026-10-04, to verify on the Homey
+
+Settings → Monitors → an Activity monitor has **Rebuild from Insights**: the live engine's rules are replayed over the
+last 7 days of the device's Insights log (`lib/insights-replay.js`, `rebuildHistoryFromInsights` in `lib/app/activity.js`, route
+`POST /monitors/:id/rebuild-history`) and the cycles, periods and totals are put in front of what the monitor recorded
+itself, never overlapping it. Estimates (coarser readings, energy = integrated power), once per monitor until Reset
+(`insightsBackfill` marks it; rows older than a week fold into daily summaries, so it could not be undone for a second run).
+To check on the Homey: the log line `history rebuilt from Homey Insights (last7Days): N readings, ...` and whether the
+cycle count looks like what the device really did. Unverified, as with the seed: the entries carry `t` (ISO time) and `v`,
+and `last7Days` returns enough readings (how coarse they are decides how many short cycles are missed). Not done: state and
+voltage monitors, longer windows (`last14Days`, `last31Days` if Insights accepts them: change `INSIGHTS_REBUILD_RESOLUTION`),
+a rebuild that also fills a gap while the app was stopped.
+
 ### Binary Counter removed, and a capability-first Add form: DONE 2026-10-03 (not in a published version yet)
 
 Binary Counter (the device-less tally) is gone: store, statistics, the seven Flow cards, the five API routes, the Settings

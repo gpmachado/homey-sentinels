@@ -108,6 +108,11 @@ module.exports = {
     await homey.app.resetMonitorStats(item);
     return { ok: true };
   },
+  async rebuildMonitorHistory({ homey, params }) {
+    const item = homey.app.store.data.monitors[params.id];
+    if (!item) throw new Error('Monitor not found.');
+    return homey.app.rebuildHistoryFromInsights(item);
+  },
   async updateMonitor({ homey, params, body }) {
     const item = homey.app.store.data.monitors[params.id];
     if (!item) throw new Error('Monitor not found.');
