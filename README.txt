@@ -3,3 +3,5 @@ Every smart home fills up with devices that could tell you more than they do —
 Point it at a device you already own and it works out the rest, learning where standby ends and real activity begins instead of asking you for a number to guess with. Every answer comes back as a plain sentence, ready to drop straight into a Flow or a push notification, so knowing what your house is doing stops requiring you to go check.
 
 It also keeps an eye on the devices that have gone quiet: a scan of every device flags the ones that stopped reporting, went unavailable or are running out of battery, so a dead sensor no longer goes unnoticed for weeks. Groups of doors, lights or switches tell you the moment one is out of place, and six dashboard widgets show it all at a glance. Set a price per kWh and every finished cycle also tells you what it cost.
+
+Sentinels asks for the Homey API permission because that is the only way an app can read devices that belong to other apps. It uses it to read only: devices, zones, their capability updates and Homey Insights history. It never sends a command to a device and never creates, changes or deletes anything in your Homey.

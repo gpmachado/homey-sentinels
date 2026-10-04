@@ -8,6 +8,10 @@ Sentinels watches devices you already own and turns their raw capability updates
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — how to run, change and test the app, and the rules that keep it light.
 - **[TODO.md](TODO.md)** — what is pending, what still needs checking on a real Homey, and what was decided against.
 
+## Permission
+
+Sentinels declares `homey:manager:api`, which Homey shows as a warning because it gives access to the whole Homey Web API. It is needed because an app can read devices that belong to other apps only through it, and it is used for reading alone: `devices.getDevices` / `getDevice`, `zones.getZones`, `insights.getLogEntries`, `system.getInfo` / `getMemoryInfo`, `apps.getAppUsage` and capability listeners. Nothing in the code sets a capability or creates, changes or deletes anything in your Homey; the source is here to check.
+
 ## What it watches
 
 **Activity monitors** — track a numeric power capability (`measure_power` by default, any `measure_power.*` phase too) and decide ACTIVE/STANDBY by crossing a threshold. Leave the threshold blank and the monitor takes a starting value from what Homey's own Insights already logged for the device (the last 24 hours, then 7 days), falls back to a working default when there is none, and keeps auto-calibrating from its own power readings once it has enough samples, instead of asking you to guess a wattage. `continuityMinutes`/`minConfirmationSeconds` smooth out devices with multi-phase duty cycles (a dishwasher's fill/wash/rinse pauses) or noisy readings near the threshold, so one real session doesn't fragment into several.
