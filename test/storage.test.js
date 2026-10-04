@@ -159,45 +159,6 @@ test('a deleted monitor is gone from the next write', async () => {
   assert.equal(settings.get('sentinels:v2').meta.voltageMonitors[volt.id], undefined);
 });
 
-test('the original single-blob format is migrated to the versioned key and then removed', async () => {
-  const legacy = {
-    monitors: { m1: { id: 'm1', name: 'Pump', deviceId: 'a', deviceName: 'Pump', capability: 'measure_power', threshold: 50, periods: [activityPeriod(0), activityPeriod(1)], cycles: [cycle(0)], totals: { cycleCount: 1 } } },
-    voltageMonitors: { v1: { id: 'v1', name: 'V', deviceId: 'v', deviceName: 'V', minVoltage: 200, maxVoltage: 240, periods: [voltagePeriod(0)] } },
-    groups: {}
-  };
-  const settings = homeySettings({ sentinels: legacy });
-  const store = new SentinelStore(settings);
-  await store.load();
-  assert.equal(store.migratedFrom, 'single blob');
-  assert.deepEqual(Object.keys(settings.raw), ['sentinels:v2']);
-  const reloaded = new SentinelStore(settings);
-  await reloaded.load();
-  assert.deepEqual(reloaded.data.monitors.m1.periods, legacy.monitors.m1.periods);
-  assert.deepEqual(reloaded.data.monitors.m1.cycles, legacy.monitors.m1.cycles);
-  assert.deepEqual(reloaded.data.voltageMonitors.v1.periods, legacy.voltageMonitors.v1.periods);
-});
-
-test('the per-monitor-keys layout is migrated to the versioned key and its keys removed', async () => {
-  const { encodeRows: enc } = require('../lib/storage-format');
-  const meta = {
-    monitors: { m1: { id: 'm1', name: 'Pump', deviceId: 'a', deviceName: 'Pump', capability: 'measure_power', threshold: 50, totals: { cycleCount: 1 } } },
-    voltageMonitors: { v1: { id: 'v1', name: 'V', deviceId: 'v', deviceName: 'V', minVoltage: 200, maxVoltage: 240 } },
-    groups: {}
-  };
-  const settings = homeySettings({
-    'sentinels:meta': meta,
-    'sentinels:periods:m1': { periods: enc('activityPeriod', [activityPeriod(0)]), cycles: enc('cycle', [cycle(0)]) },
-    'sentinels:periods:v1': { periods: enc('voltagePeriod', [voltagePeriod(0), voltagePeriod(1)]) },
-    'sentinels:periods:ghost': { periods: [] }
-  });
-  const store = new SentinelStore(settings);
-  await store.load();
-  assert.equal(store.migratedFrom, 'per-monitor keys');
-  assert.deepEqual(Object.keys(settings.raw), ['sentinels:v2']);
-  assert.equal(store.data.monitors.m1.periods.length, 1);
-  assert.equal(store.data.voltageMonitors.v1.periods.length, 2);
-});
-
 test('a failed write surfaces to the caller and the next save retries it', async () => {
   const settings = homeySettings();
   const { store, volt } = await populatedStore(settings);
@@ -221,10 +182,10 @@ test('store.revision changes on every save so cached summaries can be dropped', 
 
 test('the old default "turned off" message (with an em dash) is migrated to the ASCII default; a customised one is left alone', async () => {
   const oldDefault = '%monitor% turned off \u2014 %duration_human%, %energy% kWh (%count% today)';
-  const settings = homeySettings({ sentinels: { monitors: {
+  const settings = homeySettings({ 'sentinels:v2': { series: {}, meta: { monitors: {
     a: { id: 'a', name: 'A', deviceId: 'x', deviceName: 'A', capability: 'measure_power', threshold: 5, messageTemplateFinished: oldDefault },
     b: { id: 'b', name: 'B', deviceId: 'y', deviceName: 'B', capability: 'measure_power', threshold: 5, messageTemplateFinished: 'B stopped \u2014 custom' }
-  }, groups: {}, voltageMonitors: {}, eventLog: [{ timestamp: 1, message: 'Pump turned off \u2014 5 min' }] } });
+  }, groups: {}, voltageMonitors: {}, eventLog: [{ timestamp: 1, message: 'Pump turned off \u2014 5 min' }] } } });
   const store = new SentinelStore(settings);
   await store.load();
   assert.equal(store.data.monitors.a.messageTemplateFinished, '%monitor% turned off - %duration_human%, %energy% kWh (%count% today)');

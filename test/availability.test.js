@@ -39,8 +39,9 @@ test('the store keeps ignoreUnavailable on create and update, and old watchdogs 
   assert.equal(store.data.availabilityWatchdogs.d1.ignoreUnavailable, false);
   const plain = store.upsertAvailabilityWatchdog({ deviceId: 'd2', name: 'Plug', thresholdHours: 12 });
   assert.equal(plain.ignoreUnavailable, false);
-  const legacy = { sentinels: { monitors: {}, groups: {}, voltageMonitors: {}, availabilityWatchdogs: { old: { deviceId: 'old', name: 'Old', thresholdHours: 12 } } } };
-  const migrated = new SentinelStore({ get: (k) => legacy[k], set: async () => {}, unset: () => {} });
+  // A watchdog saved by an older build, before it had ignoreUnavailable, gets the field when loaded.
+  const saved = { 'sentinels:v2': { meta: { monitors: {}, groups: {}, voltageMonitors: {}, availabilityWatchdogs: { old: { deviceId: 'old', name: 'Old', thresholdHours: 12 } } }, series: {} } };
+  const migrated = new SentinelStore({ get: (k) => saved[k], set: async () => {}, unset: () => {} });
   await migrated.load();
   assert.equal(migrated.data.availabilityWatchdogs.old.ignoreUnavailable, false);
 });

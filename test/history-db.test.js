@@ -184,19 +184,6 @@ test('a v2 store (series inside the settings key) is migrated into the database'
   assert.deepEqual(reloaded.data.voltageMonitors.v1.periods, [voltagePeriod(0)]);
 });
 
-test('the original single blob migrates straight into the database', async () => {
-  const legacy = {
-    monitors: { m1: { id: 'm1', name: 'Pump', deviceId: 'a', deviceName: 'Pump', capability: 'measure_power', threshold: 50, periods: [activityPeriod(0)], cycles: [cycle(0)], totals: { cycleCount: 1 } } },
-    voltageMonitors: {}, groups: {}
-  };
-  const settings = homeySettings({ sentinels: legacy });
-  const history = openHistoryDb(':memory:');
-  const store = new SentinelStore(settings, { history });
-  await store.load();
-  assert.deepEqual(Object.keys(settings.raw), ['sentinels:v3']);
-  assert.deepEqual(history.load('m1', 'p').length, 1);
-});
-
 test('without a database the store falls back to the settings key, and a v3 store loses its history but keeps its meta', async () => {
   const history = openHistoryDb(':memory:');
   const settings = homeySettings();
