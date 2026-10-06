@@ -1,6 +1,7 @@
 {
   "name": "com.gpm.sentinels",
   "version": "1.0.2",
+  "license": "MIT",
   "main": "app.js",
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",

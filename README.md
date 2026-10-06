@@ -70,3 +70,7 @@ limitation of the platform, not this app; there's no token-free variant for the 
 For a Standard Flow, react to a monitor's own trigger cards instead (`activity_started`/
 `activity_finished` and their equivalents for the other monitor types) — these already carry
 duration, energy, and a ready-to-use `message` token without needing Advanced Flow at all.
+
+## License
+
+[MIT](LICENSE), copyright 2026 Gabriel Pedrosa Machado.
