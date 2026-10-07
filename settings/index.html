@@ -27,6 +27,30 @@
       <button type="button" class="period-btn" data-period="month">Month</button>
     </div>
 
+    <div id="pattern-wrapper" class="hidden modal-overlay">
+    <div class="modal-box pattern-box">
+      <h2 id="pattern-title">Usage pattern</h2>
+      <p class="hint" id="pattern-message"></p>
+      <div class="pattern-controls">
+        <label>Period
+          <select id="pattern-period">
+            <option value="week">Last 7 days</option>
+            <option value="month" selected>Last 30 days</option>
+            <option value="all">All history</option>
+          </select>
+        </label>
+        <label>Show
+          <select id="pattern-metric">
+            <option value="starts">Cycles started</option>
+            <option value="seconds">Time on</option>
+          </select>
+        </label>
+      </div>
+      <div id="pattern-grid" class="pattern-grid"></div>
+      <p class="hint">Weekday by hour of the day in your time zone. Darker is more. The time on is spread over the hours a cycle covers. Day means 06:00 to 22:00.</p>
+      <div class="actions"><button type="button" id="pattern-close-btn">Close</button></div>
+    </div>
+    </div>
     <div class="subtab-panel" data-subtab="activity">
       <div class="actions"><button type="button" id="add-activity-monitor-btn">Add activity monitor</button></div>
       <div class="entity-list" id="monitors-body"><div class="entity-empty">Loading…</div></div>

@@ -93,6 +93,9 @@ module.exports = {
   async getMonitorsSummary({ homey, query }) {
     return homey.app.getMonitorsSummary(query.period);
   },
+  async getUsagePattern({ homey, params, query }) {
+    return homey.app.getUsagePattern(params.id, query.period);
+  },
   async createActivityMonitor({ homey, body }) {
     return homey.app.inAppContext(() => homey.app._createActivityMonitor({ deviceId: body.deviceId, capability: body.capability, threshold: body.threshold, name: body.name }));
   },

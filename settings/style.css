@@ -202,3 +202,12 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 /* Energy cost: price, currency and a Save button on one line */
 .cost-row { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
 .cost-row label { flex: 1 1 120px; margin-top: 0; }
+
+/* Usage pattern: a weekday by hour grid, darker = more. */
+.modal-box.pattern-box { max-width: 560px; }
+.pattern-controls { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0; }
+.pattern-controls label { margin: 0; }
+.pattern-grid { display: grid; grid-template-columns: 30px repeat(24, minmax(0, 1fr)); gap: 2px; align-items: center; margin: 10px 0; }
+.pattern-label { font-size: 10px; color: var(--color-muted); white-space: nowrap; }
+.pattern-cell { position: relative; aspect-ratio: 1; background: var(--color-border); border-radius: 2px; }
+.pattern-cell i { position: absolute; inset: 0; background: var(--color-accent); border-radius: 2px; }

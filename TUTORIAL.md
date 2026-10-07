@@ -130,6 +130,25 @@ The median and percentiles need at least **5 cycles**, otherwise they are `0` / 
 trend needs at least **3 cycles in the previous week**; until then it says "no prior baseline" instead of a
 misleading `+200 %`. A period with no cycles gives `0` for every number.
 
+**When is it used? Get usage pattern.** Same monitor, a period of `Last 30 days`. Five cycles of one hour each:
+three on a Saturday starting at 18:00, 18:10 and 18:20, one on a Monday at 08:00 and one on a Monday at 23:00.
+
+| Token | Value | Meaning |
+|---|---|---|
+| `enough_data` | `true` | at least 5 cycles in the period |
+| `cycle_count` | `5` | cycles looked at |
+| `busiest_weekday` | `Saturday` (`sábado` with *Português*) | in the Default message language |
+| `busiest_weekday_number` | `6` | 1 = Monday ... 7 = Sunday, so a Flow can map it to its own words |
+| `busiest_weekday_percent` | `60` | 3 of 5 cycles |
+| `busiest_hour` / `busiest_hour_label` | `18` / `18:00-19:00` | the hour with most cycles started |
+| `day_percent` / `night_percent` | `80` / `20` | of the time on: 4 h of 5 h fall between 06:00 and 22:00 |
+| `message` | `Dia de maior uso de Bomba: sábado (60% do uso), horário de pico 18:00-19:00; 80% do tempo ligado é entre 06:00 e 22:00.` | with *Português* chosen |
+
+With fewer than 5 cycles `enough_data` is `false`, the weekday and hour are empty (`busiest_weekday_number` `0`,
+`busiest_hour` `-1`, the percentages `0`) and the message says how many are missing, for example
+`Bomba: ainda não há ciclos suficientes para ver um padrão (2 de 5).` Settings → Monitors → **Pattern** draws the
+same weekday-by-hour grid.
+
 ## 4. A door: State Monitor
 
 **Set up.** **Add state monitor** (device: the door sensor, labels `Open` / `Closed`). Both directions are

@@ -3,7 +3,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { LANGUAGES, isSupported, resolveLanguage, wordingFor } = require('../lib/wording');
 
-const SECTIONS = ['messageWording', 'voltageMessageDefaults', 'activityMessageDefaults', 'stateMessageDefaults'];
+const SECTIONS = ['messageWording', 'voltageMessageDefaults', 'activityMessageDefaults', 'stateMessageDefaults', 'usagePatternMessages'];
 const flatten = (obj, prefix = '') => Object.entries(obj).flatMap(([k, v]) => (v && typeof v === 'object' ? flatten(v, `${prefix}${k}.`) : [`${prefix}${k}`]));
 const placeholders = (text) => (String(text).match(/%[a-z_:|]+%/g) || []).sort();
 

@@ -73,5 +73,9 @@
   "stateMessageDefaults": {
     "started": "%monitor% est maintenant %label%",
     "finished": "%monitor% est maintenant %label% (%count% aujourd'hui)"
+  },
+  "usagePatternMessages": {
+    "summary": "Jour de plus forte utilisation de %monitor% : %weekday% (%weekday_share% de l'utilisation), heure de pointe vers %hour% ; %day_share% du temps de marche se situe entre 06:00 et 22:00.",
+    "notEnough": "%monitor% : pas encore assez de cycles pour voir une tendance (%count% sur %needed%)."
   }
 }

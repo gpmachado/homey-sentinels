@@ -1,0 +1,119 @@
+{
+  "title": {
+    "en": "Get usage pattern"
+  },
+  "titleFormatted": {
+    "en": "Get usage pattern of [[monitor]], period: [[period]]"
+  },
+  "hint": {
+    "en": "When a monitor is used: the busiest weekday and hour of its cycles and how much of its time on falls in the day (06:00 to 22:00), worked out from the cycles it already keeps. Needs at least 5 cycles in the period. The weekday name and the sentence follow the Default message language in Settings."
+  },
+  "args": [
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor"
+      }
+    },
+    {
+      "name": "period",
+      "type": "dropdown",
+      "title": {
+        "en": "Period"
+      },
+      "values": [
+        {
+          "id": "week",
+          "label": {
+            "en": "Last 7 days"
+          }
+        },
+        {
+          "id": "month",
+          "label": {
+            "en": "Last 30 days"
+          }
+        },
+        {
+          "id": "all",
+          "label": {
+            "en": "All history (up to a year)"
+          }
+        }
+      ]
+    }
+  ],
+  "tokens": [
+    {
+      "name": "enough_data",
+      "type": "boolean",
+      "title": {
+        "en": "Enough cycles to see a pattern"
+      }
+    },
+    {
+      "name": "cycle_count",
+      "type": "number",
+      "title": {
+        "en": "Cycles looked at"
+      }
+    },
+    {
+      "name": "busiest_weekday",
+      "type": "string",
+      "title": {
+        "en": "Busiest weekday (name)"
+      }
+    },
+    {
+      "name": "busiest_weekday_number",
+      "type": "number",
+      "title": {
+        "en": "Busiest weekday (1 = Monday ... 7 = Sunday, 0 = none)"
+      }
+    },
+    {
+      "name": "busiest_weekday_percent",
+      "type": "number",
+      "title": {
+        "en": "Share of the cycles on the busiest weekday (%)"
+      }
+    },
+    {
+      "name": "busiest_hour",
+      "type": "number",
+      "title": {
+        "en": "Busiest hour (0 to 23, -1 = none)"
+      }
+    },
+    {
+      "name": "busiest_hour_label",
+      "type": "string",
+      "title": {
+        "en": "Busiest hour (for example 18:00-19:00)"
+      }
+    },
+    {
+      "name": "day_percent",
+      "type": "number",
+      "title": {
+        "en": "Time on between 06:00 and 22:00 (%)"
+      }
+    },
+    {
+      "name": "night_percent",
+      "type": "number",
+      "title": {
+        "en": "Time on between 22:00 and 06:00 (%)"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message"
+      }
+    }
+  ]
+}

@@ -73,5 +73,9 @@
   "stateMessageDefaults": {
     "started": "%monitor% agora está %label%",
     "finished": "%monitor% agora está %label% (%count% hoje)"
+  },
+  "usagePatternMessages": {
+    "summary": "Dia de maior uso de %monitor%: %weekday% (%weekday_share% do uso), horário de pico %hour%; %day_share% do tempo ligado é entre 06:00 e 22:00.",
+    "notEnough": "%monitor%: ainda não há ciclos suficientes para ver um padrão (%count% de %needed%)."
   }
 }

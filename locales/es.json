@@ -73,5 +73,9 @@
   "stateMessageDefaults": {
     "started": "%monitor% ahora está %label%",
     "finished": "%monitor% ahora está %label% (%count% hoy)"
+  },
+  "usagePatternMessages": {
+    "summary": "Día de mayor uso de %monitor%: %weekday% (%weekday_share% del uso), hora punta alrededor de %hour%; %day_share% del tiempo encendido cae entre las 06:00 y las 22:00.",
+    "notEnough": "%monitor%: aún no hay suficientes ciclos para ver un patrón (%count% de %needed%)."
   }
 }

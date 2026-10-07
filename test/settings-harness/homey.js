@@ -22,13 +22,19 @@
     '/availability-scan': { enabled: true, excludedDevices: [{ id: 'd4' }], excludedApps: ['homey:app:com.hue'], excludedZones: [], appHours: { 'homey:app:com.sonoff': 48 }, scan: { at: 1790000000000, monitored: 6, counts: { stale: 1, unavailable: 0, lowBattery: 0 }, problems: [{ id: 'd9', reason: 'stale', ownerUri: 'homey:app:com.sonoff', lowBattery: false }] } }, '/message-settings': { messageLanguage: '', decimalComma: false, pricePerKwh: 0, currency: '' },
     '/default-wording': { language: 'en', languages: [{ code: 'en', name: 'English' }, { code: 'pt', name: 'Português' }, { code: 'de', name: 'Deutsch' }], messageWording: { contact: { 'false': { zero: 'All doors and windows are closed.', one: '%items% is open.', many: '%count% doors/windows open: %items%.' }, 'true': { zero: 'All open.', one: '%items% is closed.', many: '%count% closed: %items%.' } } } }
   };
+  // A usage pattern for any monitor: busy on Saturday evenings and Monday mornings.
+  var usagePattern = (function () {
+    var starts = []; var seconds = [];
+    for (var d = 0; d < 7; d += 1) { starts.push([]); seconds.push([]); for (var h = 0; h < 24; h += 1) { var n = (d === 5 && h >= 17 && h <= 20) ? 3 : (d === 0 && h === 8 ? 2 : 0); starts[d].push(n); seconds[d].push(n * 1800); } }
+    return { id: 'x', name: 'Fixture', period: 'month', enough: true, cycleCount: 18, minCycles: 5, starts: starts, seconds: seconds, busiestWeekday: 5, busiestWeekdayShare: 67, busiestHour: 18, dayShare: 80, nightShare: 20, weekdayName: 'Saturday', hourLabel: '18:00-19:00', message: 'Most use of Fixture: Saturday (67% of the use), busiest around 18:00-19:00; 80% of the time on falls between 06:00 and 22:00.' };
+  })();
   window.addEventListener('load', function () {
     var Homey = {
       api: function (method, path, body, cb) {
         if (typeof body === 'function') { cb = body; body = undefined; }
         log.push({ call: method + ' ' + path, body: body === undefined ? null : JSON.parse(JSON.stringify(body)) });
         var key = path.split('?')[0];
-        var result = method === 'GET' ? lists[key] : (key === '/message-settings' ? Object.assign({}, lists[key], body) : (key === '/availability-exclusions' ? lists['/availability-scan'] : {}));
+        var result = method === 'GET' ? (key.indexOf('/usage-pattern/') === 0 ? usagePattern : lists[key]) : (key === '/message-settings' ? Object.assign({}, lists[key], body) : (key === '/availability-exclusions' ? lists['/availability-scan'] : {}));
         setTimeout(function () { result === undefined ? cb(new Error('no fixture ' + key)) : cb(null, result); }, 0);
       },
       getLanguage: function () { return 'en'; }, __: function (k) { return k; },

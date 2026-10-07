@@ -25,6 +25,15 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### Usage pattern: DONE 2026-10-07, to verify on the Homey
+
+**Get usage pattern** card (busiest weekday and hour, day/night share, weekday name and a sentence in the Default message
+language; `lib/usage-pattern.js`) and a **Pattern** view on Activity and State monitors in Settings (weekday x hour grid). Calculated from
+the cycles already kept (a year), nothing stored. To check on the Homey: a monitor with a few weeks of cycles, the card in an
+Advanced Flow, and that the weekday names come out in the chosen language (Intl with full locale data on the Homey's Node).
+Not done: a pattern for Voltage monitors or for plain sensors (temperature) - those would read Homey Insights live (the
+Widgetkeeper Insights Heatmap does it for any value); a "week" period is thin with few cycles.
+
 ### Rebuild history from Insights: DONE 2026-10-04, to verify on the Homey
 
 Settings → Monitors → an Activity monitor has **Rebuild from Insights**: the live engine's rules are replayed over the

@@ -73,5 +73,9 @@
   "stateMessageDefaults": {
     "started": "%monitor% is nu %label%",
     "finished": "%monitor% is nu %label% (%count% vandaag)"
+  },
+  "usagePatternMessages": {
+    "summary": "Dag met het meeste gebruik van %monitor%: %weekday% (%weekday_share% van het gebruik), drukste uur rond %hour%; %day_share% van de aan-tijd valt tussen 06:00 en 22:00.",
+    "notEnough": "%monitor%: nog niet genoeg cycli voor een patroon (%count% van %needed%)."
   }
 }

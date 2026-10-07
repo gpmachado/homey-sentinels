@@ -70,6 +70,13 @@ machine.
    `p75_energy`, which show how much cycles vary around the median), and a week-over-week trend.
    The median and percentiles need at least 5 cycles; the trend needs at least 3 cycles in the
    previous week, otherwise it says "not enough data" instead of a misleading +200 %.
+   **"Get usage pattern"** says *when* the monitor is used: the busiest weekday and hour of its cycles and how
+   much of its time on falls in the day (06:00 to 22:00), over the last 7 days, the last 30 days or the whole
+   history (up to a year of cycles). It works for State monitors too. It needs at least 5 cycles in the period
+   (`enough_data` is false before that), compares weekdays by cycles per day so a weekday that occurs five times
+   in the window is not favoured, and gives the weekday name and a ready sentence in the *Default message
+   language*. In Settings, **Pattern** on an Activity or State monitor shows the same as a weekday-by-hour grid
+   (cycles started, or time on). Voltage monitors have no cycles and no pattern.
 4. Message wording works out of the box — a new monitor already has a sensible default
    (`"%monitor% turned on (%power% W)"` / `"%monitor% turned off - %duration_human%, %energy%
    kWh (%count% today)"`), edit it if you want something different in Settings (Monitors tab →
@@ -378,7 +385,7 @@ voltage monitors, 3 groups (25 devices), 4 watchdogs; availability scan every 60
 - **Power vs Voltage capability** on a multi-phase device — the capability pickers for
   Activity and Voltage monitors filter to the right kind, but double-check the exact phase.
 - **Token-returning cards need Advanced Flow** — `get_activity_statistics`,
-  `get_voltage_statistics`, `get_state_statistics`,
+  `get_voltage_statistics`, `get_state_statistics`, `get_usage_pattern`,
   `get_group_statistics`, `check_state_group`, `generate_text_report`, `export_data`,
   `start_monitoring_device`, and `stop_monitoring_device` only appear as
   selectable cards in the Advanced Flow editor; Homey hides any action card with output tokens

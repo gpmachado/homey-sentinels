@@ -73,5 +73,9 @@
   "stateMessageDefaults": {
     "started": "%monitor% er nu %label%",
     "finished": "%monitor% er nu %label% (%count% i dag)"
+  },
+  "usagePatternMessages": {
+    "summary": "Dag med mest brug af %monitor%: %weekday% (%weekday_share% af brugen), travleste time omkring %hour%; %day_share% af tiden tændt ligger mellem 06:00 og 22:00.",
+    "notEnough": "%monitor%: endnu ikke nok cyklusser til at se et mønster (%count% af %needed%)."
   }
 }

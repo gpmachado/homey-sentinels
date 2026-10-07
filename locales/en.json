@@ -73,5 +73,9 @@
   "stateMessageDefaults": {
     "started": "%monitor% is now %label%",
     "finished": "%monitor% is now %label% (%count% today)"
+  },
+  "usagePatternMessages": {
+    "summary": "Most use of %monitor%: %weekday% (%weekday_share% of the use), busiest around %hour%; %day_share% of the time on falls between 06:00 and 22:00.",
+    "notEnough": "%monitor%: not enough cycles yet to see a pattern (%count% of %needed%)."
   }
 }

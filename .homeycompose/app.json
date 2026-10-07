@@ -73,6 +73,10 @@
       "method": "GET",
       "path": "/monitors"
     },
+    "getUsagePattern": {
+      "method": "GET",
+      "path": "/usage-pattern/:id"
+    },
     "createActivityMonitor": {
       "method": "POST",
       "path": "/monitors"

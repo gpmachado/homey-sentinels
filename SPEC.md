@@ -56,7 +56,7 @@ and current. Auxiliary capabilities (`measure_current`, `meter_power`, `measure_
 auto-detected on the device and tracked without separate configuration.
 
 - Cards: `add_activity_monitor`, `remove_activity_monitor`, `reset_activity_monitor`,
-  `update_activity_monitor`, `get_activity_statistics`, `start_monitoring_device`/
+  `update_activity_monitor`, `get_activity_statistics`, `get_usage_pattern`, `start_monitoring_device`/
   `stop_monitoring_device` (manual override for a device with no reliable numeric signal —
   creates the monitor on first run if it doesn't exist yet, and starts/stops it, in one card),
   triggers `activity_started`/`activity_finished`, condition `is_active`.
@@ -297,6 +297,18 @@ no state kept anywhere: the interval is recomputed from the same two numbers eve
 own at midnight since cost_today does. The amount argument has `min: 0.01`: a cycle's cost is added to a total
 that starts at 0, so an amount of 0 could never fall inside the interval. State monitors don't have this trigger yet (only Activity monitors
 track energy by default).
+
+### Usage pattern
+
+`usagePattern(monitor, { timeZone, period, now })` (lib/usage-pattern.js) reads `monitor.cycles` only (Activity and State
+monitors; a state session is a cycle) and returns a 7 x 24 grid (weekday, Monday = 0, by local hour) of cycles started and of
+seconds on, the time on being spread over every local hour a cycle covers (stepped to the next hour boundary, so a DST day
+adds up). A cycle longer than 14 days is clipped. Fewer than 5 cycles in the period is `enough: false` and nothing is named.
+The busiest weekday is the one with most cycles per day of that weekday in the window (ties: more time on), the busiest hour
+the one with most cycles started, and day share is the time on between 06:00 and 22:00. `describeUsagePattern` adds the
+weekday name (Intl, in the Default message language) and the sentence from `usagePatternMessages` in `locales/*.json`.
+`getUsagePattern(id, period)` backs the `get_usage_pattern` card and `GET /usage-pattern/:id` (the Pattern view in
+Settings). Nothing is stored; periods are week, month and all.
 
 ### Voltage phase imbalance
 
