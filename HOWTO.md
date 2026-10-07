@@ -76,7 +76,10 @@ machine.
    (`enough_data` is false before that), compares weekdays by cycles per day so a weekday that occurs five times
    in the window is not favoured, and gives the weekday name and a ready sentence in the *Default message
    language*. In Settings, **Pattern** on an Activity or State monitor shows the same as a weekday-by-hour grid
-   (cycles started, or time on). Voltage monitors have no cycles and no pattern.
+   (cycles started, time on, energy in kWh or average power in W). Energy needs a device that reports kWh, and power
+   is the average of the cycles while on, weighted by the time each spends in the hour; the card also returns
+   `energy_total` and the hour with the highest average power (`peak_power_hour`, `peak_power`). Voltage monitors have no
+   cycles and no pattern.
 4. Message wording works out of the box — a new monitor already has a sensible default
    (`"%monitor% turned on (%power% W)"` / `"%monitor% turned off - %duration_human%, %energy%
    kWh (%count% today)"`), edit it if you want something different in Settings (Monitors tab →

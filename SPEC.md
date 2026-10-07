@@ -301,8 +301,9 @@ track energy by default).
 ### Usage pattern
 
 `usagePattern(monitor, { timeZone, period, now })` (lib/usage-pattern.js) reads `monitor.cycles` only (Activity and State
-monitors; a state session is a cycle) and returns a 7 x 24 grid (weekday, Monday = 0, by local hour) of cycles started and of
-seconds on, the time on being spread over every local hour a cycle covers (stepped to the next hour boundary, so a DST day
+monitors; a state session is a cycle) and returns a 7 x 24 grid (weekday, Monday = 0, by local hour) of cycles started, seconds on,
+energy (a cycle's kWh shared out by time) and average power (the cycles' `averagePower` weighted by the seconds each spends
+in the hour), the time on being spread over every local hour a cycle covers (stepped to the next hour boundary, so a DST day
 adds up). A cycle longer than 14 days is clipped. Fewer than 5 cycles in the period is `enough: false` and nothing is named.
 The busiest weekday is the one with most cycles per day of that weekday in the window (ties: more time on), the busiest hour
 the one with most cycles started, and day share is the time on between 06:00 and 22:00. `describeUsagePattern` adds the

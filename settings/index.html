@@ -43,11 +43,13 @@
           <select id="pattern-metric">
             <option value="starts">Cycles started</option>
             <option value="seconds">Time on</option>
+            <option value="energy">Energy (kWh)</option>
+            <option value="power">Average power (W)</option>
           </select>
         </label>
       </div>
       <div id="pattern-grid" class="pattern-grid"></div>
-      <p class="hint">Weekday by hour of the day in your time zone. Darker is more. The time on is spread over the hours a cycle covers. Day means 06:00 to 22:00.</p>
+      <p class="hint">Weekday by hour of the day in your time zone. Darker is more. Time, energy and power of a cycle are spread over the hours it covers; energy needs a device that reports kWh, and power is the average while on. Day means 06:00 to 22:00.</p>
       <div class="actions"><button type="button" id="pattern-close-btn">Close</button></div>
     </div>
     </div>

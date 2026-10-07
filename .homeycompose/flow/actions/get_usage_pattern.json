@@ -6,7 +6,7 @@
     "en": "Get usage pattern of [[monitor]], period: [[period]]"
   },
   "hint": {
-    "en": "When a monitor is used: the busiest weekday and hour of its cycles and how much of its time on falls in the day (06:00 to 22:00), worked out from the cycles it already keeps. Needs at least 5 cycles in the period. The weekday name and the sentence follow the Default message language in Settings."
+    "en": "When a monitor is used: the busiest weekday and hour of its cycles how much of its time on falls in the day (06:00 to 22:00), the energy over the period and the hour with the highest average power, worked out from the cycles it already keeps. Needs at least 5 cycles in the period. The weekday name and the sentence follow the Default message language in Settings."
   },
   "args": [
     {
@@ -106,6 +106,34 @@
       "type": "number",
       "title": {
         "en": "Time on between 22:00 and 06:00 (%)"
+      }
+    },
+    {
+      "name": "energy_total",
+      "type": "number",
+      "title": {
+        "en": "Energy of those cycles (kWh, 0 without an energy reading)"
+      }
+    },
+    {
+      "name": "peak_power_hour",
+      "type": "number",
+      "title": {
+        "en": "Hour with the highest average power while on (0 to 23, -1 = none)"
+      }
+    },
+    {
+      "name": "peak_power_hour_label",
+      "type": "string",
+      "title": {
+        "en": "Hour with the highest average power (for example 18:00-19:00)"
+      }
+    },
+    {
+      "name": "peak_power",
+      "type": "number",
+      "title": {
+        "en": "Average power in that hour (W)"
       }
     },
     {

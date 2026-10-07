@@ -144,10 +144,16 @@ three on a Saturday starting at 18:00, 18:10 and 18:20, one on a Monday at 08:00
 | `day_percent` / `night_percent` | `80` / `20` | of the time on: 4 h of 5 h fall between 06:00 and 22:00 |
 | `message` | `Dia de maior uso de Bomba: sábado (60% do uso), horário de pico 18:00-19:00; 80% do tempo ligado é entre 06:00 e 22:00.` | with *Português* chosen |
 
+With a device that reports energy and power (the cycle carries its kWh and its average watts), the card also gives
+`energy_total`, `peak_power_hour`, `peak_power_hour_label` and `peak_power`. Four one-hour cycles on Monday to Thursday at
+08:00 (0.3 kWh, 300 W each) and one on Friday at 19:00 (2 kWh, 2000 W) give `energy_total` `3.2`, `peak_power_hour` `19`,
+`peak_power_hour_label` `19:00-20:00` and `peak_power` `2000`. Without an energy reading `energy_total` is `0`; without
+power, `peak_power_hour` is `-1`. The energy and power of a cycle are shared out over the hours it covers by time.
+
 With fewer than 5 cycles `enough_data` is `false`, the weekday and hour are empty (`busiest_weekday_number` `0`,
 `busiest_hour` `-1`, the percentages `0`) and the message says how many are missing, for example
 `Bomba: ainda não há ciclos suficientes para ver um padrão (2 de 5).` Settings → Monitors → **Pattern** draws the
-same weekday-by-hour grid.
+same weekday-by-hour grid, with cycles started, time on, energy (kWh) or average power (W) to choose from.
 
 ## 4. A door: State Monitor
 

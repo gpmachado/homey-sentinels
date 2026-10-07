@@ -112,3 +112,36 @@ test('the sentence comes out in the chosen language, and says how many cycles ar
   assert.equal(few.message, 'Bomba: ainda não há ciclos suficientes para ver um padrão (2 de 5).');
   assert.equal(few.weekdayName, '');
 });
+
+const withPower = (startedAt, minutes, energy, averagePower) => ({ ...cycle(startedAt, minutes), energy, averagePower });
+
+test('energy is shared out by the time a cycle spends in each hour, and power is the time-weighted average while on', () => {
+  const p = usagePattern(monitor([withPower(at(0, 8, 30), 105, 1.05, 600), withPower(at(0, 8, 0), 30, 0.1, 200)]), { ...UTC, period: 'all' });
+  // 08:30-10:15 at 1.05 kWh: 30/60/15 of 105 minutes; the second cycle adds 0.1 kWh in hour 8
+  assert.deepEqual([p.energy[0][8], p.energy[0][9], p.energy[0][10]], [0.4, 0.6, 0.15]);
+  assert.equal(p.totalEnergy, 1.15);
+  // hour 8: 30 min at 600 W and 30 min at 200 W -> 400 W; hours 9 and 10: 600 W
+  assert.deepEqual([p.power[0][8], p.power[0][9], p.power[0][10]], [400, 600, 600]);
+  assert.equal(p.power[0][7], 0); // no cycle there
+});
+
+test('the hour with the highest average power is named only with enough cycles', () => {
+  const few = usagePattern(monitor([withPower(at(0, 8), 60, 1, 1000)]), UTC);
+  assert.equal(few.peakPowerHour, null);
+  assert.equal(few.peakPower, null);
+  const cycles = [0, 1, 2, 3].map((d) => withPower(at(d, 8), 60, 0.3, 300)).concat([withPower(at(4, 19), 60, 2, 2000)]);
+  const p = usagePattern(monitor(cycles), UTC);
+  assert.equal(p.peakPowerHour, 19);
+  assert.equal(p.peakPower, 2000);
+  assert.equal(describeUsagePattern(p, { name: 'X', language: 'en', wording: wordingFor('en').usagePatternMessages }).peakPowerHourLabel, '19:00-20:00');
+});
+
+test('a device without an energy reading still gets power, and energy stays zero without breaking anything', () => {
+  const cycles = [0, 1, 2, 3, 4].map((d) => ({ ...cycle(at(d, 8), 60), energy: 0, averagePower: 150 }));
+  const p = usagePattern(monitor(cycles), UTC);
+  assert.equal(p.totalEnergy, 0);
+  assert.equal(p.power[0][8], 150);
+  const none = usagePattern(monitor([0, 1, 2, 3, 4].map((d) => cycle(at(d, 8), 60))), UTC); // neither energy nor power on the cycle
+  assert.equal(none.peakPowerHour, null);
+  assert.equal(none.totalEnergy, 0);
+});

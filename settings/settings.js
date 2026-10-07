@@ -758,6 +758,13 @@ function onHomeyReady(Homey) {
       renderUsagePattern();
     }).catch(function (error) { closeModal(patternWrapper); showError(error); });
   }
+  function patternValueText(value) {
+    var metric = patternMetric.value;
+    if (metric === 'starts') return value + ' cycle' + (value === 1 ? '' : 's');
+    if (metric === 'energy') return (Math.round(value * 100) / 100) + ' kWh';
+    if (metric === 'power') return value + ' W';
+    return formatDuration(value);
+  }
   function renderUsagePattern() {
     document.getElementById('pattern-message').textContent = patternData.message;
     var matrix = patternData[patternMetric.value];
@@ -777,7 +784,7 @@ function onHomeyReady(Homey) {
       row.forEach(function (value, hourOfDay) {
         var cell = document.createElement('div');
         cell.className = 'pattern-cell';
-        cell.title = PATTERN_DAYS[day] + ' ' + (hourOfDay < 10 ? '0' : '') + hourOfDay + ':00 - ' + (patternMetric.value === 'starts' ? value + ' cycle' + (value === 1 ? '' : 's') : formatDuration(value));
+        cell.title = PATTERN_DAYS[day] + ' ' + (hourOfDay < 10 ? '0' : '') + hourOfDay + ':00 - ' + patternValueText(value);
         if (value > 0 && biggest > 0) {
           var fill = document.createElement('i');
           fill.style.opacity = String(Math.max(0.15, value / biggest));

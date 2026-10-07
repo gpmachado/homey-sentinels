@@ -24,9 +24,9 @@
   };
   // A usage pattern for any monitor: busy on Saturday evenings and Monday mornings.
   var usagePattern = (function () {
-    var starts = []; var seconds = [];
-    for (var d = 0; d < 7; d += 1) { starts.push([]); seconds.push([]); for (var h = 0; h < 24; h += 1) { var n = (d === 5 && h >= 17 && h <= 20) ? 3 : (d === 0 && h === 8 ? 2 : 0); starts[d].push(n); seconds[d].push(n * 1800); } }
-    return { id: 'x', name: 'Fixture', period: 'month', enough: true, cycleCount: 18, minCycles: 5, starts: starts, seconds: seconds, busiestWeekday: 5, busiestWeekdayShare: 67, busiestHour: 18, dayShare: 80, nightShare: 20, weekdayName: 'Saturday', hourLabel: '18:00-19:00', message: 'Most use of Fixture: Saturday (67% of the use), busiest around 18:00-19:00; 80% of the time on falls between 06:00 and 22:00.' };
+    var starts = []; var seconds = []; var energy = []; var power = [];
+    for (var d = 0; d < 7; d += 1) { starts.push([]); seconds.push([]); energy.push([]); power.push([]); for (var h = 0; h < 24; h += 1) { var n = (d === 5 && h >= 17 && h <= 20) ? 3 : (d === 0 && h === 8 ? 2 : 0); starts[d].push(n); seconds[d].push(n * 1800); energy[d].push(n * 0.4); power[d].push(n ? 800 : 0); } }
+    return { id: 'x', name: 'Fixture', period: 'month', enough: true, cycleCount: 18, minCycles: 5, starts: starts, seconds: seconds, energy: energy, power: power, totalEnergy: 7.2, peakPowerHour: 18, peakPower: 800, busiestWeekday: 5, busiestWeekdayShare: 67, busiestHour: 18, dayShare: 80, nightShare: 20, weekdayName: 'Saturday', hourLabel: '18:00-19:00', message: 'Most use of Fixture: Saturday (67% of the use), busiest around 18:00-19:00; 80% of the time on falls between 06:00 and 22:00.' };
   })();
   window.addEventListener('load', function () {
     var Homey = {
