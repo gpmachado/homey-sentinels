@@ -56,6 +56,18 @@
     <div class="subtab-panel" data-subtab="activity">
       <div class="actions"><button type="button" id="add-activity-monitor-btn">Add activity monitor</button></div>
       <div class="entity-list" id="monitors-body"><div class="entity-empty">Loading…</div></div>
+      <details id="standby-ranking">
+        <summary>Standby energy: who uses the most while idle</summary>
+        <label>Period
+          <select id="standby-period">
+            <option value="week">Last 7 days</option>
+            <option value="month" selected>Last 30 days</option>
+            <option value="all">All history</option>
+          </select>
+        </label>
+        <div class="entity-list" id="standby-body"></div>
+        <p class="hint">The energy each monitor used while idle, biggest first, with its share of the total and its cost when a price is set (Energy cost, below). Needs a device that reports kWh; monitors without it are not listed.</p>
+      </details>
 
       <div id="activity-add-form-wrapper" class="hidden modal-overlay">
       <div class="modal-box">

@@ -1,0 +1,31 @@
+{
+  "title": {
+    "en": "[[monitor]] !{{has not been active for at least|has been active within the last}} [[hours]] hours"
+  },
+  "titleFormatted": {
+    "en": "[[monitor]] !{{has not been active for at least|has been active within the last}} [[hours]] hours"
+  },
+  "hint": {
+    "en": "True when the monitor is idle and its last cycle ended at least this long ago (for a monitor that has not finished a cycle yet, since it was first seen). False while it is running, or before it has recorded anything. For a freezer, a pump or a door that should have cycled by now. Works with Activity and State monitors."
+  },
+  "args": [
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor"
+      }
+    },
+    {
+      "name": "hours",
+      "type": "number",
+      "title": {
+        "en": "Hours"
+      },
+      "min": 0,
+      "placeholder": {
+        "en": "e.g. 6"
+      }
+    }
+  ]
+}

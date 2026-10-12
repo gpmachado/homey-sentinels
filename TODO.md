@@ -25,6 +25,13 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### Not run for N hours + standby ranking: DONE 2026-10-12, to verify on the Homey
+
+Condition `activity_not_run_for` (Activity and State monitors) and `get_standby_ranking` card + a Standby energy section in Settings
+(`hoursSinceLastRun`, `standbyRanking` in lib/statistics.js). Standby energy needs a device that reports kWh; a monitor on `measure_power`
+alone is not listed. A device that is offline reads as "not run" (nothing tells it from idle): pair the condition with the availability
+check if that matters.
+
 ### Usage pattern: DONE 2026-10-07, to verify on the Homey
 
 **Get usage pattern** card (busiest weekday and hour, day/night share, weekday name and a sentence in the Default message

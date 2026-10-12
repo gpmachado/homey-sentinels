@@ -93,6 +93,9 @@ module.exports = {
   async getMonitorsSummary({ homey, query }) {
     return homey.app.getMonitorsSummary(query.period);
   },
+  async getStandbyRanking({ homey, query }) {
+    return homey.app.getStandbyRanking(query.period);
+  },
   async getUsagePattern({ homey, params, query }) {
     return homey.app.getUsagePattern(params.id, query.period);
   },

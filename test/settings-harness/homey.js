@@ -28,13 +28,14 @@
     for (var d = 0; d < 7; d += 1) { starts.push([]); seconds.push([]); energy.push([]); power.push([]); for (var h = 0; h < 24; h += 1) { var n = (d === 5 && h >= 17 && h <= 20) ? 3 : (d === 0 && h === 8 ? 2 : 0); starts[d].push(n); seconds[d].push(n * 1800); energy[d].push(n * 0.4); power[d].push(n ? 800 : 0); } }
     return { id: 'x', name: 'Fixture', period: 'month', enough: true, cycleCount: 18, minCycles: 5, starts: starts, seconds: seconds, energy: energy, power: power, totalEnergy: 7.2, peakPowerHour: 18, peakPower: 800, busiestWeekday: 5, busiestWeekdayShare: 67, busiestHour: 18, dayShare: 80, nightShare: 20, weekdayName: 'Saturday', hourLabel: '18:00-19:00', message: 'Most use of Fixture: Saturday (67% of the use), busiest around 18:00-19:00; 80% of the time on falls between 06:00 and 22:00.' };
   })();
+  var standbyRanking = { period: 'month', totalStandbyEnergy: 1.9, cost: 1.62, costText: 'R$ 1,62', rows: [{ id: 'a1', name: 'Pump', kind: 'activity', standbyEnergy: 1.4, sharePercent: 74, cost: 1.19, costText: 'R$ 1,19' }, { id: 's1', name: 'Door', kind: 'state', standbyEnergy: 0.5, sharePercent: 26, cost: 0.43, costText: 'R$ 0,43' }] };
   window.addEventListener('load', function () {
     var Homey = {
       api: function (method, path, body, cb) {
         if (typeof body === 'function') { cb = body; body = undefined; }
         log.push({ call: method + ' ' + path, body: body === undefined ? null : JSON.parse(JSON.stringify(body)) });
         var key = path.split('?')[0];
-        var result = method === 'GET' ? (key.indexOf('/usage-pattern/') === 0 ? usagePattern : lists[key]) : (key === '/message-settings' ? Object.assign({}, lists[key], body) : (key === '/availability-exclusions' ? lists['/availability-scan'] : {}));
+        var result = method === 'GET' ? (key.indexOf('/usage-pattern/') === 0 ? usagePattern : (key === '/standby-ranking' ? standbyRanking : lists[key])) : (key === '/message-settings' ? Object.assign({}, lists[key], body) : (key === '/availability-exclusions' ? lists['/availability-scan'] : {}));
         setTimeout(function () { result === undefined ? cb(new Error('no fixture ' + key)) : cb(null, result); }, 0);
       },
       getLanguage: function () { return 'en'; }, __: function (k) { return k; },

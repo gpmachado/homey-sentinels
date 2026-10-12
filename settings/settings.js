@@ -733,6 +733,28 @@ function onHomeyReady(Homey) {
     });
   }
 
+  // Standby energy by monitor, loaded when the section is opened (and when its period changes).
+  var standbyDetails = document.getElementById('standby-ranking');
+  var standbyPeriod = document.getElementById('standby-period');
+  function loadStandbyRanking() {
+    api('GET', '/standby-ranking?period=' + standbyPeriod.value).then(function (ranking) {
+      var container = document.getElementById('standby-body');
+      container.innerHTML = '';
+      if (!ranking.rows.length) { renderEmptyList(container, 'No standby energy recorded in this period.'); return; }
+      ranking.rows.forEach(function (row) {
+        container.appendChild(entityRow(escapeHtml(row.name) + ' <span class="badge">' + row.kind + '</span>', [
+          formatEnergy(row.standbyEnergy) + ' idle', row.sharePercent + '% of the total', row.costText ? escapeHtml(row.costText) : null
+        ]));
+      });
+      var total = document.createElement('p');
+      total.className = 'hint';
+      total.textContent = 'Total idle: ' + formatEnergy(ranking.totalStandbyEnergy) + (ranking.costText ? ' (' + ranking.costText + ')' : '');
+      container.appendChild(total);
+    }).catch(showError);
+  }
+  standbyDetails.addEventListener('toggle', function () { if (standbyDetails.open) loadStandbyRanking(); });
+  standbyPeriod.addEventListener('change', function () { if (standbyDetails.open) loadStandbyRanking(); });
+
   // When this monitor is used: cycles started or time on, by weekday and hour, from its own cycles (the app works it
   // out; the sentence on top comes in the Default message language).
   var patternWrapper = document.getElementById('pattern-wrapper');

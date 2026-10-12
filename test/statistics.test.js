@@ -330,3 +330,31 @@ test('calibrationProgress: passing an analysis already computed gives the same a
   }
   assert.equal(calibrationProgress(ready, analyzeThreshold(ready)).status, 'ready');
 });
+
+const { hoursSinceLastRun, standbyRanking } = require('../lib/statistics');
+
+test('hoursSinceLastRun counts from the end of the last cycle, or from the first data when none finished', () => {
+  const now = Date.UTC(2026, 9, 10, 12);
+  const HOUR = 3600 * 1000;
+  assert.equal(hoursSinceLastRun({ state: 'STANDBY', cycles: [{ endedAt: now - 5 * HOUR }, { endedAt: now - 2 * HOUR }] }, now), 2);
+  assert.equal(hoursSinceLastRun({ state: 'STANDBY', cycles: [], periods: [{ startedAt: now - 30 * HOUR }] }, now), 30);
+});
+
+test('hoursSinceLastRun is null while running and when nothing was ever recorded', () => {
+  const now = Date.UTC(2026, 9, 10, 12);
+  assert.equal(hoursSinceLastRun({ state: 'ACTIVE', cycles: [{ endedAt: now - 3600000 }] }, now), null);
+  assert.equal(hoursSinceLastRun({ state: 'STANDBY', cycles: [], periods: [] }, now), null);
+  assert.equal(hoursSinceLastRun({ state: 'STANDBY' }, now), null);
+  assert.equal(hoursSinceLastRun({ state: 'STANDBY', cycles: [{ endedAt: now + 1000 }] }, now), 0); // a clock step never gives a negative
+});
+
+test('standbyRanking orders by standby energy, shares add up, and monitors without standby energy are left out', () => {
+  const now = Date.UTC(2026, 9, 10, 12);
+  const monitor = (standbyKwh) => ({ cycles: [], totals: {}, periods: standbyKwh === 0 ? [] : [{ startedAt: now - 3600000, endedAt: now - 1800000, state: 'STANDBY', seconds: 1800, energy: standbyKwh, minPower: 5, maxPower: 5, powerSum: 5, sampleCount: 1 }] });
+  const items = [{ id: 'a', name: 'A', kind: 'activity', monitor: monitor(0.3) }, { id: 'b', name: 'B', kind: 'activity', monitor: monitor(0.9) }, { id: 'c', name: 'C', kind: 'state', monitor: monitor(0) }];
+  const ranking = standbyRanking(items, 'week', 'UTC', now);
+  assert.deepEqual(ranking.rows.map((row) => row.id), ['b', 'a']);
+  assert.deepEqual(ranking.rows.map((row) => row.sharePercent), [75, 25]);
+  assert.equal(ranking.totalStandbyEnergy, 1.2);
+  assert.deepEqual(standbyRanking([], 'month', 'UTC', now), { period: 'month', totalStandbyEnergy: 0, rows: [] });
+});

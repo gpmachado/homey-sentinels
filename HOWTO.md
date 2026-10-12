@@ -80,6 +80,15 @@ machine.
    is the average of the cycles while on, weighted by the time each spends in the hour; the card also returns
    `energy_total` and the hour with the highest average power (`peak_power_hour`, `peak_power`). Voltage monitors have no
    cycles and no pattern.
+   **Condition "has not been active for at least N hours"** is the opposite of "has been active for more than N
+   minutes": it is true when the monitor is idle and its last cycle ended at least N hours ago (a monitor that
+   has not finished a cycle yet counts from its first recorded data). It is false while the monitor is running and
+   before it has recorded anything, so it never fires on no evidence. Use it for a freezer, a pump or a door that
+   should have cycled by now. It works with Activity and State monitors.
+   **"Get standby ranking"** (Advanced Flow) and, in Settings, the **Standby energy** section list which monitors use
+   the most while idle over 7 days, 30 days or all history: the total, the biggest one and a top 5 as lines
+   (`1. Freezer: 1.40 kWh (R$ 1.19)`), with the cost when a price is set. Language-neutral (no words to translate).
+   It needs a device that reports kWh; monitors without it are not listed.
 4. Message wording works out of the box — a new monitor already has a sensible default
    (`"%monitor% turned on (%power% W)"` / `"%monitor% turned off - %duration_human%, %energy%
    kWh (%count% today)"`), edit it if you want something different in Settings (Monitors tab →

@@ -73,6 +73,10 @@
       "method": "GET",
       "path": "/monitors"
     },
+    "getStandbyRanking": {
+      "method": "GET",
+      "path": "/standby-ranking"
+    },
     "getUsagePattern": {
       "method": "GET",
       "path": "/usage-pattern/:id"

@@ -74,6 +74,10 @@
       "method": "GET",
       "path": "/monitors"
     },
+    "getStandbyRanking": {
+      "method": "GET",
+      "path": "/standby-ranking"
+    },
     "getUsagePattern": {
       "method": "GET",
       "path": "/usage-pattern/:id"
@@ -1459,6 +1463,38 @@
     "conditions": [
       {
         "title": {
+          "en": "[[monitor]] !{{has not been active for at least|has been active within the last}} [[hours]] hours"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] !{{has not been active for at least|has been active within the last}} [[hours]] hours"
+        },
+        "hint": {
+          "en": "True when the monitor is idle and its last cycle ended at least this long ago (for a monitor that has not finished a cycle yet, since it was first seen). False while it is running, or before it has recorded anything. For a freezer, a pump or a door that should have cycled by now. Works with Activity and State monitors."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "hours",
+            "type": "number",
+            "title": {
+              "en": "Hours"
+            },
+            "min": 0,
+            "placeholder": {
+              "en": "e.g. 6"
+            }
+          }
+        ],
+        "id": "activity_not_run_for"
+      },
+      {
+        "title": {
           "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes"
         },
         "titleFormatted": {
@@ -2531,6 +2567,105 @@
           }
         ],
         "id": "get_group_statistics"
+      },
+      {
+        "title": {
+          "en": "Get standby ranking"
+        },
+        "titleFormatted": {
+          "en": "Get standby ranking, period: [[period]]"
+        },
+        "hint": {
+          "en": "Which monitors use the most energy while idle, over the period: the total, the biggest one and a top 5 as ready-to-use lines (name, kWh and cost when a price is set). Needs a device that reports kWh."
+        },
+        "args": [
+          {
+            "name": "period",
+            "type": "dropdown",
+            "title": {
+              "en": "Period"
+            },
+            "values": [
+              {
+                "id": "week",
+                "label": {
+                  "en": "Last 7 days"
+                }
+              },
+              {
+                "id": "month",
+                "label": {
+                  "en": "Last 30 days"
+                }
+              },
+              {
+                "id": "all",
+                "label": {
+                  "en": "All history"
+                }
+              }
+            ]
+          }
+        ],
+        "tokens": [
+          {
+            "name": "count",
+            "type": "number",
+            "title": {
+              "en": "Monitors with standby energy"
+            }
+          },
+          {
+            "name": "total_standby_energy",
+            "type": "number",
+            "title": {
+              "en": "Total standby energy (kWh)"
+            }
+          },
+          {
+            "name": "total_standby_cost",
+            "type": "number",
+            "title": {
+              "en": "Total standby cost (needs an energy price in Settings)"
+            }
+          },
+          {
+            "name": "total_standby_cost_text",
+            "type": "string",
+            "title": {
+              "en": "Total standby cost (text, with currency)"
+            }
+          },
+          {
+            "name": "top_name",
+            "type": "string",
+            "title": {
+              "en": "Biggest standby user"
+            }
+          },
+          {
+            "name": "top_standby_energy",
+            "type": "number",
+            "title": {
+              "en": "Its standby energy (kWh)"
+            }
+          },
+          {
+            "name": "top_standby_cost_text",
+            "type": "string",
+            "title": {
+              "en": "Its standby cost (text, with currency)"
+            }
+          },
+          {
+            "name": "ranking",
+            "type": "string",
+            "title": {
+              "en": "Top 5, one line each"
+            }
+          }
+        ],
+        "id": "get_standby_ranking"
       },
       {
         "title": {

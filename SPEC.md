@@ -311,6 +311,15 @@ weekday name (Intl, in the Default message language) and the sentence from `usag
 `getUsagePattern(id, period)` backs the `get_usage_pattern` card and `GET /usage-pattern/:id` (the Pattern view in
 Settings). Nothing is stored; periods are week, month and all.
 
+### Not run for N hours, and the standby ranking
+
+`hoursSinceLastRun(monitor, now)` (lib/statistics.js) is the hours since the last cycle's `endedAt`, or since the first period
+when no cycle finished yet; `null` while ACTIVE or with nothing recorded, so the condition `activity_not_run_for` (Activity and
+State monitors) is false on no evidence. `standbyRanking(items, period, timeZone)` sorts monitors by `standby_energy` of
+`statistics()` over the period, drops those at 0 (no kWh reading) and gives each its share of the total. `getStandbyRanking`
+adds the cost at the Settings price; it backs the `get_standby_ranking` card (tokens are numbers and "name: energy (cost)"
+lines, no translated words) and `GET /standby-ranking` (the Standby energy section in Settings, loaded when opened).
+
 ### Voltage phase imbalance
 
 `voltageImbalancePercent(a, b)` (lib/statistics.js) is `|a - b| / ((a + b) / 2) * 100`, `null` if either
