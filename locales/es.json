@@ -95,5 +95,13 @@
     "trendFrame": "Esta semana frente a la anterior: actividad %activity%, ciclos %cycles%, energía %energy%.",
     "trendNotEnough": "datos insuficientes",
     "trendNoBaseline": "sin semana anterior"
+  },
+  "reportMessages": {
+    "periodDay": "hoy",
+    "periodWeek": "últimos 7 días",
+    "periodMonth": "últimos 30 días",
+    "activity": "%monitor% (%period%): ciclos %cycles%, energía %energy%, activo %active%.",
+    "voltage": "%monitor% (%period%): media %average% V, rango %min%-%max% V, incidentes %incidents%.",
+    "state": "%monitor% (%period%): sesiones %sessions%, %label% %duration%."
   }
 }

@@ -95,5 +95,13 @@
     "trendFrame": "Denne uken mot forrige: aktivitet %activity%, sykluser %cycles%, energi %energy%.",
     "trendNotEnough": "for lite data",
     "trendNoBaseline": "ingen forrige uke å sammenligne med"
+  },
+  "reportMessages": {
+    "periodDay": "i dag",
+    "periodWeek": "siste 7 dager",
+    "periodMonth": "siste 30 dager",
+    "activity": "%monitor% (%period%): sykluser %cycles%, energi %energy%, aktiv %active%.",
+    "voltage": "%monitor% (%period%): snitt %average% V, område %min%-%max% V, hendelser %incidents%.",
+    "state": "%monitor% (%period%): økter %sessions%, %label% %duration%."
   }
 }

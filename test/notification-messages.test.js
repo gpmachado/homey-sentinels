@@ -32,3 +32,17 @@ test('the weekly trend sentence keeps its English form in the statistics and can
   assert.equal(trend.summary, 'This week vs. previous: activity no prior baseline, cycles no prior baseline, energy no prior baseline.');
   assert.equal(trendSummary(trend, wordingFor('pt').notificationMessages), 'Esta semana contra a anterior: tempo ligado sem semana anterior para comparar, ciclos sem semana anterior para comparar, energia sem semana anterior para comparar.');
 });
+
+test('the text report in Portuguese, for each kind of monitor', () => {
+  const { generateTextReport } = require('../lib/statistics');
+  const messages = wordingFor('pt').reportMessages;
+  const now = Date.UTC(2026, 9, 10, 12);
+  const data = {
+    monitors: { a: { name: 'Bomba', periods: [], cycles: [] } },
+    voltageMonitors: { v: { name: 'Fase A', periods: [], dailySummaries: [] } },
+    stateMonitors: { s: { name: 'Porta', trueLabel: 'Aberta', periods: [], cycles: [], dailySummaries: [] } }
+  };
+  assert.equal(generateTextReport('a', 'week', data, 'UTC', now, messages), 'Bomba (últimos 7 dias): ciclos 0, energia 0 Wh, ligado 0s.');
+  assert.equal(generateTextReport('v', 'month', data, 'UTC', now, messages), 'Fase A (últimos 30 dias): média 0.0 V, faixa 0.0-0.0 V, ocorrências 0.');
+  assert.equal(generateTextReport({ data: { id: 's' } }, 'day', data, 'UTC', now, messages), 'Porta (hoje): sessões 0, Aberta 0s.');
+});

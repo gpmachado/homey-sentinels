@@ -80,7 +80,7 @@ machine.
    is the average of the cycles while on, weighted by the time each spends in the hour; the card also returns
    `energy_total` and the hour with the highest average power (`peak_power_hour`, `peak_power`). Voltage monitors have no
    cycles and no pattern.
-   The sentences the app writes itself (the `message` token of the availability triggers, the timeline entries, *Threshold calibrated*, the weekly `trend_summary`, *Get daily digest*, *Get usage pattern*) follow the *Default message language*, so a text-to-speech or a notification gets them in Portuguese even with Homey in English.
+   The sentences the app writes itself (the `message` token of the availability triggers, the timeline entries, *Threshold calibrated*, the weekly `trend_summary`, *Generate text report*, *Get daily digest*, *Get usage pattern*) follow the *Default message language*, so a text-to-speech or a notification gets them in Portuguese even with Homey in English.
    **Condition "has not been active for at least N hours"** is the opposite of "has been active for more than N
    minutes": it is true when the monitor is idle and its last cycle ended at least N hours ago (a monitor that
    has not finished a cycle yet counts from its first recorded data). It is false while the monitor is running and

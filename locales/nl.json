@@ -95,5 +95,13 @@
     "trendFrame": "Deze week t.o.v. vorige: actief %activity%, cycli %cycles%, energie %energy%.",
     "trendNotEnough": "te weinig gegevens",
     "trendNoBaseline": "geen vorige week om mee te vergelijken"
+  },
+  "reportMessages": {
+    "periodDay": "vandaag",
+    "periodWeek": "laatste 7 dagen",
+    "periodMonth": "laatste 30 dagen",
+    "activity": "%monitor% (%period%): cycli %cycles%, energie %energy%, actief %active%.",
+    "voltage": "%monitor% (%period%): gemiddeld %average% V, bereik %min%-%max% V, incidenten %incidents%.",
+    "state": "%monitor% (%period%): sessies %sessions%, %label% %duration%."
   }
 }

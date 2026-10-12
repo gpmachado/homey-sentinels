@@ -227,7 +227,7 @@ test('generateTextReport builds one sentence per entity kind and throws for an u
     voltageMonitors: {}, stateMonitors: {}
   };
   const report = generateTextReport('m1', 'day', data, TZ, 2000);
-  assert.match(report, /Freezer:/);
+  assert.equal(report, 'Freezer (today): cycles 1, energy 0 Wh, active 0s.');
   assert.throws(() => generateTextReport('nope', 'day', data, TZ, 2000), /not found/);
 });
 
