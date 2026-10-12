@@ -264,10 +264,12 @@ Nothing to set up for the scan; add a watchdog to a device you want its own limi
 
 | Card | Tokens |
 |---|---|
-| **A device needs attention** (scan; fires once per new problem, the first scan is silent) | `device`, `zone`, `last_seen`, `reason` (`unavailable`, `stale` or `low_battery`), `battery` (`0` when not a battery problem) |
-| **Device became unavailable** (watchdog) | `device`, `zone`, `last_seen`, `reason` |
-| **Device became available** (watchdog) | `device`, `downtime` (for example `5 h 29 min`) |
-| **Watched device battery is low** | `device`, `zone`, `battery` |
+| **A device needs attention** (scan; fires once per new problem, the first scan is silent) | `device`, `zone`, `last_seen`, `reason` (`unavailable`, `stale` or `low_battery`), `battery` (`0` when not a battery problem), `message` (a sentence in the Default message language, for example `Sensor parou de reportar` or `Sensor está com a bateria baixa (9%)`) |
+| **Device became unavailable** (watchdog) | `device`, `zone`, `last_seen`, `reason`, `message` (`Sensor não reporta há mais de 12 h` or `Sensor ficou indisponível`) |
+| **Device became available** (watchdog) | `device`, `downtime` (for example `5 h 29 min`), `message` (`Sensor voltou a ficar disponível depois de 5 h 29 min`) |
+| **Watched device battery is low** | `device`, `zone`, `battery`, `message` (`A bateria de Sensor está baixa (9%)`) |
+
+The `message` of these cards, the timeline entries and the *Threshold calibrated* message are in the *Default message language* (Settings → Monitors → Message format), so a text-to-speech or a notification can use them as they are. The examples above are with *Português*.
 
 ## 8. Placeholders inside message templates
 

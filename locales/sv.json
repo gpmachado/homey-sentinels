@@ -80,5 +80,20 @@
   },
   "dailyDigestMessages": {
     "summary": "Idag: %cycles% cykler, %energy%. Mest energi: %top%. Enheter som behöver uppmärksamhet: %problems%. Grupper som avviker: %groups%."
+  },
+  "notificationMessages": {
+    "stale": "%device% har inte rapporterat på över %hours% h",
+    "unavailable": "%device% blev otillgänglig",
+    "available": "%device% är tillgänglig igen efter %downtime%",
+    "batteryLow": "Batteriet i %device% är lågt (%battery%)",
+    "scanStale": "%device% har slutat rapportera",
+    "scanUnavailable": "%device% är otillgänglig",
+    "scanLowBattery": "%device% har lågt batteri (%battery%)",
+    "scanMany": "%count% enheter behöver uppmärksamhet: %names%",
+    "scanManyMore": "%count% enheter behöver uppmärksamhet: %names% och %more% till",
+    "calibrated": "%monitor% kalibrerad: tröskel ~%threshold% W (standby ~%standby% W, aktiv ~%active% W).",
+    "trendFrame": "Den här veckan mot förra: aktivitet %activity%, cykler %cycles%, energi %energy%.",
+    "trendNotEnough": "för lite data",
+    "trendNoBaseline": "ingen tidigare vecka att jämföra med"
   }
 }

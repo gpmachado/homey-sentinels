@@ -25,6 +25,13 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### Messages in the Default message language, round 2: DONE 2026-10-12
+
+Availability triggers have a `message` token and the timeline entries, *Threshold calibrated* and `trend_summary` follow the language
+(`notificationMessages` in locales; `_say` in monitor-admin). Added: Get daily digest, `usage_unusual_hour` condition. Still English only:
+`generate_text_report` (the long sentence in lib/statistics.js), the Settings page, the widgets, the group "back to normal" log line and the
+diagnostic log lines. Pending from the suggestions: a sun-aware silence limit for solar inverters (Deye, Hoymiles) in the availability scan.
+
 ### Not run for N hours + standby ranking: DONE 2026-10-12, to verify on the Homey
 
 Condition `activity_not_run_for` (Activity and State monitors) and `get_standby_ranking` card + a Standby energy section in Settings

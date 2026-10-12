@@ -80,5 +80,20 @@
   },
   "dailyDigestMessages": {
     "summary": "Aujourd'hui : %cycles% cycles, %energy%. Plus forte consommation : %top%. Appareils à surveiller : %problems%. Groupes en écart : %groups%."
+  },
+  "notificationMessages": {
+    "stale": "%device% n'a rien signalé depuis plus de %hours% h",
+    "unavailable": "%device% est devenu indisponible",
+    "available": "%device% est de nouveau disponible après %downtime%",
+    "batteryLow": "La batterie de %device% est faible (%battery%)",
+    "scanStale": "%device% ne signale plus rien",
+    "scanUnavailable": "%device% est indisponible",
+    "scanLowBattery": "%device% a une batterie faible (%battery%)",
+    "scanMany": "%count% appareils demandent de l'attention : %names%",
+    "scanManyMore": "%count% appareils demandent de l'attention : %names% et %more% de plus",
+    "calibrated": "%monitor% calibré : seuil ~%threshold% W (veille ~%standby% W, actif ~%active% W).",
+    "trendFrame": "Cette semaine par rapport à la précédente : activité %activity%, cycles %cycles%, énergie %energy%.",
+    "trendNotEnough": "pas assez de données",
+    "trendNoBaseline": "pas de semaine précédente"
   }
 }

@@ -80,5 +80,20 @@
   },
   "dailyDigestMessages": {
     "summary": "Vandaag: %cycles% cycli, %energy%. Meeste verbruik: %top%. Apparaten die aandacht nodig hebben: %problems%. Groepen niet in orde: %groups%."
+  },
+  "notificationMessages": {
+    "stale": "%device% heeft al meer dan %hours% u niet gemeld",
+    "unavailable": "%device% is niet beschikbaar geworden",
+    "available": "%device% is weer beschikbaar na %downtime%",
+    "batteryLow": "De batterij van %device% is laag (%battery%)",
+    "scanStale": "%device% meldt niets meer",
+    "scanUnavailable": "%device% is niet beschikbaar",
+    "scanLowBattery": "%device% heeft een lage batterij (%battery%)",
+    "scanMany": "%count% apparaten hebben aandacht nodig: %names%",
+    "scanManyMore": "%count% apparaten hebben aandacht nodig: %names% en %more% meer",
+    "calibrated": "%monitor% gekalibreerd: drempel ~%threshold% W (stand-by ~%standby% W, actief ~%active% W).",
+    "trendFrame": "Deze week t.o.v. vorige: actief %activity%, cycli %cycles%, energie %energy%.",
+    "trendNotEnough": "te weinig gegevens",
+    "trendNoBaseline": "geen vorige week om mee te vergelijken"
   }
 }

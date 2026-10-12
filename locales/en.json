@@ -80,5 +80,20 @@
   },
   "dailyDigestMessages": {
     "summary": "Today: %cycles% cycles, %energy%. Most energy: %top%. Devices needing attention: %problems%. Groups out of place: %groups%."
+  },
+  "notificationMessages": {
+    "stale": "%device% hasn't reported in over %hours% h",
+    "unavailable": "%device% became unavailable",
+    "available": "%device% is available again after %downtime%",
+    "batteryLow": "%device% battery is low (%battery%)",
+    "scanStale": "%device% has stopped reporting",
+    "scanUnavailable": "%device% is unavailable",
+    "scanLowBattery": "%device% has a low battery (%battery%)",
+    "scanMany": "%count% devices need attention: %names%",
+    "scanManyMore": "%count% devices need attention: %names% and %more% more",
+    "calibrated": "%monitor% calibrated: threshold set to ~%threshold% W (standby ~%standby% W, active ~%active% W).",
+    "trendFrame": "This week vs. previous: activity %activity%, cycles %cycles%, energy %energy%.",
+    "trendNotEnough": "not enough data",
+    "trendNoBaseline": "no prior baseline"
   }
 }

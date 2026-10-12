@@ -80,5 +80,20 @@
   },
   "dailyDigestMessages": {
     "summary": "I dag: %cycles% cyklusser, %energy%. Mest energi: %top%. Enheder der kræver opmærksomhed: %problems%. Grupper med afvigelse: %groups%."
+  },
+  "notificationMessages": {
+    "stale": "%device% har ikke rapporteret i over %hours% t",
+    "unavailable": "%device% blev utilgængelig",
+    "available": "%device% er tilgængelig igen efter %downtime%",
+    "batteryLow": "Batteriet i %device% er lavt (%battery%)",
+    "scanStale": "%device% er holdt op med at rapportere",
+    "scanUnavailable": "%device% er utilgængelig",
+    "scanLowBattery": "%device% har lavt batteri (%battery%)",
+    "scanMany": "%count% enheder kræver opmærksomhed: %names%",
+    "scanManyMore": "%count% enheder kræver opmærksomhed: %names% og %more% mere",
+    "calibrated": "%monitor% kalibreret: tærskel ~%threshold% W (standby ~%standby% W, aktiv ~%active% W).",
+    "trendFrame": "Denne uge mod forrige: aktivitet %activity%, cyklusser %cycles%, energi %energy%.",
+    "trendNotEnough": "for få data",
+    "trendNoBaseline": "ingen forrige uge at sammenligne med"
   }
 }

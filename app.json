@@ -695,6 +695,13 @@
             "title": {
               "en": "Battery (%)"
             }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message (in the Default message language)"
+            }
           }
         ],
         "id": "device_battery_low"
@@ -735,6 +742,13 @@
             "type": "string",
             "title": {
               "en": "Downtime"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message (in the Default message language)"
             }
           }
         ],
@@ -791,6 +805,13 @@
             "title": {
               "en": "Reason"
             }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message (in the Default message language)"
+            }
           }
         ],
         "id": "device_became_unavailable"
@@ -839,6 +860,13 @@
             "type": "number",
             "title": {
               "en": "Battery (%)"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message (in the Default message language)"
             }
           }
         ],
@@ -2529,6 +2557,84 @@
           }
         ],
         "id": "get_activity_statistics"
+      },
+      {
+        "title": {
+          "en": "Get daily digest"
+        },
+        "titleFormatted": {
+          "en": "Get daily digest"
+        },
+        "hint": {
+          "en": "Today in one message for a notification: the cycles and energy of your Activity monitors since midnight, the biggest user, the devices the last availability scan flagged (0 while that scan is off) and the state groups with a mismatch now. The sentence follows the Default message language in Settings; the numbers are there to build your own."
+        },
+        "args": [],
+        "tokens": [
+          {
+            "name": "cycles",
+            "type": "number",
+            "title": {
+              "en": "Cycles today"
+            }
+          },
+          {
+            "name": "energy",
+            "type": "number",
+            "title": {
+              "en": "Energy today (kWh)"
+            }
+          },
+          {
+            "name": "cost",
+            "type": "number",
+            "title": {
+              "en": "Cost today (needs an energy price in Settings)"
+            }
+          },
+          {
+            "name": "cost_text",
+            "type": "string",
+            "title": {
+              "en": "Cost today (text, with currency)"
+            }
+          },
+          {
+            "name": "top_name",
+            "type": "string",
+            "title": {
+              "en": "Biggest user today"
+            }
+          },
+          {
+            "name": "top_energy",
+            "type": "number",
+            "title": {
+              "en": "Its energy today (kWh)"
+            }
+          },
+          {
+            "name": "problems",
+            "type": "number",
+            "title": {
+              "en": "Devices needing attention (last scan)"
+            }
+          },
+          {
+            "name": "groups_mismatch",
+            "type": "number",
+            "title": {
+              "en": "State groups with a mismatch"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message"
+            }
+          }
+        ],
+        "id": "get_daily_digest"
       },
       {
         "title": {
