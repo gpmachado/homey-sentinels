@@ -145,3 +145,15 @@ test('a device without an energy reading still gets power, and energy stays zero
   assert.equal(none.peakPowerHour, null);
   assert.equal(none.totalEnergy, 0);
 });
+
+test('hourShare is the percent of cycles that started in the current local hour, and null while there are too few to judge', () => {
+  const { hourShare } = require('../lib/usage-pattern');
+  const evenings = Array.from({ length: 19 }, (_, d) => cycle(at(d % 7, 19, 10), 30));
+  assert.equal(hourShare(monitor(evenings), { timeZone: 'UTC', time: at(0, 19, 40) }), null); // 19 cycles: not enough yet
+  const all = [...evenings, cycle(at(2, 3, 5), 20)]; // one at 03:xx
+  assert.equal(hourShare(monitor(all), { timeZone: 'UTC', time: at(0, 19, 40) }), 95);
+  assert.equal(hourShare(monitor(all), { timeZone: 'UTC', time: at(1, 3, 59) }), 5);
+  assert.equal(hourShare(monitor(all), { timeZone: 'UTC', time: at(1, 12, 0) }), 0);
+  assert.equal(hourShare(monitor(all), { timeZone: 'America/Sao_Paulo', time: at(0, 19, 40) }), 95); // 19:xx UTC is 16:xx in Sao Paulo, for the cycles and for now alike
+  assert.equal(hourShare(monitor(all), { timeZone: 'America/Sao_Paulo', time: at(0, 22, 40) }), 0); // 22:40 UTC is 19:40 there, an hour with no cycles
+});

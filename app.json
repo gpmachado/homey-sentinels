@@ -1638,6 +1638,39 @@
       },
       {
         "title": {
+          "en": "[[monitor]] !{{usually does not start in this hour|usually starts in this hour}} (under [[percent]] % of its cycles)"
+        },
+        "titleFormatted": {
+          "en": "[[monitor]] !{{usually does not start in this hour|usually starts in this hour}} (under [[percent]] % of its cycles)"
+        },
+        "hint": {
+          "en": "True when fewer than this percent of the monitor's cycles started in the current hour of the day (your time zone), so a start now is out of the ordinary. Use it after Activity started: a fryer on at 3 am. False until the monitor has at least 20 cycles to learn from. Works with Activity and State monitors."
+        },
+        "args": [
+          {
+            "name": "monitor",
+            "type": "autocomplete",
+            "title": {
+              "en": "Monitor"
+            }
+          },
+          {
+            "name": "percent",
+            "type": "number",
+            "title": {
+              "en": "Percent"
+            },
+            "min": 0,
+            "max": 100,
+            "placeholder": {
+              "en": "e.g. 5"
+            }
+          }
+        ],
+        "id": "usage_unusual_hour"
+      },
+      {
+        "title": {
           "en": "[[monitor]] !{{is in state|is not in state}} [[state]]"
         },
         "titleFormatted": {
