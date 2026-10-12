@@ -56,3 +56,19 @@ test('no method is defined twice across the mixins and the class body', () => {
     }
   }
 });
+
+// A call made from inside an API route has been seen to never resolve, so a route that reaches the Homey API
+// (an awaited this.gateway call) goes through inAppContext. Only a direct await in the app method is looked for;
+// cancelling a subscription is not a call to the API.
+test('every API route that calls an app method using the Homey API runs it in inAppContext', () => {
+  const methodStart = /^ {2}(?:async )?([A-Za-z_][A-Za-z0-9_]*)\(/gm;
+  const blocks = (text) => {
+    const found = [...text.matchAll(methodStart)];
+    return found.map((m, i) => ({ name: m[1], body: text.slice(m.index, i + 1 < found.length ? found[i + 1].index : text.length) }));
+  };
+  const touching = new Set(mixinFiles.flatMap((f) => blocks(read(`lib/app/${f}`))).filter((b) => b.body.includes('await this.gateway.')).map((b) => b.name));
+  const missing = blocks(read('api.js'))
+    .filter((route) => !route.body.includes('inAppContext') && [...touching].some((name) => route.body.includes(`homey.app.${name}(`)))
+    .map((route) => route.name);
+  assert.deepEqual(missing, []);
+});

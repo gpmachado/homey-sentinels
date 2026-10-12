@@ -427,7 +427,7 @@ pattern nobody else uses.
 
 ## 8. Testing
 
-`npm test` runs `node:test` over everything in `test/` (about 240 tests): the engines, the store and its
+`npm test` runs `node:test` over everything in `test/` (over 300 tests): the engines, the store and its
 migrations, SQLite history and the compact row format, statistics, groups (including the live path with a
 fake gateway that emits capability events), the availability logic and scan, widget summaries, message
 templates, time helpers, the memory guard, the API routes with a fake `homey.app`, and the wiring check in

@@ -799,3 +799,12 @@ test('binary counters saved by an older version are dropped on load and do not c
   await reloaded.save();
   assert.equal(JSON.stringify(data).includes('Campainha'), false);
 });
+
+test('ids from URLs cannot reach Object.prototype: __proto__ is an ordinary missing key in every collection', async () => {
+  const store = new SentinelStore({ get: () => undefined, set: async () => {}, unset: () => {} });
+  await store.load();
+  for (const key of ['monitors', 'stateMonitors', 'voltageMonitors', 'groups', 'availabilityWatchdogs']) {
+    assert.equal(store.data[key]['__proto__'], undefined, key);
+    assert.equal(store.data[key]['constructor'], undefined, key);
+  }
+});
