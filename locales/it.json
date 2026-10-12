@@ -77,5 +77,8 @@
   "usagePatternMessages": {
     "summary": "Giorno di maggior uso di %monitor%: %weekday% (%weekday_share% dell'uso), ora di punta intorno a %hour%; %day_share% del tempo acceso cade tra le 06:00 e le 22:00.",
     "notEnough": "%monitor%: non ci sono ancora abbastanza cicli per vedere uno schema (%count% su %needed%)."
+  },
+  "dailyDigestMessages": {
+    "summary": "Oggi: %cycles% cicli, %energy%. Maggior consumo: %top%. Dispositivi con problemi: %problems%. Gruppi fuori posto: %groups%."
   }
 }

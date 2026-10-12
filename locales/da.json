@@ -77,5 +77,8 @@
   "usagePatternMessages": {
     "summary": "Dag med mest brug af %monitor%: %weekday% (%weekday_share% af brugen), travleste time omkring %hour%; %day_share% af tiden tændt ligger mellem 06:00 og 22:00.",
     "notEnough": "%monitor%: endnu ikke nok cyklusser til at se et mønster (%count% af %needed%)."
+  },
+  "dailyDigestMessages": {
+    "summary": "I dag: %cycles% cyklusser, %energy%. Mest energi: %top%. Enheder der kræver opmærksomhed: %problems%. Grupper med afvigelse: %groups%."
   }
 }

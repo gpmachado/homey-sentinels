@@ -77,5 +77,8 @@
   "usagePatternMessages": {
     "summary": "Tag mit der meisten Nutzung von %monitor%: %weekday% (%weekday_share% der Nutzung), Spitzenstunde um %hour%; %day_share% der Einschaltzeit liegen zwischen 06:00 und 22:00.",
     "notEnough": "%monitor%: noch nicht genug Zyklen für ein Muster (%count% von %needed%)."
+  },
+  "dailyDigestMessages": {
+    "summary": "Heute: %cycles% Zyklen, %energy%. Größter Verbrauch: %top%. Geräte mit Problem: %problems%. Gruppen mit Abweichung: %groups%."
   }
 }
