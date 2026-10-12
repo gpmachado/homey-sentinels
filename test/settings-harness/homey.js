@@ -1,7 +1,7 @@
+/* global onHomeyReady */
 // Stand-in for Homey's settings runtime with fixtures for every list, recording each API call and confirm.
 (function () {
   var log = []; window.__log = log;
-  var tmpl = { messageTemplateStarted: 'S %monitor%', messageTemplateFinished: 'F %monitor%', messageTemplateUndervoltage: 'U', messageTemplateOvervoltage: 'O', messageTemplateNormalized: 'N' };
   var lists = {
     '/groups': [{ id: 'g1', name: 'Doors', type: 'contact', expectedState: false, conjunction: 'and', devices: [{ id: 'd1', name: 'Sonoff' }, { id: 'd2', name: 'Plug' }], messageTemplateZero: 'Z', messageTemplateOne: 'O1', messageTemplateMany: 'M' }],
     '/monitors': [{ id: 'a1', name: 'Pump', deviceName: 'Sonoff', deviceId: 'd1', capability: 'measure_power', deviceMissing: false, state: 'STANDBY', threshold: 40, continuityMinutes: 2, minConfirmationSeconds: 5, cycleCount: 3, energy: 1.2, averagePower: 540, calibrating: false, suggestedThreshold: null, calibrationProgress: null, hasCompletedCycles: true, messageTemplateStarted: 'AS', messageTemplateFinished: 'AF', dailyBreakdown: [{ date: '2026-10-01', energy: 1.2 }, { date: '2026-10-02', energy: 0.4 }, { date: '2026-10-03', energy: 2.1 }] }],

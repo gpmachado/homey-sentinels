@@ -19,6 +19,7 @@ You need Node.js 22 or newer, the Homey CLI (`npm i -g homey`) and a Homey Pro o
 ```bash
 npm install            # once
 npm test               # unit tests (node:test), no Homey needed
+npm run lint           # eslint (eslint.config.js); jsdom and linkedom are there for testing the Settings page
 homey app validate     # builds .homeycompose/ into app.json and validates it
 homey app run -r       # installs and runs the app on your Homey, streaming its log (Ctrl+C uninstalls)
 npm run hooks          # once per clone: refreshes build-info.json after every commit (see below)
@@ -104,7 +105,7 @@ and mention it in HOWTO. A card that returns tokens only shows in Advanced Flow 
 
 ## Tests
 
-`npm test` must pass, and CI runs it (Node 22) together with `homey app validate` on every push. New logic goes
+`npm test` and `npm run lint` must pass, and CI runs them (Node 22) together with `homey app validate` on every push. New logic goes
 into a pure function in `lib/` with a test; the mixins are tested with the real code and a fake gateway
 (`test/groups-live.test.js` shows the pattern). The Settings HTML, the widgets and real device I/O are **not**
 covered by tests; check those by hand with `homey app run -r` and say what you checked in the pull request.

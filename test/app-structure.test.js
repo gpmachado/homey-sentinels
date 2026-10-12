@@ -47,7 +47,7 @@ test('every method the API routes and widgets call on homey.app exists', () => {
 });
 
 test('no method is defined twice across the mixins and the class body', () => {
-  const declared = [...read('app.js').matchAll(/^  (?:async )?([A-Za-z_][A-Za-z0-9_]*)\(.*\) \{/gm)].map((m) => m[1]);
+  const declared = [...read('app.js').matchAll(/^ {2}(?:async )?([A-Za-z_][A-Za-z0-9_]*)\(.*\) \{/gm)].map((m) => m[1]);
   const seen = new Map(declared.map((name) => [name, 'app.js']));
   for (const file of mixinFiles) {
     for (const name of Object.keys(require(path.join(root, 'lib', 'app', file)))) {

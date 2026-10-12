@@ -105,7 +105,7 @@ test('garage groups keep their inverted polarity live', async () => {
 });
 
 test('unwatching removes the subscriptions and ignores later events', async () => {
-  const { app, group, emit, fired, handlers } = await fakeApp({ initial: { a: true, b: true, c: true } });
+  const { app, group, fired, handlers } = await fakeApp({ initial: { a: true, b: true, c: true } });
   await app._watchGroup(group);
   const handler = handlers.get(`group:${group.id}|a`);
   app._unwatchGroup(group.id);

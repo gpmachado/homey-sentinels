@@ -64,6 +64,7 @@ test('tuple encoding is much smaller than the object form and stays ASCII-only',
   const objects = JSON.stringify(periods);
   const tuples = JSON.stringify(encodeRows('voltagePeriod', periods));
   assert.ok(tuples.length * 2.5 < objects.length, `${tuples.length} vs ${objects.length}`);
+  // eslint-disable-next-line no-control-regex -- anything above Latin-1
   assert.equal(/[^\u0000-\u00ff]/.test(tuples), false);
 });
 

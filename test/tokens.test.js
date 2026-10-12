@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const { roundTokens } = require('../lib/app/constants');
 
 test('roundTokens: float noise in number tokens goes away, everything else is left as it is', () => {
+  // eslint-disable-next-line no-loss-of-precision -- the float noise itself is what is being rounded away
   const out = roundTokens({ energy_today: 3.9199999999999997, average_power: 1480.12345, count: 3, voltage: 228.5, message: 'x 0.1234567', flag: true, none: null });
   assert.deepEqual(out, { energy_today: 3.92, average_power: 1480.123, count: 3, voltage: 228.5, message: 'x 0.1234567', flag: true, none: null });
   assert.equal(roundTokens(0.1 + 0.2), 0.30000000000000004); // not an object: untouched (an action returning true / a condition's boolean)
