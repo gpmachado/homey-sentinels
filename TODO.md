@@ -30,7 +30,20 @@ day one.
 Availability triggers have a `message` token and the timeline entries, *Threshold calibrated* and `trend_summary` follow the language
 (`notificationMessages` in locales; `_say` in monitor-admin). Added: Get daily digest, `usage_unusual_hour` condition. Still English only:
 the Settings page (not needed: only the Flow messages and tokens have to be in Portuguese), the widgets, the group "back to normal" log line and the
-diagnostic log lines. Pending from the suggestions: a sun-aware silence limit for solar inverters (Deye, Hoymiles) in the availability scan.
+diagnostic log lines. Pending from the suggestions: a sun-aware silence limit for solar inverters (see its own section above).
+
+### Sun-aware silence limit for solar inverters (Deye, Hoymiles): pending, decided 2026-10-12 to leave for later
+
+Inverters are silent all night, so today the answer is a longer limit per app (36 h in Settings > Availability > Apps), which also hides a
+real daytime failure for a day and a half. The better rule counts silence only while the sun is up (or only outside a quiet window), so a
+failure at noon shows after a few hours. It touches: `lib/availability-scan.js` and `watchdogVerdict` in `lib/availability.js` (silence minus
+the quiet part), the store (`availabilityExclusions`, like `appHours`), the Apps list in Settings, and the client-side "Silent" badge in
+`settings/settings.js` (it recomputes the silence itself, so it would need the same subtraction or a verdict from the server).
+Two designs: (1) real sunrise/sunset from the Homey's location: needs the latitude and longitude, and it is not verified that they can be
+read without a new permission (`homey:manager:geolocation`), which would weigh on the review; (2) a quiet window per app in local time
+(for example 18:00-06:00): no location and no permission, but a fixed rule on the clock. Leaning to (2) first; (1) later if the
+location is readable. A test per design: silence across midnight, across a DST change, a window that wraps, and a device last seen
+inside the window.
 
 ### Not run for N hours + standby ranking: DONE 2026-10-12, to verify on the Homey
 
