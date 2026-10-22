@@ -25,31 +25,32 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
-### OPEN: lib/history-db.js follows the PELS app (GPL-3.0), and the repo is published as MIT (found 2026-10-21)
+### lib/history-db.js followed the PELS app (GPL-3.0): rewritten 2026-10-22, but the git history still has the old file
 
-Comparing with `_reference/com.barelysufficient.pels-main/lib/store/userdataDatabase.ts` (PELS is GPL-3.0, its `LICENSE` says so): `lib/history-db.js`
-is a close port to JavaScript. Same damaged-file result codes `[10, 11, 13, 26]` read with `& 0xff`, the same PRAGMA sequence (WAL, the mode is
-verified, `synchronous` NORMAL or FULL, `cache_size -2048`), the same quarantine of a file SQLite refuses to open (`.corrupt-<date>` suffix, the `-wal` and
-`-shm` sidecars, open again) and comments that follow its wording. What is ours: the one `series (monitor, tag, idx, row)` table and its statements,
-`sizeBytes`, `sizes`, `checkpoint`. `lib/memory-guard.js` had the same problem and was removed (see below). Ideas and techniques are free to use; the
-expression and structure are not, and GPL code cannot be relicensed as MIT by us. The credit comments that named PELS were deleted earlier on
-2026-10-06, which hid the origin: do not hide it again.
+Found 2026-10-21 by comparing with `_reference/com.barelysufficient.pels-main/lib/store/userdataDatabase.ts` (PELS is GPL-3.0): the old `lib/history-db.js`
+(and `lib/memory-guard.js`, removed 2026-10-21, see below) were close ports: same damaged-file result codes, same PRAGMA sequence, same quarantine of an
+unusable file and comments that followed its wording. The credit comments naming PELS had been deleted on 2026-10-06, which hid the origin: do not hide it again.
 
-Choices, none made yet:
-1. Go back to GPL-3.0 (simplest and safe; undoes the MIT change and the message to other developers that says MIT).
-2. Ask the PELS author (GitHub issue on the PELS repo) to allow the file under MIT, in writing.
-3. Rewrite `lib/history-db.js` independently, from a description of the behaviour and not from the PELS file. Whoever has read that file
-   (the assistant has) is a poor choice to write it.
-4. Keep only cycles and daily summaries (small) and drop the 7-day periods, which are the bulky part (3,556 periods, 1,152 KB in the last run), so they fit
-   in settings and the SQLite file, and this file, go away. Needs the statistics, the calibration and the usage pattern to stop reading
-   periods, so it is a big refactor, and it leans on Homey Insights for the detail.
-Until one is done, the public repo carries this file under the MIT licence.
+What was done: `lib/history-db.js` was written again from a behaviour description (what it must do, not how), by an agent that was told not to read the old
+file, its git history, `_reference` or anything about PELS (clean room: the assistant that wrote the description had read the PELS file, so it did not write the
+code). Differences that show it is independent: it uses a different structure (a `setUp` step, a separate `quarantine`), a prefix for the kept file
+(`damaged-<date>-<random>-<name>`, not a suffix), only the codes IOERR, CORRUPT and NOTADB (not FULL), `BEGIN IMMEDIATE` and its own comments. Checked by comparing the
+text: one line of 70 equals the PELS file (`const db = new DatabaseSync(location);`, the API call itself); the eight lines equal to the old file are the
+interface, the table SQL and `module.exports`. One comment that echoed a PELS phrase was reworded. The tests for it were loosened to describe behaviour only
+(the kept damaged file is not at the original name and keeps its bytes) instead of the old naming.
+
+What is still open:
+- The public git history (pushed 2026-10-21) contains the old `lib/history-db.js` and `lib/memory-guard.js` under the MIT licence. Removing them from the
+  current files does not remove them from the history, and rewriting a pushed history (force push) is not done lightly. Options: leave as is and accept the risk,
+  write to the PELS author (GitHub issue) saying what happened and asking, or rewrite the history.
+- Not compared with PELS: the incremental row writing in `lib/store.js` (`_syncSeries`) and the storage format. They are described as our own design.
+- The same applies to a decision not made yet: whether to keep the MIT licence or go back to GPL-3.0 (see the licence discussion in the changelog of this file).
 
 ### Memory guard removed: DONE 2026-10-21
 
 `lib/memory-guard.js` (a forced V8 `last-resort` collection on memory warnings, 90 s after start, every 10 minutes and after the device list read, with
 `--expose-gc` switched on at run time) is gone, with its test. It was added to chase a crash that the SQLite history and the on-demand device list
-then fixed, and its code was found to follow the PELS app's `heapReclaim.ts` closely (PELS is GPL-3.0; see "OPEN: lib/history-db.js follows the PELS app" above). `app.js` now only logs the
+then fixed, and its code was found to follow the PELS app's `heapReclaim.ts` closely (PELS is GPL-3.0; see the history-db item above). `app.js` now only logs the
 `memwarn` and `cpuwarn` warnings. To watch over the next days: `Homey memory warning n/limit` lines in the log (the last run showed heap 15/70 MB).
 If they come back, write the reclaim again from scratch (not from the PELS file) and measure it first.
 

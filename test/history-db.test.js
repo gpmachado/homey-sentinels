@@ -66,7 +66,7 @@ test('the history database opens with WAL and reports null when it cannot be ope
   assert.ok(db);
   db.close();
   assert.equal(openHistoryDb('/nonexistent-dir/x/history.sqlite', { log: (m) => logs.push(m) }), null);
-  assert.ok(logs.some((m) => m.includes('unavailable')));
+  assert.ok(logs.length > 0); // it says why
 });
 
 test('series round-trip through the database and settings hold only the small meta', async () => {
@@ -197,15 +197,20 @@ test('without a database the store falls back to the settings key, and a v3 stor
   assert.deepEqual(Object.keys(settings.raw), ['sentinels:v2']);
 });
 
-test('a damaged database file is moved aside and a new one is started', () => {
+test('a damaged database file is kept aside under another name and a new one is started', () => {
   const { file, dir } = tempDb();
-  fs.writeFileSync(file, 'this is not a sqlite database at all, just some text that is long enough to be read as a header'.repeat(20));
+  const garbage = 'this is not a sqlite database at all, just some text that is long enough to be read as a header'.repeat(20);
+  fs.writeFileSync(file, garbage);
   const logs = [];
   const db = openHistoryDb(file, { log: (m) => logs.push(m) });
   assert.ok(db);
+  db.transaction((api) => api.upsert('m', 'p', 0, [1]));
+  assert.deepEqual(db.load('m', 'p'), [[1]]); // the new database works
   db.close();
-  assert.ok(fs.readdirSync(dir).some((name) => name.includes('.corrupt-')));
-  assert.ok(logs.some((m) => m.includes('damaged')));
+  const kept = fs.readdirSync(dir).filter((name) => !name.startsWith('history.sqlite'));
+  assert.equal(kept.length, 1); // the damaged file was not deleted, and is not at the original name
+  assert.equal(fs.readFileSync(path.join(dir, kept[0]), 'utf8'), garbage);
+  assert.ok(logs.length > 0); // it says what it did
 });
 
 test('incremental writes keep the database identical to a full rewrite across many engine-like steps', async () => {
