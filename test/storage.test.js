@@ -194,10 +194,3 @@ test('the old default "turned off" message (with an em dash) is migrated to the 
   assert.equal(store.data.eventLog[0].message, 'Pump turned off - 5 min');
 });
 
-test('metaStats reports the size and whether any stored text is above Latin-1', async () => {
-  const settings = homeySettings();
-  const { store, activity } = await populatedStore(settings);
-  assert.equal(store.metaStats().twoByte, false); // 'poço' is Latin-1
-  activity.name = 'Pump \u2014 well';
-  assert.equal(store.metaStats().twoByte, true);
-});

@@ -5,7 +5,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const SentinelStore = require('../lib/store');
 const monitorAdmin = require('../lib/app/monitor-admin');
-const memory = require('../lib/app/memory');
+const housekeeping = require('../lib/app/housekeeping');
 
 const flush = () => new Promise((resolve) => setImmediate(resolve));
 
@@ -19,7 +19,7 @@ async function fakeApp() {
     log: (m) => logs.push(m), error: (m) => logs.push(`ERR ${m}`), _logEvent: (m) => events.push(m), _scheduleSave: () => {},
     homey: { setTimeout: (fn, ms) => timers.push({ fn, ms }) },
     _watch: async (m) => { watched.push(m.id); }, _watchVoltage: async (m) => { watched.push(m.id); }, _watchState: async (m) => { watched.push(m.id); }
-  }, monitorAdmin, memory);
+  }, monitorAdmin, housekeeping);
   return app;
 }
 const monitor = (app, id, deviceId = 'dev1') => { app.store.data.monitors[id] = { id, name: `M ${id}`, deviceId, deviceName: `Device ${deviceId}` }; return app.store.data.monitors[id]; };

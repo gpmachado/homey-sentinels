@@ -18,7 +18,7 @@ lib/app/                  The rest of the App's behaviour, one file per concern,
   summaries.js                      cached read-side summaries for Settings, widgets and Flow tokens
   monitor-admin.js                  create / update / reset / remove monitors
   flow-cards.js                     Flow card registration, autocompletes, argument resolvers
-  memory.js                         memory diagnostics, history consolidation
+  housekeeping.js                   startup summary line, history consolidation
   constants.js                      shared constants and small formatters
 lib/                      Pure logic and storage (each file has a test)
   store.js                Persistence: small metadata in Homey settings, the bulky series in SQLite

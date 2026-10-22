@@ -10,7 +10,7 @@ const { punctuationToAscii } = require('./lib/text');
 const { DeviceDirectory } = require('./lib/device-directory');
 const { openHistoryDb } = require('./lib/history-db');
 const { setDecimalComma } = require('./lib/message-template');
-const { MEMORY_LOG, DEVICE_CACHE_REFRESH_MS, HISTORY_CONSOLIDATION_MS, EVENT_LOG_MAX, GROUP_POLL_INTERVAL_MS, AVAILABILITY_POLL_INTERVAL_MS, SAVE_DEBOUNCE_MS, roundTokens } = require('./lib/app/constants');
+const { DEVICE_CACHE_REFRESH_MS, HISTORY_CONSOLIDATION_MS, EVENT_LOG_MAX, GROUP_POLL_INTERVAL_MS, AVAILABILITY_POLL_INTERVAL_MS, SAVE_DEBOUNCE_MS, roundTokens } = require('./lib/app/constants');
 
 // Regenerated on every commit (see scripts/write-build-info.js, .git/hooks/post-commit) — the
 // app's own version stays 1.0.0 across every dev iteration, so without this a pasted log has no
@@ -108,23 +108,6 @@ class StatisticTrackerApp extends Homey.App {
     this._scheduleWithBackoff('System timezone refresh', () => this.gateway.refreshSystemTimezone(), DEVICE_CACHE_REFRESH_MS);
     this._consolidateHistory();
     this.homey.setInterval(() => this._consolidateHistory(), HISTORY_CONSOLIDATION_MS);
-    // A crash inside a few minutes leaves nothing between startup and the abort — a memory trail
-    // makes it possible to tell steady growth from a single large allocation. Dense for the first
-    // three minutes (that's when the startup/migration work happens), then every five.
-    // Off by default: MEMORY_LOG (lib/app/constants.js) turns on both this and the whole-Homey/
-    // other-apps log below, which is what earlier crash hunts relied on.
-    if (MEMORY_LOG) {
-      let memoryTick = 0;
-      this.homey.setInterval(() => {
-        memoryTick += 1;
-        if (memoryTick <= 12 || memoryTick % 20 === 0) this._logMemory().catch(() => {});
-      }, 15 * 1000);
-      // The Homey as a whole is often short on memory (a Homey Pro 2023 sat at 86% used with 14% free);
-      // this shows who holds it. Once shortly after start (with the raw response, to confirm its
-      // shape), then hourly. A rejected call (scope not granted) is reported once and not retried.
-      this.homey.setTimeout(() => this._logSystemMemory(true), 45 * 1000);
-      this.homey.setInterval(() => this._logSystemMemory(false), 60 * 60 * 1000);
-    }
     this._pollGroups().catch((error) => this.error('Failed to poll groups', error));
     this._scheduleWithBackoff('Group mismatch polling', () => this._pollGroups(), GROUP_POLL_INTERVAL_MS);
     // Right after the app starts some drivers haven't loaded their devices yet, so the first look at the
@@ -284,7 +267,7 @@ Object.assign(StatisticTrackerApp.prototype, require('./lib/app/availability-sca
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/availability-watchdogs'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/flow-cards'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/groups'));
-Object.assign(StatisticTrackerApp.prototype, require('./lib/app/memory'));
+Object.assign(StatisticTrackerApp.prototype, require('./lib/app/housekeeping'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/monitor-admin'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/state'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/summaries'));
