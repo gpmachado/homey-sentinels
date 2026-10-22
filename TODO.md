@@ -44,7 +44,7 @@ What is still open:
   current files does not remove them from the history, and rewriting a pushed history (force push) is not done lightly. Options: leave as is and accept the risk,
   write to the PELS author (GitHub issue) saying what happened and asking, or rewrite the history.
 - Not compared with PELS: the incremental row writing in `lib/store.js` (`_syncSeries`) and the storage format. They are described as our own design.
-- The same applies to a decision not made yet: whether to keep the MIT licence or go back to GPL-3.0 (see the licence discussion in the changelog of this file).
+- Whether to keep the MIT licence or go back to GPL-3.0 is not decided; with the files rewritten the MIT licence of the current code holds, but the history is what it is.
 
 ### Memory guard removed: DONE 2026-10-21
 
