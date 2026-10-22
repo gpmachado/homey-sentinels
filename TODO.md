@@ -200,7 +200,7 @@ Order chosen: 1, 2, then 3, 4. Each was checked against what the app already kee
   batched every 15 s and only changed history rows written to SQLite; widgets read the app's 5 s cache and
   pause when not on screen.
 
-### Variable energy price (asked 2026-09-26)
+### Variable energy price (asked 2026-09-26): the flat price stays, the schedule is archived
 
 Today one flat price per kWh (Settings -> Monitors -> Energy cost); with no price the cost tokens are 0 and the
 texts empty, and `energy` (kWh) is always there for a Flow that does its own maths.
@@ -208,9 +208,13 @@ texts empty, and `energy` (kWh) is always there for a Flow that does its own mat
   so the user's own Flows handle time-of-use (18:00 set 1.20, 21:00 set 0.60) or a dynamic-tariff app's trigger.
   A cycle is priced at the price in force when it ends (a cycle that crosses a change is priced whole at the end
   price); say so in the card hint and HOWTO. No new permission.
-- **Price schedule inside the app** (later, only if exactness is needed): price bands by weekday and hour, the
-  cost of a cycle summed band by band from the periods (they keep energy with times, 7 days granular). Needs a
-  real editor in Settings, so it costs much more.
+- **Price schedule inside the app: ARCHIVED, decided 2026-10-21, not planned.** Price bands by weekday and hour (the
+  Brazilian Tarifa Branca, European peak / off-peak), spot or day-ahead prices, and costs summed band by band. Reasons: other
+  apps already do electricity cost well (Power by the Hour, Energy KPI Monitor), and how energy is bought varies too much between
+  countries (spot markets, bi-hourly, fixed, taxes and fees inside the price) for one editor in Settings to cover. Sentinels keeps
+  what it has, on purpose small: one price per kWh, the `set_energy_price` card for a Flow that follows a tariff, the cost tokens
+  and `energy` (kWh) for a Flow that does its own maths. Reopen only if a real need shows up that those cannot meet.
+  Related and left alone: a ranking or report over a past period uses the price of today, not the price at the time.
 
 Round of 2026-09-27: trend baseline floor, P25/P75 tokens, "Set energy price", cleanup of monitors of deleted
 devices and the startup summary line are DONE (to verify on the Homey). Next: 4) Ignore zone, Generate individual
@@ -305,6 +309,7 @@ cycle" anomaly is done; a statistics library, standard deviation / z-score on fe
   `deviceMissing` and stop retrying, see the 2026-09-27 round.)
 
 ### Decided against
+- Time-of-use, spot and dynamic electricity prices inside Sentinels (2026-10-21): see Variable energy price above.
 - Watchdog opt-out by default was replaced by the scan with sane defaults; a device-class adaptive threshold
   (median of report intervals) was judged fragile for sensors that only report on change.
 - Statistics library (nothing beyond mean / median / percentile is needed), per-device matrix in Groups,
