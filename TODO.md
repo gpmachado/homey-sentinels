@@ -25,6 +25,14 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### Memory guard removed: DONE 2026-10-21
+
+`lib/memory-guard.js` (a forced V8 `last-resort` collection on memory warnings, 90 s after start, every 10 minutes and after the device list read, with
+`--expose-gc` switched on at run time) is gone, with its test. It was added to chase a crash that the SQLite history and the on-demand device list
+then fixed, and its code was found to follow the PELS app's `heapReclaim.ts` closely (PELS is GPL-3.0; see the licence item). `app.js` now only logs the
+`memwarn` and `cpuwarn` warnings. To watch over the next days: `Homey memory warning n/limit` lines in the log (the last run showed heap 15/70 MB).
+If they come back, write the reclaim again from scratch (not from the PELS file) and measure it first.
+
 ### Energy cost removed from the app: DONE 2026-10-21
 
 All of it: the price and currency in Settings (Energy cost), the `cost`, `cost_today`, `cost_text` and `cost_today_text` tokens of the

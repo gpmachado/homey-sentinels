@@ -28,7 +28,7 @@ lib/                      Pure logic and storage (each file has a test)
   statistics.js groups.js availability.js availability-scan.js widget-summaries.js   domain logic
   homey-device-gateway.js Capability subscriptions and device reads (wraps homey-api)
   device-directory.js     The full device list, read on demand only
-  memory-guard.js         answers Homey's memory warnings; resume.js retries starting a monitor
+  resume.js               retries starting a monitor
   message-template.js     %token% rendering with singular/plural support
   time.js                 Timezone-aware local-day helpers and the local time text
 settings/                 Settings UI (tabs: Monitors, Availability, Groups), plain HTML/CSS/JS

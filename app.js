@@ -7,7 +7,6 @@ const { ActivityEngine } = require('./lib/activity-engine');
 const { VoltageEngine } = require('./lib/voltage-engine');
 const { isValidTimeZone } = require('./lib/time');
 const { punctuationToAscii } = require('./lib/text');
-const { startMemoryGuard } = require('./lib/memory-guard');
 const { DeviceDirectory } = require('./lib/device-directory');
 const { openHistoryDb } = require('./lib/history-db');
 const { setDecimalComma } = require('./lib/message-template');
@@ -38,7 +37,9 @@ class StatisticTrackerApp extends Homey.App {
     // The device list used to be persisted here; it now lives in memory only (see the gateway), and
     // the old copy would keep inflating every settings write.
     try { this.homey.settings.unset('deviceCache'); } catch (error) { /* nothing to remove */ }
-    this._stopMemoryGuard = startMemoryGuard(this.homey, { log: (m) => this.log(m), error: (m, e) => this.error(m, e) });
+    // Homey warns an app (up to a limit) before it stops it for memory or CPU: log each warning, so a problem shows in the log.
+    this.homey.on('memwarn', ({ count, limit } = {}) => this.log(`Homey memory warning ${count}/${limit}`));
+    this.homey.on('cpuwarn', ({ count, limit } = {}) => this.log(`Homey CPU warning ${count}/${limit}`));
     // In-memory only, deliberately not persisted — a per-monitor cooldown so a burst of rapid
     // samples (a device cycling its heating element on/off) can't re-run _suggestedThreshold's
     // sort over the whole periods[] array on every single one of them while still calibrating.
@@ -51,13 +52,12 @@ class StatisticTrackerApp extends Homey.App {
     this.gateway = new HomeyDeviceGateway(this.homey);
     // The full device list is read on demand only (Settings pickers, the Availability tab, Flow
     // autocompletes) — never at startup or on a timer: reading all devices grows the process by ~13 MB
-    // for good on a Homey with 300 devices. After each read the freed pages are handed back.
+    // for good on a Homey with 300 devices.
     this.directory = new DeviceDirectory({
       gateway: this.gateway,
       defer: (fn) => this.homey.setTimeout(fn, 0),
       log: (message) => this.log(message),
-      error: (message, error) => this.error(message, error),
-      onRefreshed: () => { if (this._stopMemoryGuard && this._stopMemoryGuard.reclaim) this._stopMemoryGuard.reclaim('device list'); }
+      error: (message, error) => this.error(message, error)
     });
     // Every trigger card hands its number tokens to the Flow rounded (3 decimals, like the message templates):
     // a kWh total summed from small steps otherwise shows up as 3.9199999999999997 in the Flow's own text.

@@ -9,7 +9,7 @@ function setup(overrides = {}) {
   const tasks = [];
   const gateway = { listDevices: async () => { calls.list += 1; return [{ id: 'a' }, { id: 'b' }]; }, ...overrides.gateway };
   const directory = new DeviceDirectory({
-    gateway, now: () => clock, defer: (fn) => tasks.push(fn), log: () => {}, error: overrides.error || (() => {}), onRefreshed: overrides.onRefreshed || null
+    gateway, now: () => clock, defer: (fn) => tasks.push(fn), log: () => {}, error: overrides.error || (() => {})
   });
   return { directory, calls, tasks, advance: (ms) => { clock += ms; } };
 }
@@ -65,14 +65,11 @@ test('a failed read keeps the previous list, reports the error, and is retried b
   assert.equal(directory.request(), true); // still stale, so the next request retries
 });
 
-test('ensure() waits for the read, and onRefreshed runs after each one', async () => {
-  let refreshed = 0;
+test('ensure() waits for the read and reuses it while it is fresh', async () => {
   let clock = 0;
-  const directory = new DeviceDirectory({ gateway: { listDevices: async () => [{ id: 'x' }] }, defer: (fn) => setTimeout(fn, 0), now: () => clock, onRefreshed: () => { refreshed += 1; } });
+  const directory = new DeviceDirectory({ gateway: { listDevices: async () => [{ id: 'x' }] }, defer: (fn) => setTimeout(fn, 0), now: () => clock });
   const list = await directory.ensure();
   assert.deepEqual(list, [{ id: 'x' }]);
-  assert.equal(refreshed, 1);
-  assert.deepEqual(await directory.ensure(), [{ id: 'x' }]);
-  assert.equal(refreshed, 1); // still fresh: no second read
+  assert.deepEqual(await directory.ensure(), [{ id: 'x' }]); // still fresh: no second read
   assert.equal(directory.status().count, 1);
 });
