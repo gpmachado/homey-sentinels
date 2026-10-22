@@ -56,3 +56,26 @@ test('the event-log sentences about groups, deleted devices and batteries follow
   assert.equal(pt._say('monitorDeviceGone', { monitor: 'Bomba', device: 'Tomada 3' }), 'Bomba: o dispositivo Tomada 3 não está mais no Homey');
   assert.equal(appIn('en')._say('groupMismatch', { group: 'Doors' }), 'Doors has a mismatch');
 });
+
+test('with the decimal comma on, the figures the app writes itself use it too (report, trend, energy text)', () => {
+  const { setDecimalComma } = require('../lib/message-template');
+  const { generateTextReport } = require('../lib/statistics');
+  const { formatEnergy } = require('../lib/app/constants');
+  const now = Date.UTC(2026, 9, 10, 12);
+  const data = {
+    monitors: { a: { name: 'Bomba', periods: [{ startedAt: now - 3600000, endedAt: now - 3000000, state: 'ACTIVE', seconds: 600, energy: 1.45, minPower: 1, maxPower: 1, powerSum: 1, sampleCount: 1 }], cycles: [] } },
+    voltageMonitors: { v: { name: 'Fase A', periods: [{ startedAt: now - 3600000, endedAt: now - 3000000, seconds: 600, state: 'NORMAL', minVoltage: 118.4, maxVoltage: 121.7, voltageSum: 1200.5, sampleCount: 10 }], dailySummaries: [] } },
+    stateMonitors: {}
+  };
+  const messages = wordingFor('pt').reportMessages;
+  try {
+    setDecimalComma(true);
+    assert.equal(generateTextReport('a', 'day', data, 'UTC', now, messages), 'Bomba (hoje): ciclos 0, energia 1,45 kWh, ligado 10 min.');
+    assert.match(generateTextReport('v', 'day', data, 'UTC', now, messages), /faixa 118,4-121,7 V/);
+    assert.equal(formatEnergy(2.5), '2,50 kWh');
+    const trend = { activeDuration: { hasBaseline: true, percent: 5.04 }, cycleCount: { hasBaseline: true, percent: -3 }, energy: { hasBaseline: true, percent: 12.25 }, previousCycles: 5, enoughData: true };
+    assert.match(trendSummary(trend, wordingFor('pt').notificationMessages), /tempo ligado \+5,0%, ciclos -3,0%, energia \+12,3%/);
+    setDecimalComma(false);
+    assert.equal(formatEnergy(2.5), '2.50 kWh');
+  } finally { setDecimalComma(false); }
+});
