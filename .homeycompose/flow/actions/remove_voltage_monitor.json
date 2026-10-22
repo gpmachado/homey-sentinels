@@ -1,7 +1,0 @@
-{
-  "title": { "en": "Remove voltage monitor" },
-  "titleFormatted": { "en": "Remove voltage monitor [[monitor]]" },
-  "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
-  ]
-}

@@ -25,6 +25,18 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### Setup Flow cards removed: DONE 2026-10-22
+
+Eleven action cards are gone: `add_activity_monitor`, `add_state_monitor`, `add_voltage_monitor`, `add_availability_watchdog`, `create_state_group`,
+`add_device_to_state_group`, `remove_activity_monitor`, `remove_state_monitor`, `remove_voltage_monitor`, `remove_availability_watchdog` and
+`remove_device_from_state_group`. Monitors, watchdogs and groups are created, edited and removed in Settings (the Add forms are capability-first); nobody
+builds a Flow that adds a monitor at 08:00. The app is in development with no users, so they were deleted, not marked `"deprecated": true` (four of them
+already were). Kept on purpose: `update_activity_monitor` and `update_voltage_monitor` (a Flow can change a threshold by time of day), the `reset_*`
+cards, `start_monitoring_device` / `stop_monitoring_device` (they create a manual monitor from a Flow) and every statistics card. The 56 -> 18 style
+reductions suggested by an outside analysis were not followed beyond this: Activity and State triggers have different tokens (`label`), so they are not merged.
+Cards left: 29 -> 18 actions, 16 triggers, 11 conditions. Possible next step, not done: one condition for `is_active` and `is_state_active`, and
+`voltage_is_state` covers `is_voltage_normal`.
+
 ### lib/history-db.js followed the PELS app (GPL-3.0): rewritten 2026-10-22, but the git history still has the old file
 
 Found 2026-10-21 by comparing with `_reference/com.barelysufficient.pels-main/lib/store/userdataDatabase.ts` (PELS is GPL-3.0): the old `lib/history-db.js`

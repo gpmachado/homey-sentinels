@@ -29,8 +29,8 @@ Names used below (all invented): a well pump **"Bomba do poço"** on an energy m
 
 ## 1. A pump: Activity Monitor
 
-**Set up.** A Flow with **Add activity monitor** (device: the energy meter, threshold 50 W — or leave it blank
-and let it calibrate), run once. Then two Flows: **Activity started** → *Create a Timeline notification*
+**Set up.** Settings → Monitors → Activity → **Add activity monitor** (device: the energy meter, threshold 50 W — or
+leave it blank and let it calibrate). Then two Flows: **Activity started** → *Create a Timeline notification*
 with the `Message` token, and **Activity finished** → another one.
 
 **Sample run.** The meter reads 3 W (idle), then 1480 W for 38 minutes while its energy counter climbs by
@@ -126,7 +126,7 @@ same weekday-by-hour grid, with cycles started, time on, energy (kWh) or average
 
 ## 3. A door: State Monitor
 
-**Set up.** **Add state monitor** (device: the door sensor, labels `Open` / `Closed`). Both directions are
+**Set up.** Settings → Monitors → State → **Add state monitor** (device: the door sensor, labels `Open` / `Closed`). Both directions are
 tracked; the labels are only for reading.
 
 | Moment | Card | Tokens |
@@ -140,7 +140,7 @@ the median and percentiles and the trend, with the same rules as section 2.
 
 ## 4. Voltage: one monitor per phase
 
-**Set up.** **Add voltage monitor** (device: the meter, capability `Voltage Phase A`). The range depends on
+**Set up.** Settings → Monitors → Voltage → **Add voltage monitor** (device: the meter, capability `Voltage Phase A`). The range depends on
 what that reading is: `108`–`132` V for a 120 V phase-to-neutral reading, `198`–`242` V for a 220 V one. The
 examples below use a 120 V phase.
 

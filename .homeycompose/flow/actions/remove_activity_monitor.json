@@ -1,7 +1,0 @@
-{
-  "title": { "en": "Remove activity monitor" },
-  "titleFormatted": { "en": "Remove activity monitor [[monitor]]" },
-  "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
-  ]
-}

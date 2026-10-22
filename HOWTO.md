@@ -38,21 +38,19 @@ the one to use:
 For anything with a meaningful, clean power draw when running: a fridge, a freezer, an oven.
 machine.
 
-1. Add a Flow with the action card **"Add activity monitor"**.
-   - **Device**: pick the physical device.
-   - **Capability**: leave blank to use `measure_power` — Sentinels auto-detects and tracks
-     related capabilities (current, energy, voltage) on the same device, no need to add them.
+1. In Settings → Monitors → Activity, click **Add activity monitor**.
+   - **Capability** and **Device**: pick the capability first (`measure_power`), then the device. Sentinels
+     auto-detects and tracks related capabilities (current, energy, voltage) on the same device, no need to add them.
    - **Activity threshold (W)**: the wattage above which the device counts as active. For a
      pump this might be 50W; for a fridge compressor, 20W. Leave it blank and the monitor looks at what
      Homey's own **Insights** logged for that device (the last 24 hours, then the last 7 days) and starts
      from the split it finds between standby and running power; with no Insights history, or no clear
      split, it starts at 40 W. Either way it stays *Calibrating* and replaces that starting value as soon
      as its own readings give a confident answer, and you can still type a number at any time.
-   - Run this Flow once (e.g. on "Homey started", or manually) to create the monitor. It starts
-     with no continuity/confirmation delay — if you later notice a device's power dips briefly
-     between phases (a washer) and fragments into multiple cycles, or a noisy reading creates
-     false starts, use **"Update activity monitor"** to add a continuity window or minimum
-     confirmation without recreating the monitor.
+   - A new monitor starts with no continuity/confirmation delay — if you later notice a device's power dips
+     briefly between phases (a washer) and fragments into multiple cycles, or a noisy reading creates
+     false starts, use **Edit** on the monitor (or the **"Update activity monitor"** Flow card) to add a
+     continuity window or minimum confirmation without recreating the monitor.
    - **History from before the monitor existed.** In Settings → Monitors, a threshold monitor has a
      **Rebuild from Insights** link: the same detection rules are replayed over what Homey's Insights logged
      for the device in the last 7 days, and the cycles, time and energy they give are added in front of what
@@ -120,9 +118,8 @@ this card is not for voltage (see the Voltage Monitor section).
 For a boolean capability with no meaningful wattage: a door/window sensor, a presence sensor,
 a plain on/off switch you don't have power data for.
 
-1. Add a Flow with **"Add state monitor"**.
-   - **Device** / **Capability**: the picker only shows boolean capabilities on that device
-     (contact, motion, on/off).
+1. In Settings → Monitors → State, click **Add state monitor**.
+   - **Capability** / **Device**: only state-like capabilities are listed (contact, motion, on/off).
    - **Label when true** / **Label when false**: name the two states in your own words — e.g.
      "Open"/"Closed" for a door, "Detected"/"Clear" for a motion sensor. There's no "which one
      is active" choice to get backwards: both directions are tracked and reported side by
@@ -141,7 +138,7 @@ a plain on/off switch you don't have power data for.
 
 ## 3. Voltage Monitor — over/undervoltage on a phase
 
-1. Add a Flow with **"Add voltage monitor"**.
+1. In Settings → Monitors → Voltage, click **Add voltage monitor**.
    - **Capability**: the picker only shows `measure_voltage*` capabilities — if your device is
      3-phase, make sure you pick the phase you actually mean (e.g. "Voltage Phase A", not
      "Power Phase A").
@@ -177,8 +174,7 @@ two kinds must not be compared with each other.
 For "are all the doors closed", "are all the lights off" — any check across two or more
 devices of the same logical type.
 
-1. In Settings → Groups tab, click **Add group** (or use the **"Create state group"** Flow
-   card) — give it a name, a type (contact/light/switch/valve/garage door), and pick which devices belong
+1. In Settings → Groups tab, click **Add group** — give it a name, a type (contact/light/switch/valve/garage door), and pick which devices belong
    to it (at least two, all compatible with the chosen type).
 2. Use **"Check state group"** in a Flow whenever you want the live result — it reads every
    device in the group right then. Tokens: matched/mismatch counts and a rendered message (edit

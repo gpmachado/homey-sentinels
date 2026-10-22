@@ -1,7 +1,0 @@
-{
-  "title": { "en": "Remove state monitor" },
-  "titleFormatted": { "en": "Remove state monitor [[monitor]]" },
-  "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
-  ]
-}

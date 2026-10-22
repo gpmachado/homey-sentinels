@@ -55,8 +55,7 @@ Crossing above/below produces ACTIVE/STANDBY cycles with duration, energy, avera
 and current. Auxiliary capabilities (`measure_current`, `meter_power`, `measure_voltage`) are
 auto-detected on the device and tracked without separate configuration.
 
-- Cards: `add_activity_monitor`, `remove_activity_monitor`, `reset_activity_monitor`,
-  `update_activity_monitor`, `get_activity_statistics`, `get_usage_pattern`, `start_monitoring_device`/
+- Cards: `reset_activity_monitor`, `update_activity_monitor`, `get_activity_statistics`, `get_usage_pattern`, `start_monitoring_device`/
   `stop_monitoring_device` (manual override for a device with no reliable numeric signal —
   creates the monitor on first run if it doesn't exist yet, and starts/stops it, in one card),
   triggers `activity_started`/`activity_finished`, condition `is_active`.
@@ -79,8 +78,8 @@ auto-detected on the device and tracked without separate configuration.
   does have one (a freezer, a microwave), which should just use the regular threshold mode.
 - `continuity_minutes` / `min_confirmation_seconds` filter noise (the longer of the two governs
   how long a drop below threshold must hold before a cycle is considered over) — not exposed on
-  `add_activity_monitor` (both start at 0, the common case), only on `update_activity_monitor`,
-  to keep the create-time card simple.
+  the create form (both start at 0, the common case), only on Edit and on `update_activity_monitor`.
+  Monitors, watchdogs and groups are created and removed in Settings; there are no Flow cards for that.
 - Message wording (Settings → Monitors → Activity → "Edit messages") renders a `message`
   token on both triggers. `activity_finished`'s message data includes `count` — today's cycle
   count, already inclusive of the cycle that just finished — enabling a one-card message like
@@ -101,7 +100,7 @@ purely cosmetic — both directions are tracked and reported side by side
 (`get_state_statistics`'s `true_duration`/`false_duration`), so there's nothing to get backwards
 in the first place.
 
-- Cards: `add_state_monitor`, `remove_state_monitor`, `reset_state_monitor`,
+- Cards: `reset_state_monitor`,
   `get_state_statistics`, triggers `state_started`/`state_finished` (each carries a
   `label` token — `trueLabel` on start, `falseLabel` on finish), condition `is_state_active`
   (displayed as "is true"/"is not true", matching the family's true/false vocabulary and
@@ -110,13 +109,13 @@ in the first place.
 - Message wording (Settings → Monitors → State → "Edit messages") works the same way as
   Activity Monitor's — a rendered `message` token per trigger, `count` (today's session count)
   available on `state_finished`.
-- Deliberately a **separate card family**, not a mode flag on `add_activity_monitor` — kept
-  distinct so the Flow editor can't offer a numeric-only capability where a boolean one is
-  required (mirrors the guard already in place for `add_voltage_monitor`).
+- Deliberately a **separate monitor kind**, not a mode flag on the Activity monitor — kept
+  distinct so the Add form can't offer a numeric-only capability where a boolean one is
+  required (mirrors the filter already in place for the Voltage form).
 - Tokens are duration/count only — no power/energy/current, since those aren't meaningful here.
 - Duration formatting shows seconds below one minute (`humanDuration`) — a door session is
   frequently shorter than a minute, unlike a power cycle.
-- No `continuity_minutes`/`min_confirmation_seconds` on `add_state_monitor` and no
+- No `continuity_minutes`/`min_confirmation_seconds` on the State monitor and no
   `update_state_monitor` card exists — every real use case so far is a plain sensor with
   nothing to debounce. The store/engine still support both fields if that changes.
 
@@ -126,7 +125,7 @@ Watches a `measure_voltage*` capability against a min/max range. A continuous ex
 outside the range is one **incident** (episode), not one row per sample — min/max/average
 voltage and duration are reported for the whole episode on return to normal.
 
-- Cards: `add_voltage_monitor`, `remove_voltage_monitor`, `reset_voltage_monitor`,
+- Cards: `reset_voltage_monitor`,
   `update_voltage_monitor`, `get_voltage_statistics`, triggers
   `voltage_undervoltage_detected`/`voltage_overvoltage_detected`/`voltage_returned_to_normal`,
   condition `is_voltage_normal`.
@@ -160,8 +159,7 @@ Checks whether two or more devices of the same logical type (contact/light/switc
 are all in an expected state. `check_state_group`/`_checkGroup` remain fully on-demand (reads
 the devices live, no continuous subscription). `Devices` never get modified.
 
-- Cards: `create_state_group`, `add_device_to_state_group`, `remove_device_from_state_group`,
-  `check_state_group`, condition `state_group_has_mismatch`, triggers `group_mismatch_detected`/
+- Cards: `check_state_group`, condition `state_group_has_mismatch`, triggers `group_mismatch_detected`/
   `group_matched_again`.
 - Type→capability mapping lives once, in `lib/groups.js`'s `GROUP_TYPES` (`contact`→
   `alarm_contact`, `light`/`switch`/`valve`→`onoff`, `garage`→`garagedoor_closed`) — shared by
@@ -226,7 +224,7 @@ seconds a device must stay unavailable / a battery must stay low, battery warnin
 timeline entries, scan on/off and interval. Settings shows the same rule as an amber "Silent N d" badge,
 because sleepy sensors never flip `available` when they die.
 
-- Cards: `add_availability_watchdog` (upserts by device), `remove_availability_watchdog`, triggers above,
+- Cards: triggers above,
   condition `is_device_available` (live `available` flag, no watchdog required).
 - Watchdogs whose device is gone from Homey are flagged after 3 polls in a row and can be removed.
 - **Explicitly out of scope**: active reachability/ping testing. `lastSeenAt` is Homey's own; the third-party

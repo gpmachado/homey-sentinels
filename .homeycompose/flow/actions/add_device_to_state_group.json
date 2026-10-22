@@ -1,8 +1,0 @@
-{
-  "title": { "en": "Add device to state group" },
-  "titleFormatted": { "en": "Add [[device]] to state group [[group]]" },
-  "args": [
-    { "name": "group", "type": "autocomplete", "title": { "en": "Group" } },
-    { "name": "device", "type": "autocomplete", "title": { "en": "Device" } }
-  ]
-}
