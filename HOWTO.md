@@ -88,7 +88,7 @@ machine.
    should have cycled by now. It works with Activity and State monitors.
    **"Get standby ranking"** (Advanced Flow) and, in Settings, the **Standby energy** section list which monitors use
    the most while idle over 7 days, 30 days or all history: the total, the biggest one and a top 5 as lines
-   (`1. Freezer: 1.40 kWh (R$ 1.19)`), with the cost when a price is set. Language-neutral (no words to translate).
+   (`1. Freezer: 1.40 kWh`). Language-neutral (no words to translate).
    It needs a device that reports kWh; monitors without it are not listed.
 4. Message wording works out of the box — a new monitor already has a sensible default
    (`"%monitor% turned on (%power% W)"` / `"%monitor% turned off - %duration_human%, %energy%
@@ -312,24 +312,6 @@ refresh every 30 seconds while on screen, and their settings can be changed afte
   problem".
 - **Sentinels Voltage** — each voltage monitor's current reading against its configured band.
 
-## Energy cost
-
-Settings → Monitors → **Energy cost**: type the price of a kWh and a currency symbol (`R$`, `$`, `EUR`; a euro
-sign is not accepted, type `EUR`). From then on every finished cycle of an Activity or State monitor carries:
-
-- `cost` and `cost_today` (numbers, for maths in a Flow), the cost of that cycle and of all of today's cycles,
-- `cost_text` and `cost_today_text` (text with the currency and two decimals, `R$ 1,02`, using the comma if you
-  turned it on), which is also available as `%cost_text%` and `%cost_today_text%` in message templates,
-- and the **Get activity statistics** action returns `total_cost` and `total_cost_text` for the period.
-
-The cost is the energy of the cycle times the price, kept to cents. It is an estimate for one flat price.
-**For a tariff that changes** (peak and off-peak hours, or an energy-price app), use the Flow action
-**"Set energy price"** from your own Flows: at 18:00 set the peak price, at 21:00 the off-peak one, or follow the
-trigger of your price app. A cycle is priced at the price in force when it finishes (one that crosses a change is
-priced whole at the price of its end). A price of 0 turns the cost off; the currency is only changed when you fill
-it in. With no price set, the numbers are 0 and the texts are empty, so a message such as
-`... (%energy% kWh, %cost_text%)` stays clean.
-
 ## Message wording — examples in Portuguese
 
 Homey's own interface has no Portuguese, so nothing here is ever forced on you: every message is a template
@@ -351,7 +333,6 @@ Latin-alphabet). The Portuguese default for a finished cycle is `%monitor% desli
 | Activity, started | `%monitor% ligou (%power% W)` |
 | Activity, finished | `%monitor% desligou: %duration_human%, %energy% kWh (%count% %count:ciclo|ciclos% hoje)` |
 | Activity, with the time | `%time% - %monitor% terminou em %duration_human%, consumo de %energy% kWh` |
-| Activity, with the cost | `%monitor% terminou: %duration_human%, %energy% kWh, custo %cost_text% (hoje %cost_today_text%)` |
 | State (door, motion), started | `%monitor% agora está %label%` |
 | State, finished | `%monitor% voltou a %label% depois de %duration_human% (%count% hoje)` |
 | Voltage, undervoltage | `Tensão baixa em %monitor%: %voltage% V` |
@@ -369,14 +350,6 @@ Notes:
   Settings → Monitors. It only changes the wording of messages; Flow tokens of type number keep the dot.
 - `%time%` writes the local time of the event; the Homey timeline already shows when each entry was made,
   so leave it out there.
-
-## Cost above an amount
-
-The trigger **"Cost today exceeds an amount"** fires once per day, the moment a finished cycle first
-pushes an Activity monitor's estimated cost for today to or past the amount you set (needs a price in
-Settings -> Monitors -> Energy cost). Different Flows can watch the same monitor for different amounts —
-each fires once, the day it is reached, and re-arms at midnight. Example: "O ar-condicionado já consumiu
-R$ 12,40 hoje." using `%monitor%` and `%cost_today_text%`.
 
 ## If a device is deleted from Homey
 

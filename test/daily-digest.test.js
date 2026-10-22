@@ -10,8 +10,8 @@ const monitor = (name, kwh, cycles) => ({
   name, periods: kwh ? [{ startedAt: DAY_START + 1, endedAt: DAY_START + 2, state: 'ACTIVE', seconds: 1, energy: kwh, minPower: 1, maxPower: 1, powerSum: 1, sampleCount: 1 }] : [],
   cycles: Array.from({ length: cycles }, (_, i) => ({ startedAt: DAY_START + 1 + i, endedAt: DAY_START + 2 + i, duration: 1, averagePower: 1, maxPower: 1, energy: kwh / (cycles || 1) })), dailySummaries: []
 });
-const fakeApp = ({ monitors = {}, groups = {}, problems = null, language = 'en', price = 0 } = {}) => Object.assign({
-  store: { data: { monitors, groups }, getMessageSettings: () => ({ pricePerKwh: price, currency: 'R$' }) },
+const fakeApp = ({ monitors = {}, groups = {}, problems = null, language = 'en' } = {}) => Object.assign({
+  store: { data: { monitors, groups } },
   _getTimezone: () => 'UTC', _messageLanguage: () => language, _availabilityScan: problems === null ? null : { problems }
 }, summaries);
 
@@ -29,11 +29,9 @@ test('adds up the day, names the biggest user, counts flagged devices and groups
   assert.equal(digest.message, 'Today: 4 cycles, 2.00 kWh. Most energy: Pump (1.50 kWh). Devices needing attention: 2. Groups out of place: 1.');
 });
 
-test('with a price the cost goes into the sentence, in the chosen language', () => {
-  const digest = fakeApp({ monitors: { a: monitor('Bomba', 2, 2) }, language: 'pt', price: 0.5, problems: [] }).getDailyDigest();
-  assert.equal(digest.cost, 1);
-  assert.equal(digest.costText, 'R$ 1.00');
-  assert.equal(digest.message, 'Hoje: 2 ciclos, 2.00 kWh (R$ 1.00). Maior consumo: Bomba (2.00 kWh (R$ 1.00)). Dispositivos com problema: 0. Grupos fora do lugar: 0.');
+test('the sentence comes out in the chosen language', () => {
+  const digest = fakeApp({ monitors: { a: monitor('Bomba', 2, 2) }, language: 'pt', problems: [] }).getDailyDigest();
+  assert.equal(digest.message, 'Hoje: 2 ciclos, 2.00 kWh. Maior consumo: Bomba (2.00 kWh). Dispositivos com problema: 0. Grupos fora do lugar: 0.');
 });
 
 test('a quiet day, with the availability scan off, still gives every token a value', () => {

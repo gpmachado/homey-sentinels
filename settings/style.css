@@ -76,7 +76,7 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .container button[type=submit]:hover { filter: brightness(1.08) !important; background: var(--color-accent) !important; }
 .container button:focus-visible { outline: 2px solid var(--color-accent) !important; outline-offset: 2px !important; }
 .container button[data-token] { padding: 3px 8px !important; font-size: 11px !important; font-weight: 600 !important; border-radius: 6px !important; color: var(--color-muted) !important; }
-/* Token buttons: a colored left edge per category (Identification/Time/Energy/Power/Cost/Count), set via
+/* Token buttons: a colored left edge per category (Identification/Time/Energy/Power/Count), set via
    data-group so a glance at the row already groups tokens without reflowing them; hover shows name, type
    and an example (see TOKEN_INFO in settings.js). These need !important and the .container scope like every
    button rule above: ".container button" sets the whole border with !important and would otherwise win. */
@@ -85,7 +85,6 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .container button[data-token][data-group="time"] { border-left-color: #8a63d2 !important; }
 .container button[data-token][data-group="energy"] { border-left-color: var(--color-success) !important; }
 .container button[data-token][data-group="power"] { border-left-color: var(--color-accent) !important; }
-.container button[data-token][data-group="cost"] { border-left-color: #b8860b !important; }
 .container button[data-token][data-group="count"] { border-left-color: var(--color-danger) !important; }
 /* The Copy button next to a live preview: same reason, its size and its green "Copied!" feedback. */
 .container .message-preview-copy-btn { padding: 6px 10px !important; font-size: 12px !important; border-radius: 7px !important; }
@@ -198,10 +197,6 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 /* Group members that Homey no longer has: shown in the edit form so they can be removed */
 .group-missing { border: 1px solid var(--color-danger); background: var(--color-danger-bg); color: var(--color-danger); border-radius: 8px; padding: 8px 10px; margin: 6px 0; font-size: 13px; }
 .group-missing .missing-name { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 0; }
-
-/* Energy cost: price, currency and a Save button on one line */
-.cost-row { display: flex; align-items: flex-end; gap: 8px; flex-wrap: wrap; }
-.cost-row label { flex: 1 1 120px; margin-top: 0; }
 
 /* Usage pattern: a weekday by hour grid, darker = more. */
 .modal-box.pattern-box { max-width: 560px; }

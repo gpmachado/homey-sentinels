@@ -7,7 +7,7 @@ example, so they are what a real device with those readings gives; yours will di
 
 Names used below (all invented): a well pump **"Bomba do poço"** on an energy meter, a door sensor
 **"Porta da frente"**, a three-phase meter with a monitor per phase (**"Voltagem Fase A"**), a group
-**"Portas e janelas"**. Prices are in R$ with a price of 0.85 per kWh.
+**"Portas e janelas"**.
 
 ## 0. Reading tokens: four rules
 
@@ -23,7 +23,7 @@ Names used below (all invented): a well pump **"Bomba do poço"** on an energy m
    (`2026-10-03T14:02:00.000Z`); `time` is the same moment in your time zone and readable
    (`2026-10-03 11:02:00`). Use `time` in a Timeline entry. A few triggers (Activity finished, Voltage returned to normal) carry only `time`.
 4. **No data is 0 or empty, never missing.** Homey rejects an empty number token, so a number with no value
-   is `0` and a text token is an empty string. Cost tokens are `0` / empty until a price is set. Inside a
+   is `0` and a text token is an empty string. Inside a
    message template, a placeholder with no value (for example `%power%` on a voltage monitor whose device has
    no power capability) renders as nothing.
 
@@ -58,8 +58,6 @@ about 0.96 kWh, then 3 W again.
 | `count` | `1` | cycles today, including this one |
 | `average_power` / `max_power` | `1480` / `1480` | W while active |
 | `average_current` / `max_current` | `0` / `0` | A; `0` when the device reports no current |
-| `cost` / `cost_today` | `0.82` / `0.82` | `0` until a price is set (see section 2) |
-| `cost_text` / `cost_today_text` | `R$ 0.82` / `R$ 0.82` | empty until a price is set |
 | `time` | `2026-10-03 11:40:00` | local |
 | `message` | `Bomba do poço turned off - 38 min, 0.96 kWh (1 today)` | default template |
 
@@ -67,8 +65,8 @@ about 0.96 kWh, then 3 W again.
 `%count:vez|vezes%` picks the first word when the count is exactly 1:
 
 ```
-%monitor% desligou - %duration_human%, %energy% kWh, R$ %cost% (%count% %count:vez|vezes% hoje)
-→ Bomba do poço desligou - 38 min, 0.96 kWh, R$ 0.82 (1 vez hoje)
+%monitor% desligou - %duration_human%, %energy% kWh (%count% %count:vez|vezes% hoje)
+→ Bomba do poço desligou - 38 min, 0.96 kWh (1 vez hoje)
 ```
 
 **Building the sentence in the Flow instead** (what the Timeline entry in the example Flow does): a
@@ -80,35 +78,7 @@ Bomba do poço turned off - 38 min, 0.96 kWh (1 today) 1 vezes hoje. 38 min cons
 
 The last number is `0.96` and not a long string of decimals because of the rounding rule above.
 
-## 2. Cost
-
-**Set up.** Settings → Monitors → *Energy cost*: price per kWh `0.85` and currency `R$`. Or change it from a
-Flow with **Set energy price** (for a time-of-use tariff: at 18:00 set `1.20`, at 21:00 set `0.60`). A cycle
-is priced at the price in force when it **ends**.
-
-Two cycles on the same day: 0.96 kWh (38 min), then 1.21 kWh (47 min).
-
-| After | `energy` | `cost` | `energy_today` | `cost_today` |
-|---|---|---|---|---|
-| cycle 1 | `0.96` | `0.82` | `0.96` | `0.82` |
-| cycle 2 | `1.21` | `1.03` | `2.17` | `1.84` |
-
-`cost_today` is priced from today's **total energy** (2.17 × 0.85 = 1.84) and rounded once, so it can differ
-by a cent from adding the two `cost` values (0.82 + 1.03 = 1.85). That is intended.
-
-**Cost today exceeds an amount.** Fires once per day, on the cycle that carries today's cost to or past the
-amount, and starts over at midnight. The amount must be at least `0.01`.
-
-| Flow's amount | Fires on | Why |
-|---|---|---|
-| `0.50` | cycle 1 | today went from 0 to 0.82 |
-| `1.00` | cycle 2 | today went from 0.82 to 1.84 |
-| `2.00` | not yet | today is still 1.84 |
-
-A third cycle that takes today past 2.00 fires the `2.00` Flow, and the other two do not fire again.
-Its tokens: `device`, `monitor`, `cost_today` (`1.84`), `cost_today_text` (`R$ 1.84`), `time`, `message`.
-
-## 3. Statistics: Get activity statistics
+## 2. Statistics: Get activity statistics
 
 **Set up.** An Advanced Flow with **Get activity statistics** (monitor, period `today`) — for example on a
 Timeline trigger at 22:00. Six cycles of 38, 47, 41, 52, 44 and 39 minutes with about 1 kWh each:
@@ -118,7 +88,6 @@ Timeline trigger at 22:00. Six cycles of 38, 47, 41, 52, 44 and 39 minutes with 
 | `cycle_count` | `6` | |
 | `active_duration` | `16020` | seconds active (4 h 27 min) |
 | `total_energy` | `6.577` | kWh |
-| `total_cost` / `total_cost_text` | `5.59` / `R$ 5.59` | with a price set |
 | `average_power` / `max_power` | `1480` / `1480` | W while active |
 | `median_duration` | `2610` | seconds |
 | `median_duration_human` | `44 min` | the median of an even count is the middle pair's average (43.5 min) |
@@ -155,7 +124,7 @@ With fewer than 5 cycles `enough_data` is `false`, the weekday and hour are empt
 `Bomba: ainda não há ciclos suficientes para ver um padrão (2 de 5).` Settings → Monitors → **Pattern** draws the
 same weekday-by-hour grid, with cycles started, time on, energy (kWh) or average power (W) to choose from.
 
-## 4. A door: State Monitor
+## 3. A door: State Monitor
 
 **Set up.** **Add state monitor** (device: the door sensor, labels `Open` / `Closed`). Both directions are
 tracked; the labels are only for reading.
@@ -167,9 +136,9 @@ tracked; the labels are only for reading.
 
 If the sensor's device also reports power or energy, those tokens are filled in too; otherwise they are `0`.
 **Get state statistics** gives `cycle_count`, `true_duration` / `false_duration` (seconds), their labels,
-the median and percentiles and the trend, with the same rules as section 3.
+the median and percentiles and the trend, with the same rules as section 2.
 
-## 5. Voltage: one monitor per phase
+## 4. Voltage: one monitor per phase
 
 **Set up.** **Add voltage monitor** (device: the meter, capability `Voltage Phase A`). The range depends on
 what that reading is: `108`–`132` V for a 120 V phase-to-neutral reading, `198`–`242` V for a 220 V one. The
@@ -221,7 +190,7 @@ The last row is the mistake to avoid: two different kinds of reading, so the num
 
 "More than" is strict, so identical readings are never "more than 0 %" apart.
 
-## 6. Groups: are all the doors closed?
+## 5. Groups: are all the doors closed?
 
 **Set up.** Settings → Groups → new group **"Portas e janelas"**, type *Contact (doors/windows)*, expected
 *closed*, three devices. Then **Group mismatch detected** / **Group matched again** triggers, the condition
@@ -258,7 +227,7 @@ many: Há %count% itens abertos: %items%.
 `mismatch_list` and `message`; **Get group statistics** returns `mismatch_seconds`,
 `mismatch_duration_human` and `check_count` (an estimate from the 5-minute poll, not an exact stopwatch).
 
-## 7. Availability
+## 6. Availability
 
 Nothing to set up for the scan; add a watchdog to a device you want its own limit and Flow for.
 
@@ -271,11 +240,11 @@ Nothing to set up for the scan; add a watchdog to a device you want its own limi
 
 The `message` of these cards, the timeline entries and the *Threshold calibrated* message are in the *Default message language* (Settings → Monitors → Message format), so a text-to-speech or a notification can use them as they are. The examples above are with *Português*.
 
-## 8. Placeholders inside message templates
+## 7. Placeholders inside message templates
 
 | Monitor | Placeholders |
 |---|---|
-| Activity | `%device%` `%monitor%` `%power%` `%time%` `%duration%` `%duration_human%` `%energy%` `%energy_today%` `%average_power%` `%max_power%` `%average_current%` `%max_current%` `%cost%` `%cost_today%` `%cost_text%` `%cost_today_text%` `%count%` `%count:word\|words%` |
+| Activity | `%device%` `%monitor%` `%power%` `%time%` `%duration%` `%duration_human%` `%energy%` `%energy_today%` `%average_power%` `%max_power%` `%average_current%` `%max_current%` `%count%` `%count:word\|words%` |
 | State | the same set, plus `%label%` (the state just entered) |
 | Voltage | `%device%` `%monitor%` `%voltage%` `%event_type%` `%time%` `%duration%` `%duration_human%` `%min_voltage%` `%max_voltage%` `%average_voltage%` `%power%` `%energy%` |
 | Group | `%group%` `%count%` `%items%` `%count:word\|words%` |
@@ -283,10 +252,9 @@ The `message` of these cards, the timeline entries and the *Threshold calibrated
 A placeholder that does not apply to that message renders as nothing. One switch in Settings (message
 format) turns `1.5 kWh` into `1,5 kWh` in messages.
 
-## 9. If something looks wrong
+## 8. If something looks wrong
 
-- **A number token is `0`** — there is no data for it yet (a period with no cycles, a device without current)
-  or, for cost, no price is set.
+- **A number token is `0`** — there is no data for it yet (a period with no cycles, a device without current).
 - **A number has many decimals in a Flow** — rounding happens as the token leaves the app; a Flow saved before
   that was added still shows the old text in entries already written.
 - **The Timeline shows `...T14:02:00.000Z`** — you used `timestamp`; use `time`.

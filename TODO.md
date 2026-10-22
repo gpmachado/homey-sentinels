@@ -25,6 +25,18 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### Energy cost removed from the app: DONE 2026-10-21
+
+All of it: the price and currency in Settings (Energy cost), the `cost`, `cost_today`, `cost_text` and `cost_today_text` tokens of the
+finished triggers, `total_cost(_text)` of Get activity statistics, the cost of Get standby ranking and Get daily digest, the **Cost today
+exceeds an amount** trigger (`activity_cost_exceeded`), the **Set energy price** action, `lib/cost.js` and its docs. Why: other apps
+(Power by the Hour, Energy KPI Monitor) do electricity cost better, and how energy is bought varies too much between countries (spot,
+bi-hourly, fixed, taxes inside the price) for Sentinels to cover. The kWh (`energy`, `energy_today`, `total_energy`, standby energy) stays,
+so a Flow can still do its own maths. A Flow that used one of the removed cards or tokens shows it unavailable and must be edited by hand
+(say so in the changelog); `%cost%` placeholders in saved message templates render as nothing. A price or currency an older version saved
+is dropped at the next save. The older items below that talk about cost (Estimated cost, Variable energy price, `activity_cost_exceeded`)
+are history. Reopen only if a real need shows up that kWh and a Flow cannot meet.
+
 ### Messages in the Default message language, round 2: DONE 2026-10-12
 
 Availability triggers have a `message` token and the timeline entries, *Threshold calibrated* and `trend_summary` follow the language
@@ -200,7 +212,7 @@ Order chosen: 1, 2, then 3, 4. Each was checked against what the app already kee
   batched every 15 s and only changed history rows written to SQLite; widgets read the app's 5 s cache and
   pause when not on screen.
 
-### Variable energy price (asked 2026-09-26): the flat price stays, the schedule is archived
+### Variable energy price (asked 2026-09-26): superseded, cost was removed entirely on 2026-10-21
 
 Today one flat price per kWh (Settings -> Monitors -> Energy cost); with no price the cost tokens are 0 and the
 texts empty, and `energy` (kWh) is always there for a Flow that does its own maths.
@@ -309,7 +321,7 @@ cycle" anomaly is done; a statistics library, standard deviation / z-score on fe
   `deviceMissing` and stop retrying, see the 2026-09-27 round.)
 
 ### Decided against
-- Time-of-use, spot and dynamic electricity prices inside Sentinels (2026-10-21): see Variable energy price above.
+- Electricity cost in Sentinels, in any form (2026-10-21): see "Energy cost removed" above.
 - Watchdog opt-out by default was replaced by the scan with sane defaults; a device-class adaptive threshold
   (median of report intervals) was judged fragile for sensors that only report on change.
 - Statistics library (nothing beyond mean / median / percentile is needed), per-device matrix in Groups,

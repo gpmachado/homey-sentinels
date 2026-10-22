@@ -285,19 +285,6 @@ also flags monitors whose `deviceId` is absent (a device deleted while the monit
 and restarts the ones whose device is back. Summaries expose `deviceMissing` (a badge in Settings). Monitors and
 their history are never deleted automatically. `_startupSummary` logs what is running at start.
 
-### Cost threshold trigger
-
-`activity_cost_exceeded` fires once per configured amount, per day, per Flow: `energy_today` already
-includes the just-finished cycle, so `previousCost` — `_costBeforeCycle(energy, energy_today)`, the energy of
-everything before this cycle priced and rounded once (not `cost_today - cost`, two values each already
-rounded to cents, which can land a cent off) — is what today's total was right before it. The card's own `registerRunListener` checks `previousCost < args.amount <= costToday` (a real-
-valued generalisation of `activity_cycles_reached`'s exact-integer match) — several Flows can watch the
-same monitor for different amounts, each firing exactly once the day its own amount is first reached, with
-no state kept anywhere: the interval is recomputed from the same two numbers every time, and resets on its
-own at midnight since cost_today does. The amount argument has `min: 0.01`: a cycle's cost is added to a total
-that starts at 0, so an amount of 0 could never fall inside the interval. State monitors don't have this trigger yet (only Activity monitors
-track energy by default).
-
 ### Usage pattern
 
 `usagePattern(monitor, { timeZone, period, now })` (lib/usage-pattern.js) reads `monitor.cycles` only (Activity and State
@@ -317,7 +304,7 @@ Settings). Nothing is stored; periods are week, month and all.
 when no cycle finished yet; `null` while ACTIVE or with nothing recorded, so the condition `activity_not_run_for` (Activity and
 State monitors) is false on no evidence. `standbyRanking(items, period, timeZone)` sorts monitors by `standby_energy` of
 `statistics()` over the period, drops those at 0 (no kWh reading) and gives each its share of the total. `getStandbyRanking`
-adds the cost at the Settings price; it backs the `get_standby_ranking` card (tokens are numbers and "name: energy (cost)"
+backs the `get_standby_ranking` card (tokens are numbers and "name: energy"
 lines, no translated words) and `GET /standby-ranking` (the Standby energy section in Settings, loaded when opened).
 
 ### Voltage phase imbalance
@@ -332,15 +319,6 @@ conditions, so a broken Flow is visible instead of reading as "no imbalance". Th
 reading is phase-neutral or phase-phase (both are just `measure_voltage*`), so comparing monitors of different
 kinds (about 120 V against about 220 V) gives a large percentage that is only the wiring; the docs say to
 compare like with like.
-
-### Energy cost tokens
-
-`messageSettings` in the store holds `pricePerKwh`, `currency` (only characters up to U+00FF, since it lives in
-settings) and `decimalComma`. `lib/cost.js` (`costOf`: kWh times price, kept to cents; `costText`: currency and two
-decimals with the app's decimal separator, empty with no price) feeds `_costTokens` in `lib/app/summaries.js`,
-which adds `cost`, `cost_today`, `cost_text` and `cost_today_text` to the finished-cycle data of Activity and
-State monitors (so they are Flow tokens and `%placeholders%`), and `total_cost(_text)` to the activity statistics
-action. A flat price; the **Set energy price** Flow action changes it for tariffs that vary (priced at the price in force when the cycle ends). A price schedule inside the app is not modelled.
 
 ### Default wording by language
 

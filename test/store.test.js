@@ -738,7 +738,7 @@ test('message settings: default off, kept when set, and old data without them lo
   const settings = { get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} };
   const store = new SentinelStore(settings);
   await store.load();
-  assert.deepEqual(store.getMessageSettings(), { messageLanguage: '', decimalComma: false, pricePerKwh: 0, currency: '' });
+  assert.deepEqual(store.getMessageSettings(), { messageLanguage: '', decimalComma: false });
   store.updateMessageSettings({ decimalComma: true });
   assert.equal(store.getMessageSettings().decimalComma, true);
   store.updateMessageSettings({ decimalComma: 'nonsense' });
@@ -758,7 +758,7 @@ test('message settings: the default message language is kept when it is one the 
   assert.equal(store.getMessageSettings().messageLanguage, '');
   store.updateMessageSettings({ messageLanguage: 'pt' }); // Portuguese is not a Homey language but is covered by the wording files
   assert.equal(store.getMessageSettings().messageLanguage, 'pt');
-  store.updateMessageSettings({ currency: 'R$' }); // an unrelated change keeps it
+  store.updateMessageSettings({ decimalComma: true }); // an unrelated change keeps it
   assert.equal(store.getMessageSettings().messageLanguage, 'pt');
   store.updateMessageSettings({ messageLanguage: 'xx' });
   assert.equal(store.getMessageSettings().messageLanguage, '');
@@ -807,4 +807,11 @@ test('ids from URLs cannot reach Object.prototype: __proto__ is an ordinary miss
     assert.equal(store.data[key]['__proto__'], undefined, key);
     assert.equal(store.data[key]['constructor'], undefined, key);
   }
+});
+
+test('message settings: a price and currency saved by an earlier version are dropped, nothing else changes', async () => {
+  const data = { 'sentinels:v2': { schemaVersion: 2, meta: { monitors: {}, groups: {}, voltageMonitors: {}, messageSettings: { messageLanguage: 'pt', decimalComma: true, pricePerKwh: 0.85, currency: 'R$' } }, series: {} } };
+  const store = new SentinelStore({ get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} });
+  await store.load();
+  assert.deepEqual(store.getMessageSettings(), { messageLanguage: 'pt', decimalComma: true });
 });

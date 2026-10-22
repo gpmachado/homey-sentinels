@@ -1,41 +1,220 @@
 {
-  "title": { "en": "Get activity statistics" },
-  "titleFormatted": { "en": "Get activity statistics for [[monitor]], period: [[period]]" },
+  "title": {
+    "en": "Get activity statistics"
+  },
+  "titleFormatted": {
+    "en": "Get activity statistics for [[monitor]], period: [[period]]"
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
-    { "name": "period", "type": "dropdown", "title": { "en": "Period" }, "values": [
-      { "id": "day", "label": { "en": "Today" } },
-      { "id": "week", "label": { "en": "Last 7 days" } },
-      { "id": "month", "label": { "en": "Last 30 days" } },
-      { "id": "all", "label": { "en": "All history" } }
-    ] }
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor"
+      }
+    },
+    {
+      "name": "period",
+      "type": "dropdown",
+      "title": {
+        "en": "Period"
+      },
+      "values": [
+        {
+          "id": "day",
+          "label": {
+            "en": "Today"
+          }
+        },
+        {
+          "id": "week",
+          "label": {
+            "en": "Last 7 days"
+          }
+        },
+        {
+          "id": "month",
+          "label": {
+            "en": "Last 30 days"
+          }
+        },
+        {
+          "id": "all",
+          "label": {
+            "en": "All history"
+          }
+        }
+      ]
+    }
   ],
   "tokens": [
-    { "name": "cycle_count", "type": "number", "title": { "en": "Cycles" } },
-    { "name": "active_duration", "type": "number", "title": { "en": "Active duration (seconds)" } },
-    { "name": "standby_duration", "type": "number", "title": { "en": "Standby duration (seconds)" } },
-    { "name": "total_energy", "type": "number", "title": { "en": "Energy (kWh)" } },
-    { "name": "total_cost", "type": "number", "title": { "en": "Total cost (needs an energy price in Settings)" } },
-    { "name": "total_cost_text", "type": "string", "title": { "en": "Total cost (text, with currency)" } },
-    { "name": "active_energy", "type": "number", "title": { "en": "Active energy (kWh)" } },
-    { "name": "standby_energy", "type": "number", "title": { "en": "Standby energy (kWh)" } },
-    { "name": "average_power", "type": "number", "title": { "en": "Average power while active (W)" } },
-    { "name": "max_power", "type": "number", "title": { "en": "Peak power (W)" } },
-    { "name": "average_current", "type": "number", "title": { "en": "Average current while active (A)" } },
-    { "name": "max_current", "type": "number", "title": { "en": "Peak current (A)" } },
-    { "name": "median_duration", "type": "number", "title": { "en": "Median cycle duration (seconds)" } },
-    { "name": "median_duration_human", "type": "string", "title": { "en": "Median cycle duration" } },
-    { "name": "median_energy", "type": "number", "title": { "en": "Median energy per cycle (kWh)" } },
-    { "name": "p25_duration", "type": "number", "title": { "en": "Cycle duration, 25th percentile (seconds)" } },
-    { "name": "p25_duration_human", "type": "string", "title": { "en": "Cycle duration, 25th percentile" } },
-    { "name": "p75_duration", "type": "number", "title": { "en": "Cycle duration, 75th percentile (seconds)" } },
-    { "name": "p75_duration_human", "type": "string", "title": { "en": "Cycle duration, 75th percentile" } },
-    { "name": "p25_energy", "type": "number", "title": { "en": "Energy per cycle, 25th percentile (kWh)" } },
-    { "name": "p75_energy", "type": "number", "title": { "en": "Energy per cycle, 75th percentile (kWh)" } },
-    { "name": "energy_quality", "type": "string", "title": { "en": "Energy quality issue (meter_reset or blank)" } },
-    { "name": "trend_active_duration_percent", "type": "number", "title": { "en": "Active time vs previous week (%)" } },
-    { "name": "trend_cycle_count_percent", "type": "number", "title": { "en": "Cycles vs previous week (%)" } },
-    { "name": "trend_energy_percent", "type": "number", "title": { "en": "Energy vs previous week (%)" } },
-    { "name": "trend_summary", "type": "string", "title": { "en": "Weekly trend" } }
+    {
+      "name": "cycle_count",
+      "type": "number",
+      "title": {
+        "en": "Cycles"
+      }
+    },
+    {
+      "name": "active_duration",
+      "type": "number",
+      "title": {
+        "en": "Active duration (seconds)"
+      }
+    },
+    {
+      "name": "standby_duration",
+      "type": "number",
+      "title": {
+        "en": "Standby duration (seconds)"
+      }
+    },
+    {
+      "name": "total_energy",
+      "type": "number",
+      "title": {
+        "en": "Energy (kWh)"
+      }
+    },
+    {
+      "name": "active_energy",
+      "type": "number",
+      "title": {
+        "en": "Active energy (kWh)"
+      }
+    },
+    {
+      "name": "standby_energy",
+      "type": "number",
+      "title": {
+        "en": "Standby energy (kWh)"
+      }
+    },
+    {
+      "name": "average_power",
+      "type": "number",
+      "title": {
+        "en": "Average power while active (W)"
+      }
+    },
+    {
+      "name": "max_power",
+      "type": "number",
+      "title": {
+        "en": "Peak power (W)"
+      }
+    },
+    {
+      "name": "average_current",
+      "type": "number",
+      "title": {
+        "en": "Average current while active (A)"
+      }
+    },
+    {
+      "name": "max_current",
+      "type": "number",
+      "title": {
+        "en": "Peak current (A)"
+      }
+    },
+    {
+      "name": "median_duration",
+      "type": "number",
+      "title": {
+        "en": "Median cycle duration (seconds)"
+      }
+    },
+    {
+      "name": "median_duration_human",
+      "type": "string",
+      "title": {
+        "en": "Median cycle duration"
+      }
+    },
+    {
+      "name": "median_energy",
+      "type": "number",
+      "title": {
+        "en": "Median energy per cycle (kWh)"
+      }
+    },
+    {
+      "name": "p25_duration",
+      "type": "number",
+      "title": {
+        "en": "Cycle duration, 25th percentile (seconds)"
+      }
+    },
+    {
+      "name": "p25_duration_human",
+      "type": "string",
+      "title": {
+        "en": "Cycle duration, 25th percentile"
+      }
+    },
+    {
+      "name": "p75_duration",
+      "type": "number",
+      "title": {
+        "en": "Cycle duration, 75th percentile (seconds)"
+      }
+    },
+    {
+      "name": "p75_duration_human",
+      "type": "string",
+      "title": {
+        "en": "Cycle duration, 75th percentile"
+      }
+    },
+    {
+      "name": "p25_energy",
+      "type": "number",
+      "title": {
+        "en": "Energy per cycle, 25th percentile (kWh)"
+      }
+    },
+    {
+      "name": "p75_energy",
+      "type": "number",
+      "title": {
+        "en": "Energy per cycle, 75th percentile (kWh)"
+      }
+    },
+    {
+      "name": "energy_quality",
+      "type": "string",
+      "title": {
+        "en": "Energy quality issue (meter_reset or blank)"
+      }
+    },
+    {
+      "name": "trend_active_duration_percent",
+      "type": "number",
+      "title": {
+        "en": "Active time vs previous week (%)"
+      }
+    },
+    {
+      "name": "trend_cycle_count_percent",
+      "type": "number",
+      "title": {
+        "en": "Cycles vs previous week (%)"
+      }
+    },
+    {
+      "name": "trend_energy_percent",
+      "type": "number",
+      "title": {
+        "en": "Energy vs previous week (%)"
+      }
+    },
+    {
+      "name": "trend_summary",
+      "type": "string",
+      "title": {
+        "en": "Weekly trend"
+      }
+    }
   ]
 }

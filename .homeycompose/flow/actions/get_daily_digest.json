@@ -25,20 +25,6 @@
       }
     },
     {
-      "name": "cost",
-      "type": "number",
-      "title": {
-        "en": "Cost today (needs an energy price in Settings)"
-      }
-    },
-    {
-      "name": "cost_text",
-      "type": "string",
-      "title": {
-        "en": "Cost today (text, with currency)"
-      }
-    },
-    {
       "name": "top_name",
       "type": "string",
       "title": {
