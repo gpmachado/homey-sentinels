@@ -38,8 +38,8 @@ class StatisticTrackerApp extends Homey.App {
     // the old copy would keep inflating every settings write.
     try { this.homey.settings.unset('deviceCache'); } catch (error) { /* nothing to remove */ }
     // Homey warns an app (up to a limit) before it stops it for memory or CPU: log each warning, so a problem shows in the log.
-    this.homey.on('memwarn', ({ count, limit } = {}) => this.log(`Homey memory warning ${count}/${limit}`));
-    this.homey.on('cpuwarn', ({ count, limit } = {}) => this.log(`Homey CPU warning ${count}/${limit}`));
+    this.homey.on('memwarn', (payload) => this.log(`Homey memory warning ${payload?.count}/${payload?.limit}`));
+    this.homey.on('cpuwarn', (payload) => this.log(`Homey CPU warning ${payload?.count}/${payload?.limit}`));
     // In-memory only, deliberately not persisted — a per-monitor cooldown so a burst of rapid
     // samples (a device cycling its heating element on/off) can't re-run _suggestedThreshold's
     // sort over the whole periods[] array on every single one of them while still calibrating.

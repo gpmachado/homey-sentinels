@@ -25,11 +25,31 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### OPEN: lib/history-db.js follows the PELS app (GPL-3.0), and the repo is published as MIT (found 2026-10-21)
+
+Comparing with `_reference/com.barelysufficient.pels-main/lib/store/userdataDatabase.ts` (PELS is GPL-3.0, its `LICENSE` says so): `lib/history-db.js`
+is a close port to JavaScript. Same damaged-file result codes `[10, 11, 13, 26]` read with `& 0xff`, the same PRAGMA sequence (WAL, the mode is
+verified, `synchronous` NORMAL or FULL, `cache_size -2048`), the same quarantine of a file SQLite refuses to open (`.corrupt-<date>` suffix, the `-wal` and
+`-shm` sidecars, open again) and comments that follow its wording. What is ours: the one `series (monitor, tag, idx, row)` table and its statements,
+`sizeBytes`, `sizes`, `checkpoint`. `lib/memory-guard.js` had the same problem and was removed (see below). Ideas and techniques are free to use; the
+expression and structure are not, and GPL code cannot be relicensed as MIT by us. The credit comments that named PELS were deleted earlier on
+2026-10-06, which hid the origin: do not hide it again.
+
+Choices, none made yet:
+1. Go back to GPL-3.0 (simplest and safe; undoes the MIT change and the message to other developers that says MIT).
+2. Ask the PELS author (GitHub issue on the PELS repo) to allow the file under MIT, in writing.
+3. Rewrite `lib/history-db.js` independently, from a description of the behaviour and not from the PELS file. Whoever has read that file
+   (the assistant has) is a poor choice to write it.
+4. Keep only cycles and daily summaries (small) and drop the 7-day periods, which are the bulky part (3,556 periods, 1,152 KB in the last run), so they fit
+   in settings and the SQLite file, and this file, go away. Needs the statistics, the calibration and the usage pattern to stop reading
+   periods, so it is a big refactor, and it leans on Homey Insights for the detail.
+Until one is done, the public repo carries this file under the MIT licence.
+
 ### Memory guard removed: DONE 2026-10-21
 
 `lib/memory-guard.js` (a forced V8 `last-resort` collection on memory warnings, 90 s after start, every 10 minutes and after the device list read, with
 `--expose-gc` switched on at run time) is gone, with its test. It was added to chase a crash that the SQLite history and the on-demand device list
-then fixed, and its code was found to follow the PELS app's `heapReclaim.ts` closely (PELS is GPL-3.0; see the licence item). `app.js` now only logs the
+then fixed, and its code was found to follow the PELS app's `heapReclaim.ts` closely (PELS is GPL-3.0; see "OPEN: lib/history-db.js follows the PELS app" above). `app.js` now only logs the
 `memwarn` and `cpuwarn` warnings. To watch over the next days: `Homey memory warning n/limit` lines in the log (the last run showed heap 15/70 MB).
 If they come back, write the reclaim again from scratch (not from the PELS file) and measure it first.
 
