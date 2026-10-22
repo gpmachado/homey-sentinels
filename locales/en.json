@@ -94,7 +94,13 @@
     "calibrated": "%monitor% calibrated: threshold set to ~%threshold% W (standby ~%standby% W, active ~%active% W).",
     "trendFrame": "This week vs. previous: activity %activity%, cycles %cycles%, energy %energy%.",
     "trendNotEnough": "not enough data",
-    "trendNoBaseline": "no prior baseline"
+    "trendNoBaseline": "no prior baseline",
+    "groupBackToNormal": "%group% is back to normal",
+    "groupMismatch": "%group% has a mismatch",
+    "groupMembersRemoved": "%names% is no longer in Homey and was removed from the group %group%",
+    "watchdogDeviceGone": "%device% is no longer in Homey - its watchdog can be removed",
+    "batteryBackToNormal": "%device% battery is back to normal",
+    "monitorDeviceGone": "%monitor%: the device %device% is no longer in Homey"
   },
   "reportMessages": {
     "periodDay": "today",

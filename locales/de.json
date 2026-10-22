@@ -94,7 +94,13 @@
     "calibrated": "%monitor% kalibriert: Schwelle ~%threshold% W (Standby ~%standby% W, aktiv ~%active% W).",
     "trendFrame": "Diese Woche gegenüber der letzten: aktiv %activity%, Zyklen %cycles%, Energie %energy%.",
     "trendNotEnough": "zu wenig Daten",
-    "trendNoBaseline": "keine Vorwoche zum Vergleich"
+    "trendNoBaseline": "keine Vorwoche zum Vergleich",
+    "groupBackToNormal": "%group% ist wieder normal",
+    "groupMismatch": "%group% hat eine Abweichung",
+    "groupMembersRemoved": "%names% ist nicht mehr in Homey und wurde aus der Gruppe %group% entfernt",
+    "watchdogDeviceGone": "%device% ist nicht mehr in Homey - der Watchdog kann entfernt werden",
+    "batteryBackToNormal": "Die Batterie von %device% ist wieder normal",
+    "monitorDeviceGone": "%monitor%: das Gerät %device% ist nicht mehr in Homey"
   },
   "reportMessages": {
     "periodDay": "heute",

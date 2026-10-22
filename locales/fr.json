@@ -94,7 +94,13 @@
     "calibrated": "%monitor% calibré : seuil ~%threshold% W (veille ~%standby% W, actif ~%active% W).",
     "trendFrame": "Cette semaine par rapport à la précédente : activité %activity%, cycles %cycles%, énergie %energy%.",
     "trendNotEnough": "pas assez de données",
-    "trendNoBaseline": "pas de semaine précédente"
+    "trendNoBaseline": "pas de semaine précédente",
+    "groupBackToNormal": "%group% est revenu à la normale",
+    "groupMismatch": "%group% présente un écart",
+    "groupMembersRemoved": "%names% n'est plus dans Homey et a été retiré du groupe %group%",
+    "watchdogDeviceGone": "%device% n'est plus dans Homey - son watchdog peut être supprimé",
+    "batteryBackToNormal": "La batterie de %device% est revenue à la normale",
+    "monitorDeviceGone": "%monitor% : l'appareil %device% n'est plus dans Homey"
   },
   "reportMessages": {
     "periodDay": "aujourd'hui",

@@ -94,7 +94,13 @@
     "calibrated": "%monitor% gekalibreerd: drempel ~%threshold% W (stand-by ~%standby% W, actief ~%active% W).",
     "trendFrame": "Deze week t.o.v. vorige: actief %activity%, cycli %cycles%, energie %energy%.",
     "trendNotEnough": "te weinig gegevens",
-    "trendNoBaseline": "geen vorige week om mee te vergelijken"
+    "trendNoBaseline": "geen vorige week om mee te vergelijken",
+    "groupBackToNormal": "%group% is weer normaal",
+    "groupMismatch": "%group% heeft een afwijking",
+    "groupMembersRemoved": "%names% staat niet meer in Homey en is verwijderd uit de groep %group%",
+    "watchdogDeviceGone": "%device% staat niet meer in Homey - de watchdog kan worden verwijderd",
+    "batteryBackToNormal": "De batterij van %device% is weer normaal",
+    "monitorDeviceGone": "%monitor%: het apparaat %device% staat niet meer in Homey"
   },
   "reportMessages": {
     "periodDay": "vandaag",

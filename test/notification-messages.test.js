@@ -46,3 +46,13 @@ test('the text report in Portuguese, for each kind of monitor', () => {
   assert.equal(generateTextReport('v', 'month', data, 'UTC', now, messages), 'Fase A (últimos 30 dias): média 0.0 V, faixa 0.0-0.0 V, ocorrências 0.');
   assert.equal(generateTextReport({ data: { id: 's' } }, 'day', data, 'UTC', now, messages), 'Porta (hoje): sessões 0, Aberta 0s.');
 });
+
+test('the event-log sentences about groups, deleted devices and batteries follow the language too', () => {
+  const pt = appIn('pt');
+  assert.equal(pt._say('groupBackToNormal', { group: 'Portas' }), 'Portas voltou ao normal');
+  assert.equal(pt._say('groupMembersRemoved', { names: 'Porta A, Porta B', group: 'Portas' }), 'Porta A, Porta B não está mais no Homey e foi removido do grupo Portas');
+  assert.equal(pt._say('watchdogDeviceGone', { device: 'Sensor' }), 'Sensor não está mais no Homey - o watchdog dele pode ser removido');
+  assert.equal(pt._say('batteryBackToNormal', { device: 'Sensor' }), 'A bateria de Sensor voltou ao normal');
+  assert.equal(pt._say('monitorDeviceGone', { monitor: 'Bomba', device: 'Tomada 3' }), 'Bomba: o dispositivo Tomada 3 não está mais no Homey');
+  assert.equal(appIn('en')._say('groupMismatch', { group: 'Doors' }), 'Doors has a mismatch');
+});

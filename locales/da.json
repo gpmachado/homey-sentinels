@@ -94,7 +94,13 @@
     "calibrated": "%monitor% kalibreret: tærskel ~%threshold% W (standby ~%standby% W, aktiv ~%active% W).",
     "trendFrame": "Denne uge mod forrige: aktivitet %activity%, cyklusser %cycles%, energi %energy%.",
     "trendNotEnough": "for få data",
-    "trendNoBaseline": "ingen forrige uge at sammenligne med"
+    "trendNoBaseline": "ingen forrige uge at sammenligne med",
+    "groupBackToNormal": "%group% er normal igen",
+    "groupMismatch": "%group% har en afvigelse",
+    "groupMembersRemoved": "%names% findes ikke længere i Homey og blev fjernet fra gruppen %group%",
+    "watchdogDeviceGone": "%device% findes ikke længere i Homey - watchdoggen kan fjernes",
+    "batteryBackToNormal": "Batteriet i %device% er normalt igen",
+    "monitorDeviceGone": "%monitor%: enheden %device% findes ikke længere i Homey"
   },
   "reportMessages": {
     "periodDay": "i dag",

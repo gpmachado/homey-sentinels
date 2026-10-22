@@ -5,6 +5,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const SentinelStore = require('../lib/store');
 const groupsMixin = require('../lib/app/groups');
+const monitorAdmin = require('../lib/app/monitor-admin'); // for _say, the sentence in the chosen language
 
 async function fakeApp({ initial = {}, groupType = 'switch', expectedState = true, deviceIds = ['a', 'b', 'c'], gone = [] } = {}) {
   const data = {};
@@ -38,7 +39,7 @@ async function fakeApp({ initial = {}, groupType = 'switch', expectedState = tru
         return { id, name: `Dev ${id}`, capabilitiesObj: { [groupType === 'switch' ? 'onoff' : 'alarm_contact']: { value: values[id] } } };
       }
     }
-  }, groupsMixin);
+  }, groupsMixin, monitorAdmin);
   const emit = (deviceId, value) => { values[deviceId] = value; return handlers.get(`group:${group.id}|${deviceId}`)(value, Date.now(), {}); };
   return { app, group, emit, fired, handlers, values };
 }
