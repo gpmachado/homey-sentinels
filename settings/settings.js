@@ -284,12 +284,33 @@ function onHomeyReady(Homey) {
     return label;
   }
 
-  function entityActions(buttons) {
+  // A row's action links. With `visible` given, only that many stay on the row and the rest go into a "..." menu (a
+  // menu for a single link would be silly, so it takes at least two). Used by the monitor lists, whose rows grew to six links.
+  function entityActions(buttons, visible) {
     var wrap = document.createElement('div');
     wrap.className = 'entity-actions';
-    buttons.forEach(function (btn) { wrap.appendChild(btn); });
+    var inRow = visible && buttons.length > visible + 1 ? buttons.slice(0, visible) : buttons;
+    inRow.forEach(function (btn) { wrap.appendChild(btn); });
+    if (inRow.length < buttons.length) {
+      var menu = document.createElement('details');
+      menu.className = 'more-menu';
+      var summary = document.createElement('summary');
+      summary.textContent = '\u22EF';
+      summary.title = 'More actions';
+      var list = document.createElement('div');
+      list.className = 'more-menu-list';
+      buttons.slice(inRow.length).forEach(function (btn) { list.appendChild(btn); });
+      list.addEventListener('click', function () { menu.open = false; });
+      menu.appendChild(summary);
+      menu.appendChild(list);
+      wrap.appendChild(menu);
+    }
     return wrap;
   }
+  // Any click outside an open "..." menu closes it.
+  document.addEventListener('click', function (event) {
+    Array.prototype.forEach.call(document.querySelectorAll('.more-menu[open]'), function (menu) { if (!menu.contains(event.target)) menu.open = false; });
+  });
 
   function renderEmptyList(container, message) {
     container.innerHTML = '<div class="entity-empty">' + message + '</div>';
@@ -479,7 +500,7 @@ function onHomeyReady(Homey) {
     lastGroups = groups;
     groupsEl.innerHTML = '';
     if (!groups.length) {
-      groupsEl.innerHTML = '<p class="hint">No groups created yet.</p>';
+      groupsEl.innerHTML = '<p class="hint">No groups yet. Click "Add group" to check several doors, lights or switches at once.</p>';
       return;
     }
     groups.forEach(function (group) {
@@ -650,7 +671,7 @@ function onHomeyReady(Homey) {
         row.appendChild(entityActions(spec.actions(item).concat(resetAndDeleteLinks({
           item: item, path: spec.path, render: spec.render,
           resetKeeps: 'This keeps the monitor and its settings, only the history is wiped.', deleteWhat: spec.deleteWhat
-        }))));
+        })), 2));
       }
       container.appendChild(row);
     });
@@ -658,7 +679,7 @@ function onHomeyReady(Homey) {
 
   function renderMonitors(monitors) {
     renderEntityList({
-      containerId: 'monitors-body', items: monitors, empty: 'No activity monitors created yet.',
+      containerId: 'monitors-body', items: monitors, empty: 'No activity monitors yet. Click "Add activity monitor" to watch a power device.',
       path: '/monitors', render: renderMonitors, deleteWhat: 'monitor',
       describe: function (monitor) {
         var isActive = monitor.state === 'ACTIVE';
@@ -818,7 +839,7 @@ function onHomeyReady(Homey) {
 
   function renderStateMonitors(monitors) {
     renderEntityList({
-      containerId: 'state-monitors-body', items: monitors, empty: 'No state monitors created yet.',
+      containerId: 'state-monitors-body', items: monitors, empty: 'No state monitors yet. Click "Add state monitor" for a door, a motion sensor or a switch.',
       path: '/state-monitors', render: renderStateMonitors, deleteWhat: 'monitor',
       describe: function (monitor) {
         var isActive = monitor.state === 'ACTIVE';
@@ -849,7 +870,7 @@ function onHomeyReady(Homey) {
 
   function renderVoltageMonitors(monitors) {
     renderEntityList({
-      containerId: 'voltage-monitors-body', items: monitors, empty: 'No voltage monitors created yet.',
+      containerId: 'voltage-monitors-body', items: monitors, empty: 'No voltage monitors yet. Click "Add voltage monitor" to watch a phase.',
       path: '/voltage-monitors', render: renderVoltageMonitors, deleteWhat: 'voltage monitor',
       describe: function (monitor) {
         var isNormal = monitor.state === 'NORMAL';
@@ -1063,7 +1084,7 @@ function onHomeyReady(Homey) {
     scan.problems.forEach(function (p) { if (p.reason === 'stale' && p.ownerUri) silentByApp[p.ownerUri] = (silentByApp[p.ownerUri] || 0) + 1; });
     var topApp = Object.keys(silentByApp).sort(function (a, b) { return silentByApp[b] - silentByApp[a]; })[0];
     var appHint = topApp && silentByApp[topApp] >= 5 ? silentByApp[topApp] + ' of the silent devices belong to ' + shortApp(topApp) + '; if they only report when used, press Ignore app on one of them. ' : '';
-    document.getElementById('availability-scan-stamp').textContent = appHint + (ignoredApps.length ? 'Ignoring every device of: ' + ignoredApps.join(', ') + '. ' : '') + scan.monitored + ' devices without a watchdog checked, last scan ' + new Date(scan.at).toLocaleString() + '. Silent for more than ' + availabilityDefaults.defaultThresholdHours + ' h counts as not reporting.';
+    document.getElementById('availability-scan-stamp').textContent = appHint + (ignoredApps.length ? 'Ignoring every device of: ' + ignoredApps.join(', ') + '. ' : '') + scan.monitored + ' devices without a watchdog checked, last scan ' + new Date(scan.at).toLocaleString() + (scan.problems.length ? '' : ', no problems found') + '. Silent for more than ' + availabilityDefaults.defaultThresholdHours + ' h counts as not reporting.';
     wrapper.classList.remove('hidden');
   }
   document.getElementById('availability-scan-btn').addEventListener('click', function () {
@@ -1461,10 +1482,12 @@ function onHomeyReady(Homey) {
     });
     selectEl.value = counts[current] ? current : '';
   }
-  function populateDeviceSelect(selectEl, zoneName, kind, family, showAll) {
+  function populateDeviceSelect(selectEl, zoneName, kind, family, showAll, search) {
     selectEl.innerHTML = '';
+    var wanted = (search || '').trim().toLowerCase();
     devicesInFamily(kind, family, showAll)
       .filter(function (device) { return !zoneName || device.zoneName === zoneName; })
+      .filter(function (device) { return !wanted || device.name.toLowerCase().indexOf(wanted) !== -1; })
       .sort(byName)
       .forEach(function (device) {
         var opt = document.createElement('option');
@@ -1517,6 +1540,7 @@ function onHomeyReady(Homey) {
     var deviceEl = document.getElementById(prefix + '-device');
     var capabilityEl = document.getElementById(prefix + '-capability');
     var capabilityWrap = document.getElementById(prefix + '-capability-wrap');
+    var searchEl = document.getElementById(prefix + '-search'); // the Add forms have a name search, the edit forms do not
     function showAll() { return options.showAll ? options.showAll() : false; }
     function changed() { if (options.onChange) options.onChange(); }
     function refreshCapabilities() {
@@ -1524,11 +1548,12 @@ function onHomeyReady(Homey) {
       capabilityWrap.classList.toggle('hidden', count < 2);
       changed();
     }
-    function refreshDevices() { populateDeviceSelect(deviceEl, zoneEl.value, kind, familyEl.value, showAll()); refreshCapabilities(); }
+    function refreshDevices() { populateDeviceSelect(deviceEl, zoneEl.value, kind, familyEl.value, showAll(), searchEl ? searchEl.value : ''); refreshCapabilities(); }
     function refreshZones() { populateZoneSelect(zoneEl, kind, familyEl.value, showAll()); refreshDevices(); }
     function refresh() { populateFamilySelect(familyEl, kind, options.preselectCapability, showAll()); refreshZones(); }
     familyEl.addEventListener('change', refreshZones);
     zoneEl.addEventListener('change', refreshDevices);
+    if (searchEl) searchEl.addEventListener('input', refreshDevices);
     deviceEl.addEventListener('change', refreshCapabilities);
     capabilityEl.addEventListener('change', changed);
     return { refresh: refresh };
@@ -1714,6 +1739,26 @@ function onHomeyReady(Homey) {
       return loadAll();
     }).catch(showError);
   });
+
+  // "Fill default wording" on a monitor's message form: the ready-made sentences in the Default message language (asked again on
+  // every click, so a language just changed applies at once). A confirm first when a box already has text.
+  function setupFillDefaultWording(buttonId, presetKey, fieldIds) {
+    document.getElementById(buttonId).addEventListener('click', function () {
+      api('GET', '/default-wording').then(function (info) {
+        var preset = info[presetKey];
+        if (!preset) return;
+        var apply = function () {
+          Object.keys(fieldIds).forEach(function (name) { document.getElementById(fieldIds[name]).value = preset[name] || ''; });
+          refreshMessagePreviews();
+        };
+        var hasText = Object.keys(fieldIds).some(function (name) { return document.getElementById(fieldIds[name]).value; });
+        if (hasText) confirmAction('This will overwrite the current message wording. Continue?', apply); else apply();
+      }).catch(showError);
+    });
+  }
+  setupFillDefaultWording('activity-message-fill-btn', 'activityMessageDefaults', { started: 'activity-messageTemplateStarted', finished: 'activity-messageTemplateFinished' });
+  setupFillDefaultWording('state-message-fill-btn', 'stateMessageDefaults', { started: 'state-messageTemplateStarted', finished: 'state-messageTemplateFinished' });
+  setupFillDefaultWording('voltage-message-fill-btn', 'voltageMessageDefaults', { undervoltage: 'messageTemplateUndervoltage', overvoltage: 'messageTemplateOvervoltage', normalized: 'messageTemplateNormalized' });
 
   // Message format: one switch for every message the app writes.
   var decimalCommaBox = document.getElementById('message-decimal-comma');

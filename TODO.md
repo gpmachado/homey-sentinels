@@ -25,6 +25,14 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### Settings touches, from the outside analyses: DONE 2026-10-22 (the Settings page stays in English on purpose)
+
+A **⋯** menu for the less used row actions of the monitor lists (Edit and Messages stay on the row), a **Search device** box in the three Add forms, **Fill default
+wording** on the Activity, State and Voltage message forms (the group form already had it; `/default-wording` now also returns the three monitor wordings) and empty
+lists that say what to click. Event-log sentences that were fixed English (group back to normal, a member or a device gone from Homey, battery back to normal) now follow
+the Default message language (`notificationMessages`). Not taken from the analyses: a creation wizard, a Dashboard tab, quick filters on the lists, moving the global
+settings to a fourth tab, translating Settings or the widgets (not needed: only what the user reads as a notification or in the history has to be in their language).
+
 ### Setup Flow cards removed: DONE 2026-10-22
 
 Eleven action cards are gone: `add_activity_monitor`, `add_state_monitor`, `add_voltage_monitor`, `add_availability_watchdog`, `create_state_group`,

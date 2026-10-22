@@ -264,7 +264,8 @@ entries, whether to scan everything and how often.
 Open the app's Settings from Homey. Three tabs:
 
 - **Monitors** — sub-tabs for Activity / State / Voltage, each with its own table
-  (state, stats, a small trend sparkline) and Edit / Reset stats / Delete buttons per row. A shared
+  (state, stats, a small trend sparkline) and per row **Edit** and **Messages**, with the other actions (Pattern,
+  Rebuild from Insights, Reset stats, Delete) in a **⋯** menu. A shared
   Today/7 Days/30 Days period selector applies across all three.
 - **Availability** — the scan tiles and **Scan now**, **Watchdog defaults**, the **Apps** list, and every
   Homey device with its badge, last seen and its Add/Edit/Remove watchdog actions and its Track switch.
@@ -274,11 +275,14 @@ Open the app's Settings from Homey. Three tabs:
 **Add monitor** (the button on each sub-tab) picks the device in narrowing steps, because a long device list is the
 hard part: **Capability** first, as one choice per family (a voltage is just *Voltage*, whatever its phases or
 channels, with how many devices have it), then **Zone** (only zones that have a device with it, with counts, or *All
-zones*), then the **Device**. Only when that device has more than one in the family (Phase A, B and C, or PV1 and PV2)
+zones*), then the **Device** (type in **Search device** to narrow the list by name). Only when that device has more than one in the family (Phase A, B and C, or PV1 and PV2)
 a last step, **Which one**, asks for the phase or channel; one monitor watches one of them. Activity monitors list
 only power capabilities (`measure_power` and its phases). State monitors list, by default, only capabilities that
 describe a state (alarms, on/off, locks, door and cover state, connection, playing, and multi-state ones whose id ends
 in operation, state or status); tick **Show every capability** to also list buttons, settings and text.
+
+The **Messages** form of a monitor has **Fill default wording**: it writes the ready-made sentences in the *Default message
+language* (with a confirm if a box already has text), for going back to the starting wording after editing by hand.
 
 **Edit** on an Activity, State or Voltage monitor can also **rename** it and **change its device** (it must
 have the monitor's capability). The monitor keeps its history and settings, so a device that was re-paired

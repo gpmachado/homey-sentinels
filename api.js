@@ -57,10 +57,14 @@ module.exports = {
   async getMessageSettings({ homey }) {
     return homey.app.store.getMessageSettings();
   },
-  // What the Settings page needs to offer the language choice and to fill a group's three message boxes: the
-  // language in use, the languages to choose from, and every ready-made group sentence in that language.
+  // What the Settings page needs to offer the language choice and to fill the message boxes: the language in use, the
+  // languages to choose from, and every ready-made sentence in that language (groups, Activity, State and Voltage monitors).
   async getDefaultWording({ homey }) {
-    return { language: homey.app._messageLanguage(), languages: LANGUAGES, messageWording: homey.app._defaultWording().messageWording };
+    const wording = homey.app._defaultWording();
+    return {
+      language: homey.app._messageLanguage(), languages: LANGUAGES, messageWording: wording.messageWording,
+      activityMessageDefaults: wording.activityMessageDefaults, stateMessageDefaults: wording.stateMessageDefaults, voltageMessageDefaults: wording.voltageMessageDefaults
+    };
   },
   async setMessageSettings({ homey, body }) {
     const settings = homey.app.store.updateMessageSettings(body);

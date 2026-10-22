@@ -206,3 +206,11 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .pattern-label { font-size: 10px; color: var(--color-muted); white-space: nowrap; }
 .pattern-cell { position: relative; aspect-ratio: 1; background: var(--color-border); border-radius: 2px; }
 .pattern-cell i { position: absolute; inset: 0; background: var(--color-accent); border-radius: 2px; }
+
+/* The "..." menu of a row's less used actions. */
+.more-menu { position: relative; }
+.more-menu summary { list-style: none; cursor: pointer; padding: 6px 10px; font-weight: 700; font-size: 16px; line-height: 1; color: var(--color-muted); border-radius: 6px; }
+.more-menu summary::-webkit-details-marker { display: none; }
+.more-menu summary:hover, .more-menu[open] summary { background: var(--color-accent-bg); color: var(--color-accent); }
+.more-menu-list { position: absolute; right: 0; top: 100%; z-index: 30; min-width: 170px; display: flex; flex-direction: column; align-items: stretch; background: var(--color-card); border: 1px solid var(--color-border); border-radius: 8px; padding: 4px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); }
+.more-menu-list .btn-link { text-align: left !important; }
