@@ -104,11 +104,14 @@ and mention it in HOWTO. A card that returns tokens only shows in Advanced Flow 
 
 `npm test` and `npm run lint` must pass, and CI runs them (Node 22) together with `homey app validate` on every push. New logic goes
 into a pure function in `lib/` with a test; the mixins are tested with the real code and a fake gateway
-(`test/groups-live.test.js` shows the pattern). The Settings HTML, the widgets and real device I/O are **not**
+(`test/groups-live.test.js` shows the pattern). The widgets and real device I/O are **not**
 covered by tests; check those by hand with `homey app run -r` and say what you checked in the pull request.
-`test/settings-harness/` runs the real Settings page in a browser against a stand-in for Homey's settings runtime,
-which is enough to prove a refactor of `settings/settings.js` did not change what the page does (see its README);
-it is not part of `npm test` and does not replace trying the page on a Homey.
+The Settings page is: `test/settings-page.test.js` runs the real `settings/index.html` and `settings.js` in jsdom against a
+stand-in for Homey's settings runtime (`test/settings-harness/`), plays a scripted session (open and cancel every form, submit,
+Reset and Delete on every list, the Add forms, availability, groups) and compares every step with
+`test/settings-harness/trace.snapshot.json`. When you change the page on purpose, run `UPDATE_SNAPSHOT=1 npm test`, read the diff of
+the snapshot and add steps to `trace.js` for what is new; `DUMP_TRACE=<file>` writes the whole trace to compare by eye. It does not
+replace trying the page on a Homey (it cannot show Homey's own button styles, for example).
 
 ## Commits and releases
 

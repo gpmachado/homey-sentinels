@@ -229,8 +229,8 @@ Default message language section above, which no longer uses Homey's `__()`); th
 - Sentinel Group virtual device (section below): the only view of a group in the web app.
 - Docs are up to date as of 2026-10-03 (README, HOWTO, SPEC, CONTRIBUTING, and the new TUTORIAL with worked examples and expected
   tokens; SPEC has the Voltage tokens, the default wording by language and the retry rule). Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
-- Tests do not cover the Settings HTML, the widgets or real Homey I/O. `test/settings-harness/` is a manual browser check for the
-  Settings page (a scripted session against a stand-in Homey); it could become an automatic test if a DOM library is ever added.
+- Tests do not cover the widgets or real Homey I/O. The Settings page is covered since 2026-10-22: `test/settings-page.test.js` runs it in jsdom
+  (scripted session of `test/settings-harness/trace.js`, 72 steps, snapshot in `trace.snapshot.json`). That is the net for splitting `settings.js`.
 
 ### Ideas collected 2026-09-24 (widgets, functions, analysis) - with the verdict of each
 

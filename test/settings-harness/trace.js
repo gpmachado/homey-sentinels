@@ -140,5 +140,40 @@ window.runTrace = async () => {
   rec('fill default wording', { calls: since(lm), fields: fields(['messageTemplateZero', 'messageTemplateOne', 'messageTemplateMany']) });
   // a week period hides the actions
   rec('actions per list on day period', ['monitors-body', 'state-monitors-body', 'voltage-monitors-body'].map((id) => [...$(id).querySelectorAll('.btn-link')].map((b) => b.textContent)));
+  // The "..." menu of the monitor lists: what stays on the row and what is in the menu; an item closes the menu
+  rec('row menu | what stays and what is in the menu', ['monitors-body', 'state-monitors-body', 'voltage-monitors-body'].map((id) => {
+    const row = $(id).querySelector('.entity-row');
+    return { onRow: [...row.querySelectorAll('.entity-actions > .btn-link')].map((b) => b.textContent), inMenu: [...row.querySelectorAll('.more-menu .btn-link')].map((b) => b.textContent) };
+  }));
+  const menu = $('monitors-body').querySelector('.more-menu'); menu.open = true;
+  click([...menu.querySelectorAll('.btn-link')].find((b) => b.textContent === 'Pattern')); await wait(150);
+  rec('row menu | an item closes the menu and opens its window', { menuOpen: menu.open, patternHidden: hidden('pattern-wrapper') });
+  click($('pattern-close-btn'));
+  // "Search device" in the Add forms narrows the device list by name, and clearing it brings the list back
+  click($('add-activity-monitor-btn')); await wait();
+  const searchBox = $('activity-add-search'); const deviceList = () => [...$('activity-add-device').options].map((o) => o.textContent);
+  const allDevices = deviceList();
+  searchBox.value = 'pump'; searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+  const narrowed = deviceList();
+  searchBox.value = 'zzz-nothing'; searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+  const none = deviceList();
+  searchBox.value = ''; searchBox.dispatchEvent(new Event('input', { bubbles: true }));
+  rec('add activity | search device', { allDevices, narrowed, none, cleared: deviceList().length === allDevices.length });
+  click($('activity-add-cancel-btn'));
+  // "Fill default wording" on the three monitor message forms: fills empty boxes at once, asks before overwriting text
+  for (const [name, body, wrapper, button, ids] of [
+    ['activity', 'monitors-body', 'activity-message-form-wrapper', 'activity-message-fill-btn', ['activity-messageTemplateStarted', 'activity-messageTemplateFinished']],
+    ['state', 'state-monitors-body', 'state-message-form-wrapper', 'state-message-fill-btn', ['state-messageTemplateStarted', 'state-messageTemplateFinished']],
+    ['voltage', 'voltage-monitors-body', 'voltage-message-form-wrapper', 'voltage-message-fill-btn', ['messageTemplateUndervoltage', 'messageTemplateOvervoltage', 'messageTemplateNormalized']]
+  ]) {
+    click(link(body, 'Messages')); await wait();
+    ids.forEach((id) => { $(id).value = ''; });
+    click($(button)); await wait(120);
+    const filled = fields(ids);
+    $(ids[0]).value = 'my own text';
+    const fm = mark(); click($(button)); await wait(120);
+    rec('fill default wording | ' + name + ' message form', { filled, confirmAsked: since(fm).filter((x) => x.confirm).length, afterConfirm: fields(ids) });
+    click($(wrapper.replace('-form-wrapper', '-cancel-btn')));
+  }
   return trace;
 };

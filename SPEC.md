@@ -419,5 +419,7 @@ templates, time helpers, the memory guard, the API routes with a fake `homey.app
 `test/app-structure.test.js`. `homey app validate --level publish` checks that the compose sources build into
 a valid `app.json`; CI (`.github/workflows/ci.yml`) runs both on Node 22 for every push.
 
-Not covered: the Settings HTML, the widgets and real device I/O. Those need a manual check on a real Homey
+The Settings page runs in jsdom against a stand-in Homey (`test/settings-page.test.js`, with the scripted session of
+`test/settings-harness/trace.js` and a snapshot of every step; the clock is frozen and dates are ISO so it is stable).
+Not covered: the widgets and real device I/O. Those need a manual check on a real Homey
 Pro with `homey app run -r`; `TODO.md` lists what is built but still waiting for that check.

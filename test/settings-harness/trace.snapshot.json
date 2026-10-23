@@ -1,0 +1,290 @@
+[
+ {
+  "name": "initial",
+  "hash": "44d849d39a1c"
+ },
+ {
+  "name": "rendered lists | day",
+  "hash": "deecb6d82f42"
+ },
+ {
+  "name": "rendered lists | week",
+  "hash": "13e465b43aa9"
+ },
+ {
+  "name": "availability | list",
+  "hash": "c91eeddd7e7c"
+ },
+ {
+  "name": "availability | filtered by name",
+  "hash": "1a0c90890574"
+ },
+ {
+  "name": "availability | stale tile tapped",
+  "hash": "226612bdb01a"
+ },
+ {
+  "name": "availability | remove watchdog",
+  "hash": "65a84912c5cc"
+ },
+ {
+  "name": "availability | ignore app",
+  "hash": "b355b9dfb581"
+ },
+ {
+  "name": "activity edit | submit while closed",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "activity edit | opened",
+  "hash": "43637bc4e808"
+ },
+ {
+  "name": "activity edit | cancelled",
+  "hash": "f3bf9820b6ca"
+ },
+ {
+  "name": "activity edit | submitted",
+  "hash": "7c9f40da269f"
+ },
+ {
+  "name": "activity edit | second submit (id cleared)",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "activity messages | submit while closed",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "activity messages | opened",
+  "hash": "a39935372a23"
+ },
+ {
+  "name": "activity messages | cancelled",
+  "hash": "f3bf9820b6ca"
+ },
+ {
+  "name": "activity messages | submitted",
+  "hash": "5fb0bd6a8617"
+ },
+ {
+  "name": "activity messages | second submit (id cleared)",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "state edit | submit while closed",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "state edit | opened",
+  "hash": "9eb7521b97af"
+ },
+ {
+  "name": "state edit | cancelled",
+  "hash": "f3bf9820b6ca"
+ },
+ {
+  "name": "state edit | submitted",
+  "hash": "0da10c920eaa"
+ },
+ {
+  "name": "state edit | second submit (id cleared)",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "state messages | submit while closed",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "state messages | opened",
+  "hash": "2ba8f829daa5"
+ },
+ {
+  "name": "state messages | cancelled",
+  "hash": "f3bf9820b6ca"
+ },
+ {
+  "name": "state messages | submitted",
+  "hash": "b220140ead06"
+ },
+ {
+  "name": "state messages | second submit (id cleared)",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "voltage edit | submit while closed",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "voltage edit | opened",
+  "hash": "b1773c97a5b3"
+ },
+ {
+  "name": "voltage edit | cancelled",
+  "hash": "f3bf9820b6ca"
+ },
+ {
+  "name": "voltage edit | submitted",
+  "hash": "118537aaaa12"
+ },
+ {
+  "name": "voltage edit | second submit (id cleared)",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "voltage messages | submit while closed",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "voltage messages | opened",
+  "hash": "d7c527349959"
+ },
+ {
+  "name": "voltage messages | cancelled",
+  "hash": "f3bf9820b6ca"
+ },
+ {
+  "name": "voltage messages | submitted",
+  "hash": "af41610abd60"
+ },
+ {
+  "name": "voltage messages | second submit (id cleared)",
+  "hash": "97d170e1550e"
+ },
+ {
+  "name": "voltage message header + preview",
+  "hash": "4df6d5a02c9a"
+ },
+ {
+  "name": "token insert | voltage",
+  "hash": "acd50e6c9586"
+ },
+ {
+  "name": "token insert | activity",
+  "hash": "74591a1a7f1f"
+ },
+ {
+  "name": "token insert | state",
+  "hash": "def4b23252d1"
+ },
+ {
+  "name": "token insert | group",
+  "hash": "4d945e003cac"
+ },
+ {
+  "name": "row action | monitors-body | Reset",
+  "hash": "f9819f731e3b"
+ },
+ {
+  "name": "row action | monitors-body | Delete",
+  "hash": "ccc54e3336bd"
+ },
+ {
+  "name": "row action | state-monitors-body | Reset",
+  "hash": "b2c740785133"
+ },
+ {
+  "name": "row action | state-monitors-body | Delete",
+  "hash": "f9a3ef38b880"
+ },
+ {
+  "name": "row action | voltage-monitors-body | Reset",
+  "hash": "3009925e5348"
+ },
+ {
+  "name": "row action | voltage-monitors-body | Delete",
+  "hash": "5b8d51b46155"
+ },
+ {
+  "name": "add activity | opened",
+  "hash": "6af55580276c"
+ },
+ {
+  "name": "add activity | zone Garage",
+  "hash": "b129125560b8"
+ },
+ {
+  "name": "add activity | submitted",
+  "hash": "4d48a54baeea"
+ },
+ {
+  "name": "add voltage | opened",
+  "hash": "c8900f2e9f89"
+ },
+ {
+  "name": "add voltage | zone Garage",
+  "hash": "33e042322076"
+ },
+ {
+  "name": "add voltage | submitted",
+  "hash": "cd2617fd1071"
+ },
+ {
+  "name": "add state | opened",
+  "hash": "86b2ae6d6882"
+ },
+ {
+  "name": "add state | other family",
+  "hash": "4fd45e5c5fa6"
+ },
+ {
+  "name": "add state | zone Laundry",
+  "hash": "0fb5b39a6bbb"
+ },
+ {
+  "name": "add state | submitted",
+  "hash": "15af7fa54c78"
+ },
+ {
+  "name": "add voltage | a device with phases",
+  "hash": "7366b0bc5399"
+ },
+ {
+  "name": "add state | state-like only by default, everything with show-all",
+  "hash": "73980e6fce0a"
+ },
+ {
+  "name": "add state | back to the short list",
+  "hash": "ec2e2a99f7bb"
+ },
+ {
+  "name": "message language | options",
+  "hash": "bb37e549f5ff"
+ },
+ {
+  "name": "message language | chosen",
+  "hash": "95e59fc6d5c6"
+ },
+ {
+  "name": "fill default wording",
+  "hash": "282f68004284"
+ },
+ {
+  "name": "actions per list on day period",
+  "hash": "602369f1a9fb"
+ },
+ {
+  "name": "row menu | what stays and what is in the menu",
+  "hash": "9e3cf66a7734"
+ },
+ {
+  "name": "row menu | an item closes the menu and opens its window",
+  "hash": "27e266dc0a11"
+ },
+ {
+  "name": "add activity | search device",
+  "hash": "ed5139090b1f"
+ },
+ {
+  "name": "fill default wording | activity message form",
+  "hash": "bfd466c7b8a7"
+ },
+ {
+  "name": "fill default wording | state message form",
+  "hash": "38b7a4534c2c"
+ },
+ {
+  "name": "fill default wording | voltage message form",
+  "hash": "69409fef1de9"
+ }
+]

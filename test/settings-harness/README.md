@@ -1,6 +1,8 @@
-# Settings page harness (manual)
+# Settings page harness
 
-`npm test` does not load the Settings page. This folder lets you run the real `settings/index.html` and
+The Settings page is now tested automatically: `test/settings-page.test.js` loads it in jsdom with `homey.js` (the stand-in) and
+`trace.js` (the scripted session) and compares every step with `trace.snapshot.json` (`UPDATE_SNAPSHOT=1 npm test` rewrites it,
+`DUMP_TRACE=<file>` writes the whole trace). What follows is the manual way, in a real browser: this folder lets you run the real `settings/index.html` and
 `settings/settings.js` in any browser, without a Homey: `homey.js` is a stand-in for Homey's settings runtime
 (fixtures for every list, every API call and every confirm recorded in `window.__log`), and `trace.js` plays a
 scripted session through it — open, cancel, save and stale-submit every edit/message form, insert tokens at the
