@@ -25,6 +25,26 @@ resolution names `last24Hours` / `last7Days` are the ones Insights accepts (the 
 `getLogEntries` call). Possible next steps if it works: use it for Recalibrate threshold too, and to show first statistics on
 day one.
 
+### Text twins of the number tokens (`voltage_text`, `energy_text`, ...): PENDING, left for later (2026-10-27)
+
+Why: a Flow number token always has a dot (a Homey rule), so a Timeline line built in the Flow shows `128.8` next to the app's own `128,8 V` in the
+`message` token (seen on the real Homey with the voltage test). A string token with the unit and the chosen decimal mark would let a Flow write `Tensao: [voltage_text]`.
+The number tokens stay as they are, for maths.
+
+Proposed tokens and what they hold (the formatters are `formatFixed` in `lib/message-template.js` and `formatEnergy` in `lib/app/constants.js`, so the decimal-comma
+setting applies; empty string when there is no reading):
+- Voltage triggers: `voltage_text` (`128,8 V`); on Voltage returned to normal also `min_voltage_text`, `max_voltage_text`, `average_voltage_text`.
+  1 decimal.
+- Activity started: `power_text` (`1441 W`, 0 decimals). Activity finished and State finished: `energy_text` (below 1 kWh in Wh: `960 Wh`; from 1 kWh two
+  decimals: `1,21 kWh`), `energy_today_text`, `average_power_text`, `max_power_text`, and `average_current_text` / `max_current_text` (1 decimal, `6,8 A`).
+- Threshold calibrated: `threshold_text`, `standby_power_text`, `active_power_text` (`40 W`).
+- Suggested first scope: voltage, energy and power only; current and calibration can wait.
+
+Notes: the text is rounded, so it is for reading, not for maths (`energy_text` of `0.96` is `960 Wh`, not `0,96 kWh`; if always kWh is wanted, change
+`formatEnergy` use here). To do: add the string tokens to the trigger JSON files, fill them where the trigger data is built (`lib/app/activity.js`, `state.js`,
+`voltage.js`), a test with the comma on and off, and the token tables in TUTORIAL.md and HOWTO.md. Also from the same look at the Timeline: a Flow that uses the
+`Device` token shows the Shelly's long name (`10.10.10.170 [shellypro3em-...]`), the `Monitor` token (`Fase A`) is shorter; that is a Flow choice, not the app.
+
 ### Settings touches, from the outside analyses: DONE 2026-10-22 (the Settings page stays in English on purpose)
 
 A **⋯** menu for the less used row actions of the monitor lists (Edit and Messages stay on the row), a **Search device** box in the three Add forms, **Fill default
