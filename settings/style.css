@@ -20,7 +20,7 @@
     --color-card: #2c2c2e;
     --color-border: #3a3a3c;
     --color-text: #f5f5f7;
-    --color-muted: #9a9a9e;
+    --color-muted: #b4b4b9;
     --color-accent: #4f8bff;
     --color-accent-bg: #1f2d4d;
     --color-success: #3dd35c;
@@ -40,6 +40,13 @@ form { border: 1px solid var(--color-border); border-radius: 10px; padding: 16px
 label { display: block; margin-top: 12px; font-size: 13px; font-weight: 600; }
 input[type=text], input[type=number], select, textarea { width: 100%; padding: 8px 10px; margin-top: 4px; box-sizing: border-box; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-card); color: var(--color-text); font: inherit; font-weight: 400; }
 input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: 0 0 0 3px var(--color-accent-bg); }
+/* Inside the Homey app its own form styles land on top of ours (same problem as the buttons below):
+   inputs lose their box and keep Homey's light-theme text color, which is near black on our dark card,
+   and labels turn into small gray capitals. Re-assert ours with the .container scope and !important. */
+.container label:not(.track-switch) { text-transform: none !important; letter-spacing: normal !important; color: var(--color-text) !important; }
+.container input[type=text], .container input[type=number], .container select, .container textarea { padding: 8px 10px !important; border: 1px solid var(--color-border) !important; border-radius: 8px !important; background: var(--color-bg) !important; color: var(--color-text) !important; -webkit-text-fill-color: var(--color-text) !important; font-size: 15px !important; font-weight: 400 !important; height: auto !important; box-shadow: none !important; }
+.container input[type=text]:focus, .container input[type=number]:focus, .container select:focus, .container textarea:focus { border-color: var(--color-accent) !important; box-shadow: 0 0 0 3px var(--color-accent-bg) !important; }
+.container input::placeholder, .container textarea::placeholder { color: var(--color-muted) !important; -webkit-text-fill-color: var(--color-muted) !important; opacity: 1 !important; }
 .device-list { max-height: 220px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: 4px; padding: 8px; margin-top: 4px; }
 .device-list label { font-weight: normal; display: flex; align-items: center; gap: 6px; margin: 4px 0; }
 .actions { margin-top: 16px; display: flex; gap: 8px; }
