@@ -34,10 +34,11 @@ function freezeClock(window) {
 }
 
 async function runPage() {
-  // The two script tags become inline scripts: the stand-in for Homey's runtime, then the page's own script and the trace.
+  // The script tags become inline scripts: the stand-in for Homey's runtime, then the page's own scripts and the trace.
   const html = read('settings/index.html')
     .replace(/<script[^>]*src="\/homey\.js"[^>]*><\/script>/, () => `<script>${read('test/settings-harness/homey.js')}</script>`)
-    .replace('<script src="settings.js"></script>', () => `<script>${read('settings/settings.js')}</script><script>${read('test/settings-harness/trace.js')}</script>`);
+    .replace(/<script src="([\w-]+\.js)"><\/script>/g, (tag, file) => `<script>${read(`settings/${file}`)}</script>`)
+    .replace('</body>', () => `<script>${read('test/settings-harness/trace.js')}</script></body>`);
   const errors = [];
   const dom = new JSDOM(html, { runScripts: 'dangerously', pretendToBeVisual: true, beforeParse: freezeClock });
   try {

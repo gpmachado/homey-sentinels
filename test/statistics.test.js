@@ -358,3 +358,22 @@ test('standbyRanking orders by standby energy, shares add up, and monitors witho
   assert.equal(ranking.totalStandbyEnergy, 1.2);
   assert.deepEqual(standbyRanking([], 'month', 'UTC', now), { period: 'month', totalStandbyEnergy: 0, rows: [] });
 });
+
+test('daily summaries are matched to the window by local calendar day, not by UTC midnight', () => {
+  const zone = 'America/Sao_Paulo';
+  const now = Date.parse('2026-11-08T01:00:00Z'); // 22:00 on Nov 7 there
+  const start = now - 7 * 24 * 60 * 60 * 1000; // 22:00 on Oct 31 there, so Nov 1 is the first whole day inside
+  const withDay = (date) => activityMonitor({ dailySummaries: [{ date, activeSeconds: 3600, standbySeconds: 0, activeEnergy: 1, standbyEnergy: 0 }] });
+  assert.equal(periodStatistics(withDay('2026-11-01'), start, now, zone).active_duration, 3600);
+  assert.equal(periodStatistics(withDay('2026-10-31'), start, now, zone).active_duration, 0);
+  assert.equal(periodStatistics(withDay('2026-11-07'), start, now, zone).active_duration, 3600);
+  assert.equal(periodStatistics(withDay('2026-11-08'), start, now, zone).active_duration, 0);
+});
+
+test('voltage statistics match daily summaries by local calendar day too', () => {
+  const zone = 'America/Sao_Paulo';
+  const now = Date.parse('2026-11-08T01:00:00Z');
+  const monitor = (date) => ({ periods: [], events: [], dailySummaries: [{ date, minVoltage: 100, maxVoltage: 140 }] });
+  assert.equal(voltageStatistics(monitor('2026-11-01'), 'week', zone, now).min_voltage, 100);
+  assert.equal(voltageStatistics(monitor('2026-10-31'), 'week', zone, now).min_voltage, null);
+});

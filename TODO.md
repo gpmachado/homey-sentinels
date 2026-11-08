@@ -83,7 +83,7 @@ What is still open:
 - The public git history (pushed 2026-10-21) contains the old `lib/history-db.js` and `lib/memory-guard.js` under the MIT licence. Removing them from the
   current files does not remove them from the history, and rewriting a pushed history (force push) is not done lightly. Options: leave as is and accept the risk,
   write to the PELS author (GitHub issue) saying what happened and asking, or rewrite the history.
-- Not compared with PELS: the incremental row writing in `lib/store.js` (`_syncSeries`) and the storage format. They are described as our own design.
+- Not compared with PELS: the incremental row writing in `lib/store/persistence.js` (`_syncSeries`) and the storage format. They are described as our own design.
 - Whether to keep the MIT licence or go back to GPL-3.0 is not decided; with the files rewritten the MIT licence of the current code holds, but the history is what it is.
 
 ### Memory guard removed: DONE 2026-10-21
@@ -250,7 +250,7 @@ Default message language section above, which no longer uses Homey's `__()`); th
 - Docs are up to date as of 2026-10-03 (README, HOWTO, SPEC, CONTRIBUTING, and the new TUTORIAL with worked examples and expected
   tokens; SPEC has the Voltage tokens, the default wording by language and the retry rule). Translating flow card titles to NL / DE is low priority (Homey has no Portuguese).
 - Tests do not cover the widgets or real Homey I/O. The Settings page is covered since 2026-10-22: `test/settings-page.test.js` runs it in jsdom
-  (scripted session of `test/settings-harness/trace.js`, 72 steps, snapshot in `trace.snapshot.json`). That is the net for splitting `settings.js`.
+  (scripted session of `test/settings-harness/trace.js`, 72 steps, snapshot in `trace.snapshot.json`). That was the net for splitting `settings.js` into one script per part of the page (done 2026-11-08).
 
 ### Ideas collected 2026-09-24 (widgets, functions, analysis) - with the verdict of each
 

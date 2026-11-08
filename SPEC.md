@@ -21,7 +21,7 @@ lib/app/                  The rest of the App's behaviour, one file per concern,
   housekeeping.js                   startup summary line, history consolidation
   constants.js                      shared constants and small formatters
 lib/                      Pure logic and storage (each file has a test)
-  store.js                Persistence: small metadata in Homey settings, the bulky series in SQLite
+  store.js, store/        Data and persistence: small metadata in Homey settings, the bulky series in SQLite
   history-db.js           SQLite history under /userdata; storage-format.js: compact tuple rows
   activity-engine.js      Shared cycle/duration state machine (Activity + State monitors)
   voltage-engine.js       Episode-based over/undervoltage tracking
@@ -132,7 +132,7 @@ voltage and duration are reported for the whole episode on return to normal.
 - `stabilization_minutes` suppresses events right after creation (a fresh reading needs a
   moment to settle before it's trusted).
 - Message wording (per event type) is edited in Settings, not passed as a card argument. A new monitor
-  starts with real wording (`DEFAULT_VOLTAGE_MESSAGES` in lib/store.js is the English fallback) taken from
+  starts with real wording (`DEFAULT_VOLTAGE_MESSAGES` in lib/store/common.js is the English fallback) taken from
   `voltageMessageDefaults` in the default-wording files (see "Default wording by language" below) at creation
   time; monitors saved by older builds keep their empty templates.
 - `auxiliaryCapabilities` are auto-detected like Activity/State (`AUXILIARY_CAPABILITY_CANDIDATES`), so a
@@ -150,7 +150,7 @@ voltage and duration are reported for the whole episode on return to normal.
 
 There used to be a fifth family, a device-less tally bumped by the user's own Flow ("Log binary event"). It was removed
 as not useful: its cards, API routes, Settings sub-tab, widget branches and tests are gone, and a `binaryCounters`
-collection saved by an older version is deleted when the store loads (`load()` in lib/store.js) and disappears at the
+collection saved by an older version is deleted when the store loads (`load()` in lib/store/persistence.js) and disappears at the
 next save. A Flow still using one of its cards shows it as unavailable and must be edited by hand.
 
 ### 2.5 State Group (`store.data.groups`)

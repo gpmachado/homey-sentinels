@@ -7,6 +7,9 @@ const { LANGUAGES } = require('./lib/wording');
 // How old the device list may be before opening the page triggers a new read of it.
 const DEVICE_LIST_MAX_AGE_MS = 5 * 60 * 1000;
 
+// A group needs two devices that still exist, and ids picked from an open form can be gone by the time it is saved.
+const DEVICES_GONE_MESSAGE = 'Fewer than two of the selected devices still exist. Select at least two devices.';
+
 // Group create/update validate members against the loaded device list. On a cold start the list
 // isn't there yet: ask for it and say so instead of reporting a misleading "select two devices".
 function loadedDevices(homey) {
@@ -62,7 +65,7 @@ module.exports = {
   async getDefaultWording({ homey }) {
     const wording = homey.app._defaultWording();
     return {
-      language: homey.app._messageLanguage(), languages: LANGUAGES, messageWording: wording.messageWording,
+      language: homey.app._messageLanguage(), languages: LANGUAGES, messageWording: wording.messageWording, groupConjunction: wording.groupConjunction,
       activityMessageDefaults: wording.activityMessageDefaults, stateMessageDefaults: wording.stateMessageDefaults, voltageMessageDefaults: wording.voltageMessageDefaults
     };
   },
@@ -126,9 +129,12 @@ module.exports = {
   async updateMonitor({ homey, params, body }) {
     const item = homey.app.store.data.monitors[params.id];
     if (!item) throw new Error('Monitor not found.');
+    const settings = { threshold: body.threshold, continuityMinutes: body.continuityMinutes, minConfirmationSeconds: body.minConfirmationSeconds };
+    // Tried on a copy first: the rename or device move below is saved at once, so a bad number must fail before it.
+    homey.app.store.updateMonitorSettings({ ...item }, settings);
     await homey.app.inAppContext(async () => {
       if (body.name !== undefined || body.deviceId !== undefined) await homey.app.updateActivityMonitorIdentity(item, body);
-      await homey.app.updateActivityMonitorSettings(item, { threshold: body.threshold, continuityMinutes: body.continuityMinutes, minConfirmationSeconds: body.minConfirmationSeconds });
+      await homey.app.updateActivityMonitorSettings(item, settings);
     });
     return item;
   },
@@ -161,9 +167,11 @@ module.exports = {
   async updateVoltageMonitor({ homey, params, body }) {
     const item = homey.app.store.data.voltageMonitors[params.id];
     if (!item) throw new Error('Voltage monitor not found.');
+    const range = { minVoltage: body.minVoltage, maxVoltage: body.maxVoltage, stabilizationMinutes: body.stabilizationMinutes };
+    homey.app.store.updateVoltageMonitor({ ...item }, range); // on a copy, same reason as updateMonitor
     await homey.app.inAppContext(async () => {
       if (body.name !== undefined || body.deviceId !== undefined) await homey.app.updateVoltageMonitorIdentity(item, body);
-      await homey.app.updateVoltageMonitorRange(item, { minVoltage: body.minVoltage, maxVoltage: body.maxVoltage, stabilizationMinutes: body.stabilizationMinutes });
+      await homey.app.updateVoltageMonitorRange(item, range);
     });
     return item;
   },
@@ -196,9 +204,11 @@ module.exports = {
   async updateStateMonitor({ homey, params, body }) {
     const item = homey.app.store.data.stateMonitors[params.id];
     if (!item) throw new Error('State monitor not found.');
+    const labels = { trueLabel: body.trueLabel, falseLabel: body.falseLabel, activeValues: body.activeValues };
+    homey.app.store.updateStateMonitor({ ...item }, labels); // on a copy, same reason as updateMonitor
     await homey.app.inAppContext(async () => {
       if (body.name !== undefined || body.deviceId !== undefined) await homey.app.updateStateMonitorIdentity(item, body);
-      homey.app.store.updateStateMonitor(item, { trueLabel: body.trueLabel, falseLabel: body.falseLabel, activeValues: body.activeValues });
+      homey.app.store.updateStateMonitor(item, labels);
       await homey.app.store.save();
     });
     homey.app.log(`[${item.name}] state monitor settings updated`);
@@ -217,8 +227,17 @@ module.exports = {
     if (deviceIds.length < 2) throw new Error('Select at least two devices.');
     const devices = loadedDevices(homey);
     const selected = deviceIds.map((id) => devices.find((device) => device.id === id)).filter(Boolean);
+    if (selected.length < 2) throw new Error(DEVICES_GONE_MESSAGE);
     selected.forEach((device) => homey.app._assertGroupDevice({ type }, device));
-    const group = homey.app.store.createGroup({ name, type, expectedState, devices: selected, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany });
+    // A new group starts with ready-made sentences in the chosen language, like a new monitor; whatever was typed stays.
+    const defaults = homey.app._defaultWording();
+    const wording = defaults.messageWording[type]?.[String(expectedState === true || expectedState === 'true')] || {};
+    const group = homey.app.store.createGroup({
+      name, type, expectedState, devices: selected, conjunction: conjunction?.trim() || defaults.groupConjunction,
+      messageTemplateZero: messageTemplateZero?.trim() ? messageTemplateZero : wording.zero,
+      messageTemplateOne: messageTemplateOne?.trim() ? messageTemplateOne : wording.one,
+      messageTemplateMany: messageTemplateMany?.trim() ? messageTemplateMany : wording.many
+    });
     await homey.app.store.save();
     watchGroupInApp(homey, group.id);
     return group;
@@ -236,11 +255,13 @@ module.exports = {
     if (Array.isArray(deviceIds)) {
       if (deviceIds.length < 2) throw new Error('Select at least two devices.');
       selected = deviceIds.map((id) => devices.find((device) => device.id === id)).filter(Boolean);
+      if (selected.length < 2) throw new Error(DEVICES_GONE_MESSAGE);
     } else if (candidate.type !== group.type) {
       selected = group.devices.map(({ id }) => devices.find((device) => device.id === id)).filter(Boolean);
     }
     if (selected) selected.forEach((device) => homey.app._assertGroupDevice(candidate, device));
-    homey.app.store.updateGroup(group, { name, type, expectedState, conjunction, messageTemplateZero, messageTemplateOne, messageTemplateMany });
+    const listWord = conjunction === undefined ? undefined : conjunction.trim() || homey.app._defaultWording().groupConjunction;
+    homey.app.store.updateGroup(group, { name, type, expectedState, conjunction: listWord, messageTemplateZero, messageTemplateOne, messageTemplateMany });
     if (Array.isArray(deviceIds)) homey.app.store.setGroupDevices(group, selected);
     await homey.app.store.save();
     watchGroupInApp(homey, group.id);

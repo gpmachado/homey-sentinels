@@ -55,3 +55,15 @@ test('the slim form of a 300-device Homey is a fraction of the raw payload', () 
   const slim = JSON.stringify(many.map((d) => gateway._slim(d, {}))).length;
   assert.ok(slim * 3 < raw, `${slim} vs ${raw}`);
 });
+
+test('a capability subscription delivers numbers, booleans and enum or string values, and drops garbage', async () => {
+  const live = new HomeyDeviceGateway({ error() {} });
+  let emit;
+  const device = { id: 'w', capabilitiesObj: { washer_state: { value: 'Running' } }, makeCapabilityInstance(id, callback) { emit = callback; return { destroy() {} }; } };
+  live._getDeviceRef = async () => ({ device, refCount: 0 });
+  live._normalize = (raw) => raw;
+  const seen = [];
+  await live.subscribeCapabilities('m', 'w', 'washer_state', [], async (value) => { seen.push(value); });
+  ['Rinse', true, 5, null, undefined, '', NaN].forEach((value) => emit(value));
+  assert.deepEqual(seen, ['Running', 'Rinse', true, 5]);
+});

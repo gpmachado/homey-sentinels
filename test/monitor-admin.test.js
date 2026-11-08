@@ -184,3 +184,19 @@ test('creating an Activity monitor without a threshold asks Insights for a start
     if (expectedAsks) assert.deepEqual(asked[0], ['meter', 'measure_power', 'last24Hours']);
   }
 });
+
+test('a rejected monitor edit changes nothing, including the name sent with it', async () => {
+  const data = {};
+  const store = new SentinelStore({ get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} });
+  await store.load();
+  const device = { id: 'd', name: 'D' };
+  const activity = store.upsertMonitor({ device, threshold: 10, name: 'Old', capability: 'measure_power', auxiliaryCapabilities: [] }).monitor;
+  const voltage = store.createVoltageMonitor({ device, capability: 'measure_voltage', minVoltage: 110, maxVoltage: 135, name: 'Old' });
+  const state = store.createStateMonitor({ device, capability: 'washer_state', name: 'Old', activeValues: ['Running'] });
+  const app = { store, inAppContext: (fn) => Promise.resolve().then(fn), updateActivityMonitorIdentity: assert.fail, updateVoltageMonitorIdentity: assert.fail, updateStateMonitorIdentity: assert.fail };
+  const homey = { app };
+  await assert.rejects(api.updateMonitor({ homey, params: { id: activity.id }, body: { name: 'New', threshold: '12,5' } }), /threshold/);
+  await assert.rejects(api.updateVoltageMonitor({ homey, params: { id: voltage.id }, body: { name: 'New', minVoltage: 200, maxVoltage: 100 } }), /minimum/);
+  await assert.rejects(api.updateStateMonitor({ homey, params: { id: state.id }, body: { name: 'New', activeValues: ' ' } }), /multiple states/);
+  assert.deepEqual([activity.name, activity.threshold, voltage.name, state.name], ['Old', 10, 'Old', 'Old']);
+});

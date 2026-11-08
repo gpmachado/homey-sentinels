@@ -18,6 +18,7 @@ async function fakeHomey(devices, loaded = true) {
     inAppContext: (fn) => Promise.resolve().then(fn),
     _startGroupWatch: (group) => watched.push(group.id),
     _unwatchGroup: () => {},
+    _defaultWording: () => ({ groupConjunction: 'y', messageWording: { light: { true: { zero: 'on zero', one: 'on one', many: 'on many' }, false: { zero: 'off zero', one: 'off one', many: 'off many' } } } }),
     error: () => {}
   };
   return { app };
@@ -68,4 +69,31 @@ test('clearGroupMismatch: unsticks a mismatch the poll already reported', async 
   const reloaded = new SentinelStore(settings);
   await reloaded.load();
   assert.equal(reloaded.data.groups[group.id].mismatchSince, null);
+});
+
+test('api.createGroup and api.updateGroup refuse a group left with one device when a selected one is gone', async () => {
+  const homey = await fakeHomey([light('d1'), light('d2')]);
+  await assert.rejects(api.createGroup({ homey, body: { name: 'Luzes', type: 'light', expectedState: true, deviceIds: ['d1', 'gone'] } }), /still exist/);
+  assert.equal(Object.keys(homey.app.store.data.groups).length, 0);
+  const group = await api.createGroup({ homey, body: { name: 'Luzes', type: 'light', expectedState: true, deviceIds: ['d1', 'd2'] } });
+  await assert.rejects(api.updateGroup({ homey, params: { id: group.id }, body: { deviceIds: ['d1', 'gone'] } }), /still exist/);
+  assert.equal(group.devices.length, 2);
+});
+
+test('api.createGroup fills blank messages with the default wording for its expected state and keeps what was typed', async () => {
+  const homey = await fakeHomey([light('d1'), light('d2')]);
+  const group = await api.createGroup({ homey, body: { name: 'Luzes', type: 'light', expectedState: false, deviceIds: ['d1', 'd2'], messageTemplateZero: '', messageTemplateOne: ' ', messageTemplateMany: 'Mine' } });
+  assert.deepEqual([group.messageTemplateZero, group.messageTemplateOne, group.messageTemplateMany], ['off zero', 'off one', 'Mine']);
+});
+
+test('a blank conjunction takes the word of the chosen language, and a typed one stays', async () => {
+  const homey = await fakeHomey([light('d1'), light('d2')]);
+  const group = await api.createGroup({ homey, body: { name: 'Luzes', type: 'light', expectedState: false, deviceIds: ['d1', 'd2'], conjunction: '' } });
+  assert.equal(group.conjunction, 'y');
+  await api.updateGroup({ homey, params: { id: group.id }, body: { conjunction: 'mas' } });
+  assert.equal(group.conjunction, 'mas');
+  await api.updateGroup({ homey, params: { id: group.id }, body: { conjunction: ' ' } });
+  assert.equal(group.conjunction, 'y');
+  await api.updateGroup({ homey, params: { id: group.id }, body: { name: 'Outro' } });
+  assert.equal(group.conjunction, 'y');
 });

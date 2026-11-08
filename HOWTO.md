@@ -319,10 +319,11 @@ you write once, in your own language, under the monitor's **Message** action in 
 insert the `%placeholders%`), and you can always overwrite whatever it starts with.
 
 **Default message language** (Settings → Monitors → Message format) decides the ready-made sentences a **new**
-Activity, State or Voltage monitor starts with, and what a group's **Fill default wording for this type**
-button writes into its three boxes (only when you click it, asking before it replaces text). The choices are
-*Same as Homey* (Homey's own language, English when the app has no wording for it), English, **Português**,
-Nederlands, Deutsch, Français, Italiano, Svenska, Norsk, Español and Dansk — Portuguese can be chosen even
+Activity, State or Voltage monitor or group starts with (a group's boxes left blank are filled when it is first saved, and a blank conjunction takes that language's "and"),
+and what a group's **Fill default wording for this type** button writes into its three boxes (only when you click it,
+asking before it replaces text). The choices are
+*Same as Homey* (Homey's own language, English when the app has no wording for it), Dansk, Deutsch, English,
+Español, Français, Italiano, Nederlands, Norsk, **Português** and Svenska — Portuguese can be chosen even
 though Homey is not available in it. It never changes a monitor that already exists or a message you wrote,
 and Polish, Russian, Korean and Arabic are not offered (Polish needs a native check; the others are not
 Latin-alphabet). The Portuguese default for a finished cycle is `%monitor% desligou - %duration_human%,

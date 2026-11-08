@@ -3,12 +3,12 @@
 The Settings page is now tested automatically: `test/settings-page.test.js` loads it in jsdom with `homey.js` (the stand-in) and
 `trace.js` (the scripted session) and compares every step with `trace.snapshot.json` (`UPDATE_SNAPSHOT=1 npm test` rewrites it,
 `DUMP_TRACE=<file>` writes the whole trace). What follows is the manual way, in a real browser: this folder lets you run the real `settings/index.html` and
-`settings/settings.js` in any browser, without a Homey: `homey.js` is a stand-in for Homey's settings runtime
+the scripts next to it in any browser, without a Homey: `homey.js` is a stand-in for Homey's settings runtime
 (fixtures for every list, every API call and every confirm recorded in `window.__log`), and `trace.js` plays a
 scripted session through it — open, cancel, save and stale-submit every edit/message form, insert tokens at the
 caret, Reset and Delete on every list — and returns everything observable as one list.
 
-Use it to check a change to `settings/settings.js` is behaviour-preserving: run it before and after and compare.
+Use it to check a change to the page's scripts is behaviour-preserving: run it before and after and compare.
 
 ```bash
 # from the repository root: a throwaway copy of the page with the stand-in in place of /homey.js
@@ -26,7 +26,7 @@ var s = document.createElement('script'); s.src = '/trace.js'; document.head.app
 var trace = await window.runTrace(); JSON.stringify(trace).length; window.__log.filter(x => x.alert)
 ```
 
-For a before/after comparison, serve the old copy (`git show <commit>:settings/settings.js`) on another port and
+For a before/after comparison, serve the old copy (`git archive <commit> settings | tar -x`) on another port and
 compare `JSON.stringify(trace)` of the two: they should be identical. At the time it was written the trace had 51
 steps and no alerts. The fixtures are small and made up; add to them when the page grows a new list or form.
 

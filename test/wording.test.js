@@ -50,3 +50,15 @@ test('the wording stays plain enough for the settings store: no characters beyon
     }
   }
 });
+
+test('every language has its own word for joining a list', () => {
+  const words = Object.fromEntries(LANGUAGES.map(({ code }) => [code, wordingFor(code).groupConjunction]));
+  assert.ok(Object.values(words).every((word) => typeof word === 'string' && word.length > 0));
+  assert.equal(words.es, 'y');
+  assert.equal(words.pt, 'e');
+});
+
+test('the languages are offered in alphabetical order of their names', () => {
+  const names = LANGUAGES.map((language) => language.name);
+  assert.deepEqual(names, [...names].sort((a, b) => a.localeCompare(b)));
+});

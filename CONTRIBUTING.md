@@ -88,7 +88,7 @@ and mention it in HOWTO. A card that returns tokens only shows in Advanced Flow 
 `api.js`; the names must match. Add a test in the style of `test/api-groups.test.js` (a fake `homey.app`).
 
 **A new monitor type**, in order:
-1. A store collection with a migration function in `lib/store.js` (older saved data must still load) and, if it
+1. A store collection with a migration function in `lib/store/migrations.js` (older saved data must still load) and, if it
    has bulky series, an entry in `SERIES_COLLECTIONS` so it goes to SQLite.
 2. An engine in `lib/` (pure, tested) that turns samples into events.
 3. A runtime mixin in `lib/app/` that subscribes through the gateway, feeds the engine and fires triggers,
@@ -106,7 +106,7 @@ and mention it in HOWTO. A card that returns tokens only shows in Advanced Flow 
 into a pure function in `lib/` with a test; the mixins are tested with the real code and a fake gateway
 (`test/groups-live.test.js` shows the pattern). The widgets and real device I/O are **not**
 covered by tests; check those by hand with `homey app run -r` and say what you checked in the pull request.
-The Settings page is: `test/settings-page.test.js` runs the real `settings/index.html` and `settings.js` in jsdom against a
+The Settings page is: `test/settings-page.test.js` runs the real `settings/index.html` and its scripts in jsdom against a
 stand-in for Homey's settings runtime (`test/settings-harness/`), plays a scripted session (open and cancel every form, submit,
 Reset and Delete on every list, the Add forms, availability, groups) and compares every step with
 `test/settings-harness/trace.snapshot.json`. When you change the page on purpose, run `UPDATE_SNAPSHOT=1 npm test`, read the diff of
