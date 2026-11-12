@@ -308,3 +308,38 @@ test('sizeBytes counts the WAL, and a checkpoint moves the data into the main fi
   history.close();
   assert.equal(history.checkpoint(), false); // closed: reports failure instead of throwing
 });
+
+test('in the degraded mode a reset is refused, so the rows that come back at the next start still match the meta', async () => {
+  const history = openHistoryDb(':memory:');
+  const settings = homeySettings();
+  const { store, activity, volt } = await populated(settings, history);
+  await store.save();
+  const noDb = new SentinelStore(settings, { history: null });
+  await noDb.load();
+  assert.throws(() => noDb.resetMonitor(noDb.data.monitors[activity.id]), /not available/);
+  assert.throws(() => noDb.resetVoltageMonitor(noDb.data.voltageMonitors[volt.id]), /not available/);
+  assert.ok(noDb.warnings.some((w) => w.includes('refused')));
+});
+
+test('a row that parses but is not a row is skipped like an unreadable one', async () => {
+  const history = openHistoryDb(':memory:');
+  const settings = homeySettings();
+  const { store, activity } = await populated(settings, history);
+  await store.save();
+  history.transaction((db) => { db.upsert(activity.id, 'p', 0, null); db.upsert(activity.id, 'p', 1, 7); });
+  const reloaded = new SentinelStore(settings, { history });
+  await reloaded.load();
+  assert.equal(reloaded.data.monitors[activity.id].periods.length, 48);
+  assert.ok(history.isDamaged(activity.id, 'p'));
+});
+
+test('a leftover v2 key next to a working v3 store is removed', async () => {
+  const history = openHistoryDb(':memory:');
+  const settings = homeySettings();
+  const { store } = await populated(settings, history);
+  await store.save();
+  settings.raw['sentinels:v2'] = JSON.stringify({ schemaVersion: 2, meta: {}, series: {} });
+  const reloaded = new SentinelStore(settings, { history });
+  await reloaded.load();
+  assert.deepEqual(Object.keys(settings.raw), ['sentinels:v3']);
+});
