@@ -184,7 +184,7 @@ test('a v2 store (series inside the settings key) is migrated into the database'
   assert.deepEqual(reloaded.data.voltageMonitors.v1.periods, [voltagePeriod(0)]);
 });
 
-test('without a database the store falls back to the settings key, and a v3 store loses its history but keeps its meta', async () => {
+test('a v3 store whose database does not open keeps its key and its rows, and finds its history again on the next start', async () => {
   const history = openHistoryDb(':memory:');
   const settings = homeySettings();
   const { store, activity } = await populated(settings, history);
@@ -193,8 +193,69 @@ test('without a database the store falls back to the settings key, and a v3 stor
   await noDb.load();
   assert.ok(noDb.warnings.length > 0);
   assert.equal(noDb.data.monitors[activity.id].name, 'Bomba do poço');
-  assert.deepEqual(noDb.data.monitors[activity.id].periods, []);
+  noDb.data.monitors[activity.id].name = 'Renamed while degraded';
+  await noDb.save();
+  assert.deepEqual(Object.keys(settings.raw), ['sentinels:v3']); // never moved back to the settings key
+  assert.equal(history.load(activity.id, 'p').length, 50); // the rows were not touched
+  const back = new SentinelStore(settings, { history });
+  await back.load();
+  assert.equal(back.data.monitors[activity.id].name, 'Renamed while degraded');
+  assert.equal(back.data.monitors[activity.id].periods.length, 50);
+});
+
+test('without a database and without a v3 store the store keeps everything in the settings key', async () => {
+  const settings = homeySettings();
+  const store = new SentinelStore(settings, { history: null });
+  await store.load();
+  store.createMonitor({ device: { id: 'a', name: 'Bomba' }, threshold: 50 }).periods = [activityPeriod(0)];
+  await store.save();
   assert.deepEqual(Object.keys(settings.raw), ['sentinels:v2']);
+});
+
+test('an unreadable row is skipped with a log line instead of stopping the load, and the series is rewritten without it', async () => {
+  const { file } = tempDb();
+  const settings = homeySettings();
+  let history = openHistoryDb(file);
+  const { store, activity } = await populated(settings, history);
+  await store.save();
+  history.close();
+  const { DatabaseSync } = require('node:sqlite');
+  const raw = new DatabaseSync(file);
+  raw.prepare("UPDATE series SET row = '{broken' WHERE monitor = ? AND tag = 'p' AND idx = 3").run(activity.id);
+  raw.close();
+  const logs = [];
+  history = openHistoryDb(file, { log: (m) => logs.push(m) });
+  const reloaded = new SentinelStore(settings, { history });
+  await reloaded.load();
+  assert.equal(reloaded.data.monitors[activity.id].periods.length, 49);
+  assert.ok(logs.some((m) => m.includes('unreadable')));
+  await reloaded.save();
+  const after = history.load(activity.id, 'p');
+  assert.equal(after.length, 49);
+  assert.ok(!history.isDamaged(activity.id, 'c'));
+  history.close();
+});
+
+test('consolidation rewrites only the monitors it changed, and nothing when there is nothing to fold', async () => {
+  const history = openHistoryDb(':memory:');
+  const settings = homeySettings();
+  const store = new SentinelStore(settings, { history });
+  await store.load();
+  const now = Date.UTC(2026, 9, 20);
+  const recent = (i) => activityPeriod(i, { startedAt: now - 3600000 + i * 60000, endedAt: now - 3600000 + i * 60000 + 60000 });
+  const quiet = store.createMonitor({ device: { id: 'a', name: 'Recent only' }, threshold: 50 });
+  quiet.periods = Array.from({ length: 20 }, (_, i) => recent(i));
+  const old = store.createMonitor({ device: { id: 'b', name: 'Has old rows' }, threshold: 50 });
+  old.periods = [activityPeriod(0, { startedAt: now - 10 * 86400000, endedAt: now - 10 * 86400000 + 60000 }), recent(0)];
+  await store.save();
+  const counts = countWrites(history);
+  assert.equal(store.consolidateHistory('UTC', now), 1);
+  await store.save();
+  assert.deepEqual(counts, { upsert: 1, clear: 2, dropMonitor: 0 }); // only "Has old rows": its periods (now one row) and its empty cycles
+  counts.upsert = 0; counts.clear = 0;
+  assert.equal(store.consolidateHistory('UTC', now), 0);
+  await store.save();
+  assert.deepEqual(counts, { upsert: 0, clear: 0, dropMonitor: 0 });
 });
 
 test('a damaged database file is kept aside under another name and a new one is started', () => {
