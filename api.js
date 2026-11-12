@@ -69,6 +69,15 @@ module.exports = {
       activityMessageDefaults: wording.activityMessageDefaults, stateMessageDefaults: wording.stateMessageDefaults, voltageMessageDefaults: wording.voltageMessageDefaults
     };
   },
+  async getLogSettings({ homey }) {
+    return homey.app.store.getLogSettings();
+  },
+  async setLogSettings({ homey, body }) {
+    const settings = homey.app.store.updateLogSettings(body);
+    await homey.app.store.save();
+    homey.app.log(`detailed log ${settings.verbose ? 'on' : 'off'}`);
+    return settings;
+  },
   async setMessageSettings({ homey, body }) {
     const settings = homey.app.store.updateMessageSettings(body);
     setDecimalComma(settings.decimalComma); // takes effect for the next message rendered

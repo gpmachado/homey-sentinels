@@ -162,8 +162,17 @@ class StatisticTrackerApp extends Homey.App {
     if (this._saveTimer) return;
     this._saveTimer = this.homey.setTimeout(() => {
       this._saveTimer = null;
-      this.store.save().catch((error) => this.error('Failed to save (debounced)', error));
+      const startedAt = Date.now();
+      this.store.save()
+        .then(() => this._debug(() => [`saved in ${Date.now() - startedAt} ms`]))
+        .catch((error) => this.error('Failed to save (debounced)', error));
     }, SAVE_DEBOUNCE_MS);
+  }
+
+  // A line only when the detailed log is switched on in Settings (samples, saves, every Flow card run). `build`
+  // returns the log arguments, so a sample costs no string while the switch is off.
+  _debug(build) {
+    if (this.store.data.logSettings?.verbose) this.log(...build());
   }
 
   // Flushes a still-pending debounced save immediately — without this, an app update/restart

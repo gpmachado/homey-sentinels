@@ -186,6 +186,14 @@
       "method": "POST",
       "path": "/message-settings"
     },
+    "getLogSettings": {
+      "method": "GET",
+      "path": "/log-settings"
+    },
+    "setLogSettings": {
+      "method": "POST",
+      "path": "/log-settings"
+    },
     "getDefaultWording": {
       "method": "GET",
       "path": "/default-wording"

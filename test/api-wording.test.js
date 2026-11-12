@@ -23,3 +23,18 @@ test('and in English when the language is not covered', async () => {
   const info = await api.getDefaultWording({ homey: homeyIn('') });
   assert.equal(info.activityMessageDefaults.started, '%monitor% turned on (%power% W)');
 });
+
+test('the detailed log is off by default, and the switch is saved and read back', async () => {
+  const SentinelStore = require('../lib/store');
+  const data = {};
+  const store = new SentinelStore({ get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} });
+  await store.load();
+  const logged = [];
+  const homey = { app: { store, log: (...args) => logged.push(args.join(' ')) } };
+  assert.deepEqual(await api.getLogSettings({ homey }), { verbose: false });
+  assert.deepEqual(await api.setLogSettings({ homey, body: { verbose: true } }), { verbose: true });
+  const reloaded = new SentinelStore({ get: (k) => data[k], set: async () => {}, unset: () => {} });
+  await reloaded.load();
+  assert.equal(reloaded.getLogSettings().verbose, true);
+  assert.deepEqual(logged, ['detailed log on']);
+});

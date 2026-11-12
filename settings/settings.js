@@ -1,4 +1,4 @@
-/* global setupMessages, setupMessageFormat, setupGroups, setupUsagePattern, setupDevicePicker, setupMonitorLists, setupMonitorForms, setupAvailability, renderEmptyList */
+/* global setupMessages, setupMessageFormat, setupGroups, setupUsagePattern, setupDevicePicker, setupMonitorLists, setupMonitorForms, setupAvailability, setupLogOption, renderEmptyList */
 
 // The entry point of the Settings page. Each part of the page is a setup function in its own file; `page` is what they
 // share: the calls below, the two values that change (the period shown, the device list) and whatever each part adds for
@@ -34,6 +34,7 @@ function onHomeyReady(Homey) {
   setupMonitorForms(page);
   setupAvailability(page);
   setupMessageFormat(page);
+  setupLogOption(page);
 
   var tabBtns = Array.prototype.slice.call(document.querySelectorAll('.tab-btn'));
   var tabPanels = Array.prototype.slice.call(document.querySelectorAll('.tab-panel'));

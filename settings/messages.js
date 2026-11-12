@@ -179,6 +179,18 @@ function setupMessages(page) {
   page.groupPreviewData = groupPreviewData;
 }
 
+// The Log section: one switch for the detailed log.
+function setupLogOption(page) {
+  var box = document.getElementById('log-verbose');
+  page.api('GET', '/log-settings').then(function (settings) { box.checked = settings.verbose === true; }).catch(function () {});
+  box.addEventListener('change', function () {
+    page.api('POST', '/log-settings', { verbose: box.checked }).catch(function (error) {
+      box.checked = !box.checked;
+      page.showError(error);
+    });
+  });
+}
+
 // The Message format section: the decimal comma and the Default message language.
 function setupMessageFormat(page) {
   var Homey = page.Homey, api = page.api, refreshMessagePreviews = page.refreshMessagePreviews;
