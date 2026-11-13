@@ -103,7 +103,9 @@ in the first place.
 - Cards: `reset_monitor`,
   `get_state_statistics`, triggers `state_started`/`state_finished` (each carries a
   `label` token — `trueLabel` on start, `falseLabel` on finish), condition `is_monitor_active`.
-  "Cycle count reached", "Cycle unusually long" and "Running longer than" take State monitors too.
+  "Cycle count reached", "Cycle unusually long", "Still running long" and "Running longer than" take State monitors too.
+  "Still running long" fires during the cycle, at start + N x the median cycle: one timer per multiplier in use,
+  set when the cycle starts (or when a Flow using it changes); a due time already past at restart is skipped.
 - Message wording (Settings → Monitors → State → "Edit messages") works the same way as
   Activity Monitor's — a rendered `message` token per trigger, `count` (today's session count)
   available on `state_finished`.

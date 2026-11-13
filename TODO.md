@@ -69,7 +69,7 @@ Cards left: 29 -> 18 actions, 16 triggers, 11 conditions.
 (`voltage_is_state` Normal). New: `device_battery_ok` and `monitor_has_recent_reading`. Every filtered trigger offers "Any ..." first, every
 event trigger carries `timestamp` and `time`, the group triggers carry the group name, and the cycle triggers and "Running longer than" take
 State monitors. 43 cards: 17 triggers, 10 conditions, 16 actions. Not done: `export_data` stays (no other export yet), under- and overvoltage
-stay two triggers.
+stay two triggers. 2026-11-13: `activity_still_running_long` added (a timer at start + N x median, no polling Flow): 44 cards, 18 triggers.
 
 ### lib/history-db.js followed the PELS app (GPL-3.0): rewritten 2026-10-22, but the git history still has the old file
 

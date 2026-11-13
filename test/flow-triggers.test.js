@@ -98,7 +98,7 @@ test('a state monitor also fires the cycle triggers, and "running longer than" a
     stateCards: { started: recorder('state_started'), finished: recorder('state_finished') },
     cards: { cyclesReached: recorder('cycles_reached'), unusuallyLong: recorder('unusually_long') },
     _stateStatistics: () => ({ cycle_count: 5, energy: 0 }), _statistics: () => ({ median_duration: 60 }),
-    _getTimezone: () => 'UTC', _scheduleSave() {}, _logEvent() {}, log() {}
+    _getTimezone: () => 'UTC', _scheduleSave() {}, _logEvent() {}, log() {}, _debug() {}
   });
   await app._handleStateEvents(door, [{ type: 'finished', timestamp: Date.UTC(2026, 10, 1), duration: 600, duration_human: '10 min' }]);
   assert.deepEqual(fired.map(([name]) => name), ['state_finished', 'cycles_reached', 'unusually_long']);
@@ -176,4 +176,40 @@ test('a group member whose name ends in a space does not leave a space before th
   const result = evaluateGroup(group, [{ name: 'Porta ', ...open }, { name: 'Janela', ...open }]);
   assert.equal(result.message, 'Abertas: Porta e Janela.');
   assert.equal(result.mismatchList, 'Porta\nJanela');
+});
+
+test('"still running" sets one timer per multiplier at start + N x the usual cycle, and fires only if that cycle is still on', async () => {
+  const activity = require('../lib/app/activity');
+  const timers = []; const fired = [];
+  const since = Date.now() - 10 * 60000; // started 10 min ago, usual cycle 50 min
+  const pump = { id: 'm1', name: 'Bomba', deviceName: 'Tomada', state: 'ACTIVE', activeSince: since };
+  const flows = [{ monitor: { id: '*' }, multiplier: 2 }, { monitor: { id: 'm1' }, multiplier: 2 }, { monitor: { id: 'other' }, multiplier: 3 }, { monitor: { id: 'm1' }, multiplier: 1.5 }];
+  const app = Object.assign({}, activity, {
+    store: { data: { monitors: { m1: pump }, stateMonitors: {} } },
+    cards: { stillRunning: { getArgumentValues: async () => flows, trigger: async (tokens, state) => { fired.push([tokens, state]); } } },
+    homey: { setTimeout: (fn, ms) => timers.push({ fn, ms }) },
+    _statistics: () => ({ median_duration: 3000 }), _getTimezone: () => 'UTC', _debug() {}, log() {}, error() {}
+  });
+  await app._scheduleOverrunChecks(pump);
+  await app._scheduleOverrunChecks(pump); // watched again: no duplicate timers
+  assert.equal(timers.length, 2);
+  const minutes = timers.map((timer) => Math.round(timer.ms / 60000)).sort((a, b) => a - b);
+  assert.deepEqual(minutes, [65, 90]); // 1.5 x 50 - 10 and 2 x 50 - 10
+
+  timers[0].fn(); await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(fired.length, 1);
+  assert.equal(fired[0][1].monitorId, 'm1');
+  assert.equal(fired[0][0].median_duration_human, '50 min');
+
+  pump.state = 'STANDBY'; // the cycle ended before the second timer
+  timers[1].fn(); await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(fired.length, 1);
+});
+
+test('"still running" runs only the Flows whose multiplier matches the timer that went off', async () => {
+  const cards = fakeApp();
+  const card = cards['cards.stillRunning'];
+  const any = (await card.autocomplete.monitor(''))[0];
+  assert.equal(await card.run({ monitor: any, multiplier: 2 }, { monitorId: 'm1', multiplier: 2 }), true);
+  assert.equal(await card.run({ monitor: any, multiplier: 3 }, { monitorId: 'm1', multiplier: 2 }), false);
 });

@@ -1,0 +1,46 @@
+{
+  "title": {
+    "en": "Still running long"
+  },
+  "titleFormatted": {
+    "en": "[[monitor]] is still running after [[multiplier]]x its usual duration"
+  },
+  "hint": {
+    "en": "Fires while the cycle is still running, once it reaches the given multiple of this monitor's usual (median) cycle: a pump that usually runs 50 min, with 2, is reported at 1 h 40 min. No Flow needs to check every few minutes. Needs a handful of completed cycles first to know the usual duration."
+  },
+  "args": [
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "required": true,
+      "title": {
+        "en": "Monitor"
+      },
+      "hint": {
+        "en": "Activity and state monitors (a door left open far longer than usual). Pick \"Any monitor\" to run for all of them; the tokens say which one it was."
+      }
+    },
+    {
+      "name": "multiplier",
+      "type": "number",
+      "title": {
+        "en": "Multiplier"
+      },
+      "min": 1,
+      "step": 0.5,
+      "placeholder": {
+        "en": "e.g. 2"
+      }
+    }
+  ],
+  "tokens": [
+    { "name": "device", "type": "string", "title": { "en": "Device" } },
+    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
+    { "name": "duration", "type": "number", "title": { "en": "Running for (seconds)" } },
+    { "name": "duration_human", "type": "string", "title": { "en": "Running for" } },
+    { "name": "median_duration", "type": "number", "title": { "en": "Usual (median) duration (seconds)" } },
+    { "name": "median_duration_human", "type": "string", "title": { "en": "Usual (median) duration" } },
+    { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
+    { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } }
+  ]
+}

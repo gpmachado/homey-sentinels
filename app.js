@@ -72,7 +72,8 @@ class StatisticTrackerApp extends Homey.App {
       finished: trigger('activity_finished'),
       calibrated: trigger('threshold_calibrated'),
       cyclesReached: trigger('activity_cycles_reached'),
-      unusuallyLong: trigger('activity_cycle_unusually_long')
+      unusuallyLong: trigger('activity_cycle_unusually_long'),
+      stillRunning: trigger('activity_still_running_long')
     };
     this.stateCards = {
       started: trigger('state_started'),
