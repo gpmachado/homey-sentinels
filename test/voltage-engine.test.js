@@ -164,3 +164,12 @@ test('finalizePendingNormal closes a stuck pending confirmation via a timer, wit
   assert.equal(events[0].type, 'normalized');
   assert.equal(m.state, 'NORMAL');
 });
+
+test('going straight from undervoltage to overvoltage records the undervoltage episode', () => {
+  const { VoltageEngine } = require('../lib/voltage-engine');
+  const monitor = { id: 'v', minVoltage: 200, maxVoltage: 240, stabilizationMinutes: 0, stabilizedAt: 0, state: 'NORMAL', events: [], periods: [], lastSample: null, pendingNormalSince: null };
+  const engine = new VoltageEngine();
+  const t0 = Date.UTC(2026, 10, 1);
+  for (const [voltage, at] of [[230, 0], [180, 60000], [260, 120000], [230, 180000], [230, 240000]]) engine.processSample(monitor, { voltage, timestamp: t0 + at });
+  assert.deepEqual(monitor.events.map((e) => [e.type, e.duration]), [['UNDERVOLTAGE', 60], ['OVERVOLTAGE', 60]]);
+});

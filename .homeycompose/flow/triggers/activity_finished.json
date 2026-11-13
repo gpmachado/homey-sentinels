@@ -14,7 +14,7 @@
         "en": "Monitor"
       },
       "hint": {
-        "en": "Which activity monitor to watch."
+        "en": "Which activity monitor to watch. Pick \"Any activity monitor\" to run for all of them; the tokens say which one it was."
       }
     }
   ],
@@ -101,6 +101,13 @@
       "type": "string",
       "title": {
         "en": "Time (local)"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp"
       }
     },
     {

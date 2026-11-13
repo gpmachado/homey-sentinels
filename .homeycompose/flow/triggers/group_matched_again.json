@@ -1,11 +1,68 @@
 {
-  "title": { "en": "Group matched again" },
-  "titleFormatted": { "en": "[[group]] is back to normal" },
-  "hint": { "en": "Fires the next time a poll finds every device back in the expected state, after the group had a mismatch." },
+  "title": {
+    "en": "Group matched again"
+  },
+  "titleFormatted": {
+    "en": "[[group]] is back to normal"
+  },
+  "hint": {
+    "en": "Fires the next time a poll finds every device back in the expected state, after the group had a mismatch."
+  },
   "args": [
-    { "name": "group", "type": "autocomplete", "required": true, "title": { "en": "Group" } }
+    {
+      "name": "group",
+      "type": "autocomplete",
+      "required": true,
+      "title": {
+        "en": "Group"
+      },
+      "hint": {
+        "en": "Pick \"Any group\" to run for all of them; the tokens say which one it was."
+      }
+    }
   ],
   "tokens": [
-    { "name": "message", "type": "string", "title": { "en": "Message" } }
+    {
+      "name": "group",
+      "type": "string",
+      "title": {
+        "en": "Group"
+      }
+    },
+    {
+      "name": "mismatch_duration",
+      "type": "number",
+      "title": {
+        "en": "Mismatched for (seconds)"
+      }
+    },
+    {
+      "name": "mismatch_duration_human",
+      "type": "string",
+      "title": {
+        "en": "Mismatched for"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp"
+      }
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "title": {
+        "en": "Time (local)"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message"
+      }
+    }
   ]
 }

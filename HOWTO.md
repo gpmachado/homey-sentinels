@@ -259,6 +259,13 @@ entries, whether to scan everything and how often.
 
 **Widget**: "Sentinels Watchdogs" shows the same tiles on a dashboard, with a **Check now** button.
 
+## One Flow for all of them
+
+Every trigger that asks for a monitor, a group or a watched device starts its list with **Any activity monitor**, **Any
+state monitor**, **Any voltage monitor**, **Any group** or **Any watched device**. Pick it and one Flow reacts to all of
+them; the `monitor`, `group` or `device` token says which one it was. Every event trigger also carries `timestamp` (ISO,
+UTC, for scripts) and `time` (local, for a notification).
+
 ## The Settings page
 
 Open the app's Settings from Homey. Three tabs:

@@ -6,7 +6,7 @@
     "en": "Get daily digest"
   },
   "hint": {
-    "en": "Today in one message for a notification: the cycles and energy of your Activity monitors since midnight, the biggest user, the devices the last availability scan flagged (0 while that scan is off) and the state groups with a mismatch now. The sentence follows the Default message language in Settings; the numbers are there to build your own."
+    "en": "Today in one message for a notification: the cycles and energy of your Activity monitors since midnight, the biggest user, the devices the last availability scan flagged (0 while that scan is off) and the state groups with a mismatch now. The sentence follows the Default message language in Settings; the numbers are there to build your own. Its tokens are only available in an Advanced Flow."
   },
   "args": [],
   "tokens": [

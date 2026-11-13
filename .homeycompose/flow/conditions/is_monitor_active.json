@@ -1,0 +1,20 @@
+{
+  "title": {
+    "en": "Monitor is active"
+  },
+  "titleFormatted": {
+    "en": "[[monitor]] !{{is active|is not active}}"
+  },
+  "hint": {
+    "en": "An Activity monitor is active while it runs; a State monitor while it is in its on/open state. For a Voltage monitor use \"Voltage is in state\"."
+  },
+  "args": [
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor"
+      }
+    }
+  ]
+}

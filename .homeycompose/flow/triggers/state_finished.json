@@ -14,7 +14,7 @@
         "en": "Monitor"
       },
       "hint": {
-        "en": "Which state monitor to watch."
+        "en": "Which state monitor to watch. Pick \"Any state monitor\" to run for all of them; the tokens say which one it was."
       }
     }
   ],

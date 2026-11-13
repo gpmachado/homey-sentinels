@@ -1,34 +1,188 @@
 {
-  "title": { "en": "Get state statistics" },
-  "titleFormatted": { "en": "Get state statistics for [[monitor]], period: [[period]]" },
+  "title": {
+    "en": "Get state statistics"
+  },
+  "titleFormatted": {
+    "en": "Get state statistics for [[monitor]], period: [[period]]"
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
-    { "name": "period", "type": "dropdown", "title": { "en": "Period" }, "values": [
-      { "id": "day", "label": { "en": "Today" } },
-      { "id": "week", "label": { "en": "Last 7 days" } },
-      { "id": "month", "label": { "en": "Last 30 days" } },
-      { "id": "all", "label": { "en": "All history" } }
-    ] }
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor"
+      }
+    },
+    {
+      "name": "period",
+      "type": "dropdown",
+      "title": {
+        "en": "Period"
+      },
+      "values": [
+        {
+          "id": "day",
+          "label": {
+            "en": "Today"
+          }
+        },
+        {
+          "id": "week",
+          "label": {
+            "en": "Last 7 days"
+          }
+        },
+        {
+          "id": "month",
+          "label": {
+            "en": "Last 30 days"
+          }
+        },
+        {
+          "id": "all",
+          "label": {
+            "en": "All history"
+          }
+        }
+      ]
+    }
   ],
   "tokens": [
-    { "name": "cycle_count", "type": "number", "title": { "en": "Sessions" } },
-    { "name": "true_label", "type": "string", "title": { "en": "Label for true" } },
-    { "name": "false_label", "type": "string", "title": { "en": "Label for false" } },
-    { "name": "true_duration", "type": "number", "title": { "en": "Duration as true (seconds)" } },
-    { "name": "false_duration", "type": "number", "title": { "en": "Duration as false (seconds)" } },
-    { "name": "median_duration", "type": "number", "title": { "en": "Median session duration (seconds)" } },
-    { "name": "median_duration_human", "type": "string", "title": { "en": "Median session duration" } },
-    { "name": "p25_duration", "type": "number", "title": { "en": "Session duration, 25th percentile (seconds)" } },
-    { "name": "p25_duration_human", "type": "string", "title": { "en": "Session duration, 25th percentile" } },
-    { "name": "p75_duration", "type": "number", "title": { "en": "Session duration, 75th percentile (seconds)" } },
-    { "name": "p75_duration_human", "type": "string", "title": { "en": "Session duration, 75th percentile" } },
-    { "name": "trend_active_duration_percent", "type": "number", "title": { "en": "True time vs previous week (%)" } },
-    { "name": "trend_cycle_count_percent", "type": "number", "title": { "en": "Sessions vs previous week (%)" } },
-    { "name": "trend_summary", "type": "string", "title": { "en": "Weekly trend" } },
-    { "name": "energy", "type": "number", "title": { "en": "Energy (kWh)" } },
-    { "name": "average_power", "type": "number", "title": { "en": "Average power (W)" } },
-    { "name": "max_power", "type": "number", "title": { "en": "Peak power (W)" } },
-    { "name": "average_current", "type": "number", "title": { "en": "Average current (A)" } },
-    { "name": "max_current", "type": "number", "title": { "en": "Peak current (A)" } }
-  ]
+    {
+      "name": "cycle_count",
+      "type": "number",
+      "title": {
+        "en": "Sessions"
+      }
+    },
+    {
+      "name": "true_label",
+      "type": "string",
+      "title": {
+        "en": "Label for true"
+      }
+    },
+    {
+      "name": "false_label",
+      "type": "string",
+      "title": {
+        "en": "Label for false"
+      }
+    },
+    {
+      "name": "true_duration",
+      "type": "number",
+      "title": {
+        "en": "Duration as true (seconds)"
+      }
+    },
+    {
+      "name": "false_duration",
+      "type": "number",
+      "title": {
+        "en": "Duration as false (seconds)"
+      }
+    },
+    {
+      "name": "median_duration",
+      "type": "number",
+      "title": {
+        "en": "Median session duration (seconds)"
+      }
+    },
+    {
+      "name": "median_duration_human",
+      "type": "string",
+      "title": {
+        "en": "Median session duration"
+      }
+    },
+    {
+      "name": "p25_duration",
+      "type": "number",
+      "title": {
+        "en": "Session duration, 25th percentile (seconds)"
+      }
+    },
+    {
+      "name": "p25_duration_human",
+      "type": "string",
+      "title": {
+        "en": "Session duration, 25th percentile"
+      }
+    },
+    {
+      "name": "p75_duration",
+      "type": "number",
+      "title": {
+        "en": "Session duration, 75th percentile (seconds)"
+      }
+    },
+    {
+      "name": "p75_duration_human",
+      "type": "string",
+      "title": {
+        "en": "Session duration, 75th percentile"
+      }
+    },
+    {
+      "name": "trend_active_duration_percent",
+      "type": "number",
+      "title": {
+        "en": "True time vs previous week (%)"
+      }
+    },
+    {
+      "name": "trend_cycle_count_percent",
+      "type": "number",
+      "title": {
+        "en": "Sessions vs previous week (%)"
+      }
+    },
+    {
+      "name": "trend_summary",
+      "type": "string",
+      "title": {
+        "en": "Weekly trend"
+      }
+    },
+    {
+      "name": "energy",
+      "type": "number",
+      "title": {
+        "en": "Energy (kWh)"
+      }
+    },
+    {
+      "name": "average_power",
+      "type": "number",
+      "title": {
+        "en": "Average power (W)"
+      }
+    },
+    {
+      "name": "max_power",
+      "type": "number",
+      "title": {
+        "en": "Peak power (W)"
+      }
+    },
+    {
+      "name": "average_current",
+      "type": "number",
+      "title": {
+        "en": "Average current (A)"
+      }
+    },
+    {
+      "name": "max_current",
+      "type": "number",
+      "title": {
+        "en": "Peak current (A)"
+      }
+    }
+  ],
+  "hint": {
+    "en": "Its tokens are only available in an Advanced Flow."
+  }
 }

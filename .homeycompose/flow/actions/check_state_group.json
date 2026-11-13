@@ -1,20 +1,95 @@
 {
-  "title": { "en": "Check state group" },
-  "titleFormatted": { "en": "Check state group [[group]], expected [[expected_state]]" },
+  "title": {
+    "en": "Check state group"
+  },
+  "titleFormatted": {
+    "en": "Check state group [[group]], expected [[expected_state]]"
+  },
   "args": [
-    { "name": "group", "type": "autocomplete", "title": { "en": "Group" } },
-    { "name": "expected_state", "type": "dropdown", "required": false, "title": { "en": "Expected state override (optional)" }, "values": [
-      { "id": "", "label": { "en": "Use group default" } },
-      { "id": "true", "label": { "en": "On / Open" } },
-      { "id": "false", "label": { "en": "Off / Closed" } }
-    ] }
+    {
+      "name": "group",
+      "type": "autocomplete",
+      "title": {
+        "en": "Group"
+      }
+    },
+    {
+      "name": "expected_state",
+      "type": "dropdown",
+      "required": false,
+      "title": {
+        "en": "Expected state override (optional)"
+      },
+      "values": [
+        {
+          "id": "",
+          "label": {
+            "en": "Use group default"
+          }
+        },
+        {
+          "id": "true",
+          "label": {
+            "en": "On / Open"
+          }
+        },
+        {
+          "id": "false",
+          "label": {
+            "en": "Off / Closed"
+          }
+        }
+      ]
+    }
   ],
   "tokens": [
-    { "name": "group_name", "type": "string", "title": { "en": "Group" } },
-    { "name": "checked_count", "type": "number", "title": { "en": "Checked" } },
-    { "name": "match_count", "type": "number", "title": { "en": "Matching" } },
-    { "name": "mismatch_count", "type": "number", "title": { "en": "Mismatches" } },
-    { "name": "mismatch_list", "type": "string", "title": { "en": "Mismatch list" } },
-    { "name": "message", "type": "string", "title": { "en": "Message" }, "example": { "en": "2 items open: Kitchen and Living Room." } }
-  ]
+    {
+      "name": "group_name",
+      "type": "string",
+      "title": {
+        "en": "Group"
+      }
+    },
+    {
+      "name": "checked_count",
+      "type": "number",
+      "title": {
+        "en": "Checked"
+      }
+    },
+    {
+      "name": "match_count",
+      "type": "number",
+      "title": {
+        "en": "Matching"
+      }
+    },
+    {
+      "name": "mismatch_count",
+      "type": "number",
+      "title": {
+        "en": "Mismatches"
+      }
+    },
+    {
+      "name": "mismatch_list",
+      "type": "string",
+      "title": {
+        "en": "Mismatch list"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message"
+      },
+      "example": {
+        "en": "2 items open: Kitchen and Living Room."
+      }
+    }
+  ],
+  "hint": {
+    "en": "Its tokens are only available in an Advanced Flow."
+  }
 }

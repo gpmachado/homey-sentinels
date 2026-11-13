@@ -1,15 +1,65 @@
 {
-  "title": { "en": "Undervoltage detected" },
-  "titleFormatted": { "en": "Undervoltage detected ([[monitor]])" },
+  "title": {
+    "en": "Undervoltage detected"
+  },
+  "titleFormatted": {
+    "en": "Undervoltage detected ([[monitor]])"
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor" }, "hint": { "en": "Which voltage monitor to watch." } }
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "required": true,
+      "title": {
+        "en": "Monitor"
+      },
+      "hint": {
+        "en": "Which voltage monitor to watch. Pick \"Any voltage monitor\" to run for all of them; the tokens say which one it was."
+      }
+    }
   ],
   "tokens": [
-    { "name": "device", "type": "string", "title": { "en": "Device" } },
-    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
-    { "name": "voltage", "type": "number", "title": { "en": "Voltage (V)" } },
-    { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } },
-    { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
-    { "name": "message", "type": "string", "title": { "en": "Message" } }
+    {
+      "name": "device",
+      "type": "string",
+      "title": {
+        "en": "Device"
+      }
+    },
+    {
+      "name": "monitor",
+      "type": "string",
+      "title": {
+        "en": "Monitor"
+      }
+    },
+    {
+      "name": "voltage",
+      "type": "number",
+      "title": {
+        "en": "Voltage (V)"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp"
+      }
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "title": {
+        "en": "Time (local)"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message"
+      }
+    }
   ]
 }

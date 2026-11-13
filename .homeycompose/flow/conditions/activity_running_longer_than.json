@@ -1,8 +1,31 @@
 {
-  "title": { "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes" },
-  "titleFormatted": { "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes" },
+  "title": {
+    "en": "Running longer than"
+  },
+  "titleFormatted": {
+    "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes"
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
-    { "name": "minutes", "type": "number", "title": { "en": "Minutes" }, "min": 0, "placeholder": { "en": "e.g. 120" } }
-  ]
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor"
+      }
+    },
+    {
+      "name": "minutes",
+      "type": "number",
+      "title": {
+        "en": "Minutes"
+      },
+      "min": 0,
+      "placeholder": {
+        "en": "e.g. 120"
+      }
+    }
+  ],
+  "hint": {
+    "en": "Activity and state monitors: a pump running for more than 2 hours, a door open for more than 10 minutes."
+  }
 }

@@ -1,8 +1,0 @@
-{
-  "title": { "en": "Reset activity monitor statistics" },
-  "titleFormatted": { "en": "Reset activity monitor statistics for [[monitor]]" },
-  "hint": { "en": "Wipes cycles, history and live state (e.g. after fixing a monitor that was recording wrong data) — keeps the monitor itself, its device, capability, threshold and settings. To remove the monitor entirely instead, use \"Remove activity monitor\"." },
-  "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
-  ]
-}

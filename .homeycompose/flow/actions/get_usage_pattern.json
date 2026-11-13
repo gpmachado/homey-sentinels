@@ -6,7 +6,7 @@
     "en": "Get usage pattern of [[monitor]], period: [[period]]"
   },
   "hint": {
-    "en": "When a monitor is used: the busiest weekday and hour of its cycles how much of its time on falls in the day (06:00 to 22:00), the energy over the period and the hour with the highest average power, worked out from the cycles it already keeps. Needs at least 5 cycles in the period. The weekday name and the sentence follow the Default message language in Settings."
+    "en": "When a monitor is used: the busiest weekday and hour of its cycles how much of its time on falls in the day (06:00 to 22:00), the energy over the period and the hour with the highest average power, worked out from the cycles it already keeps. Needs at least 5 cycles in the period. The weekday name and the sentence follow the Default message language in Settings. Its tokens are only available in an Advanced Flow."
   },
   "args": [
     {

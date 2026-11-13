@@ -1,8 +1,0 @@
-{
-  "title": { "en": "Reset voltage monitor statistics" },
-  "titleFormatted": { "en": "Reset voltage monitor statistics for [[monitor]]" },
-  "hint": { "en": "Wipes readings, events and live state (e.g. after fixing a monitor that was bound to the wrong capability) — keeps the monitor itself, its device, capability, voltage range and message wording. To remove the monitor entirely instead, use \"Remove voltage monitor\"." },
-  "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
-  ]
-}

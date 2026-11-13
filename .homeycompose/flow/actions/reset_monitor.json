@@ -1,0 +1,20 @@
+{
+  "title": {
+    "en": "Reset monitor statistics"
+  },
+  "titleFormatted": {
+    "en": "Reset the statistics of [[monitor]]"
+  },
+  "hint": {
+    "en": "For any Activity, State or Voltage monitor: wipes its recorded history and live state (e.g. after fixing a monitor that recorded wrong data) and keeps the monitor itself, its device, capability and settings."
+  },
+  "args": [
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor"
+      }
+    }
+  ]
+}

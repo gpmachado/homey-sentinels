@@ -5,7 +5,7 @@ const SentinelStore = require('./lib/store');
 const HomeyDeviceGateway = require('./lib/homey-device-gateway');
 const { ActivityEngine } = require('./lib/activity-engine');
 const { VoltageEngine } = require('./lib/voltage-engine');
-const { isValidTimeZone } = require('./lib/time');
+const { isValidTimeZone, localTimeText } = require('./lib/time');
 const { punctuationToAscii } = require('./lib/text');
 const { DeviceDirectory } = require('./lib/device-directory');
 const { openHistoryDb } = require('./lib/history-db');
@@ -94,6 +94,7 @@ class StatisticTrackerApp extends Homey.App {
       unavailable: trigger('device_became_unavailable'),
       available: trigger('device_became_available'),
       batteryLow: trigger('device_battery_low'),
+      batteryOk: trigger('device_battery_ok'),
       problem: trigger('device_problem_detected')
     };
     this._registerFlowCards();
@@ -167,6 +168,11 @@ class StatisticTrackerApp extends Homey.App {
         .then(() => this._debug(() => [`saved in ${Date.now() - startedAt} ms`]))
         .catch((error) => this.error('Failed to save (debounced)', error));
     }, SAVE_DEBOUNCE_MS);
+  }
+
+  // The `timestamp` (ISO, UTC, for scripts) and `time` (local, for people) tokens every event trigger carries.
+  _stamp(at = Date.now()) {
+    return { timestamp: new Date(at).toISOString(), time: localTimeText(at, this._getTimezone()) };
   }
 
   // A line only when the detailed log is switched on in Settings (samples, saves, every Flow card run). `build`

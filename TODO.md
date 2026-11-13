@@ -62,8 +62,14 @@ builds a Flow that adds a monitor at 08:00. The app is in development with no us
 already were). Kept on purpose: `update_activity_monitor` and `update_voltage_monitor` (a Flow can change a threshold by time of day), the `reset_*`
 cards, `start_monitoring_device` / `stop_monitoring_device` (they create a manual monitor from a Flow) and every statistics card. The 56 -> 18 style
 reductions suggested by an outside analysis were not followed beyond this: Activity and State triggers have different tokens (`label`), so they are not merged.
-Cards left: 29 -> 18 actions, 16 triggers, 11 conditions. Possible next step, not done: one condition for `is_active` and `is_state_active`, and
-`voltage_is_state` covers `is_voltage_normal`.
+Cards left: 29 -> 18 actions, 16 triggers, 11 conditions.
+
+2026-11-12, after a second outside review of the cards (only the developer uses the app, so cards were removed outright):
+`is_active` + `is_state_active` -> `is_monitor_active`; the three `reset_*_monitor` -> `reset_monitor`; `is_voltage_normal` removed
+(`voltage_is_state` Normal). New: `device_battery_ok` and `monitor_has_recent_reading`. Every filtered trigger offers "Any ..." first, every
+event trigger carries `timestamp` and `time`, the group triggers carry the group name, and the cycle triggers and "Running longer than" take
+State monitors. 43 cards: 17 triggers, 10 conditions, 16 actions. Not done: `export_data` stays (no other export yet), under- and overvoltage
+stay two triggers.
 
 ### lib/history-db.js followed the PELS app (GPL-3.0): rewritten 2026-10-22, but the git history still has the old file
 

@@ -216,5 +216,8 @@
         "en": "Weekly trend"
       }
     }
-  ]
+  ],
+  "hint": {
+    "en": "Its tokens are only available in an Advanced Flow."
+  }
 }

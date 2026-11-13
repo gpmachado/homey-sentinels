@@ -59,7 +59,7 @@ graph TB
 ## Directory Structure
 
 ```
-.homeycompose/    Source of the manifest: app.json (44 API routes) and flow/ (45 cards)
+.homeycompose/    Source of the manifest: app.json (44 API routes) and flow/ (43 cards)
 app.json          GENERATED from .homeycompose. Never edit by hand
 app.js            App class: state, startup, scheduling, event log, time zone
 api.js            Settings page routes (route handlers calling homey.app.*)
@@ -173,7 +173,7 @@ Each has `api.js`, `widget.compose.json`, `public/index.html`, and light and dar
 
 ### Flow cards: `.homeycompose/flow/`
 
-45 cards: 16 triggers, 11 conditions, 18 actions. They are handled in `lib/app/flow-cards.js` and `lib/app/groups.js`; triggers are obtained in `app.js`. Cards that return tokens appear only in Advanced Flow.
+43 cards: 17 triggers, 10 conditions, 16 actions. They are handled in `lib/app/flow-cards.js` and `lib/app/groups.js`; triggers are obtained in `app.js`. Cards that return tokens appear only in Advanced Flow.
 
 ### Tests: `test/`
 

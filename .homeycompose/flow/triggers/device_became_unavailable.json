@@ -17,7 +17,7 @@
         "en": "Device"
       },
       "hint": {
-        "en": "Which watched device to react to."
+        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
       }
     }
   ],
@@ -48,6 +48,20 @@
       "type": "string",
       "title": {
         "en": "Reason"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp"
+      }
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "title": {
+        "en": "Time (local)"
       }
     },
     {

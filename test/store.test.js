@@ -815,3 +815,14 @@ test('message settings: a price and currency saved by an earlier version are dro
   await store.load();
   assert.deepEqual(store.getMessageSettings(), { messageLanguage: 'pt', decimalComma: true });
 });
+
+test('migration: a manual monitor is never left calibrating, and older monitors get observedSince and lastCycleEndedAt', () => {
+  const { migrateActivityMonitor, migrateStateMonitor } = require('../lib/store');
+  const manual = { mode: 'manual', threshold: null, cycles: [{ startedAt: 5, endedAt: 9 }], periods: [{ startedAt: 3 }] };
+  migrateActivityMonitor(manual);
+  assert.deepEqual([manual.threshold, manual.calibrating, manual.observedSince, manual.lastCycleEndedAt], [null, false, 3, 9]);
+  const door = { periods: [], cycles: [], dailySummaries: [{ date: '2026-09-01' }] };
+  migrateStateMonitor(door);
+  assert.equal(door.observedSince, Date.parse('2026-09-01T12:00:00Z'));
+  assert.equal(door.lastCycleEndedAt, null);
+});

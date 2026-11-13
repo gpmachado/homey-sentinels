@@ -377,3 +377,19 @@ test('voltage statistics match daily summaries by local calendar day too', () =>
   assert.equal(voltageStatistics(monitor('2026-11-01'), 'week', zone, now).min_voltage, 100);
   assert.equal(voltageStatistics(monitor('2026-10-31'), 'week', zone, now).min_voltage, null);
 });
+
+test('"all" takes duration and energy from the lifetime totals once the daily summaries are gone', () => {
+  const stats = require('../lib/statistics');
+  const monitor = activityMonitor({ periods: [], cycles: [], dailySummaries: [], totals: { cycleCount: 500, activeSeconds: 1e6, standbySeconds: 2e6, activeEnergy: 500, standbyEnergy: 20 } });
+  const all = stats.periodStatistics(monitor, 0, Date.now());
+  assert.deepEqual([all.cycle_count, all.active_duration, all.standby_duration, all.total_energy], [500, 1e6, 2e6, 520]);
+  assert.equal(stats.periodStatistics(monitor, 1, Date.now()).active_duration, 0); // a bounded window does not
+});
+
+test('hours since the last run reach past the week of raw periods', () => {
+  const { hoursSinceLastRun } = require('../lib/statistics');
+  const now = Date.UTC(2026, 10, 1);
+  const day = 24 * 3600000;
+  assert.equal(hoursSinceLastRun({ state: 'STANDBY', cycles: [], periods: [{ startedAt: now - 7 * day }], observedSince: now - 60 * day }, now), 60 * 24);
+  assert.equal(hoursSinceLastRun({ state: 'STANDBY', cycles: [], periods: [], lastCycleEndedAt: now - 400 * day }, now), 400 * 24);
+});

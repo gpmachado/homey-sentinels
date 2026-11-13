@@ -6,7 +6,7 @@
     "en": "Get standby ranking, period: [[period]]"
   },
   "hint": {
-    "en": "Which monitors use the most energy while idle, over the period: the total, the biggest one and a top 5 as ready-to-use lines (name and kWh). Needs a device that reports kWh."
+    "en": "Which monitors use the most energy while idle, over the period: the total, the biggest one and a top 5 as ready-to-use lines (name and kWh). Needs a device that reports kWh. Its tokens are only available in an Advanced Flow."
   },
   "args": [
     {

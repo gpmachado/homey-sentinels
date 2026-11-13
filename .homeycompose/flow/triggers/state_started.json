@@ -1,16 +1,72 @@
 {
-  "title": { "en": "State session started" },
-  "titleFormatted": { "en": "State session started ([[monitor]])" },
+  "title": {
+    "en": "State session started"
+  },
+  "titleFormatted": {
+    "en": "State session started ([[monitor]])"
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor" }, "hint": { "en": "Which state monitor to watch." } }
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "required": true,
+      "title": {
+        "en": "Monitor"
+      },
+      "hint": {
+        "en": "Which state monitor to watch. Pick \"Any state monitor\" to run for all of them; the tokens say which one it was."
+      }
+    }
   ],
   "tokens": [
-    { "name": "device", "type": "string", "title": { "en": "Device" } },
-    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
-    { "name": "label", "type": "string", "title": { "en": "State entered" } },
-    { "name": "power", "type": "number", "title": { "en": "Power (W)" } },
-    { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } },
-    { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
-    { "name": "message", "type": "string", "title": { "en": "Message" } }
+    {
+      "name": "device",
+      "type": "string",
+      "title": {
+        "en": "Device"
+      }
+    },
+    {
+      "name": "monitor",
+      "type": "string",
+      "title": {
+        "en": "Monitor"
+      }
+    },
+    {
+      "name": "label",
+      "type": "string",
+      "title": {
+        "en": "State entered"
+      }
+    },
+    {
+      "name": "power",
+      "type": "number",
+      "title": {
+        "en": "Power (W)"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp"
+      }
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "title": {
+        "en": "Time (local)"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message"
+      }
+    }
   ]
 }

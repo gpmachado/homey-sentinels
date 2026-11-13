@@ -21,6 +21,7 @@ async function fakeApp({ initial = {}, groupType = 'switch', expectedState = tru
     _groupWatchGeneration: new Map(),
     _groupMissing: new Map(),
     log: () => {}, error: () => {}, _logEvent: () => {}, _scheduleSave: () => {}, _getTimezone: () => 'UTC',
+    _stamp: () => ({ timestamp: '2026-11-12T00:00:00.000Z', time: '2026-11-12 00:00:00' }),
     homey: { setTimeout: (fn, ms) => setTimeout(fn, ms) },
     groupCards: {
       mismatchDetected: { trigger: async (tokens, state) => { fired.mismatch.push({ tokens, state }); } },
@@ -211,4 +212,15 @@ test('restarting a group watch makes an older failing retry loop stop instead of
   timers[0](); // the old loop wakes up
   await new Promise((resolve) => setImmediate(resolve));
   assert.equal(app._groupLive.get(group.id), liveAfterRestart, 'the old retry loop must not replace the newer watch');
+});
+
+test('the group triggers carry exactly the tokens their cards declare', async () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const declared = (id) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', '.homeycompose', 'flow', 'triggers', `${id}.json`), 'utf8')).tokens.map((t) => t.name).sort();
+  const { app, group, fired } = await fakeApp({ initial: { a: true, b: true, c: true } });
+  await app._applyGroupResult(group, { mismatchCount: 1, matchCount: 2, checkedCount: 3, mismatchList: 'Dev a', message: 'm' });
+  await app._applyGroupResult(group, { mismatchCount: 0, matchCount: 3, checkedCount: 3, mismatchList: '', message: 'ok' });
+  assert.deepEqual(Object.keys(fired.mismatch[0].tokens).sort(), declared('group_mismatch_detected'));
+  assert.deepEqual(Object.keys(fired.matched[0].tokens).sort(), declared('group_matched_again'));
 });

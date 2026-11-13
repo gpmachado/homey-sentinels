@@ -1,20 +1,107 @@
 {
-  "title": { "en": "Voltage returned to normal" },
-  "titleFormatted": { "en": "Voltage returned to normal ([[monitor]])" },
+  "title": {
+    "en": "Voltage returned to normal"
+  },
+  "titleFormatted": {
+    "en": "Voltage returned to normal ([[monitor]])"
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor" }, "hint": { "en": "Which voltage monitor to watch." } }
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "required": true,
+      "title": {
+        "en": "Monitor"
+      },
+      "hint": {
+        "en": "Which voltage monitor to watch. Pick \"Any voltage monitor\" to run for all of them; the tokens say which one it was."
+      }
+    }
   ],
   "tokens": [
-    { "name": "device", "type": "string", "title": { "en": "Device" } },
-    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
-    { "name": "event_type", "type": "string", "title": { "en": "Previous event (UNDERVOLTAGE/OVERVOLTAGE)" } },
-    { "name": "duration", "type": "number", "title": { "en": "Duration (seconds)" } },
-    { "name": "duration_human", "type": "string", "title": { "en": "Duration" } },
-    { "name": "voltage", "type": "number", "title": { "en": "Voltage now (V)" } },
-    { "name": "min_voltage", "type": "number", "title": { "en": "Minimum voltage observed (V)" } },
-    { "name": "max_voltage", "type": "number", "title": { "en": "Maximum voltage observed (V)" } },
-    { "name": "average_voltage", "type": "number", "title": { "en": "Average voltage observed (V)" } },
-    { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
-    { "name": "message", "type": "string", "title": { "en": "Message" } }
+    {
+      "name": "device",
+      "type": "string",
+      "title": {
+        "en": "Device"
+      }
+    },
+    {
+      "name": "monitor",
+      "type": "string",
+      "title": {
+        "en": "Monitor"
+      }
+    },
+    {
+      "name": "event_type",
+      "type": "string",
+      "title": {
+        "en": "Previous event (UNDERVOLTAGE/OVERVOLTAGE)"
+      }
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "title": {
+        "en": "Duration (seconds)"
+      }
+    },
+    {
+      "name": "duration_human",
+      "type": "string",
+      "title": {
+        "en": "Duration"
+      }
+    },
+    {
+      "name": "voltage",
+      "type": "number",
+      "title": {
+        "en": "Voltage now (V)"
+      }
+    },
+    {
+      "name": "min_voltage",
+      "type": "number",
+      "title": {
+        "en": "Minimum voltage observed (V)"
+      }
+    },
+    {
+      "name": "max_voltage",
+      "type": "number",
+      "title": {
+        "en": "Maximum voltage observed (V)"
+      }
+    },
+    {
+      "name": "average_voltage",
+      "type": "number",
+      "title": {
+        "en": "Average voltage observed (V)"
+      }
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "title": {
+        "en": "Time (local)"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message"
+      }
+    }
   ]
 }

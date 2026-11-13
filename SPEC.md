@@ -55,10 +55,10 @@ Crossing above/below produces ACTIVE/STANDBY cycles with duration, energy, avera
 and current. Auxiliary capabilities (`measure_current`, `meter_power`, `measure_voltage`) are
 auto-detected on the device and tracked without separate configuration.
 
-- Cards: `reset_activity_monitor`, `update_activity_monitor`, `get_activity_statistics`, `get_usage_pattern`, `start_monitoring_device`/
+- Cards: `reset_monitor` (all three kinds), `update_activity_monitor`, `get_activity_statistics`, `get_usage_pattern`, `start_monitoring_device`/
   `stop_monitoring_device` (manual override for a device with no reliable numeric signal —
   creates the monitor on first run if it doesn't exist yet, and starts/stops it, in one card),
-  triggers `activity_started`/`activity_finished`, condition `is_active`.
+  triggers `activity_started`/`activity_finished`, condition `is_monitor_active` (Activity and State).
 - A monitor created with no threshold starts at `DEFAULT_ACTIVITY_THRESHOLD` and `calibrating: true`. Right after
   creation `_seedThresholdFromInsights` (lib/app/activity.js) reads the device's Homey Insights log for the power
   capability through `gateway.getInsightValues` (`homey:device:<id>`, the capability id, window `last24Hours`, then
@@ -100,12 +100,10 @@ purely cosmetic — both directions are tracked and reported side by side
 (`get_state_statistics`'s `true_duration`/`false_duration`), so there's nothing to get backwards
 in the first place.
 
-- Cards: `reset_state_monitor`,
+- Cards: `reset_monitor`,
   `get_state_statistics`, triggers `state_started`/`state_finished` (each carries a
-  `label` token — `trueLabel` on start, `falseLabel` on finish), condition `is_state_active`
-  (displayed as "is true"/"is not true", matching the family's true/false vocabulary and
-  disambiguating it from Activity Monitor's `is_active` condition in the Flow card picker —
-  the two used to render with identical text).
+  `label` token — `trueLabel` on start, `falseLabel` on finish), condition `is_monitor_active`.
+  "Cycle count reached", "Cycle unusually long" and "Running longer than" take State monitors too.
 - Message wording (Settings → Monitors → State → "Edit messages") works the same way as
   Activity Monitor's — a rendered `message` token per trigger, `count` (today's session count)
   available on `state_finished`.
@@ -125,10 +123,10 @@ Watches a `measure_voltage*` capability against a min/max range. A continuous ex
 outside the range is one **incident** (episode), not one row per sample — min/max/average
 voltage and duration are reported for the whole episode on return to normal.
 
-- Cards: `reset_voltage_monitor`,
+- Cards: `reset_monitor`,
   `update_voltage_monitor`, `get_voltage_statistics`, triggers
   `voltage_undervoltage_detected`/`voltage_overvoltage_detected`/`voltage_returned_to_normal`,
-  condition `is_voltage_normal`.
+  condition `voltage_is_state` (Normal covers the old "is within range").
 - `stabilization_minutes` suppresses events right after creation (a fresh reading needs a
   moment to settle before it's trusted).
 - Message wording (per event type) is edited in Settings, not passed as a card argument. A new monitor

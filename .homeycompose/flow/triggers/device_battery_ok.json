@@ -1,0 +1,68 @@
+{
+  "title": {
+    "en": "Watched device battery is OK again"
+  },
+  "titleFormatted": {
+    "en": "[[device]] battery is OK again"
+  },
+  "hint": {
+    "en": "Fires once when a watched device whose battery was reported low is above the warning level again, usually after a battery change."
+  },
+  "args": [
+    {
+      "name": "device",
+      "type": "autocomplete",
+      "required": true,
+      "title": {
+        "en": "Device"
+      },
+      "hint": {
+        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
+      }
+    }
+  ],
+  "tokens": [
+    {
+      "name": "device",
+      "type": "string",
+      "title": {
+        "en": "Device"
+      }
+    },
+    {
+      "name": "zone",
+      "type": "string",
+      "title": {
+        "en": "Zone"
+      }
+    },
+    {
+      "name": "battery",
+      "type": "number",
+      "title": {
+        "en": "Battery (%)"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp"
+      }
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "title": {
+        "en": "Time (local)"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message (in the Default message language)"
+      }
+    }
+  ]
+}

@@ -235,6 +235,9 @@
             "required": true,
             "title": {
               "en": "Monitor"
+            },
+            "hint": {
+              "en": "Activity and state monitors (a door left open far longer than usual). Pick \"Any monitor\" to run for all of them; the tokens say which one it was."
             }
           },
           {
@@ -293,6 +296,13 @@
             }
           },
           {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -319,6 +329,9 @@
             "required": true,
             "title": {
               "en": "Monitor"
+            },
+            "hint": {
+              "en": "Activity and state monitors (a window opened five times today). Pick \"Any monitor\" to run for all of them; the tokens say which one it was."
             }
           },
           {
@@ -360,6 +373,13 @@
             }
           },
           {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -385,7 +405,7 @@
               "en": "Monitor"
             },
             "hint": {
-              "en": "Which activity monitor to watch."
+              "en": "Which activity monitor to watch. Pick \"Any activity monitor\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -475,6 +495,13 @@
             }
           },
           {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -500,7 +527,7 @@
               "en": "Monitor"
             },
             "hint": {
-              "en": "Which activity monitor to watch."
+              "en": "Which activity monitor to watch. Pick \"Any activity monitor\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -569,7 +596,7 @@
               "en": "Device"
             },
             "hint": {
-              "en": "Which watched device to react to."
+              "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -596,6 +623,20 @@
             }
           },
           {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -604,6 +645,75 @@
           }
         ],
         "id": "device_battery_low"
+      },
+      {
+        "title": {
+          "en": "Watched device battery is OK again"
+        },
+        "titleFormatted": {
+          "en": "[[device]] battery is OK again"
+        },
+        "hint": {
+          "en": "Fires once when a watched device whose battery was reported low is above the warning level again, usually after a battery change."
+        },
+        "args": [
+          {
+            "name": "device",
+            "type": "autocomplete",
+            "required": true,
+            "title": {
+              "en": "Device"
+            },
+            "hint": {
+              "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
+            }
+          }
+        ],
+        "tokens": [
+          {
+            "name": "device",
+            "type": "string",
+            "title": {
+              "en": "Device"
+            }
+          },
+          {
+            "name": "zone",
+            "type": "string",
+            "title": {
+              "en": "Zone"
+            }
+          },
+          {
+            "name": "battery",
+            "type": "number",
+            "title": {
+              "en": "Battery (%)"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
+            "name": "message",
+            "type": "string",
+            "title": {
+              "en": "Message (in the Default message language)"
+            }
+          }
+        ],
+        "id": "device_battery_ok"
       },
       {
         "title": {
@@ -624,7 +734,7 @@
               "en": "Device"
             },
             "hint": {
-              "en": "Which watched device to react to."
+              "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -641,6 +751,27 @@
             "type": "string",
             "title": {
               "en": "Downtime"
+            }
+          },
+          {
+            "name": "zone",
+            "type": "string",
+            "title": {
+              "en": "Zone"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
             }
           },
           {
@@ -672,7 +803,7 @@
               "en": "Device"
             },
             "hint": {
-              "en": "Which watched device to react to."
+              "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -703,6 +834,20 @@
             "type": "string",
             "title": {
               "en": "Reason"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
             }
           },
           {
@@ -762,6 +907,20 @@
             }
           },
           {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -788,10 +947,48 @@
             "required": true,
             "title": {
               "en": "Group"
+            },
+            "hint": {
+              "en": "Pick \"Any group\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
         "tokens": [
+          {
+            "name": "group",
+            "type": "string",
+            "title": {
+              "en": "Group"
+            }
+          },
+          {
+            "name": "mismatch_duration",
+            "type": "number",
+            "title": {
+              "en": "Mismatched for (seconds)"
+            }
+          },
+          {
+            "name": "mismatch_duration_human",
+            "type": "string",
+            "title": {
+              "en": "Mismatched for"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
           {
             "name": "message",
             "type": "string",
@@ -819,6 +1016,9 @@
             "required": true,
             "title": {
               "en": "Group"
+            },
+            "hint": {
+              "en": "Pick \"Any group\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -842,6 +1042,34 @@
             "type": "string",
             "title": {
               "en": "Mismatched devices"
+            }
+          },
+          {
+            "name": "group",
+            "type": "string",
+            "title": {
+              "en": "Group"
+            }
+          },
+          {
+            "name": "checked_count",
+            "type": "number",
+            "title": {
+              "en": "Checked devices"
+            }
+          },
+          {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
             }
           },
           {
@@ -870,7 +1098,7 @@
               "en": "Monitor"
             },
             "hint": {
-              "en": "Which state monitor to watch."
+              "en": "Which state monitor to watch. Pick \"Any state monitor\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -999,7 +1227,7 @@
               "en": "Monitor"
             },
             "hint": {
-              "en": "Which state monitor to watch."
+              "en": "Which state monitor to watch. Pick \"Any state monitor\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -1075,7 +1303,7 @@
               "en": "Monitor"
             },
             "hint": {
-              "en": "Which activity monitor to watch."
+              "en": "Which activity monitor to watch. Pick \"Any activity monitor\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -1116,6 +1344,20 @@
             }
           },
           {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
+            "name": "time",
+            "type": "string",
+            "title": {
+              "en": "Time (local)"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -1141,7 +1383,7 @@
               "en": "Monitor"
             },
             "hint": {
-              "en": "Which voltage monitor to watch."
+              "en": "Which voltage monitor to watch. Pick \"Any voltage monitor\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -1207,7 +1449,7 @@
               "en": "Monitor"
             },
             "hint": {
-              "en": "Which voltage monitor to watch."
+              "en": "Which voltage monitor to watch. Pick \"Any voltage monitor\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -1283,6 +1525,13 @@
             }
           },
           {
+            "name": "timestamp",
+            "type": "string",
+            "title": {
+              "en": "Timestamp"
+            }
+          },
+          {
             "name": "message",
             "type": "string",
             "title": {
@@ -1308,7 +1557,7 @@
               "en": "Monitor"
             },
             "hint": {
-              "en": "Which voltage monitor to watch."
+              "en": "Which voltage monitor to watch. Pick \"Any voltage monitor\" to run for all of them; the tokens say which one it was."
             }
           }
         ],
@@ -1394,7 +1643,7 @@
       },
       {
         "title": {
-          "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes"
+          "en": "Running longer than"
         },
         "titleFormatted": {
           "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes"
@@ -1419,25 +1668,10 @@
             }
           }
         ],
+        "hint": {
+          "en": "Activity and state monitors: a pump running for more than 2 hours, a door open for more than 10 minutes."
+        },
         "id": "activity_running_longer_than"
-      },
-      {
-        "title": {
-          "en": "[[monitor]] !{{is active|is not active}}"
-        },
-        "titleFormatted": {
-          "en": "[[monitor]] !{{is active|is not active}}"
-        },
-        "args": [
-          {
-            "name": "monitor",
-            "type": "autocomplete",
-            "title": {
-              "en": "Monitor"
-            }
-          }
-        ],
-        "id": "is_active"
       },
       {
         "title": {
@@ -1483,10 +1717,13 @@
       },
       {
         "title": {
-          "en": "[[monitor]] !{{is true|is not true}}"
+          "en": "Monitor is active"
         },
         "titleFormatted": {
-          "en": "[[monitor]] !{{is true|is not true}}"
+          "en": "[[monitor]] !{{is active|is not active}}"
+        },
+        "hint": {
+          "en": "An Activity monitor is active while it runs; a State monitor while it is in its on/open state. For a Voltage monitor use \"Voltage is in state\"."
         },
         "args": [
           {
@@ -1497,25 +1734,40 @@
             }
           }
         ],
-        "id": "is_state_active"
+        "id": "is_monitor_active"
       },
       {
         "title": {
-          "en": "[[monitor]] !{{is within range|is out of range}}"
+          "en": "Has a reading in the last minutes"
         },
         "titleFormatted": {
-          "en": "[[monitor]] !{{is within range|is out of range}}"
+          "en": "[[monitor]] !{{has|has not}} had a reading in the last [[minutes]] minutes"
+        },
+        "hint": {
+          "en": "For any Activity, State or Voltage monitor: catches a device that still shows as available but stopped sending its value. Homey only sends a value when it changes, so pick a window longer than the quiet times of that device."
         },
         "args": [
           {
             "name": "monitor",
             "type": "autocomplete",
+            "required": true,
             "title": {
               "en": "Monitor"
             }
+          },
+          {
+            "name": "minutes",
+            "type": "number",
+            "title": {
+              "en": "Minutes"
+            },
+            "min": 1,
+            "placeholder": {
+              "en": "e.g. 60"
+            }
           }
         ],
-        "id": "is_voltage_normal"
+        "id": "monitor_has_recent_reading"
       },
       {
         "title": {
@@ -1767,6 +2019,9 @@
             }
           }
         ],
+        "hint": {
+          "en": "Its tokens are only available in an Advanced Flow."
+        },
         "id": "check_state_group"
       },
       {
@@ -1777,7 +2032,7 @@
           "en": "Export all Sentinels data as JSON"
         },
         "hint": {
-          "en": "Returns the entire store — every monitor's configuration, history and stats — as one JSON string token. Meant for a backup/inspection flow (e.g. an HTTP request or a file-writing app), not a plain notification — check the size token first if you're about to put it somewhere with a size limit."
+          "en": "Returns the entire store — every monitor's configuration, history and stats — as one JSON string token. Meant for a backup/inspection flow (e.g. an HTTP request or a file-writing app), not a plain notification — check the size token first if you're about to put it somewhere with a size limit. Its tokens are only available in an Advanced Flow."
         },
         "args": [],
         "tokens": [
@@ -1806,7 +2061,7 @@
           "en": "Generate text report for [[item]], period: [[period]]"
         },
         "hint": {
-          "en": "Builds one ready-to-use sentence summarizing an activity/state/voltage monitor's statistics for the period — for a push notification or chat message without concatenating a dozen tokens by hand."
+          "en": "Builds one ready-to-use sentence summarizing an activity/state/voltage monitor's statistics for the period — for a push notification or chat message without concatenating a dozen tokens by hand. Its tokens are only available in an Advanced Flow."
         },
         "args": [
           {
@@ -2074,6 +2329,9 @@
             }
           }
         ],
+        "hint": {
+          "en": "Its tokens are only available in an Advanced Flow."
+        },
         "id": "get_activity_statistics"
       },
       {
@@ -2084,7 +2342,7 @@
           "en": "Get daily digest"
         },
         "hint": {
-          "en": "Today in one message for a notification: the cycles and energy of your Activity monitors since midnight, the biggest user, the devices the last availability scan flagged (0 while that scan is off) and the state groups with a mismatch now. The sentence follows the Default message language in Settings; the numbers are there to build your own."
+          "en": "Today in one message for a notification: the cycles and energy of your Activity monitors since midnight, the biggest user, the devices the last availability scan flagged (0 while that scan is off) and the state groups with a mismatch now. The sentence follows the Default message language in Settings; the numbers are there to build your own. Its tokens are only available in an Advanced Flow."
         },
         "args": [],
         "tokens": [
@@ -2148,7 +2406,7 @@
           "en": "Get group statistics for [[group]], period: [[period]]"
         },
         "hint": {
-          "en": "A group has no continuous per-device history (see \"[Group] has a mismatch\"'s own limitation) — but the app polls every group every few minutes and keeps a light daily tally of how often and for how long it found a mismatch, which this reads."
+          "en": "A group has no continuous per-device history (see \"[Group] has a mismatch\"'s own limitation) — but the app polls every group every few minutes and keeps a light daily tally of how often and for how long it found a mismatch, which this reads. Its tokens are only available in an Advanced Flow."
         },
         "args": [
           {
@@ -2219,7 +2477,7 @@
           "en": "Get standby ranking, period: [[period]]"
         },
         "hint": {
-          "en": "Which monitors use the most energy while idle, over the period: the total, the biggest one and a top 5 as ready-to-use lines (name and kWh). Needs a device that reports kWh."
+          "en": "Which monitors use the most energy while idle, over the period: the total, the biggest one and a top 5 as ready-to-use lines (name and kWh). Needs a device that reports kWh. Its tokens are only available in an Advanced Flow."
         },
         "args": [
           {
@@ -2473,6 +2731,9 @@
             }
           }
         ],
+        "hint": {
+          "en": "Its tokens are only available in an Advanced Flow."
+        },
         "id": "get_state_statistics"
       },
       {
@@ -2483,7 +2744,7 @@
           "en": "Get usage pattern of [[monitor]], period: [[period]]"
         },
         "hint": {
-          "en": "When a monitor is used: the busiest weekday and hour of its cycles how much of its time on falls in the day (06:00 to 22:00), the energy over the period and the hour with the highest average power, worked out from the cycles it already keeps. Needs at least 5 cycles in the period. The weekday name and the sentence follow the Default message language in Settings."
+          "en": "When a monitor is used: the busiest weekday and hour of its cycles how much of its time on falls in the day (06:00 to 22:00), the energy over the period and the hour with the highest average power, worked out from the cycles it already keeps. Needs at least 5 cycles in the period. The weekday name and the sentence follow the Default message language in Settings. Its tokens are only available in an Advanced Flow."
         },
         "args": [
           {
@@ -2723,17 +2984,20 @@
             }
           }
         ],
+        "hint": {
+          "en": "Its tokens are only available in an Advanced Flow."
+        },
         "id": "get_voltage_statistics"
       },
       {
         "title": {
-          "en": "Reset activity monitor statistics"
+          "en": "Reset monitor statistics"
         },
         "titleFormatted": {
-          "en": "Reset activity monitor statistics for [[monitor]]"
+          "en": "Reset the statistics of [[monitor]]"
         },
         "hint": {
-          "en": "Wipes cycles, history and live state (e.g. after fixing a monitor that was recording wrong data) — keeps the monitor itself, its device, capability, threshold and settings. To remove the monitor entirely instead, use \"Remove activity monitor\"."
+          "en": "For any Activity, State or Voltage monitor: wipes its recorded history and live state (e.g. after fixing a monitor that recorded wrong data) and keeps the monitor itself, its device, capability and settings."
         },
         "args": [
           {
@@ -2744,49 +3008,7 @@
             }
           }
         ],
-        "id": "reset_activity_monitor"
-      },
-      {
-        "title": {
-          "en": "Reset state monitor statistics"
-        },
-        "titleFormatted": {
-          "en": "Reset state monitor statistics for [[monitor]]"
-        },
-        "hint": {
-          "en": "Wipes sessions, history and live state — keeps the monitor itself, its device, capability and settings. To remove the monitor entirely instead, use \"Remove state monitor\"."
-        },
-        "args": [
-          {
-            "name": "monitor",
-            "type": "autocomplete",
-            "title": {
-              "en": "Monitor"
-            }
-          }
-        ],
-        "id": "reset_state_monitor"
-      },
-      {
-        "title": {
-          "en": "Reset voltage monitor statistics"
-        },
-        "titleFormatted": {
-          "en": "Reset voltage monitor statistics for [[monitor]]"
-        },
-        "hint": {
-          "en": "Wipes readings, events and live state (e.g. after fixing a monitor that was bound to the wrong capability) — keeps the monitor itself, its device, capability, voltage range and message wording. To remove the monitor entirely instead, use \"Remove voltage monitor\"."
-        },
-        "args": [
-          {
-            "name": "monitor",
-            "type": "autocomplete",
-            "title": {
-              "en": "Monitor"
-            }
-          }
-        ],
-        "id": "reset_voltage_monitor"
+        "id": "reset_monitor"
       },
       {
         "title": {
@@ -2796,7 +3018,7 @@
           "en": "Start monitoring device [[device]], name [[name]]"
         },
         "hint": {
-          "en": "For an on/off-only device (a pump, a device with no reliable standby signal) — creates the monitor on first run if it doesn't exist yet, then starts it, in one step. Meant to be driven by a native \"Power becomes greater than X\" trigger (or any other Flow logic) instead of this app's own threshold engine. The resulting monitor never decides active/standby on its own — only this card and \"Stop monitoring device\" do."
+          "en": "For an on/off-only device (a pump, a device with no reliable standby signal) — creates the monitor on first run if it doesn't exist yet, then starts it, in one step. Meant to be driven by a native \"Power becomes greater than X\" trigger (or any other Flow logic) instead of this app's own threshold engine. The resulting monitor never decides active/standby on its own — only this card and \"Stop monitoring device\" do. Its tokens are only available in an Advanced Flow."
         },
         "args": [
           {
@@ -2862,7 +3084,7 @@
           "en": "Stop monitoring device [[device]]"
         },
         "hint": {
-          "en": "Closes the cycle started by \"Start monitoring device\" for this device — fires \"Activity finished\" with duration, energy and the rest of the usual tokens. Fails if no monitor exists yet for this device; run \"Start monitoring device\" first."
+          "en": "Closes the cycle started by \"Start monitoring device\" for this device — fires \"Activity finished\" with duration, energy and the rest of the usual tokens. Fails if no monitor exists yet for this device; run \"Start monitoring device\" first. Its tokens are only available in an Advanced Flow."
         },
         "args": [
           {

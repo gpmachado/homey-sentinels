@@ -1,16 +1,82 @@
 {
-  "title": { "en": "Threshold calibrated" },
-  "titleFormatted": { "en": "Threshold calibrated ([[monitor]])" },
-  "hint": { "en": "Fires once, the first time a monitor created without a threshold finishes auto-calibrating from its own power history." },
+  "title": {
+    "en": "Threshold calibrated"
+  },
+  "titleFormatted": {
+    "en": "Threshold calibrated ([[monitor]])"
+  },
+  "hint": {
+    "en": "Fires once, the first time a monitor created without a threshold finishes auto-calibrating from its own power history."
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "required": true, "title": { "en": "Monitor" }, "hint": { "en": "Which activity monitor to watch." } }
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "required": true,
+      "title": {
+        "en": "Monitor"
+      },
+      "hint": {
+        "en": "Which activity monitor to watch. Pick \"Any activity monitor\" to run for all of them; the tokens say which one it was."
+      }
+    }
   ],
   "tokens": [
-    { "name": "device", "type": "string", "title": { "en": "Device" } },
-    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
-    { "name": "threshold", "type": "number", "title": { "en": "Threshold (W)" } },
-    { "name": "standby_power", "type": "number", "title": { "en": "Observed standby power (W)" } },
-    { "name": "active_power", "type": "number", "title": { "en": "Observed active power (W)" } },
-    { "name": "message", "type": "string", "title": { "en": "Message" } }
+    {
+      "name": "device",
+      "type": "string",
+      "title": {
+        "en": "Device"
+      }
+    },
+    {
+      "name": "monitor",
+      "type": "string",
+      "title": {
+        "en": "Monitor"
+      }
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "title": {
+        "en": "Threshold (W)"
+      }
+    },
+    {
+      "name": "standby_power",
+      "type": "number",
+      "title": {
+        "en": "Observed standby power (W)"
+      }
+    },
+    {
+      "name": "active_power",
+      "type": "number",
+      "title": {
+        "en": "Observed active power (W)"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp"
+      }
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "title": {
+        "en": "Time (local)"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message"
+      }
+    }
   ]
 }
