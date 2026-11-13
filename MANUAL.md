@@ -16,8 +16,7 @@ For every detail, see [HOWTO.md](HOWTO.md). For worked examples with real tokens
 [Out of the ordinary](#when-something-is-out-of-the-ordinary) ·
 [Messages and language](#messages-and-language) ·
 [Widgets](#widgets) ·
-[Problems](#problems-and-bug-reports) ·
-[Upgrading to 1.0.11](#upgrading-to-1011)
+[Problems](#problems-and-bug-reports)
 
 ## What it is
 
@@ -166,17 +165,6 @@ Widgets work on the Homey mobile app and dashboards, not in the web app.
 To report a problem: turn on **Detailed log** in Settings, repeat what went wrong, and post in the forum topic or
 open a [GitHub issue](https://github.com/gpmachado/homey-sentinels/issues) with the app version, what you did and
 what you expected.
-
-## Upgrading to 1.0.11
-
-**Some Flows need editing.** Six cards were merged or removed. A Flow that used one shows it as broken; replace it as
-below.
-
-| Old card | Use instead |
-|---|---|
-| [monitor] is active · [monitor] is true | Monitor is active |
-| Reset activity / state / voltage monitor statistics | Reset monitor statistics |
-| [monitor] is within range | [monitor] is in state › Normal |
 
 ---
 
