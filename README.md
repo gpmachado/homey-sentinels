@@ -2,6 +2,7 @@
 
 Sentinels watches devices you already own and turns their raw capability updates into activity history, cycle counts, energy totals, and plain-language notifications — without ever sending a command back to them. It's read-only by design: no dimming, no switching, no locking, just observation.
 
+- **[MANUAL.md](MANUAL.md)** — mini manual: start here. Which monitor to use, a first monitor in two minutes, Flows, alerts for the unusual.
 - **[HOWTO.md](HOWTO.md)** — usage guide: how to set up each monitor type via Flow cards.
 - **[TUTORIAL.md](TUTORIAL.md)** — worked examples with the tokens and messages you should get back, for a pump, a door, a voltage phase, a group and availability.
 - **[SPEC.md](SPEC.md)** — technical specification: architecture, data model, retention, design decisions.
