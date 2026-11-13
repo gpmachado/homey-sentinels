@@ -93,6 +93,7 @@
     "scanMany": "%count% apparaten hebben aandacht nodig: %names%",
     "scanManyMore": "%count% apparaten hebben aandacht nodig: %names% en %more% meer",
     "calibrated": "%monitor% gekalibreerd: drempel ~%threshold% W (stand-by ~%standby% W, actief ~%active% W).",
+    "stillRunning": "%monitor% is na %duration_human% nog actief (normaal %median_duration_human%).",
     "trendFrame": "Deze week t.o.v. vorige: actief %activity%, cycli %cycles%, energie %energy%.",
     "trendNotEnough": "te weinig gegevens",
     "trendNoBaseline": "geen vorige week om mee te vergelijken",

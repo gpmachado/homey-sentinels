@@ -27,7 +27,7 @@ var trace = await window.runTrace(); JSON.stringify(trace).length; window.__log.
 ```
 
 For a before/after comparison, serve the old copy (`git archive <commit> settings | tar -x`) on another port and
-compare `JSON.stringify(trace)` of the two: they should be identical. At the time it was written the trace had 51
+compare `JSON.stringify(trace)` of the two: they should be identical. At the last update the trace had 72
 steps and no alerts. The fixtures are small and made up; add to them when the page grows a new list or form.
 
 This does not replace trying the page on a Homey (it cannot show Homey's own button styles, for example).

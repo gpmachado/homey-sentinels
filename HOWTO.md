@@ -240,13 +240,13 @@ defaults — a switch that only reports when pressed is silent all day.
 
 **Watchdogs (opt-in, per device)** — for a device you care about more, with its own limit:
 
-1. In Settings → Availability, click **Add watchdog** next to a device (or use the **"Add
-   availability watchdog"** Flow card) and set how many hours it may go without reporting. Tick
+1. In Settings → Availability, click **Add watchdog** next to a device and set how many hours it may go without reporting. Tick
    *Ignore the "unavailable" status* for an appliance that goes unavailable on purpose (a washer that
    a cloud app marks offline when switched off): then only silence counts.
 2. It fires **"Device became unavailable"** (token `reason`: `unavailable` or `stale`) and, on
    recovery, **"Device became available"** (with a `downtime` token). **"Watched device battery is
-   low"** fires when its battery drops to the warning level.
+   low"** fires when its battery drops to the warning level, and **"Watched device battery is OK again"** when it
+   recovers.
 3. Condition **"[Device] is available"** checks the raw flag directly, no watchdog required — a quick
    guard, accurate only for well-behaved drivers.
 4. A watchdog whose device is no longer in Homey is flagged after a few checks, and Settings offers to
@@ -265,6 +265,24 @@ Every trigger that asks for a monitor, a group or a watched device starts its li
 state monitor**, **Any voltage monitor**, **Any group** or **Any watched device**. Pick it and one Flow reacts to all of
 them; the `monitor`, `group` or `device` token says which one it was. Every event trigger also carries `timestamp` (ISO,
 UTC, for scripts) and `time` (local, for a notification).
+
+## When something is out of the ordinary
+
+These cards compare what happens now with the monitor's own history (Activity and State monitors):
+
+- **Still running long** (trigger): fires *while the cycle is still running*, once it reaches N x the monitor's median
+  cycle. When a cycle starts the app sets one timer per multiplier your Flows use, and when it goes off the card fires
+  only if that same cycle is still on, so no Flow has to check every few minutes. A Flow added or changed during a
+  cycle gets its timer at once. A due time already past when the app restarts is skipped, so an alert is never repeated.
+  Its `message` comes in the *Default message language*.
+- **Cycle unusually long** (trigger): the same comparison, when the cycle ends.
+- **Cycle count reached** (trigger): the Nth cycle of the day (a door opened 20 times).
+- **usually does not start in this hour** (condition): under *Activity started*, true for an unusual hour (20 cycles needed).
+- **has not been active for at least N hours** (condition): a pump or freezer that should have run by now.
+- **Has a reading in the last minutes** (condition, every kind of monitor): false when the device stopped sending values
+  although Homey still calls it available. Use it in a Flow that runs on a timer.
+
+The median needs 5 finished cycles; until then the cards that compare with it stay quiet.
 
 ## The Settings page
 

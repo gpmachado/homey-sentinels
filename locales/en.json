@@ -93,6 +93,7 @@
     "scanMany": "%count% devices need attention: %names%",
     "scanManyMore": "%count% devices need attention: %names% and %more% more",
     "calibrated": "%monitor% calibrated: threshold set to ~%threshold% W (standby ~%standby% W, active ~%active% W).",
+    "stillRunning": "%monitor% is still active after %duration_human% (usually %median_duration_human%).",
     "trendFrame": "This week vs. previous: activity %activity%, cycles %cycles%, energy %energy%.",
     "trendNotEnough": "not enough data",
     "trendNoBaseline": "no prior baseline",

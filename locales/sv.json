@@ -93,6 +93,7 @@
     "scanMany": "%count% enheter behöver uppmärksamhet: %names%",
     "scanManyMore": "%count% enheter behöver uppmärksamhet: %names% och %more% till",
     "calibrated": "%monitor% kalibrerad: tröskel ~%threshold% W (standby ~%standby% W, aktiv ~%active% W).",
+    "stillRunning": "%monitor% är fortfarande aktiv efter %duration_human% (brukar vara %median_duration_human%).",
     "trendFrame": "Den här veckan mot förra: aktivitet %activity%, cykler %cycles%, energi %energy%.",
     "trendNotEnough": "för lite data",
     "trendNoBaseline": "ingen tidigare vecka att jämföra med",

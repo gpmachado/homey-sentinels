@@ -181,10 +181,11 @@ Each has `api.js`, `widget.compose.json`, `public/index.html`, and light and dar
 
 Structural guards:
 - `app-structure.test.js`: every `this.x()` and `homey.app.x()` exists, no method is defined twice, and routes reaching `this.gateway` use `inAppContext`.
+- `flow-triggers.test.js`: every filtered trigger accepts "Any ...", every event trigger declares `timestamp`/`time`, the still-running timers, and the merged cards in the manifest.
 - `wording.test.js`: all languages have all sentences, and no character is above U+00FF.
 - `settings-page.test.js`: replays `settings-harness/trace.js` in jsdom against hashed snapshots.
 
-No direct test: `lib/app/flow-cards.js`, `state.js`, `voltage.js`, `availability-watchdogs.js`, the widgets, and real device I/O. Check those with `homey app run -r`.
+No direct test: `voltage.js`, `availability-watchdogs.js`, the widgets, and real device I/O. Check those with `homey app run -r`.
 
 ## Data Flow
 
@@ -258,7 +259,6 @@ Retention: granular periods 7 days, daily summaries 90 days, cycles 365 days, vo
 
 **Known issues**
 - Numeric Settings fields are free text, but `store.updateMonitorSettings` rejects a decimal comma such as `12,5`.
-- The comment in `flow-cards.js` saying a blank monitor argument means all is stale: every filtered trigger declares that argument as required.
 
 **Docs known to be stale**
 - SPEC says `cycles[]` is never pruned; the code keeps 365 days. SPEC also still mentions the memory guard and omits `activeValues`.

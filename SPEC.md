@@ -415,7 +415,7 @@ pattern nobody else uses.
 `npm test` runs `node:test` over everything in `test/` (over 300 tests): the engines, the store and its
 migrations, SQLite history and the compact row format, statistics, groups (including the live path with a
 fake gateway that emits capability events), the availability logic and scan, widget summaries, message
-templates, time helpers, the memory guard, the API routes with a fake `homey.app`, and the wiring check in
+templates, time helpers, the API routes with a fake `homey.app`, and the wiring check in
 `test/app-structure.test.js`. `homey app validate --level publish` checks that the compose sources build into
 a valid `app.json`; CI (`.github/workflows/ci.yml`) runs both on Node 22 for every push.
 

@@ -11,7 +11,7 @@ const availabilityWatchdogs = require('../lib/app/availability-watchdogs');
 
 function fakeApp() {
   const cards = {};
-  const card = (id) => (cards[id] ||= { id, run: null, autocomplete: {}, registerRunListener(fn) { this.run = fn; return this; }, registerArgumentAutocompleteListener(arg, fn) { this.autocomplete[arg] = fn; return this; }, trigger: async () => {} });
+  const card = (id) => (cards[id] ||= { id, run: null, autocomplete: {}, registerRunListener(fn) { this.run = fn; return this; }, registerArgumentAutocompleteListener(arg, fn) { this.autocomplete[arg] = fn; return this; }, on(event, fn) { this.handlers = { ...this.handlers, [event]: fn }; return this; }, trigger: async () => {} });
   const app = Object.assign({}, flowCards, groups, availabilityWatchdogs, {
     homey: { flow: { getTriggerCard: card, getConditionCard: card, getActionCard: card } },
     store: { data: { monitors: { m1: { id: 'm1', name: 'Bomba' } }, stateMonitors: { s1: { id: 's1', name: 'Porta' } }, voltageMonitors: { v1: { id: 'v1', name: 'Fase A' } }, groups: { g1: { id: 'g1', name: 'Portas', devices: [] } }, availabilityWatchdogs: { d1: { deviceId: 'd1', name: 'Sensor' } } } },
@@ -33,7 +33,14 @@ const filtered = [
   ['stateCards.started', 'monitor', 's1', 'monitorId', 'Any state monitor'],
   ['voltageCards.normalized', 'monitor', 'v1', 'monitorId', 'Any voltage monitor'],
   ['groupCards.mismatchDetected', 'group', 'g1', 'groupId', 'Any group'],
-  ['availabilityCards.batteryLow', 'device', 'd1', 'deviceId', 'Any watched device']
+  ['availabilityCards.batteryLow', 'device', 'd1', 'deviceId', 'Any watched device'],
+  ['stateCards.finished', 'monitor', 's1', 'monitorId', 'Any state monitor'],
+  ['voltageCards.undervoltage', 'monitor', 'v1', 'monitorId', 'Any voltage monitor'],
+  ['voltageCards.overvoltage', 'monitor', 'v1', 'monitorId', 'Any voltage monitor'],
+  ['groupCards.matchedAgain', 'group', 'g1', 'groupId', 'Any group'],
+  ['availabilityCards.unavailable', 'device', 'd1', 'deviceId', 'Any watched device'],
+  ['availabilityCards.available', 'device', 'd1', 'deviceId', 'Any watched device'],
+  ['availabilityCards.batteryOk', 'device', 'd1', 'deviceId', 'Any watched device']
 ];
 
 test('every filtered trigger offers "Any ..." first, which runs for every one, while a picked one runs only for itself', async () => {
@@ -54,6 +61,9 @@ test('every filtered trigger offers "Any ..." first, which runs for every one, w
   const anyMonitor = (await cycles.autocomplete.monitor(''))[0];
   assert.equal(await cycles.run({ monitor: anyMonitor, cycles: 3 }, { monitorId: 'x', cycleCount: 3 }), true);
   assert.equal(await cycles.run({ monitor: anyMonitor, cycles: 3 }, { monitorId: 'x', cycleCount: 2 }), false);
+  const long = cards['cards.unusuallyLong'];
+  assert.equal(await long.run({ monitor: anyMonitor, multiplier: 2 }, { monitorId: 'x', ratio: 2.5 }), true);
+  assert.equal(await long.run({ monitor: anyMonitor, multiplier: 2 }, { monitorId: 'x', ratio: 1.5 }), false);
 });
 
 test('a search that does not match "Any" leaves it out', async () => {
@@ -188,7 +198,8 @@ test('"still running" sets one timer per multiplier at start + N x the usual cyc
     store: { data: { monitors: { m1: pump }, stateMonitors: {} } },
     cards: { stillRunning: { getArgumentValues: async () => flows, trigger: async (tokens, state) => { fired.push([tokens, state]); } } },
     homey: { setTimeout: (fn, ms) => timers.push({ fn, ms }) },
-    _statistics: () => ({ median_duration: 3000 }), _getTimezone: () => 'UTC', _debug() {}, log() {}, error() {}
+    _statistics: () => ({ median_duration: 3000 }), _getTimezone: () => 'UTC', _debug() {}, log() {}, error() {}, _logEvent() {},
+    _defaultWording: () => require('../lib/wording').wordingFor('pt')
   });
   await app._scheduleOverrunChecks(pump);
   await app._scheduleOverrunChecks(pump); // watched again: no duplicate timers
@@ -200,6 +211,7 @@ test('"still running" sets one timer per multiplier at start + N x the usual cyc
   assert.equal(fired.length, 1);
   assert.equal(fired[0][1].monitorId, 'm1');
   assert.equal(fired[0][0].median_duration_human, '50 min');
+  assert.match(fired[0][0].message, /^Bomba continua ativo há \d+ min \(o normal é 50 min\)\.$/);
 
   pump.state = 'STANDBY'; // the cycle ended before the second timer
   timers[1].fn(); await new Promise((resolve) => setImmediate(resolve));
@@ -212,4 +224,29 @@ test('"still running" runs only the Flows whose multiplier matches the timer tha
   const any = (await card.autocomplete.monitor(''))[0];
   assert.equal(await card.run({ monitor: any, multiplier: 2 }, { monitorId: 'm1', multiplier: 2 }), true);
   assert.equal(await card.run({ monitor: any, multiplier: 3 }, { monitorId: 'm1', multiplier: 2 }), false);
+});
+
+test('a Flow using "still running" that changes sets the timers for the cycles already running', async () => {
+  const cards = fakeApp();
+  const seen = [];
+  cards.app._scheduleOverrunChecks = async (monitor) => { seen.push(monitor.id); };
+  cards['cards.stillRunning'].handlers.update();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(seen.sort(), ['m1', 's1']);
+});
+
+test('a state monitor whose device reports power keeps its real peak power in the usage pattern', async () => {
+  const cards = fakeApp();
+  cards.app.store.data.stateMonitors.s1.auxiliaryCapabilities = ['measure_power'];
+  cards.app.getUsagePattern = (monitor) => ({ id: monitor.id, enough: true, cycleCount: 10, peakPowerHour: 20, peakPowerHourLabel: '20:00-21:00', peakPower: 1800, totalEnergy: 3 });
+  const result = await cards.get_usage_pattern.run({ monitor: { id: 's1' }, period: 'month' });
+  assert.equal(result.peak_power, 1800);
+  assert.equal(result.peak_power_hour, 20);
+});
+
+test('the merged cards replace the old per-kind ones in the manifest', () => {
+  const manifest = require('../app.json');
+  const ids = [...manifest.flow.triggers, ...manifest.flow.conditions, ...manifest.flow.actions].map((card) => card.id);
+  for (const gone of ['is_active', 'is_state_active', 'is_voltage_normal', 'reset_activity_monitor', 'reset_state_monitor', 'reset_voltage_monitor']) assert.ok(!ids.includes(gone), gone);
+  for (const kept of ['is_monitor_active', 'reset_monitor', 'activity_still_running_long', 'device_battery_ok', 'monitor_has_recent_reading']) assert.ok(ids.includes(kept), kept);
 });

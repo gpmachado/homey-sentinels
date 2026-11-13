@@ -134,6 +134,9 @@ test('stateStatistics renames duration fields and only includes power fields whe
   const poweredStats = stateStatistics(powered, 'all', TZ, 2000);
   assert.equal(poweredStats.energy, 0.2);
   assert.equal(poweredStats.average_power, 50);
+  // A voltage reading alone is not power: no power fields.
+  const voltageOnly = Object.assign({}, powered, { auxiliaryCapabilities: ['measure_voltage'] });
+  assert.equal('energy' in stateStatistics(voltageOnly, 'all', TZ, 2000), false);
 });
 
 test('voltageStatistics computes sample-weighted average and true min/max across bucketed periods', () => {

@@ -93,6 +93,7 @@
     "scanMany": "%count% dispositivos precisam de atenção: %names%",
     "scanManyMore": "%count% dispositivos precisam de atenção: %names% e mais %more%",
     "calibrated": "%monitor% calibrou: limiar em ~%threshold% W (espera ~%standby% W, ligado ~%active% W).",
+    "stillRunning": "%monitor% continua ativo há %duration_human% (o normal é %median_duration_human%).",
     "trendFrame": "Esta semana contra a anterior: tempo ligado %activity%, ciclos %cycles%, energia %energy%.",
     "trendNotEnough": "dados insuficientes",
     "trendNoBaseline": "sem semana anterior para comparar",

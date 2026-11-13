@@ -11,7 +11,7 @@ Sentinels watches devices you already own and turns their raw capability updates
 
 ## Permission
 
-Sentinels declares `homey:manager:api`, which Homey shows as a warning because it gives access to the whole Homey Web API. It is needed because an app can read devices that belong to other apps only through it, and it is used for reading alone: `devices.getDevices` / `getDevice`, `zones.getZones`, `insights.getLogEntries`, `system.getInfo` / `getMemoryInfo`, `apps.getAppUsage` and capability listeners. Nothing in the code sets a capability or creates, changes or deletes anything in your Homey; the source is here to check.
+Sentinels declares `homey:manager:api`, which Homey shows as a warning because it gives access to the whole Homey Web API. It is needed because an app can read devices that belong to other apps only through it, and it is used for reading alone: `devices.getDevices` / `getDevice`, `zones.getZones`, `insights.getLogEntries`, `system.getInfo` and capability listeners. Nothing in the code sets a capability or creates, changes or deletes anything in your Homey; the source is here to check.
 
 ## What it watches
 

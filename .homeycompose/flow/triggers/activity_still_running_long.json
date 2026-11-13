@@ -6,7 +6,7 @@
     "en": "[[monitor]] is still running after [[multiplier]]x its usual duration"
   },
   "hint": {
-    "en": "Fires while the cycle is still running, once it reaches the given multiple of this monitor's usual (median) cycle: a pump that usually runs 50 min, with 2, is reported at 1 h 40 min. No Flow needs to check every few minutes. Needs a handful of completed cycles first to know the usual duration."
+    "en": "Fires while the cycle is still running, once it reaches the given multiple of this monitor's usual (median) cycle: a pump that usually runs 50 min, with 2, is reported at 1 h 40 min. No Flow needs to check every few minutes. Needs a handful of completed cycles first to know the usual duration. The message token comes in the Default message language."
   },
   "args": [
     {
@@ -41,6 +41,7 @@
     { "name": "median_duration", "type": "number", "title": { "en": "Usual (median) duration (seconds)" } },
     { "name": "median_duration_human", "type": "string", "title": { "en": "Usual (median) duration" } },
     { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
-    { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } }
+    { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } },
+    { "name": "message", "type": "string", "title": { "en": "Message" } }
   ]
 }
