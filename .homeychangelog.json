@@ -34,5 +34,8 @@
   },
   "1.0.11": {
     "en": "Flow cards: every trigger that picks a monitor, group or device now offers \"Any ...\" first, so one Flow can cover all of them, and every trigger has Time and Timestamp tokens. Group triggers add the group name and how many devices were checked, and \"matched again\" says how long the group was off.\nNew cards: Still running long (alerts while a cycle is still running, at N x its usual duration, with no Flow checking every few minutes), Watched device battery is OK again, Has a reading in the last minutes, Monitor is active and Reset monitor statistics. Cycle count reached, Cycle unusually long and Running longer than now work with State monitors too.\nFixes: \"All\" statistics cover the whole history, Not run for N hours works beyond 7 days, voltage statistics no longer return empty tokens, going straight from under to overvoltage records both, manual monitors no longer show Calibrating, and group messages no longer leave a space before the full stop.\nHistory storage is more robust: a database problem no longer loses or rewrites history.\nSettings: a Detailed log switch, a menu for less used row actions, device search in the Add forms, better dark mode contrast, and messages, lists and dates follow the Default message language."
+  },
+  "1.0.12": {
+    "en": "\"Still running long\" now has a ready message in your Default message language, also shown in the Timeline. State monitors whose device also reports power keep their real peak power in Get usage pattern, and State statistics show power and energy only when the device reports them."
   }
 }
