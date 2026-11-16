@@ -57,7 +57,7 @@ Widget settings (title, picked items, filters) can be changed after the widget i
 See [CONTRIBUTING.md](CONTRIBUTING.md). The short version:
 
 ```bash
-npm test               # unit tests (node:test); CI runs them on Node 22 with `homey app validate`
+npm test               # unit tests (node:test); CI runs them on Node 22 and 24 with `homey app validate`
 homey app validate     # builds .homeycompose/ into a valid app.json
 homey app run -r       # installs and runs the app on a Homey Pro, streaming its log
 npm run hooks          # once per clone: refresh build-info.json after each commit

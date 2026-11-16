@@ -7,13 +7,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # 22 is what Homey runs apps on today (with node:sqlite for the history); 24 is what the Homey's own
+        # system runs, so a move of the apps to 24 shows up here first.
+        node: [22, 24]
     steps:
       - uses: actions/checkout@v4
-      # Node 22 is what Homey runs apps on (and where node:sqlite, used for the history, is available).
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - run: npm install --no-audit --no-fund
+          node-version: ${{ matrix.node }}
+      - run: npm ci --no-audit --no-fund
       - run: npm run lint
       - run: npm test
 

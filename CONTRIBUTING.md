@@ -30,7 +30,9 @@ npm run hooks          # once per clone: refreshes build-info.json after every c
   `build-info.json`, which `npm run stamp` writes (the post-commit hook does it for you). If the log names an
   old commit, you are looking at an old build.
 - Homey apps run on **Node 22** with the built-in `node:sqlite` (that is what stores the history). The
-  `ExperimentalWarning` about SQLite in the log is expected.
+  `ExperimentalWarning` about SQLite in the log is expected. Homey's System information shows Node 24: that is the
+  Homey's own system, not the app runtime. The first line of the app's log says what the app runs on
+  (`[node v22.23.5, sqlite 3.54.1]`).
 
 ## How the code is laid out
 
@@ -102,7 +104,7 @@ and mention it in HOWTO. A card that returns tokens only shows in Advanced Flow 
 
 ## Tests
 
-`npm test` and `npm run lint` must pass, and CI runs them (Node 22) together with `homey app validate` on every push. New logic goes
+`npm test` and `npm run lint` must pass, and CI runs them (Node 22 and 24) together with `homey app validate` on every push. New logic goes
 into a pure function in `lib/` with a test; the mixins are tested with the real code and a fake gateway
 (`test/groups-live.test.js` shows the pattern). The widgets and real device I/O are **not**
 covered by tests; check those by hand with `homey app run -r` and say what you checked in the pull request.

@@ -390,13 +390,17 @@ cycle" anomaly is done; a statistics library, standard deviation / z-score on fe
   `.homeychangelog.json` free of double quotes and apostrophes: the CLI's own commit breaks on them (the 1.0.7
   text had some, removed 2026-10-02).
 - The post-commit hook (build stamp) is reinstalled on a fresh clone with `npm run hooks`; GitHub Actions CI
-  (`.github/workflows/ci.yml`: tests on Node 22 + `homey app validate`) runs on every push once pushed.
+  (`.github/workflows/ci.yml`: tests on Node 22 and 24 + `homey app validate`) runs on every push once pushed.
 - Ask the Athom forum whether apps will move to Node 24 (no way to select the Node version from the app; v22.23 now).
 - (Done, removed from the list: the throwaway `memprobe` app is gone; monitors of a deleted device are now flagged
   `deviceMissing` and stop retrying, see the 2026-09-27 round.)
 
 ### Decided against
 - Electricity cost in Sentinels, in any form (2026-10-21): see "Energy cost removed" above.
+- Calculated or estimated energy (power x time) for a device without `meter_power` (2026-11-16): if it cannot be
+  measured, the app does not guess. Energy stays measured only.
+- Translating the interface (Flow cards, Settings, widgets) (2026-11-16): it stays English; only the messages and
+  text tokens the app writes are localized.
 - Watchdog opt-out by default was replaced by the scan with sane defaults; a device-class adaptive threshold
   (median of report intervals) was judged fragile for sensors that only report on change.
 - Statistics library (nothing beyond mean / median / percentile is needed), per-device matrix in Groups,

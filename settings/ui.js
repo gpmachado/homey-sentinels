@@ -25,7 +25,7 @@ function formatDuration(seconds) {
   if (safeSeconds < 60) return safeSeconds + 's';
   var minutes = Math.round(safeSeconds / 60);
   if (minutes < 60) return minutes + ' min';
-  return Math.floor(minutes / 60) + 'h ' + (minutes % 60) + 'min';
+  return Math.floor(minutes / 60) + ' h ' + (minutes % 60) + ' min';
 }
 
 // "YYYY-MM-DD HH:mm:ss" of a moment, in the browser's own local time — a stand-in for the real %time% token

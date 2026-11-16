@@ -2,6 +2,9 @@
   "name": "com.gpm.sentinels",
   "main": "app.js",
   "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "test": "node --test \"test/**/*.test.js\"",
     "stamp": "node scripts/write-build-info.js",

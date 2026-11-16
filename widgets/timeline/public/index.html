@@ -60,6 +60,7 @@
       }
 
       async function load() {
+        if (document.hidden) return; // no polling while the widget is not on screen
         try {
           var events = await Homey.api('GET', '/events');
           hasLoadedOnce = true;
@@ -80,6 +81,7 @@
       }
 
       load().finally(function () { Homey.ready(); });
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
       setInterval(load, 30000);
     }
   </script>

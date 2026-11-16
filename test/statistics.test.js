@@ -108,14 +108,13 @@ test('periodStatistics: quartiles of cycle duration and energy come with the med
   assert.deepEqual([few.median_duration, few.p25_duration, few.p75_duration, few.p25_energy], [null, null, null, null]);
 });
 
-test('statistics("day") windows to local midnight and merges the weekly trend fields in', () => {
+test('statistics("day") windows to local midnight and leaves the weekly trend to the cards that ask for it', () => {
   const now = Date.parse('2026-01-15T18:00:00Z');
   const todayStart = Date.parse('2026-01-15T00:00:00Z');
   const monitor = activityMonitor({ cycles: [{ endedAt: todayStart + 3600000, duration: 60, energy: 0.5 }] });
   const stats = statistics(monitor, 'day', TZ, now);
   assert.equal(stats.cycle_count, 1);
-  assert.ok('trend_summary' in stats);
-  assert.ok('trend_cycle_count_percent' in stats);
+  assert.equal('trend_summary' in stats, false);
 });
 
 test('stateStatistics renames duration fields and only includes power fields when the monitor tracks auxiliary power', () => {

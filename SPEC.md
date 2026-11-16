@@ -417,7 +417,7 @@ migrations, SQLite history and the compact row format, statistics, groups (inclu
 fake gateway that emits capability events), the availability logic and scan, widget summaries, message
 templates, time helpers, the API routes with a fake `homey.app`, and the wiring check in
 `test/app-structure.test.js`. `homey app validate --level publish` checks that the compose sources build into
-a valid `app.json`; CI (`.github/workflows/ci.yml`) runs both on Node 22 for every push.
+a valid `app.json`; CI (`.github/workflows/ci.yml`) runs both on Node 22 and 24 for every push.
 
 The Settings page runs in jsdom against a stand-in Homey (`test/settings-page.test.js`, with the scripted session of
 `test/settings-harness/trace.js` and a snapshot of every step; the clock is frozen and dates are ISO so it is stable).

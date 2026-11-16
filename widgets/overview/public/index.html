@@ -107,6 +107,7 @@
       }
 
       async function load() {
+        if (document.hidden) return; // no polling while the widget is not on screen
         var settings = Homey.getSettings() || {};
         var text = settings.title ? String(settings.title) : '';
         $title.textContent = text;
@@ -144,6 +145,7 @@
 
       Homey.on('settings.set', load);
       load().finally(function () { Homey.ready(); });
+      document.addEventListener('visibilitychange', function () { if (!document.hidden) load(); });
       setInterval(load, 30000);
     }
   </script>
