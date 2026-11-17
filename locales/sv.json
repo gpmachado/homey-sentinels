@@ -120,5 +120,6 @@
     "device": "Valfri bevakad enhet",
     "group": "Valfri grupp",
     "description": "Gäller alla"
-  }
+  },
+  "settingsLanguage": "sv"
 }

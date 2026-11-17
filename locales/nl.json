@@ -120,5 +120,6 @@
     "device": "Elk bewaakt apparaat",
     "group": "Elke groep",
     "description": "Werkt voor allemaal"
-  }
+  },
+  "settingsLanguage": "nl"
 }

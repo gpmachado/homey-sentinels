@@ -1,10 +1,13 @@
-/* global setupMessages, setupMessageFormat, setupGroups, setupUsagePattern, setupDevicePicker, setupMonitorLists, setupMonitorForms, setupAvailability, setupLogOption, renderEmptyList */
+/* global t, setUiLanguage, translatePage, setupMessages, setupMessageFormat, setupGroups, setupUsagePattern, setupDevicePicker, setupMonitorLists, setupMonitorForms, setupAvailability, setupLogOption, renderEmptyList */
 
 // The entry point of the Settings page. Each part of the page is a setup function in its own file; `page` is what they
 // share: the calls below, the two values that change (the period shown, the device list) and whatever each part adds for
 // the others. Parts used while setting up must be set up first, so the order of the calls below matters.
 function onHomeyReady(Homey) {
   Homey.ready();
+  // The page's own text in the Homey language, before any part draws its lists (they translate their own text).
+  setUiLanguage(Homey);
+  translatePage(document.body);
 
   // What every failed call ends in: the error's own message, in Homey's alert.
   function showError(error) { Homey.alert(error.message || String(error)); }
@@ -91,7 +94,7 @@ function onHomeyReady(Homey) {
         devicePollTimer = setTimeout(function () { waitForDevices(attempt + 1); }, 1500);
       } else {
         page.deviceListLoading = false;
-        renderEmptyList(document.getElementById('availability-body'), 'The device list could not be loaded. Reload this page to try again.');
+        renderEmptyList(document.getElementById('availability-body'), t('The device list could not be loaded. Reload this page to try again.'));
       }
     }).catch(function (error) { page.deviceListLoading = false; Homey.alert(error.message || String(error)); });
   }

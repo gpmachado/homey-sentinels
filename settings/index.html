@@ -66,7 +66,7 @@
           </select>
         </label>
         <div class="entity-list" id="standby-body"></div>
-        <p class="hint">The energy each monitor used while idle, biggest first, with its share of the total Needs a device that reports kWh; monitors without it are not listed.</p>
+        <p class="hint">The energy each monitor used while idle, biggest first, with its share of the total. Needs a device that reports kWh; monitors without it are not listed.</p>
       </details>
 
       <div id="activity-add-form-wrapper" class="hidden modal-overlay">
@@ -135,7 +135,7 @@
       <div class="modal-box">
       <form id="activity-message-form">
         <h2>Message wording — <span id="activity-message-form-name"></span></h2>
-        <p class="hint">Written once here, used automatically by that monitor's trigger cards' <code>message</code> token — no need to build the sentence again in every Flow.</p>
+        <p class="hint">Written once here, used automatically by the message token of that monitor's trigger cards, so the sentence is not built again in every Flow.</p>
 
         <label>Message — activity started</label>
         <input type="text" id="activity-messageTemplateStarted" class="activity-token-target" placeholder="E.g., %monitor% turned on (%power% W).">
@@ -159,7 +159,7 @@
           <button type="button" class="activity-token-btn" data-token="%max_current%">%max_current%</button>
           <button type="button" class="activity-token-btn" data-token="%count%">%count%</button>
           <button type="button" class="activity-token-btn" data-token="%count:time|times%">%count:time|times%</button>
-          — <code>%power%</code> only applies to "started", <code>%duration_human%</code>/<code>%energy%</code>/<code>%average_power%</code>/<code>%count%</code> only to "finished".
+          <span>%power% only applies to "started"; %duration_human%, %energy%, %average_power% and %count% only to "finished".</span>
         </p>
 
         <div class="actions">
@@ -254,7 +254,7 @@
       <div class="modal-box">
       <form id="state-message-form">
         <h2>Message wording — <span id="state-message-form-name"></span></h2>
-        <p class="hint">Written once here, used automatically by that monitor's trigger cards' <code>message</code> token — no need to build the sentence again in every Flow.</p>
+        <p class="hint">Written once here, used automatically by the message token of that monitor's trigger cards, so the sentence is not built again in every Flow.</p>
 
         <label>Message — session started</label>
         <input type="text" id="state-messageTemplateStarted" class="state-token-target" placeholder="E.g., %monitor% is now %label%.">
@@ -271,7 +271,7 @@
           <button type="button" class="state-token-btn" data-token="%time%">%time%</button>
           <button type="button" class="state-token-btn" data-token="%count%">%count%</button>
           <button type="button" class="state-token-btn" data-token="%count:time|times%">%count:time|times%</button>
-          — <code>%duration_human%</code>/<code>%count%</code> only apply to "finished".
+          <span>%duration_human% and %count% only apply to "finished".</span>
         </p>
 
         <div class="actions">
@@ -359,7 +359,7 @@
       <div class="modal-box">
       <form id="voltage-message-form">
         <h2>Message wording — <span id="voltage-message-form-name"></span></h2>
-        <p class="hint">Written once here, used automatically by that monitor's trigger cards' <code>message</code> token — no need to build the sentence again in every Flow.</p>
+        <p class="hint">Written once here, used automatically by the message token of that monitor's trigger cards, so the sentence is not built again in every Flow.</p>
 
         <label>Message — undervoltage detected</label>
         <input type="text" id="messageTemplateUndervoltage" class="voltage-token-target" placeholder="E.g., %monitor% is in undervoltage — %voltage% V.">
@@ -384,7 +384,7 @@
           <button type="button" class="voltage-token-btn" data-token="%event_type%">%event_type%</button>
           <button type="button" class="voltage-token-btn" data-token="%time%">%time%</button>
         </p>
-        <p class="hint"><code>%power%</code>/<code>%energy%</code> are only meaningful if this device also reports power/energy on the same measurement (e.g. a combined energy meter) — otherwise they render empty.</p>
+        <p class="hint">%power% and %energy% only have a value if this device also reports power or energy (a combined energy meter, for example); otherwise they stay empty.</p>
 
         <div class="actions">
           <button type="submit" id="voltage-message-save-btn">Save</button>
@@ -405,7 +405,7 @@
     <label>Default message language
       <select id="message-language"></select>
     </label>
-    <p class="hint">The language of the ready-made wording: what a <strong>new</strong> monitor or group starts with, and what the <em>Fill default wording</em> buttons write. <em>Same as Homey</em> follows Homey's own language (English when the app has no wording for it); Portuguese can be chosen here even though Homey is not available in it. It never changes a message you already wrote, and every message stays free text you can edit.</p>
+    <p class="hint">The language of the ready-made wording: what a new monitor or group starts with, and what the Fill default wording buttons write. Same as Homey follows Homey's own language (English when the app has no wording for it); Portuguese can be chosen here even though Homey is not available in it. It never changes a message you already wrote, and every message stays free text you can edit.</p>
 
     <h2>Log</h2>
     <label class="checkbox-row">
@@ -547,7 +547,7 @@
       <label>Conjunction (for lists with 2+ items)
         <input type="text" id="conjunction" placeholder="and, e, y, und...">
       </label>
-      <p class="hint">E.g., "Kitchen <b>and</b> Living room". Leave blank to use the word of the Default message language.</p>
+      <p class="hint">E.g., "Kitchen and Living room". Leave blank to use the word of the Default message language.</p>
 
       <div class="actions">
         <button type="button" id="fill-wording-btn">Fill default wording for this type</button>
@@ -569,7 +569,7 @@
         <button type="button" class="token-btn" data-token="%count%">%count%</button>
         <button type="button" class="token-btn" data-token="%items%">%items%</button>
         <button type="button" class="token-btn" data-token="%count:mismatch|mismatches%">%count:mismatch|mismatches%</button>
-        — the last token automatically switches singular/plural when count is exactly 1.
+        <span>The last token switches between singular and plural: singular when the count is exactly 1.</span>
       </p>
 
       <div class="actions">
@@ -584,6 +584,8 @@
 </div>
 
 
+  <script src="i18n-strings.js"></script>
+  <script src="i18n.js"></script>
   <script src="ui.js"></script>
   <script src="messages.js"></script>
   <script src="groups.js"></script>

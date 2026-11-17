@@ -120,5 +120,6 @@
     "device": "Jedes überwachte Gerät",
     "group": "Jede Gruppe",
     "description": "Läuft für alle"
-  }
+  },
+  "settingsLanguage": "de"
 }

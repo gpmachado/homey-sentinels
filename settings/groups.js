@@ -1,6 +1,6 @@
 var CAPABILITY_BY_TYPE = { contact: 'alarm_contact', light: 'onoff', switch: 'onoff', valve: 'onoff', garage: 'garagedoor_closed' };
 
-/* global openModal, closeModal, escapeHtml, actionLink, entityActions, bindTokenInserter */
+/* global t, openModal, closeModal, escapeHtml, actionLink, entityActions, bindTokenInserter */
 
 // The Groups tab: the list, the form and its device checklist.
 function setupGroups(page) {
@@ -38,8 +38,8 @@ function setupGroups(page) {
     var capability = CAPABILITY_BY_TYPE[typeSelect.value];
     var compatible = page.allDevices.filter(function (d) { return d.capabilities.indexOf(capability) !== -1; });
     document.getElementById('device-hint').textContent = compatible.length
-      ? compatible.length + ' device(s) with capability ' + capability + '.'
-      : 'No device with capability ' + capability + ' was found.';
+      ? t('{n} device(s) with capability {capability}.', { n: compatible.length, capability: capability })
+      : t('No device with capability {capability} was found.', { capability: capability });
     devicesEl.innerHTML = '';
     compatible.forEach(function (device) {
       var wrapper = document.createElement('label');
@@ -88,7 +88,7 @@ function setupGroups(page) {
       var many = document.getElementById('messageTemplateMany');
       var apply = function () { zero.value = preset.zero; one.value = preset.one; many.value = preset.many; document.getElementById('conjunction').value = info.groupConjunction; refreshMessagePreviews(); };
       if (zero.value || one.value || many.value) {
-        confirmAction('This will overwrite the current message wording. Continue?', apply);
+        confirmAction(t('This will overwrite the current message wording. Continue?'), apply);
       } else {
         apply();
       }
@@ -98,11 +98,11 @@ function setupGroups(page) {
   function resetForm() {
     editingGroupId = null;
     form.reset();
-    groupPreviewZeroData.group = 'Downstairs lights';
-    groupPreviewOneData.group = 'Downstairs lights';
-    groupPreviewData.group = 'Downstairs lights';
+    groupPreviewZeroData.group = t('Downstairs lights');
+    groupPreviewOneData.group = t('Downstairs lights');
+    groupPreviewData.group = t('Downstairs lights');
     refreshMessagePreviews();
-    formTitle.textContent = 'New group';
+    formTitle.textContent = t('New group');
     cancelBtn.style.display = 'none';
     deleteBtn.style.display = 'none';
     closeModal(groupFormWrapper);
@@ -118,7 +118,7 @@ function setupGroups(page) {
     lastGroups = groups;
     groupsEl.innerHTML = '';
     if (!groups.length) {
-      groupsEl.innerHTML = '<p class="hint">No groups yet. Click "Add group" to check several doors, lights or switches at once.</p>';
+      groupsEl.innerHTML = '<p class="hint">' + t('No groups yet. Click "Add group" to check several doors, lights or switches at once.') + '</p>';
       return;
     }
     groups.forEach(function (group) {
@@ -131,11 +131,12 @@ function setupGroups(page) {
       var meta = document.createElement('div');
       meta.className = 'meta';
       var gone = missingMembers(group);
-      meta.textContent = (GROUP_TYPE_LABELS[group.type] || group.type) + ' · ' + group.devices.length + ' device(s) · expected: ' + (group.expectedState ? 'on/open' : 'off/closed')
-        + (gone.length ? ' · no longer in Homey: ' + gone.map(function (m) { return m.name; }).join(', ') : '');
+      meta.textContent = (GROUP_TYPE_LABELS[group.type] ? t(GROUP_TYPE_LABELS[group.type]) : group.type) + ' · ' + t('{n} device(s)', { n: group.devices.length }) + ' · '
+        + (group.expectedState ? t('expected: on/open') : t('expected: off/closed'))
+        + (gone.length ? ' · ' + t('no longer in Homey: {names}', { names: gone.map(function (m) { return m.name; }).join(', ') }) : '');
       var status = document.createElement('div');
       status.className = 'meta';
-      status.textContent = 'Status not checked yet';
+      status.textContent = t('Status not checked yet');
       // Whether the automatic 5-minute poll (not this on-demand check) currently thinks it already
       // reported a mismatch to Flow — the two can disagree if a mismatch resolved between two polls,
       // or the app restarted mid-mismatch, leaving group_mismatch_detected stuck and never firing
@@ -144,8 +145,8 @@ function setupGroups(page) {
       flowStatus.className = 'meta';
       function renderFlowStatus() {
         flowStatus.textContent = group.mismatchSince
-          ? 'Flow: mismatch reported since ' + new Date(group.mismatchSince).toLocaleString() + ' - will not fire again until it clears'
-          : 'Flow: not currently reporting a mismatch';
+          ? t('Flow: mismatch reported since {since} - will not fire again until it clears', { since: new Date(group.mismatchSince).toLocaleString() })
+          : t('Flow: not currently reporting a mismatch');
         resetBtn.style.display = group.mismatchSince ? '' : 'none';
       }
       info.appendChild(title);
@@ -153,29 +154,29 @@ function setupGroups(page) {
       info.appendChild(status);
       info.appendChild(flowStatus);
       var buttons = entityActions([]);
-      var checkBtn = actionLink('Check now', function () {
+      var checkBtn = actionLink(t('Check now'), function () {
         checkBtn.disabled = true;
         api('GET', '/groups/' + group.id + '/check').then(function (result) {
           checkBtn.disabled = false;
           status.innerHTML = (result.mismatchCount === 0
-            ? '<span class="badge-ok">' + result.matchCount + '/' + result.checkedCount + ' matching</span>'
-            : '<span class="badge-nok">' + result.mismatchCount + ' mismatch(es)</span> — ' + escapeHtml(result.mismatchList.split('\n').join(', ')));
+            ? '<span class="badge-ok">' + t('{matching}/{checked} matching', { matching: result.matchCount, checked: result.checkedCount }) + '</span>'
+            : '<span class="badge-nok">' + t('{n} mismatch(es)', { n: result.mismatchCount }) + '</span> — ' + escapeHtml(result.mismatchList.split('\n').join(', ')));
         }).catch(function (error) {
           checkBtn.disabled = false;
           Homey.alert(error.message || String(error));
         });
       });
-      var editBtn = actionLink('Edit', function () { startEdit(group); });
-      var cleanBtn = actionLink('Clean up', function () {
+      var editBtn = actionLink(t('Edit'), function () { startEdit(group); });
+      var cleanBtn = actionLink(t('Clean up'), function () {
         api('POST', '/groups/' + group.id + '/cleanup').then(function (result) {
           Homey.alert(result.removed.length
-            ? 'Removed from the group (no longer in Homey): ' + result.removed.join(', ') + '. ' + result.remaining + ' device(s) left.'
-            : 'Every device of this group is still in Homey.');
+            ? t('Removed from the group (no longer in Homey): {names}. {n} device(s) left.', { names: result.removed.join(', '), n: result.remaining })
+            : t('Every device of this group is still in Homey.'));
           return page.loadAll();
         }).catch(showError);
       });
-      var resetBtn = actionLink('Reset Flow status', function () {
-        confirmAction('Let "' + group.name + '" report a new mismatch to Flow again? Use this if it stopped firing even though a mismatch is really happening.', function () {
+      var resetBtn = actionLink(t('Reset Flow status'), function () {
+        confirmAction(t('Let "{name}" report a new mismatch to Flow again? Use this if it stopped firing even though a mismatch is really happening.', { name: group.name }), function () {
           api('POST', '/groups/' + group.id + '/clear-mismatch').then(function (updated) {
             group.mismatchSince = updated.mismatchSince;
             renderFlowStatus();
@@ -207,7 +208,7 @@ function setupGroups(page) {
     missingBox.classList.toggle('hidden', !missing.length);
     if (!missing.length) return;
     var title = document.createElement('div');
-    title.textContent = 'No longer in Homey (not in the list above). They are removed from the group when you save.';
+    title.textContent = t('No longer in Homey (not in the list above). They are removed from the group when you save.');
     missingBox.appendChild(title);
     missing.forEach(function (member) {
       var row = document.createElement('div');
@@ -215,7 +216,7 @@ function setupGroups(page) {
       var name = document.createElement('span');
       name.textContent = member.name;
       row.appendChild(name);
-      row.appendChild(actionLink('Remove now', function () {
+      row.appendChild(actionLink(t('Remove now'), function () {
         api('POST', '/groups/' + group.id + '/cleanup').then(function () { return page.loadAll(); }).then(function () {
           resetForm();
         }).catch(showError);
@@ -226,7 +227,7 @@ function setupGroups(page) {
 
   function startEdit(group) {
     editingGroupId = group.id;
-    formTitle.textContent = 'Editing: ' + group.name;
+    formTitle.textContent = t('Editing: {name}', { name: group.name });
     groupPreviewZeroData.group = group.name;
     groupPreviewOneData.group = group.name;
     groupPreviewData.group = group.name;
@@ -256,7 +257,7 @@ function setupGroups(page) {
 
   deleteBtn.addEventListener('click', function () {
     if (!editingGroupId) return;
-    Homey.confirm('Delete this group?', null, function (err, confirmed) {
+    Homey.confirm(t('Delete this group?'), null, function (err, confirmed) {
       if (err || !confirmed) return;
       api('DELETE', '/groups/' + editingGroupId).then(function () {
         resetForm();
@@ -269,7 +270,7 @@ function setupGroups(page) {
     event.preventDefault();
     var deviceIds = checkedDeviceIds();
     if (deviceIds.length < 2) {
-      Homey.alert('Select at least two devices.');
+      Homey.alert(t('Select at least two devices.'));
       return;
     }
     var payload = {

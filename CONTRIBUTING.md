@@ -19,7 +19,7 @@ You need Node.js 22 or newer, the Homey CLI (`npm i -g homey`) and a Homey Pro o
 ```bash
 npm install            # once
 npm test               # unit tests (node:test), no Homey needed
-npm run lint           # eslint (eslint.config.js); jsdom and linkedom are there for testing the Settings page
+npm run lint           # eslint (eslint.config.js); jsdom is there for testing the Settings page
 homey app validate     # builds .homeycompose/ into app.json and validates it
 homey app run -r       # installs and runs the app on your Homey, streaming its log (Ctrl+C uninstalls)
 npm run hooks          # once per clone: refreshes build-info.json after every commit (see below)
@@ -33,6 +33,15 @@ npm run hooks          # once per clone: refreshes build-info.json after every c
   `ExperimentalWarning` about SQLite in the log is expected. Homey's System information shows Node 24: that is the
   Homey's own system, not the app runtime. The first line of the app's log says what the app runs on
   (`[node v22.23.5, sqlite 3.54.1]`).
+
+## Languages
+
+The interface (Flow cards, widgets' names and settings, the Settings page) comes in Homey's languages: en, nl, de, fr, it,
+es, sv, no and da. Homey has no Portuguese; the messages the app writes have their own language setting, which offers it.
+- A Flow card or widget text needs all nine in its JSON (`test/manifest-i18n.test.js`).
+- A Settings text goes through `t('English text')` (values as `t('{n} cycles', { n })`); its translations live in
+  `settings/i18n-strings.js`, keyed by the English text (`test/settings-i18n.test.js`). The page's own HTML is plain English,
+  translated at start by `translatePage()`.
 
 ## How the code is laid out
 

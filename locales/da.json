@@ -120,5 +120,6 @@
     "device": "Enhver overvåget enhed",
     "group": "Enhver gruppe",
     "description": "Gælder for alle"
-  }
+  },
+  "settingsLanguage": "da"
 }

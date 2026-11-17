@@ -1,4 +1,4 @@
-/* global openModal, closeModal, escapeHtml, entityRow, actionLink, trackSwitch, entityActions, renderEmptyList, formatLastSeen, silenceLabel */
+/* global t, openModal, closeModal, escapeHtml, entityRow, actionLink, trackSwitch, entityActions, renderEmptyList, formatLastSeen, silenceLabel */
 
 // The Availability tab: the scan and its tiles, apps to skip, watchdog defaults and the device list.
 function setupAvailability(page) {
@@ -34,16 +34,16 @@ function setupAvailability(page) {
     if (!enabled || !lastScan.scan) {
       wrapper.classList.toggle('hidden', !enabled);
       document.getElementById('availability-scan-tiles').innerHTML = '';
-      document.getElementById('availability-scan-stamp').textContent = enabled ? 'The first scan runs a couple of minutes after the app starts. Press Scan now to run it.' : '';
+      document.getElementById('availability-scan-stamp').textContent = enabled ? t('The first scan runs a couple of minutes after the app starts. Press Scan now to run it.') : '';
       return;
     }
     var scan = lastScan.scan;
     scan.problems.forEach(function (p) { scanProblemById[p.id] = p; });
     var tiles = [
-      ['stale', scan.counts.stale, 'Not reporting', 'is-bad'],
-      ['unavailable', scan.counts.unavailable, 'Unavailable', 'is-bad'],
-      ['battery', scan.counts.lowBattery, 'Low battery', 'is-warn'],
-      ['ok', Math.max(0, scan.monitored - scan.problems.length), 'OK', '']
+      ['stale', scan.counts.stale, t('Not reporting'), 'is-bad'],
+      ['unavailable', scan.counts.unavailable, t('Unavailable'), 'is-bad'],
+      ['battery', scan.counts.lowBattery, t('Low battery'), 'is-warn'],
+      ['ok', Math.max(0, scan.monitored - scan.problems.length), t('OK'), '']
     ];
     var box = document.getElementById('availability-scan-tiles');
     box.innerHTML = '';
@@ -62,8 +62,10 @@ function setupAvailability(page) {
     var silentByApp = {};
     scan.problems.forEach(function (p) { if (p.reason === 'stale' && p.ownerUri) silentByApp[p.ownerUri] = (silentByApp[p.ownerUri] || 0) + 1; });
     var topApp = Object.keys(silentByApp).sort(function (a, b) { return silentByApp[b] - silentByApp[a]; })[0];
-    var appHint = topApp && silentByApp[topApp] >= 5 ? silentByApp[topApp] + ' of the silent devices belong to ' + shortApp(topApp) + '; if they only report when used, press Ignore app on one of them. ' : '';
-    document.getElementById('availability-scan-stamp').textContent = appHint + (ignoredApps.length ? 'Ignoring every device of: ' + ignoredApps.join(', ') + '. ' : '') + scan.monitored + ' devices without a watchdog checked, last scan ' + new Date(scan.at).toLocaleString() + (scan.problems.length ? '' : ', no problems found') + '. Silent for more than ' + availabilityDefaults.defaultThresholdHours + ' h counts as not reporting.';
+    var appHint = topApp && silentByApp[topApp] >= 5 ? t('{n} of the silent devices belong to {app}; if they only report when used, press Ignore app on one of them.', { n: silentByApp[topApp], app: shortApp(topApp) }) + ' ' : '';
+    var checked = t(scan.problems.length ? '{n} devices without a watchdog checked, last scan {at}.' : '{n} devices without a watchdog checked, last scan {at}, no problems found.', { n: scan.monitored, at: new Date(scan.at).toLocaleString() });
+    document.getElementById('availability-scan-stamp').textContent = appHint + (ignoredApps.length ? t('Ignoring every device of: {apps}.', { apps: ignoredApps.join(', ') }) + ' ' : '') + checked + ' '
+      + t('Silent for more than {hours} h counts as not reporting.', { hours: availabilityDefaults.defaultThresholdHours });
     wrapper.classList.remove('hidden');
   }
   document.getElementById('availability-scan-btn').addEventListener('click', function () {
@@ -105,7 +107,7 @@ function setupAvailability(page) {
       box.checked = !!excludedAppIds[app.uri];
       box.addEventListener('change', function () { setAppExclusion(app.uri, box.checked); });
       var text = document.createElement('span');
-      text.textContent = shortApp(app.uri) + ' - ' + app.devices + ' device' + (app.devices === 1 ? '' : 's') + (app.flagged ? ', ' + app.flagged + ' flagged' : '');
+      text.textContent = shortApp(app.uri) + ' - ' + t(app.devices === 1 ? '{n} device' : '{n} devices', { n: app.devices }) + (app.flagged ? ', ' + t('{n} flagged', { n: app.flagged }) : '');
       label.appendChild(box);
       label.appendChild(text);
       // Its own silence limit, for an app whose devices are quiet for long stretches (solar panels at night).
@@ -113,7 +115,7 @@ function setupAvailability(page) {
       hours.type = 'number';
       hours.min = '1';
       hours.className = 'app-hours';
-      hours.title = 'Hours of silence before this app\'s devices count as not reporting (empty = the default)';
+      hours.title = t('Hours of silence before this app\'s devices count as not reporting (empty = the default)');
       hours.placeholder = String(availabilityDefaults.defaultThresholdHours);
       hours.value = appHours[app.uri] || '';
       hours.disabled = box.checked;
@@ -197,7 +199,7 @@ function setupAvailability(page) {
     }).catch(showError);
   });
   document.getElementById('availability-cleanup-btn').addEventListener('click', function () {
-    confirmAction('Remove every watchdog whose device is no longer in Homey?', function () {
+    confirmAction(t('Remove every watchdog whose device is no longer in Homey?'), function () {
       api('POST', '/availability-watchdogs-cleanup').then(page.loadAll).catch(showError);
     });
   });
@@ -271,39 +273,39 @@ function setupAvailability(page) {
     var silentLimitHours = watchdog ? watchdog.thresholdHours : (appLimit || availabilityDefaults.defaultThresholdHours);
     var silent = device.available && silentMs > silentLimitHours * 3600000;
     var statusBadge = !device.available
-      ? '<span class="badge badge-danger">Unavailable</span>'
-      : (silent ? '<span class="badge ' + (watchdog && watchdog.wentUnavailableAt ? 'badge-danger' : 'badge-warn') + '">Silent ' + silenceLabel(silentMs) + '</span>' : '<span class="badge badge-active">Available</span>');
+      ? '<span class="badge badge-danger">' + t('Unavailable') + '</span>'
+      : (silent ? '<span class="badge ' + (watchdog && watchdog.wentUnavailableAt ? 'badge-danger' : 'badge-warn') + '">' + t('Silent {time}', { time: silenceLabel(silentMs) }) + '</span>' : '<span class="badge badge-active">' + t('Available') + '</span>');
     var nameHtml = escapeHtml(device.name) + ' ' + statusBadge
-      + (watchdog ? ' <span class="badge">Watchdog ' + watchdog.thresholdHours + 'h' + (watchdog.ignoreUnavailable ? ', silence only' : '') + '</span>' : '')
-      + (watchdog && watchdog.lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(watchdog.battery) + '%</span>' : '')
-      + (watchdog && Number.isFinite(watchdog.battery) && !watchdog.lowBattery ? ' <span class="badge">Battery ' + Math.round(watchdog.battery) + '%</span>' : '')
-      + (!watchdog && scanProblemById[device.id] && scanProblemById[device.id].lowBattery ? ' <span class="badge badge-danger">Low battery ' + Math.round(scanProblemById[device.id].battery) + '%</span>' : '');
+      + (watchdog ? ' <span class="badge">' + t(watchdog.ignoreUnavailable ? 'Watchdog {hours}h, silence only' : 'Watchdog {hours}h', { hours: watchdog.thresholdHours }) + '</span>' : '')
+      + (watchdog && watchdog.lowBattery ? ' <span class="badge badge-danger">' + t('Low battery {percent}%', { percent: Math.round(watchdog.battery) }) + '</span>' : '')
+      + (watchdog && Number.isFinite(watchdog.battery) && !watchdog.lowBattery ? ' <span class="badge">' + t('Battery {percent}%', { percent: Math.round(watchdog.battery) }) + '</span>' : '')
+      + (!watchdog && scanProblemById[device.id] && scanProblemById[device.id].lowBattery ? ' <span class="badge badge-danger">' + t('Low battery {percent}%', { percent: Math.round(scanProblemById[device.id].battery) }) + '</span>' : '');
     var metaBits = [
       escapeHtml(device.zoneName || ''),
-      nameCount[device.name] > 1 ? 'same name as another device - id ' + escapeHtml(String(device.id).slice(0, 8)) : null,
-      'last seen ' + formatLastSeen(device.lastSeenAt),
-      scanOn && device.ownerUri ? 'app ' + escapeHtml(shortApp(device.ownerUri)) : null,
+      nameCount[device.name] > 1 ? t('same name as another device - id {id}', { id: escapeHtml(String(device.id).slice(0, 8)) }) : null,
+      t('last seen {when}', { when: formatLastSeen(device.lastSeenAt) }),
+      scanOn && device.ownerUri ? t('app {app}', { app: escapeHtml(shortApp(device.ownerUri)) }) : null,
       !device.available && device.unavailableMessage ? escapeHtml(device.unavailableMessage) : null
     ];
     var row = entityRow(nameHtml, metaBits);
     if (!device.available) row.classList.add('unavailable-row');
-    var actionButtons = [actionLink(watchdog ? 'Edit watchdog' : 'Add watchdog', function () { openAvailabilityWatchdogForm(device, watchdog); })];
+    var actionButtons = [actionLink(watchdog ? t('Edit watchdog') : t('Add watchdog'), function () { openAvailabilityWatchdogForm(device, watchdog); })];
     if (!watchdog && scanOn) {
       var appIgnored = Boolean(device.ownerUri && excludedAppIds[device.ownerUri]);
       var tracked = !appIgnored && !excludedIds[device.id];
       // On: the all-devices scan checks this device. Off: it is left out (it still shows in the list).
-      actionButtons.unshift(trackSwitch(tracked, appIgnored, appIgnored ? 'Every device of this app is ignored: use Include app' : 'Check this device in the scan', function (on) { setExclusion(device, !on); }));
+      actionButtons.unshift(trackSwitch(tracked, appIgnored, appIgnored ? t('Every device of this app is ignored: use Include app') : t('Check this device in the scan'), function (on) { setExclusion(device, !on); }));
       if (appIgnored) {
-        actionButtons.push(actionLink('Include app', function () { setAppExclusion(device.ownerUri, false); }));
+        actionButtons.push(actionLink(t('Include app'), function () { setAppExclusion(device.ownerUri, false); }));
       } else if (tracked && device.ownerUri) {
-        actionButtons.push(actionLink('Ignore app', function () {
-          confirmAction('Ignore every device of the app "' + shortApp(device.ownerUri) + '" in the scan?', function () { setAppExclusion(device.ownerUri, true); });
+        actionButtons.push(actionLink(t('Ignore app'), function () {
+          confirmAction(t('Ignore every device of the app "{app}" in the scan?', { app: shortApp(device.ownerUri) }), function () { setAppExclusion(device.ownerUri, true); });
         }));
       }
     }
     if (watchdog) {
-      actionButtons.push(actionLink('Remove watchdog', function () {
-        confirmAction('Stop watching "' + device.name + '" for availability?', function () {
+      actionButtons.push(actionLink(t('Remove watchdog'), function () {
+        confirmAction(t('Stop watching "{name}" for availability?', { name: device.name }), function () {
           api('DELETE', '/availability-watchdogs/' + device.id).then(page.loadAll).catch(showError);
         });
       }, true));
@@ -314,8 +316,8 @@ function setupAvailability(page) {
 
   // A watchdog whose device is gone from Homey: nothing to show but its name, and a way to remove it.
   function missingWatchdogRow(w) {
-    var row = entityRow(escapeHtml(w.name) + ' <span class="badge badge-danger">Not found</span>', [escapeHtml(w.zoneName || ''), 'watchdog ' + w.thresholdHours + 'h']);
-    row.appendChild(entityActions([actionLink('Remove watchdog', function () {
+    var row = entityRow(escapeHtml(w.name) + ' <span class="badge badge-danger">' + t('Not found') + '</span>', [escapeHtml(w.zoneName || ''), t('watchdog {hours}h', { hours: w.thresholdHours })]);
+    row.appendChild(entityActions([actionLink(t('Remove watchdog'), function () {
       api('DELETE', '/availability-watchdogs/' + w.deviceId).then(page.loadAll).catch(showError);
     }, true)]));
     return row;
@@ -328,10 +330,10 @@ function setupAvailability(page) {
     renderAppList(devices, watchdogs);
     var missing = (watchdogs || []).filter(function (w) { return w.missing; });
     document.getElementById('availability-cleanup-btn').classList.toggle('hidden', !missing.length);
-    if (!devices.length) { renderEmptyList(container, page.deviceListLoading ? 'Loading devices...' : 'No devices found.'); return; }
+    if (!devices.length) { renderEmptyList(container, page.deviceListLoading ? t('Loading devices...') : t('No devices found.')); return; }
     var query = availabilityFilterEl.value.trim().toLowerCase();
     var filtered = query ? devices.filter(function (d) { return d.name.toLowerCase().indexOf(query) !== -1; }) : devices;
-    if (!filtered.length) { renderEmptyList(container, 'No devices match "' + escapeHtml(query) + '".'); return; }
+    if (!filtered.length) { renderEmptyList(container, t('No devices match "{query}".', { query: escapeHtml(query) })); return; }
     var watchdogByDeviceId = {};
     (watchdogs || []).forEach(function (w) { watchdogByDeviceId[w.deviceId] = w; });
     var nameCount = {};
@@ -348,15 +350,15 @@ function setupAvailability(page) {
       list.forEach(function (device) { container.appendChild(availabilityRow(device, watchdogByDeviceId[device.id], nameCount)); });
     }
     if (missing.length) {
-      appendSection('Device no longer in Homey (' + missing.length + ')');
+      appendSection(t('Device no longer in Homey ({n})', { n: missing.length }));
       missing.forEach(function (w) { container.appendChild(missingWatchdogRow(w)); });
     }
-    if (sections.watched.length) appendSection('Watched by a watchdog (' + sections.watched.length + ')');
+    if (sections.watched.length) appendSection(t('Watched by a watchdog ({n})', { n: sections.watched.length }));
     appendRows(sections.watched);
-    if (sections.watched.length && sections.others.length) appendSection('All other devices (' + sections.others.length + ')');
+    if (sections.watched.length && sections.others.length) appendSection(t('All other devices ({n})', { n: sections.others.length }));
     appendRows(sections.others);
     if (sections.ignored.length) {
-      appendSection('Ignored by the scan (' + sections.ignored.length + ')');
+      appendSection(t('Ignored by the scan ({n})', { n: sections.ignored.length }));
       appendRows(sections.ignored);
     }
   }

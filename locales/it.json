@@ -120,5 +120,6 @@
     "device": "Qualsiasi dispositivo sorvegliato",
     "group": "Qualsiasi gruppo",
     "description": "Vale per tutti"
-  }
+  },
+  "settingsLanguage": "it"
 }

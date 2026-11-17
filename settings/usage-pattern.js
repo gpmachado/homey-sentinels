@@ -1,4 +1,4 @@
-/* global openModal, closeModal, formatEnergy, formatDuration, escapeHtml, entityRow, renderEmptyList */
+/* global t, openModal, closeModal, formatEnergy, formatDuration, escapeHtml, entityRow, renderEmptyList */
 
 // Two views of a monitor's history: standby energy by monitor, and the weekday by hour usage pattern.
 function setupUsagePattern(page) {
@@ -11,15 +11,15 @@ function setupUsagePattern(page) {
     api('GET', '/standby-ranking?period=' + standbyPeriod.value).then(function (ranking) {
       var container = document.getElementById('standby-body');
       container.innerHTML = '';
-      if (!ranking.rows.length) { renderEmptyList(container, 'No standby energy recorded in this period.'); return; }
+      if (!ranking.rows.length) { renderEmptyList(container, t('No standby energy recorded in this period.')); return; }
       ranking.rows.forEach(function (row) {
-        container.appendChild(entityRow(escapeHtml(row.name) + ' <span class="badge">' + row.kind + '</span>', [
-          formatEnergy(row.standbyEnergy) + ' idle', row.sharePercent + '% of the total'
+        container.appendChild(entityRow(escapeHtml(row.name) + ' <span class="badge">' + t(row.kind) + '</span>', [
+          t('{energy} idle', { energy: formatEnergy(row.standbyEnergy) }), t('{percent}% of the total', { percent: row.sharePercent })
         ]));
       });
       var total = document.createElement('p');
       total.className = 'hint';
-      total.textContent = 'Total idle: ' + formatEnergy(ranking.totalStandbyEnergy);
+      total.textContent = t('Total idle: {energy}', { energy: formatEnergy(ranking.totalStandbyEnergy) });
       container.appendChild(total);
     }).catch(showError);
   }
@@ -33,12 +33,12 @@ function setupUsagePattern(page) {
   var patternMetric = document.getElementById('pattern-metric');
   var patternMonitor = null;
   var patternData = null;
-  var PATTERN_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+  var PATTERN_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(function (day) { return t(day); });
   function openUsagePattern(monitor) {
     patternMonitor = monitor;
     patternData = null;
-    document.getElementById('pattern-title').textContent = 'Usage pattern: ' + monitor.name;
-    document.getElementById('pattern-message').textContent = 'Loading…';
+    document.getElementById('pattern-title').textContent = t('Usage pattern: {name}', { name: monitor.name });
+    document.getElementById('pattern-message').textContent = t('Loading…');
     document.getElementById('pattern-grid').innerHTML = '';
     openModal(patternWrapper);
     loadUsagePattern();
@@ -53,7 +53,7 @@ function setupUsagePattern(page) {
   }
   function patternValueText(value) {
     var metric = patternMetric.value;
-    if (metric === 'starts') return value + ' cycle' + (value === 1 ? '' : 's');
+    if (metric === 'starts') return t(value === 1 ? '{n} cycle' : '{n} cycles', { n: value });
     if (metric === 'energy') return (Math.round(value * 100) / 100) + ' kWh';
     if (metric === 'power') return value + ' W';
     return formatDuration(value);

@@ -120,5 +120,6 @@
     "device": "Any watched device",
     "group": "Any group",
     "description": "Runs for every one"
-  }
+  },
+  "settingsLanguage": "en"
 }

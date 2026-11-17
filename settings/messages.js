@@ -1,4 +1,4 @@
-/* global formatPreviewTime */
+/* global t, formatPreviewTime */
 
 // The live example under every message box, the token buttons and the Fill default wording buttons.
 function setupMessages(page) {
@@ -8,7 +8,7 @@ function setupMessages(page) {
   // the value of a Flow message token visible before a user has to build a complete Flow or wait
   // for a real event. Unknown tokens stay marked instead of disappearing, so a typo is visible.
   function renderMessageExample(template, data) {
-    if (!template || !template.trim()) return 'No message configured yet.';
+    if (!template || !template.trim()) return t('No message configured yet.');
     return template.replace(/%([a-zA-Z0-9_]+)(?::([^%|]*)\|([^%]*))?%/g, function (match, key, singular, plural) {
       if (singular !== undefined) {
         var count = Number(data[key]);
@@ -54,20 +54,20 @@ function setupMessages(page) {
     var copyBtn = document.createElement('button');
     copyBtn.type = 'button';
     copyBtn.className = 'message-preview-copy-btn';
-    copyBtn.textContent = 'Copy';
+    copyBtn.textContent = t('Copy');
     wrapper.appendChild(copyBtn);
     var update = function () {
       var text = renderMessageExample(input.value, data);
       preview.textContent = text;
       preview.classList.toggle('message-preview-empty', !input.value.trim());
       copyBtn.disabled = !input.value.trim();
-      copyBtn.title = input.value.trim() ? 'Copy "' + text + '"' : 'Type a template first';
+      copyBtn.title = input.value.trim() ? t('Copy "{text}"', { text: text }) : t('Type a template first');
     };
     copyBtn.addEventListener('click', function () {
       copyText(preview.textContent).then(function () {
-        copyBtn.textContent = 'Copied!';
+        copyBtn.textContent = t('Copied!');
         copyBtn.classList.add('is-copied');
-        setTimeout(function () { copyBtn.textContent = 'Copy'; copyBtn.classList.remove('is-copied'); }, 1500);
+        setTimeout(function () { copyBtn.textContent = t('Copy'); copyBtn.classList.remove('is-copied'); }, 1500);
       });
     });
     input.addEventListener('input', update);
@@ -119,7 +119,7 @@ function setupMessages(page) {
     var info = tokenInfoFor(btn.getAttribute('data-token') || '');
     if (!info) return;
     btn.setAttribute('data-group', info.group);
-    btn.title = info.type + ' — e.g. ' + info.example;
+    btn.title = t('{type} — e.g. {example}', { type: t(info.type), example: info.example });
   });
   var activityPreviewData = {
     device: 'Example device', monitor: 'Washing machine', power: 850, time: previewTime,
@@ -162,7 +162,7 @@ function setupMessages(page) {
           refreshMessagePreviews();
         };
         var hasText = Object.keys(fieldIds).some(function (name) { return document.getElementById(fieldIds[name]).value; });
-        if (hasText) confirmAction('This will overwrite the current message wording. Continue?', apply); else apply();
+        if (hasText) confirmAction(t('This will overwrite the current message wording. Continue?'), apply); else apply();
       }).catch(showError);
     });
   }
@@ -202,7 +202,7 @@ function setupMessageFormat(page) {
   function fillMessageLanguages(info, chosen) {
     messageLanguageSelect.innerHTML = '';
     var current = info.languages.filter(function (language) { return language.code === info.language; })[0];
-    [{ code: '', name: 'Same as Homey' + (!chosen && current ? ' (now ' + current.name + ')' : '') }].concat(info.languages).forEach(function (language) {
+    [{ code: '', name: !chosen && current ? t('Same as Homey (now {language})', { language: current.name }) : t('Same as Homey') }].concat(info.languages).forEach(function (language) {
       var option = document.createElement('option');
       option.value = language.code;
       option.textContent = language.name;

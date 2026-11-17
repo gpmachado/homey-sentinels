@@ -104,8 +104,8 @@ If they come back, write the reclaim again from scratch (not from the PELS file)
 
 All of it: the price and currency in Settings (Energy cost), the `cost`, `cost_today`, `cost_text` and `cost_today_text` tokens of the
 finished triggers, `total_cost(_text)` of Get activity statistics, the cost of Get standby ranking and Get daily digest, the **Cost today
-exceeds an amount** trigger (`activity_cost_exceeded`), the **Set energy price** action, `lib/cost.js` and its docs. Why: other apps
-(Power by the Hour, Energy KPI Monitor) do electricity cost better, and how energy is bought varies too much between countries (spot,
+exceeds an amount** trigger (`activity_cost_exceeded`), the **Set energy price** action, `lib/cost.js` and its docs. Why: apps made for
+energy cost do it better, and how energy is bought varies too much between countries (spot,
 bi-hourly, fixed, taxes inside the price) for Sentinels to cover. The kWh (`energy`, `energy_today`, `total_energy`, standby energy) stays,
 so a Flow can still do its own maths. A Flow that used one of the removed cards or tokens shows it unavailable and must be edited by hand
 (say so in the changelog); `%cost%` placeholders in saved message templates render as nothing. A price or currency an older version saved
@@ -244,13 +244,12 @@ Default message language section above, which no longer uses Homey's `__()`); th
   usage, capability listeners); a test that fails on any write call was offered and not written yet.
 - **Generate individual monitors** button on a Group (design in the section below; not started).
 - **Ignore zone** in the Availability tab (the scan already honours excluded zones; only the button is missing).
-- Widget settings like the Energy KPI Monitor's, editable after creation: Voltage (which monitors, period
+- Widget settings editable after creation: Voltage (which monitors, period
   Day/Week/Month, view) and Overview (one list instead of five `monitorN` slots).
 - Suggest the silence limit by device kind when adding a watchdog (battery sensor 24 h, mains plug 1 h).
 - Scan option "silence only" per device (like a watchdog's `ignoreUnavailable`) instead of ignoring it entirely,
   and an `ignoreUnavailable` argument on the `add_availability_watchdog` Flow card.
-- **Energy widget for the Shelly Pro** in the Energy KPI Monitor style: live W, kWh today / week / month, cost with a
-  kWh price, top zone or consumers. (KPI Monitor is closed source; only its store page and settings are known.)
+- **Energy widget for the Shelly Pro**: live W, kWh today / week / month, top zone or consumers.
 - More widgets: group members, running now, 24 h chart, compact badge; 365-day daily summaries / a "year" period.
 - Sentinel Group virtual device (section below): the only view of a group in the web app.
 - Docs are up to date as of 2026-10-03 (README, HOWTO, SPEC, CONTRIBUTING, and the new TUTORIAL with worked examples and expected
@@ -296,8 +295,8 @@ texts empty, and `energy` (kWh) is always there for a Flow that does its own mat
   A cycle is priced at the price in force when it ends (a cycle that crosses a change is priced whole at the end
   price); say so in the card hint and HOWTO. No new permission.
 - **Price schedule inside the app: ARCHIVED, decided 2026-10-21, not planned.** Price bands by weekday and hour (the
-  Brazilian Tarifa Branca, European peak / off-peak), spot or day-ahead prices, and costs summed band by band. Reasons: other
-  apps already do electricity cost well (Power by the Hour, Energy KPI Monitor), and how energy is bought varies too much between
+  Brazilian Tarifa Branca, European peak / off-peak), spot or day-ahead prices, and costs summed band by band. Reasons: apps
+  made for energy cost already do it well, and how energy is bought varies too much between
   countries (spot markets, bi-hourly, fixed, taxes and fees inside the price) for one editor in Settings to cover. Sentinels keeps
   what it has, on purpose small: one price per kWh, the `set_energy_price` card for a Flow that follows a tariff, the cost tokens
   and `energy` (kWh) for a Flow that does its own maths. Reopen only if a real need shows up that those cannot meet.
@@ -395,11 +394,13 @@ cycle" anomaly is done; a statistics library, standard deviation / z-score on fe
 - (Done, removed from the list: the throwaway `memprobe` app is gone; monitors of a deleted device are now flagged
   `deviceMissing` and stop retrying, see the 2026-09-27 round.)
 
-### Interface in Homey's languages: Flow cards DONE 2026-11-16, Settings and widget content PENDING
+### Interface in Homey's languages: Flow cards and Settings DONE 2026-11-16, widget content PENDING
 The Flow cards, widget names and widget settings come in en, nl, de, fr, it, es, sv, no and da (Homey has no
 Portuguese; the messages the app writes still offer Portuguese). `test/manifest-i18n.test.js` fails on a text added
 in English only. The "Any ..." choices use `locales/<lang>.json` (`anyChoice`) through `homey.__`. Machine-quality
-translations: a native check is welcome. Still English: the Settings page and the text inside the widgets.
+translations: a native check is welcome. The Settings page translates its English text through `t()` and
+`settings/i18n-strings.js` (English text -> translation per language; `test/settings-i18n.test.js` fails on a text without
+all 8). Still English: the text inside the widgets.
 
 ### Decided against
 - Electricity cost in Sentinels, in any form (2026-10-21): see "Energy cost removed" above.
@@ -409,7 +410,7 @@ translations: a native check is welcome. Still English: the Settings page and th
   (median of report intervals) was judged fragile for sensors that only report on change.
 - Statistics library (nothing beyond mean / median / percentile is needed), per-device matrix in Groups,
   "action fires an internal trigger" for Standard Flow (a trigger cannot return values to the calling Flow),
-  `cumulative` / energy sign convention (the app exposes no capabilities), the Device Watchdog style virtual
+  `cumulative` / energy sign convention (the app exposes no capabilities), a virtual status
   device with four counters (the widget covers it).
 
 ## Settings — Activity/State Monitor missing "Edit" — DONE (2026-09-13)
@@ -448,8 +449,7 @@ false="Open", not the other way round). Not started.
 
 ## Error reporting (@drenso/homey-log / Sentry) — considered, deferred (2026-09-13)
 
-Found while auditing dependencies used by other apps in `_reference/` (specifically
-`com.tuya2-main`). Solves a real, already-lived problem: this session's memory/CPU crashes were
+Solves a real, already-lived problem: this session's memory/CPU crashes were
 only ever caught because someone was watching `homey app run -r`'s live terminal — with the app
 actually published, a silent crash would go completely unnoticed. Checked and it's lightweight
 (235 KB, 5 files, ISC-licensed — doesn't appear to bundle the full `@sentry/node` SDK, which
@@ -470,12 +470,12 @@ that works everywhere. Design settled in conversation, not started:
 - Read-only, like the Linked Switch (gpm.linked.switches): dynamic `subdevice_state.N` capabilities
   (`string`, `uiComponent: "sensor"`, `setable: false`), title = member name via `setCapabilityOptions`,
   up to 10 slots + a summary text beyond that; plus `alarm_generic` (mismatch) and a mismatch count.
-- Member picker like Lightkeeper's "Choose lights" pair view (`drivers/schedule/pair/lights.html`):
+- Member picker as a pair view:
   tabs "Pick devices" / "Use a zone", cards grouped by zone, "include sub-zones", a "N of M support X"
   summary, groups of 1 device allowed, a repair view to edit later. Zones resolve dynamically
-  (lightkeeper `DeviceCatalog.devicesInZone` walks descendant zones).
+  (a zone includes its descendant zones).
 - The device references a `groupId` in the store (pairing creates the group), so the group Flow cards,
   the Settings page and the device share one source; state comes from the existing `_pollGroups`.
-- Costs: ~0.6 MB heap per device (Lightkeeper), custom pair-view HTML (styles must be scoped to a root id,
+- Costs: about 0.6 MB heap per device (estimate), custom pair-view HTML (styles must be scoped to a root id,
   `homey app validate` cannot check views), 10-slot limit, unavailable-device handling on group delete.
-- Prerequisite: the memory work first (this adds fixed memory). Licence: Lightkeeper is MIT, PELS is GPL-3.0.
+- Prerequisite: the memory work first (this adds fixed memory).

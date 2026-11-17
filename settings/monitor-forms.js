@@ -1,4 +1,4 @@
-/* global openModal, closeModal, fieldValue, bindTokenInserter */
+/* global t, openModal, closeModal, fieldValue, bindTokenInserter */
 
 // The Add, Edit and Messages forms of the three kinds of monitor.
 function setupMonitorForms(page) {
@@ -209,7 +209,7 @@ function setupMonitorForms(page) {
   // The Add forms pick from the device list, which the app reads on demand.
   function requireDevices() {
     if (page.allDevices.length) return true;
-    Homey.alert('The device list is still loading. Try again in a few seconds.');
+    Homey.alert(t('The device list is still loading. Try again in a few seconds.'));
     return false;
   }
 

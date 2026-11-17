@@ -1,3 +1,4 @@
+/* global t */
 // Helpers of the Settings page that keep no state of their own: formatting, building rows and buttons, modals. Loaded first.
 // Every Add/Edit form's wrapper (already toggled via the same .hidden class as before) also
 // carries .modal-overlay — see style.css — so opening one now centers it over a dimmed
@@ -55,7 +56,7 @@ function renderSparkline(breakdown, field, formatter) {
     var height = max > 0 ? Math.max(8, Math.round((day[field] / max) * 100)) : 8;
     return '<div class="bar" style="height:' + height + '%" title="' + day.date + ': ' + formatter(day[field]) + '"></div>';
   }).join('');
-  return '<div class="sparkline" title="Daily trend">' + bars + '</div>';
+  return '<div class="sparkline" title="' + escapeHtml(t('Daily trend')) + '">' + bars + '</div>';
 }
 
 // Shared by every entity list (monitors, counters, availability): the top line (name +
@@ -93,7 +94,7 @@ function trackSwitch(checked, disabled, title, onChange) {
   input.disabled = disabled;
   input.addEventListener('change', function () { onChange(input.checked); });
   label.appendChild(input);
-  label.appendChild(document.createTextNode('Track'));
+  label.appendChild(document.createTextNode(t('Track')));
   return label;
 }
 
@@ -109,7 +110,7 @@ function entityActions(buttons, visible) {
     menu.className = 'more-menu';
     var summary = document.createElement('summary');
     summary.textContent = '\u22EF';
-    summary.title = 'More actions';
+    summary.title = t('More actions');
     var list = document.createElement('div');
     list.className = 'more-menu-list';
     buttons.slice(inRow.length).forEach(function (btn) { list.appendChild(btn); });
@@ -154,9 +155,9 @@ function bindTokenInserter(buttonSelector, targetSelector, initialTarget) {
 }
 
 function formatLastSeen(iso) {
-  if (!iso) return 'never';
+  if (!iso) return t('never');
   var date = new Date(iso);
-  if (isNaN(date.getTime())) return 'never';
+  if (isNaN(date.getTime())) return t('never');
   return date.toLocaleString();
 }
 

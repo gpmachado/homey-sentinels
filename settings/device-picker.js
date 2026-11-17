@@ -1,4 +1,4 @@
-/* global byName */
+/* global t, byName */
 
 // The Capability -> Zone -> Device -> phase pickers of the monitor forms, filled from the loaded device list.
 function setupDevicePicker(page) {
@@ -77,11 +77,11 @@ function setupDevicePicker(page) {
       found[family].title = found[family].title || humanizeId(family);
       return found[family];
     }).sort(function (a, b) { return a.title.localeCompare(b.title); });
-    if (!list.length) { emptyOption(selectEl, 'No device has a capability this monitor can use'); return; }
+    if (!list.length) { emptyOption(selectEl, t('No device has a capability this monitor can use')); return; }
     list.forEach(function (item) {
       var opt = document.createElement('option');
       opt.value = item.id;
-      opt.textContent = item.title + ' (' + item.id + ') — ' + item.count + ' device' + (item.count === 1 ? '' : 's');
+      opt.textContent = item.title + ' (' + item.id + ') — ' + t(item.count === 1 ? '{n} device' : '{n} devices', { n: item.count });
       selectEl.appendChild(opt);
     });
     selectEl.value = found[preselect] ? preselect : list[0].id;
@@ -90,7 +90,7 @@ function setupDevicePicker(page) {
   function populateZoneSelect(selectEl, kind, family, showAll) {
     var current = selectEl.value;
     selectEl.innerHTML = '';
-    emptyOption(selectEl, 'All zones');
+    emptyOption(selectEl, t('All zones'));
     var counts = {};
     devicesInFamily(kind, family, showAll).forEach(function (d) { if (d.zoneName) counts[d.zoneName] = (counts[d.zoneName] || 0) + 1; });
     Object.keys(counts).sort().forEach(function (zone) {
@@ -141,7 +141,7 @@ function setupDevicePicker(page) {
     else if (currentId) {
       var missing = document.createElement('option');
       missing.value = currentId;
-      missing.textContent = (currentName || 'Current device') + ' (not available)';
+      missing.textContent = t('{name} (not available)', { name: currentName || t('Current device') });
       selectEl.appendChild(missing);
       selectEl.value = currentId;
     }

@@ -120,5 +120,6 @@
     "device": "Hvilken som helst overvåket enhet",
     "group": "Hvilken som helst gruppe",
     "description": "Gjelder alle"
-  }
+  },
+  "settingsLanguage": "no"
 }
