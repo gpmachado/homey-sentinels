@@ -5,6 +5,11 @@
 //
 //   const app = fakeApp({ store: await memoryStore(), gateway: { ... } });
 //   app.logs, app.errors   what the app logged
+//
+// `error` is a recorder, not the class's own error(), so a test through fakeApp does not exercise _rememberError or the
+// call to Homey's error(); test/diagnostics.test.js covers that path on App.prototype. `homey` is merged with the
+// defaults (a test passing { flow } keeps setTimeout, __ and i18n). The class is loaded once and shared: a test that
+// changes App.prototype or its parent must put it back.
 const Module = require('node:module');
 const path = require('node:path');
 const SentinelStore = require('../../lib/store');
@@ -33,6 +38,8 @@ async function memoryStore(saved = {}) {
   return store;
 }
 
+const defaultHomey = () => ({ setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (timer) => clearTimeout(timer), i18n: { getLanguage: () => 'en' }, __: (key) => key });
+
 function fakeApp(overrides = {}) {
   const app = Object.create(App.prototype);
   const logs = []; const errors = [];
@@ -43,14 +50,13 @@ function fakeApp(overrides = {}) {
     _debug() {},
     _scheduleSave() {},
     _getTimezone: () => 'UTC',
-    homey: { setTimeout: (fn, ms) => setTimeout(fn, ms), clearTimeout: (timer) => clearTimeout(timer), i18n: { getLanguage: () => 'en' }, __: (key) => key },
     _lastCalibrationAttempt: new Map(),
     _calibrationAttempts: new Map(),
     _summaryCache: new Map(),
     _groupLive: new Map(),
     _groupWatchGeneration: new Map(),
     _groupMissing: new Map()
-  }, overrides);
+  }, overrides, { homey: { ...defaultHomey(), ...(overrides.homey || {}) } });
   return app;
 }
 

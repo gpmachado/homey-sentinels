@@ -5,8 +5,12 @@
 // `{ "en": ... }` text of .homeycompose/ and widgets/*/widget.compose.json, which Homey's compose step needs as they are.
 //
 //   npm run i18n           fill every text from the tables (after adding or changing an English text, and its rows)
-//   npm run i18n -- check  change nothing; fail if a file is not what the tables say, or a translation is missing
+//   npm run i18n -- check  change nothing; fail if a file is not what the tables say, a translation is missing or a
+//                          row is no longer used
 //   npm run i18n -- extract  add the texts the sources have and the tables lack, with the translation the sources carry
+//
+// A text written in English only is never filled with English: `npm run i18n` lists it as missing and writes nothing
+// until every table has its row.
 //
 // test/manifest-i18n.test.js runs the check, so a text changed by hand in one file and not in the table fails the tests.
 const fs = require('fs');
@@ -108,7 +112,7 @@ if (require.main === module) {
     result.unused.forEach((text) => console.log(`unused in the tables: ${text}`));
     if (mode === 'check') result.changed.forEach((file) => console.log(`not as the tables say: ${file}`));
     else if (!result.missing.length) result.changed.forEach((file) => console.log(`wrote ${file}`));
-    if (result.missing.length || (mode === 'check' && result.changed.length)) process.exitCode = 1;
+    if (result.missing.length || (mode === 'check' && (result.changed.length || result.unused.length))) process.exitCode = 1;
   }
 }
 

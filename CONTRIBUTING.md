@@ -39,7 +39,8 @@ npm run hooks          # once per clone: refreshes build-info.json after every c
 The interface (Flow cards, widgets' names and settings, the Settings page) comes in Homey's languages: en, nl, de, fr, it,
 es, sv, no and da. Homey has no Portuguese; the messages the app writes have their own language setting, which offers it.
 - A Flow card or widget text is translated in `i18n/manifest/<lang>.json`, one table per language keyed by the English
-  text, not in the card's JSON. Write the English in the JSON, add a row to each table, and run `npm run i18n`: it fills
+  text, not in the card's JSON. Write the English in the JSON, add a row to each table (`npm run i18n` lists the rows
+  that are missing and writes nothing until they are all there), and run `npm run i18n`: it fills
   every JSON under `.homeycompose/` and `widgets/` from the tables. To change a translation, change the table and run it
   again. `test/manifest-i18n.test.js` fails if a JSON and the tables disagree, a row is missing, or a row is no longer used.
 - A Settings text goes through `t('English text')` (values as `t('{n} cycles', { n })`); its translations live in

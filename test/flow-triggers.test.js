@@ -11,7 +11,7 @@ function fakeApp() {
   const cards = {};
   const card = (id) => (cards[id] ||= { id, run: null, autocomplete: {}, registerRunListener(fn) { this.run = fn; return this; }, registerArgumentAutocompleteListener(arg, fn) { this.autocomplete[arg] = fn; return this; }, on(event, fn) { this.handlers = { ...this.handlers, [event]: fn }; return this; }, trigger: async () => {} });
   const app = baseApp({
-    homey: { __: (key) => key, flow: { getTriggerCard: card, getConditionCard: card, getActionCard: card } },
+    homey: { flow: { getTriggerCard: card, getConditionCard: card, getActionCard: card } },
     store: { data: { monitors: { m1: { id: 'm1', name: 'Bomba' } }, stateMonitors: { s1: { id: 's1', name: 'Porta' } }, voltageMonitors: { v1: { id: 'v1', name: 'Fase A' } }, groups: { g1: { id: 'g1', name: 'Portas', devices: [] } }, availabilityWatchdogs: { d1: { deviceId: 'd1', name: 'Sensor' } } } },
     directory: { ensure: async () => [] },
     _calibrationAttempts: new Map([['m1', 5]]), _lastCalibrationAttempt: new Map([['m1', 1]]), saved: 0,
