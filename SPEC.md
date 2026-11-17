@@ -208,7 +208,7 @@ the same rules (`lib/availability.js`):
   Each is read individually with `getDevice` every 10 minutes (never the whole list), so it fires
   the `device_became_unavailable` / `device_became_available` / `device_battery_low` Flow triggers.
 - **All-devices scan** (on by default, `lib/availability-scan.js`, `lib/app/availability-scan.js`):
-  every device without a watchdog is judged with the defaults, like the Device Watchdog app. It
+  every device without a watchdog is judged with the defaults. It
   reads the whole device list once per interval (60 min) and lets it go right after. The first scan
   only records what is already wrong; later ones announce each *new* problem once
   (`device_problem_detected` trigger, at most 10 per scan, plus one Homey timeline entry). A device that is
@@ -227,8 +227,7 @@ because sleepy sensors never flip `available` when they die.
 - Cards: triggers above,
   condition `is_device_available` (live `available` flag, no watchdog required).
 - Watchdogs whose device is gone from Homey are flagged after 3 polls in a row and can be removed.
-- **Explicitly out of scope**: active reachability/ping testing. `lastSeenAt` is Homey's own; the third-party
-  Device Watchdog app flags 161 of 305 devices with a 24 h limit because it counts only real value changes.
+- **Explicitly out of scope**: active reachability/ping testing. `lastSeenAt` is Homey's own.
 
 ## 3. Shared engine mechanics (`lib/activity-engine.js`)
 
@@ -395,8 +394,7 @@ capability update (a door open/close) was silently dropped before ever reaching 
   changes to already-paired devices.
 - **A watchdog on every device by default, with a threshold learned from each device's report interval.**
   The all-devices scan gives the "no setup" coverage with fixed defaults (per-app overrides); a learned
-  threshold was judged fragile for sensors that only report on change. The third-party Device Watchdog app,
-  which counts only real value changes, flags 161 of 305 devices with a 24 h limit.
+  threshold was judged fragile for sensors that only report on change.
 
 ## 7. Known platform limitation
 
