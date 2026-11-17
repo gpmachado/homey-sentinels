@@ -23,6 +23,8 @@ try { buildInfo = require('./build-info.json'); } catch (error) { /* not stamped
 
 class StatisticTrackerApp extends Homey.App {
   async onInit() {
+    this._startedAt = Date.now();
+    this.buildInfo = buildInfo;
     // The bulky series live in a SQLite file under /userdata, not in settings (see lib/history-db.js).
     // /userdata is served over plain HTTP on the LAN without authentication, so the file gets a random
     // name that is generated once and remembered; if the database can't be opened the store falls back
@@ -38,8 +40,9 @@ class StatisticTrackerApp extends Homey.App {
     // the old copy would keep inflating every settings write.
     try { this.homey.settings.unset('deviceCache'); } catch (error) { /* nothing to remove */ }
     // Homey warns an app (up to a limit) before it stops it for memory or CPU: log each warning, so a problem shows in the log.
-    this.homey.on('memwarn', (payload) => this.log(`Homey memory warning ${payload?.count}/${payload?.limit}`));
-    this.homey.on('cpuwarn', (payload) => this.log(`Homey CPU warning ${payload?.count}/${payload?.limit}`));
+    // The latest one of each also shows in the Diagnostics tab of Settings.
+    this.homey.on('memwarn', (payload) => { this._rememberWarning('memory', payload); this.log(`Homey memory warning ${payload?.count}/${payload?.limit}`); });
+    this.homey.on('cpuwarn', (payload) => { this._rememberWarning('cpu', payload); this.log(`Homey CPU warning ${payload?.count}/${payload?.limit}`); });
     // In-memory only, deliberately not persisted — a per-monitor cooldown so a burst of rapid
     // samples (a device cycling its heating element on/off) can't re-run _suggestedThreshold's
     // sort over the whole periods[] array on every single one of them while still calibrating.
@@ -133,6 +136,12 @@ class StatisticTrackerApp extends Homey.App {
       Object.values(this.store.data[collection]).forEach((monitor) => this._resumeMonitor(collection, monitor));
     }
     this.log(this._startupSummary());
+  }
+
+  // Every error the app logs; the last one also shows in the Diagnostics tab of Settings.
+  error(...args) {
+    this._rememberError(args);
+    return super.error(...args);
   }
 
   // A plain setInterval calling something network-dependent (device cache, system timezone)
@@ -286,6 +295,7 @@ class StatisticTrackerApp extends Homey.App {
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/activity'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/availability-scan'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/availability-watchdogs'));
+Object.assign(StatisticTrackerApp.prototype, require('./lib/app/diagnostics'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/flow-cards'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/groups'));
 Object.assign(StatisticTrackerApp.prototype, require('./lib/app/housekeeping'));

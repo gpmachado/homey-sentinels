@@ -69,6 +69,10 @@ module.exports = {
       activityMessageDefaults: wording.activityMessageDefaults, stateMessageDefaults: wording.stateMessageDefaults, voltageMessageDefaults: wording.voltageMessageDefaults
     };
   },
+  // The Diagnostics tab: read-only, from what the app already has in memory.
+  async getDiagnostics({ homey }) {
+    return homey.app.getDiagnostics();
+  },
   async getLogSettings({ homey }) {
     return homey.app.store.getLogSettings();
   },

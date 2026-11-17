@@ -1,4 +1,4 @@
-/* global t, setUiLanguage, translatePage, setupMessages, setupMessageFormat, setupGroups, setupUsagePattern, setupDevicePicker, setupMonitorLists, setupMonitorForms, setupAvailability, setupLogOption, renderEmptyList */
+/* global t, setUiLanguage, translatePage, setupMessages, setupMessageFormat, setupGroups, setupUsagePattern, setupDevicePicker, setupMonitorLists, setupMonitorForms, setupAvailability, setupLogOption, setupDiagnostics, renderEmptyList */
 
 // The entry point of the Settings page. Each part of the page is a setup function in its own file; `page` is what they
 // share: the calls below, the two values that change (the period shown, the device list) and whatever each part adds for
@@ -38,6 +38,7 @@ function onHomeyReady(Homey) {
   setupAvailability(page);
   setupMessageFormat(page);
   setupLogOption(page);
+  setupDiagnostics(page);
 
   var tabBtns = Array.prototype.slice.call(document.querySelectorAll('.tab-btn'));
   var tabPanels = Array.prototype.slice.call(document.querySelectorAll('.tab-panel'));
@@ -47,6 +48,7 @@ function onHomeyReady(Homey) {
       tabPanels.forEach(function (p) { p.classList.add('hidden'); });
       btn.classList.add('active');
       document.querySelector('.tab-panel[data-tab="' + btn.getAttribute('data-tab') + '"]').classList.remove('hidden');
+      if (btn.getAttribute('data-tab') === 'status') page.loadDiagnostics();
     });
   });
 

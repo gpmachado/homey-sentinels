@@ -39,7 +39,7 @@ Triggers that describe an event also carry the moment it happened: `timestamp` (
 
 ## Settings & widgets
 
-The Settings page has three tabs. **Monitors** lists every monitor as a row — name, live state, key stats, a daily sparkline — with actions to edit, reset history or delete. **Availability** shows the scan tiles, the device list with badges, the per-app list and the watchdog defaults. **Groups** lists the groups with a live "Check now", the state Flow currently holds (and a reset for it if it ever gets stuck) and the add/edit form.
+The Settings page has four tabs. **Monitors** lists every monitor as a row — name, live state, key stats, a daily sparkline — with actions to edit, reset history or delete. **Availability** shows the scan tiles, the device list with badges, the per-app list and the watchdog defaults. **Groups** lists the groups with a live "Check now", the state Flow currently holds (and a reset for it if it ever gets stuck) and the add/edit form. **Diagnostics** shows how the app itself is doing (build, database, last save, memory, Homey's CPU and memory warnings, the last error, each monitor's last reading) and copies a short report for a bug report.
 
 Six dashboard widgets (they work in the Homey mobile app and dashboard, not in the web app):
 

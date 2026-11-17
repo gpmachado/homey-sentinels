@@ -201,6 +201,10 @@
       "method": "POST",
       "path": "/message-settings"
     },
+    "getDiagnostics": {
+      "method": "GET",
+      "path": "/diagnostics"
+    },
     "getLogSettings": {
       "method": "GET",
       "path": "/log-settings"

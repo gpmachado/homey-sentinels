@@ -221,3 +221,15 @@ input[type=text]:focus, input[type=number]:focus, select:focus, textarea:focus {
 .more-menu summary:hover, .more-menu[open] summary { background: var(--color-accent-bg); color: var(--color-accent); }
 .more-menu-list { position: absolute; right: 0; top: 100%; z-index: 30; min-width: 170px; display: flex; flex-direction: column; align-items: stretch; background: var(--color-card); border: 1px solid var(--color-border); border-radius: 8px; padding: 4px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18); }
 .more-menu-list .btn-link { text-align: left !important; }
+
+/* Diagnostics tab: one label/value row per fact; a warning row in the warning colour. With four tabs, a long name
+   (Tilgængelighed, Verfügbarkeit) moves the last tabs to a second row on a phone instead of running off the screen. */
+.tabs { flex-wrap: wrap; }
+.container .tabs .tab-btn { padding: 10px 8px !important; }
+.status-list { background: var(--color-card); border: 1px solid var(--color-border); border-radius: 12px; padding: 4px 14px; margin-bottom: 8px; }
+.status-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--color-border); font-size: 14px; }
+.status-row:last-child { border-bottom: none; }
+.status-label { color: var(--color-muted); flex: 0 1 45%; overflow-wrap: anywhere; }
+.status-value { text-align: right; flex: 1 1 55%; overflow-wrap: anywhere; }
+.status-warn .status-value { color: var(--color-warn); font-weight: 700; }
+.status-report { width: 100%; box-sizing: border-box; font-family: ui-monospace, Menlo, monospace; font-size: 12px; margin-bottom: 12px; }

@@ -161,10 +161,13 @@ Widgets work on the Homey mobile app and dashboards, not in the web app.
   told. **Reset Flow status** makes the next change fire again.
 - **Calibrating for a long time.** The device needs both idle and running readings. Type a threshold to end it.
 - **Device missing badge.** The device was deleted from Homey. The monitor and its history stay until you delete it.
+- **Is the app itself all right?** Settings › **Diagnostics** shows the version, the history database, the last save,
+  memory, Homey's CPU and memory warnings, the last error and when each monitor last got a reading. One CPU warning
+  right after the app starts is normal; Homey stops an app only when the count reaches its limit.
 
-To report a problem: turn on **Detailed log** in Settings, repeat what went wrong, and post in the forum topic or
-open a [GitHub issue](https://github.com/gpmachado/homey-sentinels/issues) with the app version, what you did and
-what you expected.
+To report a problem: turn on **Detailed log** in Settings, repeat what went wrong, then tap **Copy report** in
+Settings › Diagnostics and post it in the forum topic or a [GitHub issue](https://github.com/gpmachado/homey-sentinels/issues)
+with what you did and what you expected. The report is in English and leaves out device and monitor names.
 
 ---
 

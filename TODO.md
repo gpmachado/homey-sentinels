@@ -1,5 +1,16 @@
 # TODO
 
+### Diagnostics tab in Settings: DONE 2026-11-16, to verify on the Homey
+
+Settings › Diagnostics (`GET /diagnostics`, `lib/app/diagnostics.js`, `settings/diagnostics.js`): version and build, Node and
+SQLite, the history database (size, degraded mode, storage warnings), last save and last consolidation, heap and process
+memory, the latest CPU and memory warning from Homey, the last logged error, watched device values, and each monitor's
+last reading with its calibrating / device missing flags. Built only from memory, loaded when the tab opens or Refresh is
+tapped, never on a timer. **Copy report** puts a short English report without device or monitor names on the clipboard,
+and shows it selected for copying by hand when the Settings frame refuses the clipboard. To check on the Homey: the copy
+button on a phone, the four tabs on a narrow screen, and the CPU warning row after a restart. Possible next steps: a
+"last scan" detail for watchdogs, and a counter of failed saves.
+
 ### Default message language, Portuguese included: DONE 2026-10-03 (not in a published version yet)
 
 Settings → Monitors → Message format → *Default message language* (Same as Homey, or one of ten languages, Portuguese

@@ -106,6 +106,7 @@ Token counts are from the scanner.
 | `flow-cards.js` | Registers cards, autocompletes, `withLogging` | 5818 |
 | `summaries.js` | `_cached`, widget and Settings summaries, thin delegates | 3974 |
 | `housekeeping.js` | Startup summary, history consolidation | 565 |
+| `diagnostics.js` | `getDiagnostics` for the Diagnostics tab; keeps the last error and Homey warning | ~700 |
 | `constants.js` | Intervals, limits, `num`, `roundTokens`, `formatEnergy` | 1461 |
 
 ### Domain logic: `lib/`
@@ -146,7 +147,7 @@ Token counts are from the scanner.
 
 | File | Purpose | Tokens |
 |------|---------|--------|
-| `index.html` | Tabs Monitors (Activity, State, Voltage), Availability, Groups; modals | 7791 |
+| `index.html` | Tabs Monitors (Activity, State, Voltage), Availability, Groups, Diagnostics; modals | 7791 |
 | `settings.js` | Entry point: builds `page`, calls each setup, `loadAll` and the 60 s refresh | ~1800 |
 | `ui.js` | Stateless helpers (formatting, rows, modals), global functions | ~2100 |
 | `messages.js` | Live previews, token buttons, Fill default wording, Message format | ~3000 |
@@ -154,9 +155,10 @@ Token counts are from the scanner.
 | `monitors.js`, `monitor-forms.js`, `usage-pattern.js` | Monitor lists, their forms, standby and pattern views | ~7500 |
 | `device-picker.js` | Capability, zone, device pickers | ~2500 |
 | `availability.js` | Availability tab | ~5500 |
+| `diagnostics.js` | Diagnostics tab and the copied English report | ~2000 |
 | `style.css` | Light and dark tokens; `.container` + `!important` overrides | 5738 |
 
-Scripts are plain ES5 loaded in order from `index.html`. Each part is a `setupX(page)`; `page` holds `api`, the two changing values (`monitorPeriod`, `allDevices`) and what parts export for one another, and the order of the setup calls matters. The UI text is intentionally English-only. The device list is request-then-poll: `GET /devices` returns the cache, then the page polls `/devices/status`.
+Scripts are plain ES5 loaded in order from `index.html`. Each part is a `setupX(page)`; `page` holds `api`, the two changing values (`monitorPeriod`, `allDevices`) and what parts export for one another, and the order of the setup calls matters. The UI text is English in the source and translated at runtime by `i18n.js` (see CONTRIBUTING › Languages). The device list is request-then-poll: `GET /devices` returns the cache, then the page polls `/devices/status`.
 
 ### Widgets: `widgets/`
 

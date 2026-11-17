@@ -72,6 +72,23 @@ test('the Settings page opens in German, translated, without an error or an aler
     assert.equal(document.getElementById('activity-add-search').getAttribute('placeholder'), 'Einen Teil des Namens eingeben');
     const actions = [...document.querySelectorAll('#monitors-body .btn-link')].map((button) => button.textContent);
     assert.ok(actions.includes('Bearbeiten'), `row actions: ${actions.join(', ')}`);
+
+    // The Diagnostics tab: loads when opened, in German on screen, and the copied report stays in English without device names.
+    document.querySelector('.tab-btn[data-tab="status"]').click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    assert.equal(document.querySelector('.tab-btn[data-tab="status"]').textContent, 'Diagnose');
+    const rows = [...document.querySelectorAll('.status-row')].map((row) => row.textContent);
+    assert.ok(rows.includes('Zuletzt gespeichertvor 10 s, in 25 ms'), rows.join(' / '));
+    assert.ok(rows.includes('CPU-Warnungen von Homey1 von 12, vor 9 min'), rows.join(' / '));
+    assert.ok(rows.includes('Pump · Aktivitätletzter Messwert vor 5 min, kalibriert'), rows.join(' / '));
+    assert.equal(document.querySelectorAll('.status-warn').length, 2, 'the CPU warning and the missing device');
+    document.getElementById('status-copy-btn').click();
+    const report = document.getElementById('status-report').value;
+    assert.match(report, /^Sentinels 1\.0\.12, build abc1234 \(2026-11-16\), Node v22\.23\.5, SQLite 3\.54\.1, running for 10 min/);
+    assert.match(report, /CPU warnings 1\/12 \(9 min ago\)/);
+    assert.match(report, /voltage #2: no reading yet, DEVICE MISSING/);
+    assert.ok(!report.includes('Sonoff') && !report.includes('Pump'), 'no device or monitor names in the report');
+    assert.deepEqual(errors, []);
   } finally {
     dom.window.close();
   }

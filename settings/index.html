@@ -13,6 +13,7 @@
     <button type="button" class="tab-btn active" data-tab="monitors">Monitors</button>
     <button type="button" class="tab-btn" data-tab="availability">Availability</button>
     <button type="button" class="tab-btn" data-tab="groups">Groups</button>
+    <button type="button" class="tab-btn" data-tab="status">Diagnostics</button>
   </div>
 
   <div class="tab-panel" data-tab="monitors">
@@ -581,6 +582,26 @@
     </div>
     </div>
   </div>
+
+  <div class="tab-panel hidden" data-tab="status">
+    <p class="hint">How the app itself is doing. It shows only what the app already has in memory, reads no device and changes nothing. When you ask for help in the forum or in an issue, copy the report and paste it in.</p>
+    <div class="actions">
+      <button type="button" id="status-refresh-btn">Refresh</button>
+      <button type="button" id="status-copy-btn">Copy report</button>
+    </div>
+    <textarea id="status-report" class="status-report hidden" readonly rows="8"></textarea>
+
+    <h2>App</h2>
+    <div id="status-app" class="status-list"></div>
+    <h2>Storage</h2>
+    <div id="status-storage" class="status-list"></div>
+    <h2>Load</h2>
+    <div id="status-load" class="status-list"></div>
+    <p class="hint">Homey warns an app before it stops it for using too much CPU or memory; it stops the app only when the count reaches the limit. One warning right after the app starts is the start itself.</p>
+    <h2>Monitors</h2>
+    <div id="status-monitors" class="status-list"></div>
+    <p class="hint">A device reports only when its value changes, so a long time since the last reading is normal for a closed door or a plug that is off.</p>
+  </div>
 </div>
 
 
@@ -594,6 +615,7 @@
   <script src="monitors.js"></script>
   <script src="monitor-forms.js"></script>
   <script src="availability.js"></script>
+  <script src="diagnostics.js"></script>
   <script src="settings.js"></script>
 </body>
 </html>
