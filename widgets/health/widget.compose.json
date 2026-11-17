@@ -1,14 +1,42 @@
 {
   "name": {
-    "en": "Sentinels Health"
+    "en": "Sentinels Health",
+    "da": "Sentinels Helbred",
+    "de": "Sentinels Zustand",
+    "es": "Sentinels Salud",
+    "fr": "Sentinels Santé",
+    "it": "Sentinels Salute",
+    "nl": "Sentinels Gezondheid",
+    "no": "Sentinels Helse",
+    "sv": "Sentinels Hälsa"
   },
   "height": 260,
   "settings": [
     {
       "id": "title",
       "type": "text",
-      "title": { "en": "Title" },
-      "hint": { "en": "Shown above the card. Leave empty for no title." },
+      "title": {
+        "en": "Title",
+        "da": "Titel",
+        "de": "Titel",
+        "es": "Título",
+        "fr": "Titre",
+        "it": "Titolo",
+        "nl": "Titel",
+        "no": "Tittel",
+        "sv": "Titel"
+      },
+      "hint": {
+        "en": "Shown above the card. Leave empty for no title.",
+        "da": "Vises over kortet. Lad den stå tom for ingen titel.",
+        "de": "Wird über der Karte angezeigt. Leer lassen für keinen Titel.",
+        "es": "Se muestra encima de la tarjeta. Déjalo vacío para no tener título.",
+        "fr": "Affiché au-dessus de la carte. Laissez vide pour ne pas avoir de titre.",
+        "it": "Mostrato sopra la scheda. Lascia vuoto per nessun titolo.",
+        "nl": "Wordt boven de kaart getoond. Laat leeg voor geen titel.",
+        "no": "Vises over kortet. La stå tomt for ingen tittel.",
+        "sv": "Visas ovanför kortet. Lämna tomt för ingen titel."
+      },
       "value": ""
     }
   ],

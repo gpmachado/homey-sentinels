@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Has a reading in the last minutes"
+    "en": "Has a reading in the last minutes",
+    "da": "Har en måling de seneste minutter",
+    "de": "Hat einen Messwert in den letzten Minuten",
+    "es": "Tiene una lectura en los últimos minutos",
+    "fr": "A eu une mesure ces dernières minutes",
+    "it": "Ha una lettura negli ultimi minuti",
+    "nl": "Heeft een meting in de laatste minuten",
+    "no": "Har en måling de siste minuttene",
+    "sv": "Har en mätning de senaste minuterna"
   },
   "titleFormatted": {
-    "en": "[[monitor]] !{{has|has not}} had a reading in the last [[minutes]] minutes"
+    "en": "[[monitor]] !{{has|has not}} had a reading in the last [[minutes]] minutes",
+    "da": "[[monitor]] !{{har haft|har ikke haft}} en måling de seneste [[minutes]] minutter",
+    "de": "[[monitor]] !{{hatte|hatte keinen}} Messwert in den letzten [[minutes]] Minuten",
+    "es": "[[monitor]] !{{ha tenido|no ha tenido}} una lectura en los últimos [[minutes]] minutos",
+    "fr": "[[monitor]] !{{a eu|n'a pas eu}} de mesure ces [[minutes]] dernières minutes",
+    "it": "[[monitor]] !{{ha avuto|non ha avuto}} una lettura negli ultimi [[minutes]] minuti",
+    "nl": "[[monitor]] !{{heeft|heeft geen}} meting gehad in de laatste [[minutes]] minuten",
+    "no": "[[monitor]] !{{har hatt|har ikke hatt}} en måling de siste [[minutes]] minuttene",
+    "sv": "[[monitor]] !{{har haft|har inte haft}} en mätning de senaste [[minutes]] minuterna"
   },
   "hint": {
-    "en": "For any Activity, State or Voltage monitor: catches a device that still shows as available but stopped sending its value. Homey only sends a value when it changes, so pick a window longer than the quiet times of that device."
+    "en": "For any Activity, State or Voltage monitor: catches a device that still shows as available but stopped sending its value. Homey only sends a value when it changes, so pick a window longer than the quiet times of that device.",
+    "da": "For alle aktivitets-, status- og spændingsmonitorer: fanger en enhed, der stadig vises som tilgængelig, men er holdt op med at sende sin værdi. Homey sender kun en værdi, når den ændrer sig, så vælg et vindue, der er længere end enhedens stille perioder.",
+    "de": "Für jeden Aktivitäts-, Zustands- oder Spannungsmonitor: erkennt ein Gerät, das noch als verfügbar angezeigt wird, aber keinen Wert mehr sendet. Homey sendet einen Wert nur, wenn er sich ändert; wähle also ein Fenster, das länger ist als die ruhigen Zeiten dieses Geräts.",
+    "es": "Para cualquier monitor de actividad, de estado o de tensión: detecta un dispositivo que sigue apareciendo disponible pero ya no envía su valor. Homey solo envía un valor cuando cambia, así que elige una ventana más larga que los periodos de calma de ese dispositivo.",
+    "fr": "Pour tout moniteur d'activité, d'état ou de tension : repère un appareil encore affiché comme disponible mais qui n'envoie plus sa valeur. Homey n'envoie une valeur que lorsqu'elle change ; choisissez donc une fenêtre plus longue que les périodes calmes de cet appareil.",
+    "it": "Per qualsiasi monitor di attività, di stato o di tensione: rileva un dispositivo che risulta ancora disponibile ma non invia più il suo valore. Homey invia un valore solo quando cambia, quindi scegli una finestra più lunga dei periodi di quiete di quel dispositivo.",
+    "nl": "Voor elke activiteits-, status- of spanningsmonitor: vangt een apparaat dat nog als beschikbaar wordt getoond maar geen waarde meer stuurt. Homey stuurt een waarde alleen als die verandert, dus kies een venster dat langer is dan de stille periodes van dat apparaat.",
+    "no": "For alle aktivitets-, status- og spenningsmonitorer: fanger en enhet som fortsatt vises som tilgjengelig, men har sluttet å sende verdien sin. Homey sender en verdi bare når den endres, så velg et vindu som er lengre enn de stille periodene til enheten.",
+    "sv": "För alla aktivitets-, status- och spänningsövervakare: upptäcker en enhet som fortfarande visas som tillgänglig men har slutat skicka sitt värde. Homey skickar ett värde bara när det ändras, så välj ett fönster som är längre än enhetens tysta perioder."
   },
   "args": [
     {
@@ -14,18 +38,42 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "minutes",
       "type": "number",
       "title": {
-        "en": "Minutes"
+        "en": "Minutes",
+        "da": "Minutter",
+        "de": "Minuten",
+        "es": "Minutos",
+        "fr": "Minutes",
+        "it": "Minuti",
+        "nl": "Minuten",
+        "no": "Minutter",
+        "sv": "Minuter"
       },
       "min": 1,
       "placeholder": {
-        "en": "e.g. 60"
+        "en": "e.g. 60",
+        "da": "f.eks. 60",
+        "de": "z. B. 60",
+        "es": "p. ej. 60",
+        "fr": "ex. 60",
+        "it": "es. 60",
+        "nl": "bijv. 60",
+        "no": "f.eks. 60",
+        "sv": "t.ex. 60"
       }
     }
   ]

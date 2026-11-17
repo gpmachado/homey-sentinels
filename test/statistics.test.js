@@ -395,3 +395,11 @@ test('hours since the last run reach past the week of raw periods', () => {
   assert.equal(hoursSinceLastRun({ state: 'STANDBY', cycles: [], periods: [{ startedAt: now - 7 * day }], observedSince: now - 60 * day }, now), 60 * 24);
   assert.equal(hoursSinceLastRun({ state: 'STANDBY', cycles: [], periods: [], lastCycleEndedAt: now - 400 * day }, now), 400 * 24);
 });
+
+test('medianCycleDuration is the median_duration of statistics(all), without the period totals', () => {
+  const { medianCycleDuration } = require('../lib/statistics');
+  const cycles = [10, 20, 30, 40, 50, 60].map((duration, index) => ({ endedAt: 1000 + index, duration, energy: 0 }));
+  const monitor = activityMonitor({ cycles });
+  assert.equal(medianCycleDuration(monitor), statistics(monitor, 'all', TZ, 5000).median_duration);
+  assert.equal(medianCycleDuration(activityMonitor({ cycles: cycles.slice(0, 4) })), null);
+});

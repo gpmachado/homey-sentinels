@@ -111,5 +111,14 @@
     "activity": "%monitor% (%period%): Zyklen %cycles%, Energie %energy%, aktiv %active%.",
     "voltage": "%monitor% (%period%): Durchschnitt %average% V, Bereich %min%-%max% V, Vorfälle %incidents%.",
     "state": "%monitor% (%period%): Sitzungen %sessions%, %label% %duration%."
+  },
+  "anyChoice": {
+    "activity": "Jeder Aktivitätsmonitor",
+    "state": "Jeder Zustandsmonitor",
+    "voltage": "Jeder Spannungsmonitor",
+    "monitor": "Jeder Monitor",
+    "device": "Jedes überwachte Gerät",
+    "group": "Jede Gruppe",
+    "description": "Läuft für alle"
   }
 }

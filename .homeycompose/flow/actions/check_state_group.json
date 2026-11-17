@@ -1,16 +1,40 @@
 {
   "title": {
-    "en": "Check state group"
+    "en": "Check state group",
+    "da": "Tjek statusgruppe",
+    "de": "Zustandsgruppe prüfen",
+    "es": "Comprobar grupo de estado",
+    "fr": "Vérifier le groupe d'état",
+    "it": "Controlla il gruppo di stato",
+    "nl": "Statusgroep controleren",
+    "no": "Sjekk statusgruppe",
+    "sv": "Kontrollera statusgrupp"
   },
   "titleFormatted": {
-    "en": "Check state group [[group]], expected [[expected_state]]"
+    "en": "Check state group [[group]], expected [[expected_state]]",
+    "da": "Tjek statusgruppe [[group]], forventet [[expected_state]]",
+    "de": "Zustandsgruppe [[group]] prüfen, erwartet [[expected_state]]",
+    "es": "Comprobar grupo de estado [[group]], esperado [[expected_state]]",
+    "fr": "Vérifier le groupe d'état [[group]], attendu [[expected_state]]",
+    "it": "Controlla il gruppo di stato [[group]], atteso [[expected_state]]",
+    "nl": "Statusgroep [[group]] controleren, verwacht [[expected_state]]",
+    "no": "Sjekk statusgruppe [[group]], forventet [[expected_state]]",
+    "sv": "Kontrollera statusgrupp [[group]], förväntat [[expected_state]]"
   },
   "args": [
     {
       "name": "group",
       "type": "autocomplete",
       "title": {
-        "en": "Group"
+        "en": "Group",
+        "da": "Gruppe",
+        "de": "Gruppe",
+        "es": "Grupo",
+        "fr": "Groupe",
+        "it": "Gruppo",
+        "nl": "Groep",
+        "no": "Gruppe",
+        "sv": "Grupp"
       }
     },
     {
@@ -18,25 +42,57 @@
       "type": "dropdown",
       "required": false,
       "title": {
-        "en": "Expected state override (optional)"
+        "en": "Expected state override (optional)",
+        "da": "Tilsidesæt forventet tilstand (valgfrit)",
+        "de": "Erwarteten Zustand überschreiben (optional)",
+        "es": "Cambiar el estado esperado (opcional)",
+        "fr": "Remplacer l'état attendu (facultatif)",
+        "it": "Sostituisci lo stato atteso (facoltativo)",
+        "nl": "Verwachte status overschrijven (optioneel)",
+        "no": "Overstyr forventet tilstand (valgfritt)",
+        "sv": "Åsidosätt förväntat läge (valfritt)"
       },
       "values": [
         {
           "id": "",
           "label": {
-            "en": "Use group default"
+            "en": "Use group default",
+            "da": "Brug gruppens standard",
+            "de": "Standard der Gruppe verwenden",
+            "es": "Usar el estado por defecto del grupo",
+            "fr": "Utiliser l'état par défaut du groupe",
+            "it": "Usa lo stato predefinito del gruppo",
+            "nl": "Standaard van de groep gebruiken",
+            "no": "Bruk gruppens standard",
+            "sv": "Använd gruppens standard"
           }
         },
         {
           "id": "true",
           "label": {
-            "en": "On / Open"
+            "en": "On / Open",
+            "da": "Tændt / Åben",
+            "de": "An / Offen",
+            "es": "Encendido / Abierto",
+            "fr": "Allumé / Ouvert",
+            "it": "Acceso / Aperto",
+            "nl": "Aan / Open",
+            "no": "På / Åpen",
+            "sv": "På / Öppen"
           }
         },
         {
           "id": "false",
           "label": {
-            "en": "Off / Closed"
+            "en": "Off / Closed",
+            "da": "Slukket / Lukket",
+            "de": "Aus / Geschlossen",
+            "es": "Apagado / Cerrado",
+            "fr": "Éteint / Fermé",
+            "it": "Spento / Chiuso",
+            "nl": "Uit / Dicht",
+            "no": "Av / Lukket",
+            "sv": "Av / Stängd"
           }
         }
       ]
@@ -47,49 +103,113 @@
       "name": "group_name",
       "type": "string",
       "title": {
-        "en": "Group"
+        "en": "Group",
+        "da": "Gruppe",
+        "de": "Gruppe",
+        "es": "Grupo",
+        "fr": "Groupe",
+        "it": "Gruppo",
+        "nl": "Groep",
+        "no": "Gruppe",
+        "sv": "Grupp"
       }
     },
     {
       "name": "checked_count",
       "type": "number",
       "title": {
-        "en": "Checked"
+        "en": "Checked",
+        "da": "Tjekket",
+        "de": "Geprüft",
+        "es": "Comprobados",
+        "fr": "Vérifiés",
+        "it": "Controllati",
+        "nl": "Gecontroleerd",
+        "no": "Sjekket",
+        "sv": "Kontrollerade"
       }
     },
     {
       "name": "match_count",
       "type": "number",
       "title": {
-        "en": "Matching"
+        "en": "Matching",
+        "da": "Stemmer",
+        "de": "Übereinstimmend",
+        "es": "Coinciden",
+        "fr": "Conformes",
+        "it": "Conformi",
+        "nl": "Overeenkomend",
+        "no": "Stemmer",
+        "sv": "Stämmer"
       }
     },
     {
       "name": "mismatch_count",
       "type": "number",
       "title": {
-        "en": "Mismatches"
+        "en": "Mismatches",
+        "da": "Afvigelser",
+        "de": "Abweichungen",
+        "es": "Discrepancias",
+        "fr": "Écarts",
+        "it": "Difformità",
+        "nl": "Afwijkingen",
+        "no": "Avvik",
+        "sv": "Avvikelser"
       }
     },
     {
       "name": "mismatch_list",
       "type": "string",
       "title": {
-        "en": "Mismatch list"
+        "en": "Mismatch list",
+        "da": "Liste over afvigelser",
+        "de": "Liste der Abweichungen",
+        "es": "Lista de discrepancias",
+        "fr": "Liste des écarts",
+        "it": "Elenco delle difformità",
+        "nl": "Lijst met afwijkingen",
+        "no": "Liste over avvik",
+        "sv": "Lista över avvikelser"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       },
       "example": {
-        "en": "2 items open: Kitchen and Living Room."
+        "en": "2 items open: Kitchen and Living Room.",
+        "da": "2 åbne: Køkken og Stue.",
+        "de": "2 offen: Küche und Wohnzimmer.",
+        "es": "2 abiertos: Cocina y Salón.",
+        "fr": "2 ouverts : Cuisine et Salon.",
+        "it": "2 aperti: Cucina e Soggiorno.",
+        "nl": "2 items open: Keuken en Woonkamer.",
+        "no": "2 åpne: Kjøkken og Stue.",
+        "sv": "2 öppna: Kök och Vardagsrum."
       }
     }
   ],
   "hint": {
-    "en": "Its tokens are only available in an Advanced Flow."
+    "en": "Its tokens are only available in an Advanced Flow.",
+    "da": "Dens tokens findes kun i et Advanced Flow.",
+    "de": "Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Tokenene finnes bare i en Advanced Flow.",
+    "sv": "Dess tokens finns bara i ett Advanced Flow."
   }
 }

@@ -1,19 +1,51 @@
 {
   "title": {
-    "en": "Monitor is active"
+    "en": "Monitor is active",
+    "da": "Monitoren er aktiv",
+    "de": "Monitor ist aktiv",
+    "es": "El monitor está activo",
+    "fr": "Le moniteur est actif",
+    "it": "Il monitor è attivo",
+    "nl": "Monitor is actief",
+    "no": "Monitoren er aktiv",
+    "sv": "Övervakaren är aktiv"
   },
   "titleFormatted": {
-    "en": "[[monitor]] !{{is active|is not active}}"
+    "en": "[[monitor]] !{{is active|is not active}}",
+    "da": "[[monitor]] !{{er aktiv|er ikke aktiv}}",
+    "de": "[[monitor]] !{{ist aktiv|ist nicht aktiv}}",
+    "es": "[[monitor]] !{{está activo|no está activo}}",
+    "fr": "[[monitor]] !{{est actif|n'est pas actif}}",
+    "it": "[[monitor]] !{{è attivo|non è attivo}}",
+    "nl": "[[monitor]] !{{is actief|is niet actief}}",
+    "no": "[[monitor]] !{{er aktiv|er ikke aktiv}}",
+    "sv": "[[monitor]] !{{är aktiv|är inte aktiv}}"
   },
   "hint": {
-    "en": "An Activity monitor is active while it runs; a State monitor while it is in its on/open state. For a Voltage monitor use \"Voltage is in state\"."
+    "en": "An Activity monitor is active while it runs; a State monitor while it is in its on/open state. For a Voltage monitor use \"Voltage is in state\".",
+    "da": "En aktivitetsmonitor er aktiv, mens den kører; en statusmonitor, mens den er i sin tændt/åben-tilstand. Til en spændingsmonitor bruger du \"Spændingen er i tilstanden\".",
+    "de": "Ein Aktivitätsmonitor ist aktiv, solange er läuft; ein Zustandsmonitor, solange er im An/Offen-Zustand ist. Für einen Spannungsmonitor nimm \"Spannung ist im Zustand\".",
+    "es": "Un monitor de actividad está activo mientras funciona; un monitor de estado mientras está en su estado encendido/abierto. Para un monitor de tensión usa \"La tensión está en el estado\".",
+    "fr": "Un moniteur d'activité est actif tant qu'il fonctionne ; un moniteur d'état tant qu'il est dans son état allumé/ouvert. Pour un moniteur de tension, utilisez \"La tension est dans l'état\".",
+    "it": "Un monitor di attività è attivo mentre è in funzione; un monitor di stato mentre è nello stato acceso/aperto. Per un monitor di tensione usa \"La tensione è nello stato\".",
+    "nl": "Een activiteitsmonitor is actief zolang hij loopt; een statusmonitor zolang hij in zijn aan/open-status is. Gebruik voor een spanningsmonitor \"Spanning is in status\".",
+    "no": "En aktivitetsmonitor er aktiv mens den går; en statusmonitor mens den er i på/åpen-tilstanden. For en spenningsmonitor, bruk \"Spenningen er i tilstanden\".",
+    "sv": "En aktivitetsövervakare är aktiv medan den går; en statusövervakare medan den är i sitt på/öppen-läge. För en spänningsövervakare, använd \"Spänningen är i läget\"."
   },
   "args": [
     {
       "name": "monitor",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     }
   ]

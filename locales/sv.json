@@ -111,5 +111,14 @@
     "activity": "%monitor% (%period%): cykler %cycles%, energi %energy%, aktiv %active%.",
     "voltage": "%monitor% (%period%): medel %average% V, intervall %min%-%max% V, incidenter %incidents%.",
     "state": "%monitor% (%period%): sessioner %sessions%, %label% %duration%."
+  },
+  "anyChoice": {
+    "activity": "Valfri aktivitetsövervakare",
+    "state": "Valfri statusövervakare",
+    "voltage": "Valfri spänningsövervakare",
+    "monitor": "Valfri övervakare",
+    "device": "Valfri bevakad enhet",
+    "group": "Valfri grupp",
+    "description": "Gäller alla"
   }
 }

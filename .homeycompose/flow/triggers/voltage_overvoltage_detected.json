@@ -1,9 +1,25 @@
 {
   "title": {
-    "en": "Overvoltage detected"
+    "en": "Overvoltage detected",
+    "da": "Overspænding fundet",
+    "de": "Überspannung erkannt",
+    "es": "Sobretensión detectada",
+    "fr": "Surtension détectée",
+    "it": "Sovratensione rilevata",
+    "nl": "Overspanning gedetecteerd",
+    "no": "Overspenning oppdaget",
+    "sv": "Överspänning upptäckt"
   },
   "titleFormatted": {
-    "en": "Overvoltage detected ([[monitor]])"
+    "en": "Overvoltage detected ([[monitor]])",
+    "da": "Overspænding fundet ([[monitor]])",
+    "de": "Überspannung erkannt ([[monitor]])",
+    "es": "Sobretensión detectada ([[monitor]])",
+    "fr": "Surtension détectée ([[monitor]])",
+    "it": "Sovratensione rilevata ([[monitor]])",
+    "nl": "Overspanning gedetecteerd ([[monitor]])",
+    "no": "Overspenning oppdaget ([[monitor]])",
+    "sv": "Överspänning upptäckt ([[monitor]])"
   },
   "args": [
     {
@@ -11,10 +27,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       },
       "hint": {
-        "en": "Which voltage monitor to watch. Pick \"Any voltage monitor\" to run for all of them; the tokens say which one it was."
+        "en": "Which voltage monitor to watch. Pick \"Any voltage monitor\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken spændingsmonitor der skal følges. Vælg \"Enhver spændingsmonitor\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Welcher Spannungsmonitor beobachtet wird. Wähle \"Jeder Spannungsmonitor\", um für alle zu laufen; die Tokens sagen, welcher es war.",
+        "es": "Qué monitor de tensión seguir. Elige \"Cualquier monitor de tensión\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Quel moniteur de tension suivre. Choisissez \"N'importe quel moniteur de tension\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Quale monitor di tensione seguire. Scegli \"Qualsiasi monitor di tensione\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Welke spanningsmonitor je wilt volgen. Kies \"Elke spanningsmonitor\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Hvilken spenningsmonitor som skal følges. Velg \"Hvilken som helst spenningsmonitor\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken spänningsövervakare som ska följas. Välj \"Valfri spänningsövervakare\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -23,42 +55,90 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "voltage",
       "type": "number",
       "title": {
-        "en": "Voltage (V)"
+        "en": "Voltage (V)",
+        "da": "Spænding (V)",
+        "de": "Spannung (V)",
+        "es": "Tensión (V)",
+        "fr": "Tension (V)",
+        "it": "Tensione (V)",
+        "nl": "Spanning (V)",
+        "no": "Spenning (V)",
+        "sv": "Spänning (V)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

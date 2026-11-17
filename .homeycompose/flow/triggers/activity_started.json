@@ -1,9 +1,25 @@
 {
   "title": {
-    "en": "Activity started"
+    "en": "Activity started",
+    "da": "Aktivitet startet",
+    "de": "Aktivität gestartet",
+    "es": "Actividad iniciada",
+    "fr": "Activité démarrée",
+    "it": "Attività iniziata",
+    "nl": "Activiteit gestart",
+    "no": "Aktivitet startet",
+    "sv": "Aktivitet startad"
   },
   "titleFormatted": {
-    "en": "Activity started ([[monitor]])"
+    "en": "Activity started ([[monitor]])",
+    "da": "Aktivitet startet ([[monitor]])",
+    "de": "Aktivität gestartet ([[monitor]])",
+    "es": "Actividad iniciada ([[monitor]])",
+    "fr": "Activité démarrée ([[monitor]])",
+    "it": "Attività iniziata ([[monitor]])",
+    "nl": "Activiteit gestart ([[monitor]])",
+    "no": "Aktivitet startet ([[monitor]])",
+    "sv": "Aktivitet startad ([[monitor]])"
   },
   "args": [
     {
@@ -11,10 +27,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       },
       "hint": {
-        "en": "Which activity monitor to watch. Pick \"Any activity monitor\" to run for all of them; the tokens say which one it was."
+        "en": "Which activity monitor to watch. Pick \"Any activity monitor\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken aktivitetsmonitor der skal følges. Vælg \"Enhver aktivitetsmonitor\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Welcher Aktivitätsmonitor beobachtet wird. Wähle \"Jeder Aktivitätsmonitor\", um für alle zu laufen; die Tokens sagen, welcher es war.",
+        "es": "Qué monitor de actividad seguir. Elige \"Cualquier monitor de actividad\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Quel moniteur d'activité suivre. Choisissez \"N'importe quel moniteur d'activité\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Quale monitor di attività seguire. Scegli \"Qualsiasi monitor di attività\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Welke activiteitsmonitor je wilt volgen. Kies \"Elke activiteitsmonitor\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Hvilken aktivitetsmonitor som skal følges. Velg \"Hvilken som helst aktivitetsmonitor\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken aktivitetsövervakare som ska följas. Välj \"Valfri aktivitetsövervakare\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -23,42 +55,90 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "power",
       "type": "number",
       "title": {
-        "en": "Power (W)"
+        "en": "Power (W)",
+        "da": "Effekt (W)",
+        "de": "Leistung (W)",
+        "es": "Potencia (W)",
+        "fr": "Puissance (W)",
+        "it": "Potenza (W)",
+        "nl": "Vermogen (W)",
+        "no": "Effekt (W)",
+        "sv": "Effekt (W)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

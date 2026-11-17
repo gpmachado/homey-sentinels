@@ -1,10 +1,37 @@
 {
-  "name": { "en": "Sentinel" },
+  "name": {
+    "en": "Sentinel",
+    "da": "Sentinel",
+    "de": "Sentinel",
+    "es": "Sentinel",
+    "fr": "Sentinel",
+    "it": "Sentinel",
+    "nl": "Sentinel",
+    "no": "Sentinel",
+    "sv": "Sentinel"
+  },
   "height": 252,
   "settings": [
-    { "id": "monitorId", "type": "autocomplete", "title": { "en": "Monitor" } }
+    {
+      "id": "monitorId",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
+      }
+    }
   ],
   "api": {
-    "getSummary": { "method": "GET", "path": "/summary" }
+    "getSummary": {
+      "method": "GET",
+      "path": "/summary"
+    }
   }
 }

@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Group matched again"
+    "en": "Group matched again",
+    "da": "Gruppen stemmer igen",
+    "de": "Gruppe stimmt wieder überein",
+    "es": "El grupo vuelve a coincidir",
+    "fr": "Le groupe est de nouveau conforme",
+    "it": "Il gruppo è di nuovo conforme",
+    "nl": "Groep komt weer overeen",
+    "no": "Gruppen stemmer igjen",
+    "sv": "Gruppen stämmer igen"
   },
   "titleFormatted": {
-    "en": "[[group]] is back to normal"
+    "en": "[[group]] is back to normal",
+    "da": "[[group]] er normal igen",
+    "de": "[[group]] ist wieder normal",
+    "es": "[[group]] vuelve a la normalidad",
+    "fr": "[[group]] est revenu à la normale",
+    "it": "[[group]] è tornato normale",
+    "nl": "[[group]] is weer normaal",
+    "no": "[[group]] er normal igjen",
+    "sv": "[[group]] är normal igen"
   },
   "hint": {
-    "en": "Fires the next time a poll finds every device back in the expected state, after the group had a mismatch."
+    "en": "Fires when every device of the group is back in the expected state, after the group had a mismatch.",
+    "da": "Udløses, når hver enhed i gruppen er i den forventede tilstand igen, efter at gruppen havde en afvigelse.",
+    "de": "Löst aus, wenn jedes Gerät der Gruppe wieder im erwarteten Zustand ist, nachdem die Gruppe eine Abweichung hatte.",
+    "es": "Se activa cuando todos los dispositivos del grupo vuelven al estado esperado, después de que el grupo tuviera una discrepancia.",
+    "fr": "Se déclenche quand chaque appareil du groupe est de nouveau dans l'état attendu, après un écart du groupe.",
+    "it": "Si attiva quando ogni dispositivo del gruppo è di nuovo nello stato atteso, dopo che il gruppo ha avuto una difformità.",
+    "nl": "Gaat af als elk apparaat van de groep weer in de verwachte status is, nadat de groep een afwijking had.",
+    "no": "Utløses når hver enhet i gruppen er i forventet tilstand igjen, etter at gruppen hadde et avvik.",
+    "sv": "Utlöses när varje enhet i gruppen är i förväntat läge igen, efter att gruppen haft en avvikelse."
   },
   "args": [
     {
@@ -14,10 +38,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Group"
+        "en": "Group",
+        "da": "Gruppe",
+        "de": "Gruppe",
+        "es": "Grupo",
+        "fr": "Groupe",
+        "it": "Gruppo",
+        "nl": "Groep",
+        "no": "Gruppe",
+        "sv": "Grupp"
       },
       "hint": {
-        "en": "Pick \"Any group\" to run for all of them; the tokens say which one it was."
+        "en": "Pick \"Any group\" to run for all of them; the tokens say which one it was.",
+        "da": "Vælg \"Enhver gruppe\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Wähle \"Jede Gruppe\", um für alle zu laufen; die Tokens sagen, welche es war.",
+        "es": "Elige \"Cualquier grupo\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Choisissez \"N'importe quel groupe\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Scegli \"Qualsiasi gruppo\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Kies \"Elke groep\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Velg \"Hvilken som helst gruppe\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Välj \"Valfri grupp\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -26,42 +66,90 @@
       "name": "group",
       "type": "string",
       "title": {
-        "en": "Group"
+        "en": "Group",
+        "da": "Gruppe",
+        "de": "Gruppe",
+        "es": "Grupo",
+        "fr": "Groupe",
+        "it": "Gruppo",
+        "nl": "Groep",
+        "no": "Gruppe",
+        "sv": "Grupp"
       }
     },
     {
       "name": "mismatch_duration",
       "type": "number",
       "title": {
-        "en": "Mismatched for (seconds)"
+        "en": "Mismatched for (seconds)",
+        "da": "Afvigende i (sekunder)",
+        "de": "Abweichend seit (Sekunden)",
+        "es": "Con discrepancia durante (segundos)",
+        "fr": "En écart pendant (secondes)",
+        "it": "Difforme per (secondi)",
+        "nl": "Afwijkend gedurende (seconden)",
+        "no": "Avvikende i (sekunder)",
+        "sv": "Avvikande i (sekunder)"
       }
     },
     {
       "name": "mismatch_duration_human",
       "type": "string",
       "title": {
-        "en": "Mismatched for"
+        "en": "Mismatched for",
+        "da": "Afvigende i",
+        "de": "Abweichend seit",
+        "es": "Con discrepancia durante",
+        "fr": "En écart pendant",
+        "it": "Difforme per",
+        "nl": "Afwijkend gedurende",
+        "no": "Avvikende i",
+        "sv": "Avvikande i"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

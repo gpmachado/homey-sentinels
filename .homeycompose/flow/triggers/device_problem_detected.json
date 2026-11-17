@@ -1,68 +1,156 @@
 {
   "title": {
-    "en": "A device needs attention"
+    "en": "A device needs attention",
+    "da": "En enhed kræver opmærksomhed",
+    "de": "Ein Gerät braucht Aufmerksamkeit",
+    "es": "Un dispositivo necesita atención",
+    "fr": "Un appareil demande votre attention",
+    "it": "Un dispositivo richiede attenzione",
+    "nl": "Een apparaat heeft aandacht nodig",
+    "no": "En enhet trenger oppmerksomhet",
+    "sv": "En enhet behöver uppmärksamhet"
   },
   "titleFormatted": {
-    "en": "A device stopped reporting, is unavailable or has a low battery"
+    "en": "A device stopped reporting, is unavailable or has a low battery",
+    "da": "En enhed er holdt op med at rapportere, er utilgængelig eller har lavt batteri",
+    "de": "Ein Gerät meldet sich nicht mehr, ist nicht verfügbar oder hat eine schwache Batterie",
+    "es": "Un dispositivo dejó de informar, no está disponible o tiene la batería baja",
+    "fr": "Un appareil n'émet plus, est indisponible ou a une batterie faible",
+    "it": "Un dispositivo non trasmette più, non è disponibile o ha la batteria scarica",
+    "nl": "Een apparaat meldt zich niet meer, is onbeschikbaar of heeft een lege batterij",
+    "no": "En enhet har sluttet å rapportere, er utilgjengelig eller har lavt batteri",
+    "sv": "En enhet har slutat rapportera, är otillgänglig eller har svagt batteri"
   },
   "hint": {
-    "en": "Fires once for each device that newly turns up as a problem in the all-devices scan (Settings -> Availability), for devices that have no watchdog of their own. The very first scan only records what is already wrong. At most 10 per scan; a summary also goes to the Homey timeline."
+    "en": "Fires once for each device that newly turns up as a problem in the all-devices scan (Settings -> Availability), for devices that have no watchdog of their own. The very first scan only records what is already wrong. At most 10 per scan; a summary also goes to the Homey timeline.",
+    "da": "Udløses én gang for hver enhed, der dukker op som et nyt problem i scanningen af alle enheder (Indstillinger -> Tilgængelighed), for enheder uden egen watchdog. Den allerførste scanning registrerer kun det, der allerede er galt. Højst 10 pr. scanning; et resumé går også til Homeys tidslinje.",
+    "de": "Löst einmal für jedes Gerät aus, das im Scan aller Geräte (Einstellungen -> Verfügbarkeit) neu als Problem auftaucht, für Geräte ohne eigenen Watchdog. Der allererste Scan hält nur fest, was schon nicht stimmt. Höchstens 10 pro Scan; eine Zusammenfassung geht auch in die Homey-Zeitleiste.",
+    "es": "Se activa una vez por cada dispositivo que aparece como problema nuevo en el escaneo de todos los dispositivos (Ajustes -> Disponibilidad), para los que no tienen watchdog propio. El primer escaneo solo registra lo que ya está mal. Como mucho 10 por escaneo; también se envía un resumen a la línea de tiempo de Homey.",
+    "fr": "Se déclenche une fois pour chaque appareil qui apparaît nouvellement comme problème dans le scan de tous les appareils (Réglages -> Disponibilité), pour les appareils sans watchdog propre. Le tout premier scan se contente d'enregistrer ce qui ne va déjà pas. Au plus 10 par scan ; un résumé va aussi dans la chronologie Homey.",
+    "it": "Si attiva una volta per ogni dispositivo che compare per la prima volta come problema nella scansione di tutti i dispositivi (Impostazioni -> Disponibilità), per i dispositivi senza un proprio watchdog. La primissima scansione registra soltanto ciò che è già sbagliato. Al massimo 10 per scansione; un riepilogo va anche nella cronologia di Homey.",
+    "nl": "Gaat één keer af voor elk apparaat dat nieuw als probleem opduikt in de scan van alle apparaten (Instellingen -> Beschikbaarheid), voor apparaten zonder eigen watchdog. De allereerste scan legt alleen vast wat al mis is. Maximaal 10 per scan; een samenvatting gaat ook naar de Homey-tijdlijn.",
+    "no": "Utløses én gang for hver enhet som dukker opp som et nytt problem i skanningen av alle enheter (Innstillinger -> Tilgjengelighet), for enheter uten egen watchdog. Den aller første skanningen registrerer bare det som allerede er galt. Maks 10 per skanning; et sammendrag går også til Homey-tidslinjen.",
+    "sv": "Utlöses en gång för varje enhet som dyker upp som ett nytt problem i skanningen av alla enheter (Inställningar -> Tillgänglighet), för enheter utan egen watchdog. Den allra första skanningen registrerar bara det som redan är fel. Högst 10 per skanning; en sammanfattning går också till Homeys tidslinje."
   },
   "tokens": [
     {
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "zone",
       "type": "string",
       "title": {
-        "en": "Zone"
+        "en": "Zone",
+        "da": "Zone",
+        "de": "Zone",
+        "es": "Zona",
+        "fr": "Zone",
+        "it": "Zona",
+        "nl": "Zone",
+        "no": "Sone",
+        "sv": "Zon"
       }
     },
     {
       "name": "last_seen",
       "type": "string",
       "title": {
-        "en": "Last seen"
+        "en": "Last seen",
+        "da": "Sidst set",
+        "de": "Zuletzt gesehen",
+        "es": "Visto por última vez",
+        "fr": "Vu pour la dernière fois",
+        "it": "Visto l'ultima volta",
+        "nl": "Laatst gezien",
+        "no": "Sist sett",
+        "sv": "Senast sedd"
       }
     },
     {
       "name": "reason",
       "type": "string",
       "title": {
-        "en": "Reason (stale, unavailable or low_battery)"
+        "en": "Reason (stale, unavailable or low_battery)",
+        "da": "Årsag (stale, unavailable eller low_battery)",
+        "de": "Grund (stale, unavailable oder low_battery)",
+        "es": "Motivo (stale, unavailable o low_battery)",
+        "fr": "Raison (stale, unavailable ou low_battery)",
+        "it": "Motivo (stale, unavailable o low_battery)",
+        "nl": "Reden (stale, unavailable of low_battery)",
+        "no": "Årsak (stale, unavailable eller low_battery)",
+        "sv": "Orsak (stale, unavailable eller low_battery)"
       }
     },
     {
       "name": "battery",
       "type": "number",
       "title": {
-        "en": "Battery (%)"
+        "en": "Battery (%)",
+        "da": "Batteri (%)",
+        "de": "Batterie (%)",
+        "es": "Batería (%)",
+        "fr": "Batterie (%)",
+        "it": "Batteria (%)",
+        "nl": "Batterij (%)",
+        "no": "Batteri (%)",
+        "sv": "Batteri (%)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message (in the Default message language)"
+        "en": "Message (in the Default message language)",
+        "da": "Besked (på Standardsprog for beskeder)",
+        "de": "Nachricht (in der Standard-Nachrichtensprache)",
+        "es": "Mensaje (en el Idioma de mensajes por defecto)",
+        "fr": "Message (dans la Langue des messages par défaut)",
+        "it": "Messaggio (nella Lingua predefinita dei messaggi)",
+        "nl": "Bericht (in de Standaard berichttaal)",
+        "no": "Melding (på Standard meldingsspråk)",
+        "sv": "Meddelande (på Standardspråket för meddelanden)"
       }
     }
   ]

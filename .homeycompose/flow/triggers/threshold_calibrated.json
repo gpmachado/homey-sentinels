@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Threshold calibrated"
+    "en": "Threshold calibrated",
+    "da": "Tærskel kalibreret",
+    "de": "Schwellenwert kalibriert",
+    "es": "Umbral calibrado",
+    "fr": "Seuil calibré",
+    "it": "Soglia calibrata",
+    "nl": "Drempel gekalibreerd",
+    "no": "Terskel kalibrert",
+    "sv": "Tröskel kalibrerad"
   },
   "titleFormatted": {
-    "en": "Threshold calibrated ([[monitor]])"
+    "en": "Threshold calibrated ([[monitor]])",
+    "da": "Tærskel kalibreret ([[monitor]])",
+    "de": "Schwellenwert kalibriert ([[monitor]])",
+    "es": "Umbral calibrado ([[monitor]])",
+    "fr": "Seuil calibré ([[monitor]])",
+    "it": "Soglia calibrata ([[monitor]])",
+    "nl": "Drempel gekalibreerd ([[monitor]])",
+    "no": "Terskel kalibrert ([[monitor]])",
+    "sv": "Tröskel kalibrerad ([[monitor]])"
   },
   "hint": {
-    "en": "Fires once, the first time a monitor created without a threshold finishes auto-calibrating from its own power history."
+    "en": "Fires once, the first time a monitor created without a threshold finishes auto-calibrating from its own power history.",
+    "da": "Udløses én gang, første gang en monitor oprettet uden tærskel er færdig med automatisk kalibrering ud fra sin egen effekthistorik.",
+    "de": "Löst einmal aus, wenn ein ohne Schwellenwert angelegter Monitor das erste Mal die automatische Kalibrierung aus seinem eigenen Leistungsverlauf abschließt.",
+    "es": "Se activa una vez, la primera vez que un monitor creado sin umbral termina de calibrarse solo a partir de su propio historial de potencia.",
+    "fr": "Se déclenche une fois, la première fois qu'un moniteur créé sans seuil termine sa calibration automatique à partir de son propre historique de puissance.",
+    "it": "Si attiva una volta, la prima volta che un monitor creato senza soglia completa la calibrazione automatica dal proprio storico di potenza.",
+    "nl": "Gaat één keer af, de eerste keer dat een monitor die zonder drempel is aangemaakt klaar is met automatisch kalibreren op basis van zijn eigen vermogensgeschiedenis.",
+    "no": "Utløses én gang, første gang en monitor som ble laget uten terskel er ferdig med automatisk kalibrering ut fra sin egen effekthistorikk.",
+    "sv": "Utlöses en gång, första gången en övervakare som skapats utan tröskel är klar med den automatiska kalibreringen utifrån sin egen effekthistorik."
   },
   "args": [
     {
@@ -14,10 +38,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       },
       "hint": {
-        "en": "Which activity monitor to watch. Pick \"Any activity monitor\" to run for all of them; the tokens say which one it was."
+        "en": "Which activity monitor to watch. Pick \"Any activity monitor\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken aktivitetsmonitor der skal følges. Vælg \"Enhver aktivitetsmonitor\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Welcher Aktivitätsmonitor beobachtet wird. Wähle \"Jeder Aktivitätsmonitor\", um für alle zu laufen; die Tokens sagen, welcher es war.",
+        "es": "Qué monitor de actividad seguir. Elige \"Cualquier monitor de actividad\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Quel moniteur d'activité suivre. Choisissez \"N'importe quel moniteur d'activité\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Quale monitor di attività seguire. Scegli \"Qualsiasi monitor di attività\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Welke activiteitsmonitor je wilt volgen. Kies \"Elke activiteitsmonitor\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Hvilken aktivitetsmonitor som skal følges. Velg \"Hvilken som helst aktivitetsmonitor\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken aktivitetsövervakare som ska följas. Välj \"Valfri aktivitetsövervakare\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -26,56 +66,120 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "threshold",
       "type": "number",
       "title": {
-        "en": "Threshold (W)"
+        "en": "Threshold (W)",
+        "da": "Tærskel (W)",
+        "de": "Schwellenwert (W)",
+        "es": "Umbral (W)",
+        "fr": "Seuil (W)",
+        "it": "Soglia (W)",
+        "nl": "Drempel (W)",
+        "no": "Terskel (W)",
+        "sv": "Tröskel (W)"
       }
     },
     {
       "name": "standby_power",
       "type": "number",
       "title": {
-        "en": "Observed standby power (W)"
+        "en": "Observed standby power (W)",
+        "da": "Observeret standbyeffekt (W)",
+        "de": "Beobachtete Standby-Leistung (W)",
+        "es": "Potencia en reposo observada (W)",
+        "fr": "Puissance de veille observée (W)",
+        "it": "Potenza in standby osservata (W)",
+        "nl": "Waargenomen stand-byvermogen (W)",
+        "no": "Observert hvileeffekt (W)",
+        "sv": "Observerad viloeffekt (W)"
       }
     },
     {
       "name": "active_power",
       "type": "number",
       "title": {
-        "en": "Observed active power (W)"
+        "en": "Observed active power (W)",
+        "da": "Observeret aktiv effekt (W)",
+        "de": "Beobachtete aktive Leistung (W)",
+        "es": "Potencia activa observada (W)",
+        "fr": "Puissance active observée (W)",
+        "it": "Potenza attiva osservata (W)",
+        "nl": "Waargenomen actief vermogen (W)",
+        "no": "Observert aktiv effekt (W)",
+        "sv": "Observerad aktiv effekt (W)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

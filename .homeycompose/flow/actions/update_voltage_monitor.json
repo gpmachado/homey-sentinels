@@ -1,9 +1,71 @@
 {
-  "title": { "en": "Update voltage monitor" },
-  "titleFormatted": { "en": "Update voltage monitor [[monitor]] to range [[min_voltage]]-[[max_voltage]] V" },
+  "title": {
+    "en": "Update voltage monitor",
+    "da": "Opdater spændingsmonitor",
+    "de": "Spannungsmonitor aktualisieren",
+    "es": "Actualizar monitor de tensión",
+    "fr": "Mettre à jour le moniteur de tension",
+    "it": "Aggiorna il monitor di tensione",
+    "nl": "Spanningsmonitor bijwerken",
+    "no": "Oppdater spenningsmonitor",
+    "sv": "Uppdatera spänningsövervakare"
+  },
+  "titleFormatted": {
+    "en": "Update voltage monitor [[monitor]] to range [[min_voltage]]-[[max_voltage]] V",
+    "da": "Opdater spændingsmonitor [[monitor]]: område [[min_voltage]]-[[max_voltage]] V",
+    "de": "Spannungsmonitor [[monitor]] auf Bereich [[min_voltage]]-[[max_voltage]] V setzen",
+    "es": "Actualizar monitor de tensión [[monitor]]: rango [[min_voltage]]-[[max_voltage]] V",
+    "fr": "Mettre à jour le moniteur de tension [[monitor]] : plage [[min_voltage]]-[[max_voltage]] V",
+    "it": "Aggiorna il monitor di tensione [[monitor]]: intervallo [[min_voltage]]-[[max_voltage]] V",
+    "nl": "Spanningsmonitor [[monitor]] bijwerken naar bereik [[min_voltage]]-[[max_voltage]] V",
+    "no": "Oppdater spenningsmonitor [[monitor]]: område [[min_voltage]]-[[max_voltage]] V",
+    "sv": "Uppdatera spänningsövervakare [[monitor]]: intervall [[min_voltage]]-[[max_voltage]] V"
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
-    { "name": "min_voltage", "type": "number", "title": { "en": "Minimum voltage (V)" } },
-    { "name": "max_voltage", "type": "number", "title": { "en": "Maximum voltage (V)" } }
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
+      }
+    },
+    {
+      "name": "min_voltage",
+      "type": "number",
+      "title": {
+        "en": "Minimum voltage (V)",
+        "da": "Laveste spænding (V)",
+        "de": "Minimale Spannung (V)",
+        "es": "Tensión mínima (V)",
+        "fr": "Tension minimale (V)",
+        "it": "Tensione minima (V)",
+        "nl": "Minimale spanning (V)",
+        "no": "Laveste spenning (V)",
+        "sv": "Lägsta spänning (V)"
+      }
+    },
+    {
+      "name": "max_voltage",
+      "type": "number",
+      "title": {
+        "en": "Maximum voltage (V)",
+        "da": "Højeste spænding (V)",
+        "de": "Maximale Spannung (V)",
+        "es": "Tensión máxima (V)",
+        "fr": "Tension maximale (V)",
+        "it": "Tensione massima (V)",
+        "nl": "Maximale spanning (V)",
+        "no": "Høyeste spenning (V)",
+        "sv": "Högsta spänning (V)"
+      }
+    }
   ]
 }

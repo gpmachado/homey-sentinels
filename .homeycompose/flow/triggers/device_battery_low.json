@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Watched device battery is low"
+    "en": "Watched device battery is low",
+    "da": "Batteriet i en overvåget enhed er lavt",
+    "de": "Batterie eines überwachten Geräts ist schwach",
+    "es": "La batería de un dispositivo vigilado está baja",
+    "fr": "La batterie d'un appareil surveillé est faible",
+    "it": "La batteria di un dispositivo sorvegliato è scarica",
+    "nl": "Batterij van bewaakt apparaat is laag",
+    "no": "Batteriet i en overvåket enhet er lavt",
+    "sv": "Batteriet i en bevakad enhet är svagt"
   },
   "titleFormatted": {
-    "en": "[[device]] battery is low"
+    "en": "[[device]] battery is low",
+    "da": "Batteriet i [[device]] er lavt",
+    "de": "Batterie von [[device]] ist schwach",
+    "es": "La batería de [[device]] está baja",
+    "fr": "La batterie de [[device]] est faible",
+    "it": "La batteria di [[device]] è scarica",
+    "nl": "Batterij van [[device]] is laag",
+    "no": "Batteriet i [[device]] er lavt",
+    "sv": "Batteriet i [[device]] är svagt"
   },
   "hint": {
-    "en": "Fires once when a watched device's battery drops to the warning level set in Settings -> Availability (30 % unless changed), and stays low for the configured delay. Fires again only after the battery has recovered and dropped again."
+    "en": "Fires once when a watched device's battery drops to the warning level set in Settings -> Availability (30 % unless changed), and stays low for the configured delay. Fires again only after the battery has recovered and dropped again.",
+    "da": "Udløses én gang, når batteriet i en overvåget enhed falder til advarselsniveauet i Indstillinger -> Tilgængelighed (30 %, medmindre det er ændret) og forbliver lavt i den indstillede tid. Udløses først igen, når batteriet er kommet sig og er faldet igen.",
+    "de": "Löst einmal aus, wenn die Batterie eines überwachten Geräts auf die Warnschwelle aus Einstellungen -> Verfügbarkeit fällt (30 %, sofern nicht geändert) und so lange schwach bleibt wie eingestellt. Löst erst wieder aus, nachdem sich die Batterie erholt hat und erneut gefallen ist.",
+    "es": "Se activa una vez cuando la batería de un dispositivo vigilado baja al nivel de aviso fijado en Ajustes -> Disponibilidad (30 % si no se cambia) y se mantiene baja el tiempo configurado. Vuelve a activarse solo después de que la batería se recupere y vuelva a bajar.",
+    "fr": "Se déclenche une fois quand la batterie d'un appareil surveillé descend au niveau d'alerte défini dans Réglages -> Disponibilité (30 % sauf modification) et reste basse pendant le délai configuré. Ne se déclenche à nouveau qu'après que la batterie est remontée puis redescendue.",
+    "it": "Si attiva una volta quando la batteria di un dispositivo sorvegliato scende al livello di avviso impostato in Impostazioni -> Disponibilità (30 % se non modificato) e resta bassa per il tempo configurato. Si attiva di nuovo solo dopo che la batteria si è ripresa ed è scesa ancora.",
+    "nl": "Gaat één keer af als de batterij van een bewaakt apparaat zakt tot het waarschuwingsniveau in Instellingen -> Beschikbaarheid (30 % tenzij gewijzigd) en zo lang laag blijft als ingesteld. Gaat pas weer af nadat de batterij is hersteld en opnieuw is gezakt.",
+    "no": "Utløses én gang når batteriet i en overvåket enhet synker til varslingsnivået i Innstillinger -> Tilgjengelighet (30 % om ikke endret) og holder seg lavt i den innstilte tiden. Utløses igjen først etter at batteriet har kommet seg og sunket igjen.",
+    "sv": "Utlöses en gång när batteriet i en bevakad enhet sjunker till varningsnivån i Inställningar -> Tillgänglighet (30 % om inget annat angetts) och förblir lågt under den inställda tiden. Utlöses igen först när batteriet har återhämtat sig och sjunkit igen."
   },
   "args": [
     {
@@ -14,10 +38,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       },
       "hint": {
-        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
+        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken overvåget enhed der skal reageres på. Vælg \"Enhver overvåget enhed\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Auf welches überwachte Gerät reagiert wird. Wähle \"Jedes überwachte Gerät\", um für alle zu laufen; die Tokens sagen, welches es war.",
+        "es": "A qué dispositivo vigilado reaccionar. Elige \"Cualquier dispositivo vigilado\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "À quel appareil surveillé réagir. Choisissez \"N'importe quel appareil surveillé\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "A quale dispositivo sorvegliato reagire. Scegli \"Qualsiasi dispositivo sorvegliato\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Op welk bewaakt apparaat je wilt reageren. Kies \"Elk bewaakt apparaat\" om voor allemaal te werken; de tokens zeggen welk het was.",
+        "no": "Hvilken overvåket enhet det skal reageres på. Velg \"Hvilken som helst overvåket enhet\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken bevakad enhet som ska reageras på. Välj \"Valfri bevakad enhet\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -26,42 +66,90 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "zone",
       "type": "string",
       "title": {
-        "en": "Zone"
+        "en": "Zone",
+        "da": "Zone",
+        "de": "Zone",
+        "es": "Zona",
+        "fr": "Zone",
+        "it": "Zona",
+        "nl": "Zone",
+        "no": "Sone",
+        "sv": "Zon"
       }
     },
     {
       "name": "battery",
       "type": "number",
       "title": {
-        "en": "Battery (%)"
+        "en": "Battery (%)",
+        "da": "Batteri (%)",
+        "de": "Batterie (%)",
+        "es": "Batería (%)",
+        "fr": "Batterie (%)",
+        "it": "Batteria (%)",
+        "nl": "Batterij (%)",
+        "no": "Batteri (%)",
+        "sv": "Batteri (%)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message (in the Default message language)"
+        "en": "Message (in the Default message language)",
+        "da": "Besked (på Standardsprog for beskeder)",
+        "de": "Nachricht (in der Standard-Nachrichtensprache)",
+        "es": "Mensaje (en el Idioma de mensajes por defecto)",
+        "fr": "Message (dans la Langue des messages par défaut)",
+        "it": "Messaggio (nella Lingua predefinita dei messaggi)",
+        "nl": "Bericht (in de Standaard berichttaal)",
+        "no": "Melding (på Standard meldingsspråk)",
+        "sv": "Meddelande (på Standardspråket för meddelanden)"
       }
     }
   ]

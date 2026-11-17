@@ -187,8 +187,8 @@ devices of the same logical type.
    trigger at once, and closing it fires "matched again". "Detected" fires once per mismatch, not
    again while it stays that way. A 5-minute check underneath catches what an event cannot (a
    member that turned unavailable) and keeps the daily "time mismatched" estimate.
-5. A group is judged only once every member has reported a value; right after the app starts,
-   the first check settles that.
+5. A group is judged only once every member has reported a value. After the app starts, the groups are
+   watched and checked about 20 seconds after the monitors, so the start does not do everything at once.
 
 **If a device of the group is deleted from Homey**: the group keeps working with the others (the deleted
 one is not counted as a mismatch). After it has been missing for three checks in a row (about 15 minutes) it

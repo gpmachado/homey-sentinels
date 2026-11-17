@@ -107,7 +107,7 @@ test('a state monitor also fires the cycle triggers, and "running longer than" a
   const app = Object.assign({}, activity, state, {
     stateCards: { started: recorder('state_started'), finished: recorder('state_finished') },
     cards: { cyclesReached: recorder('cycles_reached'), unusuallyLong: recorder('unusually_long') },
-    _stateStatistics: () => ({ cycle_count: 5, energy: 0 }), _statistics: () => ({ median_duration: 60 }),
+    _stateStatistics: () => ({ cycle_count: 5, energy: 0 }), _medianCycleDuration: () => 60,
     _getTimezone: () => 'UTC', _scheduleSave() {}, _logEvent() {}, log() {}, _debug() {}
   });
   await app._handleStateEvents(door, [{ type: 'finished', timestamp: Date.UTC(2026, 10, 1), duration: 600, duration_human: '10 min' }]);
@@ -198,7 +198,7 @@ test('"still running" sets one timer per multiplier at start + N x the usual cyc
     store: { data: { monitors: { m1: pump }, stateMonitors: {} } },
     cards: { stillRunning: { getArgumentValues: async () => flows, trigger: async (tokens, state) => { fired.push([tokens, state]); } } },
     homey: { setTimeout: (fn, ms) => timers.push({ fn, ms }) },
-    _statistics: () => ({ median_duration: 3000 }), _getTimezone: () => 'UTC', _debug() {}, log() {}, error() {}, _logEvent() {},
+    _medianCycleDuration: () => 3000, _getTimezone: () => 'UTC', _debug() {}, log() {}, error() {}, _logEvent() {},
     _defaultWording: () => require('../lib/wording').wordingFor('pt')
   });
   await app._scheduleOverrunChecks(pump);
@@ -249,4 +249,28 @@ test('the merged cards replace the old per-kind ones in the manifest', () => {
   const ids = [...manifest.flow.triggers, ...manifest.flow.conditions, ...manifest.flow.actions].map((card) => card.id);
   for (const gone of ['is_active', 'is_state_active', 'is_voltage_normal', 'reset_activity_monitor', 'reset_state_monitor', 'reset_voltage_monitor']) assert.ok(!ids.includes(gone), gone);
   for (const kept of ['is_monitor_active', 'reset_monitor', 'activity_still_running_long', 'device_battery_ok', 'monitor_has_recent_reading']) assert.ok(ids.includes(kept), kept);
+});
+
+test('"still running" reads no history when no Flow uses the card', async () => {
+  const activity = require('../lib/app/activity');
+  let statsRead = 0;
+  const app = Object.assign({}, activity, {
+    cards: { stillRunning: { getArgumentValues: async () => [] } },
+    homey: { setTimeout() { throw new Error('no timer expected'); } },
+    _medianCycleDuration: () => { statsRead += 1; return 3000; }, _debug() {}
+  });
+  await app._scheduleOverrunChecks({ id: 'm1', state: 'ACTIVE', activeSince: Date.now() });
+  assert.equal(statsRead, 0);
+});
+
+test('the "Any ..." choice follows the Homey language, and stays English where there is no translation', async () => {
+  const de = require('../locales/de.json').anyChoice;
+  const cards = fakeApp();
+  cards.app.homey.__ = (key) => de[key.split('.')[1]] || key;
+  const [any] = await cards['stateCards.started'].autocomplete.monitor('');
+  assert.equal(any.name, 'Jeder Zustandsmonitor');
+  assert.equal(any.description, 'Läuft für alle');
+  assert.equal(any.data.id, '*');
+  cards.app.homey.__ = (key) => key;
+  assert.equal((await cards['stateCards.started'].autocomplete.monitor(''))[0].name, 'Any state monitor');
 });

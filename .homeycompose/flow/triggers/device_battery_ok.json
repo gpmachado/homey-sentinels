@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Watched device battery is OK again"
+    "en": "Watched device battery is OK again",
+    "da": "Batteriet i en overvåget enhed er i orden igen",
+    "de": "Batterie eines überwachten Geräts ist wieder in Ordnung",
+    "es": "La batería de un dispositivo vigilado vuelve a estar bien",
+    "fr": "La batterie d'un appareil surveillé est de nouveau correcte",
+    "it": "La batteria di un dispositivo sorvegliato è di nuovo a posto",
+    "nl": "Batterij van bewaakt apparaat is weer in orde",
+    "no": "Batteriet i en overvåket enhet er i orden igjen",
+    "sv": "Batteriet i en bevakad enhet är bra igen"
   },
   "titleFormatted": {
-    "en": "[[device]] battery is OK again"
+    "en": "[[device]] battery is OK again",
+    "da": "Batteriet i [[device]] er i orden igen",
+    "de": "Batterie von [[device]] ist wieder in Ordnung",
+    "es": "La batería de [[device]] vuelve a estar bien",
+    "fr": "La batterie de [[device]] est de nouveau correcte",
+    "it": "La batteria di [[device]] è di nuovo a posto",
+    "nl": "Batterij van [[device]] is weer in orde",
+    "no": "Batteriet i [[device]] er i orden igjen",
+    "sv": "Batteriet i [[device]] är bra igen"
   },
   "hint": {
-    "en": "Fires once when a watched device whose battery was reported low is above the warning level again, usually after a battery change."
+    "en": "Fires once when a watched device whose battery was reported low is above the warning level again, usually after a battery change.",
+    "da": "Udløses én gang, når en overvåget enhed, hvis batteri blev meldt lavt, igen er over advarselsniveauet, som regel efter et batteriskift.",
+    "de": "Löst einmal aus, wenn ein überwachtes Gerät, dessen Batterie als schwach gemeldet war, wieder über der Warnschwelle liegt, meist nach einem Batteriewechsel.",
+    "es": "Se activa una vez cuando un dispositivo vigilado cuya batería se avisó como baja vuelve a estar por encima del nivel de aviso, normalmente tras cambiar la batería.",
+    "fr": "Se déclenche une fois quand un appareil surveillé dont la batterie était signalée faible repasse au-dessus du niveau d'alerte, en général après un changement de pile.",
+    "it": "Si attiva una volta quando un dispositivo sorvegliato con batteria segnalata scarica torna sopra il livello di avviso, di solito dopo un cambio di batteria.",
+    "nl": "Gaat één keer af als een bewaakt apparaat waarvan de batterij als laag was gemeld weer boven het waarschuwingsniveau zit, meestal na een batterijwissel.",
+    "no": "Utløses én gang når en overvåket enhet med batteri som ble meldt lavt, er over varslingsnivået igjen, vanligvis etter et batteribytte.",
+    "sv": "Utlöses en gång när en bevakad enhet vars batteri rapporterades som svagt är över varningsnivån igen, oftast efter ett batteribyte."
   },
   "args": [
     {
@@ -14,10 +38,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       },
       "hint": {
-        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
+        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken overvåget enhed der skal reageres på. Vælg \"Enhver overvåget enhed\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Auf welches überwachte Gerät reagiert wird. Wähle \"Jedes überwachte Gerät\", um für alle zu laufen; die Tokens sagen, welches es war.",
+        "es": "A qué dispositivo vigilado reaccionar. Elige \"Cualquier dispositivo vigilado\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "À quel appareil surveillé réagir. Choisissez \"N'importe quel appareil surveillé\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "A quale dispositivo sorvegliato reagire. Scegli \"Qualsiasi dispositivo sorvegliato\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Op welk bewaakt apparaat je wilt reageren. Kies \"Elk bewaakt apparaat\" om voor allemaal te werken; de tokens zeggen welk het was.",
+        "no": "Hvilken overvåket enhet det skal reageres på. Velg \"Hvilken som helst overvåket enhet\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken bevakad enhet som ska reageras på. Välj \"Valfri bevakad enhet\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -26,42 +66,90 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "zone",
       "type": "string",
       "title": {
-        "en": "Zone"
+        "en": "Zone",
+        "da": "Zone",
+        "de": "Zone",
+        "es": "Zona",
+        "fr": "Zone",
+        "it": "Zona",
+        "nl": "Zone",
+        "no": "Sone",
+        "sv": "Zon"
       }
     },
     {
       "name": "battery",
       "type": "number",
       "title": {
-        "en": "Battery (%)"
+        "en": "Battery (%)",
+        "da": "Batteri (%)",
+        "de": "Batterie (%)",
+        "es": "Batería (%)",
+        "fr": "Batterie (%)",
+        "it": "Batteria (%)",
+        "nl": "Batterij (%)",
+        "no": "Batteri (%)",
+        "sv": "Batteri (%)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message (in the Default message language)"
+        "en": "Message (in the Default message language)",
+        "da": "Besked (på Standardsprog for beskeder)",
+        "de": "Nachricht (in der Standard-Nachrichtensprache)",
+        "es": "Mensaje (en el Idioma de mensajes por defecto)",
+        "fr": "Message (dans la Langue des messages par défaut)",
+        "it": "Messaggio (nella Lingua predefinita dei messaggi)",
+        "nl": "Bericht (in de Standaard berichttaal)",
+        "no": "Melding (på Standard meldingsspråk)",
+        "sv": "Meddelande (på Standardspråket för meddelanden)"
       }
     }
   ]

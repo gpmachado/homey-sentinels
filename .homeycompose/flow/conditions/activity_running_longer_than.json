@@ -1,31 +1,79 @@
 {
   "title": {
-    "en": "Running longer than"
+    "en": "Running longer than",
+    "da": "Aktiv længere end",
+    "de": "Länger aktiv als",
+    "es": "Activo más de",
+    "fr": "Actif depuis plus de",
+    "it": "Attivo da più di",
+    "nl": "Langer actief dan",
+    "no": "Aktiv lenger enn",
+    "sv": "Aktiv längre än"
   },
   "titleFormatted": {
-    "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes"
+    "en": "[[monitor]] !{{has been active for more than|has not been active for more than}} [[minutes]] minutes",
+    "da": "[[monitor]] !{{har været aktiv i mere end|har ikke været aktiv i mere end}} [[minutes]] minutter",
+    "de": "[[monitor]] !{{ist länger als|ist nicht länger als}} [[minutes]] Minuten aktiv",
+    "es": "[[monitor]] !{{lleva activo más de|no lleva activo más de}} [[minutes]] minutos",
+    "fr": "[[monitor]] !{{est actif depuis plus de|n'est pas actif depuis plus de}} [[minutes]] minutes",
+    "it": "[[monitor]] !{{è attivo da più di|non è attivo da più di}} [[minutes]] minuti",
+    "nl": "[[monitor]] !{{is langer dan|is niet langer dan}} [[minutes]] minuten actief",
+    "no": "[[monitor]] !{{har vært aktiv i mer enn|har ikke vært aktiv i mer enn}} [[minutes]] minutter",
+    "sv": "[[monitor]] !{{har varit aktiv i mer än|har inte varit aktiv i mer än}} [[minutes]] minuter"
   },
   "args": [
     {
       "name": "monitor",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "minutes",
       "type": "number",
       "title": {
-        "en": "Minutes"
+        "en": "Minutes",
+        "da": "Minutter",
+        "de": "Minuten",
+        "es": "Minutos",
+        "fr": "Minutes",
+        "it": "Minuti",
+        "nl": "Minuten",
+        "no": "Minutter",
+        "sv": "Minuter"
       },
       "min": 0,
       "placeholder": {
-        "en": "e.g. 120"
+        "en": "e.g. 120",
+        "da": "f.eks. 120",
+        "de": "z. B. 120",
+        "es": "p. ej. 120",
+        "fr": "ex. 120",
+        "it": "es. 120",
+        "nl": "bijv. 120",
+        "no": "f.eks. 120",
+        "sv": "t.ex. 120"
       }
     }
   ],
   "hint": {
-    "en": "Activity and state monitors: a pump running for more than 2 hours, a door open for more than 10 minutes."
+    "en": "Activity and state monitors: a pump running for more than 2 hours, a door open for more than 10 minutes.",
+    "da": "Aktivitets- og statusmonitorer: en pumpe, der kører i mere end 2 timer, en dør, der står åben i mere end 10 minutter.",
+    "de": "Aktivitäts- und Zustandsmonitore: eine Pumpe, die länger als 2 Stunden läuft, eine Tür, die länger als 10 Minuten offen ist.",
+    "es": "Monitores de actividad y de estado: una bomba funcionando más de 2 horas, una puerta abierta más de 10 minutos.",
+    "fr": "Moniteurs d'activité et d'état : une pompe qui tourne depuis plus de 2 heures, une porte ouverte depuis plus de 10 minutes.",
+    "it": "Monitor di attività e di stato: una pompa accesa da più di 2 ore, una porta aperta da più di 10 minuti.",
+    "nl": "Activiteits- en statusmonitors: een pomp die langer dan 2 uur draait, een deur die langer dan 10 minuten open staat.",
+    "no": "Aktivitets- og statusmonitorer: en pumpe som går i mer enn 2 timer, en dør som står åpen i mer enn 10 minutter.",
+    "sv": "Aktivitets- och statusövervakare: en pump som går i mer än 2 timmar, en dörr som står öppen i mer än 10 minuter."
   }
 }

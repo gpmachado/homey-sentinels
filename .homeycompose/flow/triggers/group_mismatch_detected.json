@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Group mismatch detected"
+    "en": "Group mismatch detected",
+    "da": "Gruppeafvigelse fundet",
+    "de": "Gruppenabweichung erkannt",
+    "es": "Discrepancia de grupo detectada",
+    "fr": "Écart de groupe détecté",
+    "it": "Difformità di gruppo rilevata",
+    "nl": "Groepsafwijking gedetecteerd",
+    "no": "Gruppeavvik oppdaget",
+    "sv": "Gruppavvikelse upptäckt"
   },
   "titleFormatted": {
-    "en": "[[group]] has a new mismatch"
+    "en": "[[group]] has a new mismatch",
+    "da": "[[group]] har en ny afvigelse",
+    "de": "[[group]] hat eine neue Abweichung",
+    "es": "[[group]] tiene una nueva discrepancia",
+    "fr": "[[group]] présente un nouvel écart",
+    "it": "[[group]] ha una nuova difformità",
+    "nl": "[[group]] heeft een nieuwe afwijking",
+    "no": "[[group]] har et nytt avvik",
+    "sv": "[[group]] har en ny avvikelse"
   },
   "hint": {
-    "en": "Fires the moment a poll first finds a mismatch in this group — not again on every following poll while it stays mismatched. Checked every few minutes (same cadence as the group's own statistics poll), so this can lag the real moment by up to that interval; use \"Check state group\" instead for an instant, on-demand check."
+    "en": "Fires the moment a device of this group leaves the expected state (every member is watched live), and not again while the group stays mismatched. Use \"Check state group\" for an on-demand check.",
+    "da": "Udløses i det øjeblik, en enhed i gruppen forlader den forventede tilstand (hvert medlem følges direkte), og ikke igen, så længe gruppen afviger. Brug \"Tjek statusgruppe\" til et tjek efter behov.",
+    "de": "Löst in dem Moment aus, in dem ein Gerät dieser Gruppe den erwarteten Zustand verlässt (jedes Mitglied wird live beobachtet), und nicht erneut, solange die Gruppe abweicht. Nutze \"Zustandsgruppe prüfen\" für eine Prüfung auf Abruf.",
+    "es": "Se activa en el momento en que un dispositivo de este grupo deja el estado esperado (cada miembro se vigila en vivo), y no otra vez mientras el grupo siga con discrepancia. Usa \"Comprobar grupo de estado\" para una comprobación a demanda.",
+    "fr": "Se déclenche au moment où un appareil de ce groupe quitte l'état attendu (chaque membre est suivi en direct), et pas à nouveau tant que le groupe reste en écart. Utilisez \"Vérifier le groupe d'état\" pour une vérification à la demande.",
+    "it": "Si attiva nel momento in cui un dispositivo di questo gruppo lascia lo stato atteso (ogni membro è seguito in tempo reale), e non di nuovo finché il gruppo resta difforme. Usa \"Controlla il gruppo di stato\" per un controllo su richiesta.",
+    "nl": "Gaat af op het moment dat een apparaat van deze groep de verwachte status verlaat (elk lid wordt live gevolgd), en niet opnieuw zolang de groep afwijkt. Gebruik \"Statusgroep controleren\" voor een controle op aanvraag.",
+    "no": "Utløses i det øyeblikket en enhet i gruppen forlater forventet tilstand (hvert medlem følges direkte), og ikke igjen så lenge gruppen avviker. Bruk \"Sjekk statusgruppe\" for en kontroll ved behov.",
+    "sv": "Utlöses i det ögonblick en enhet i gruppen lämnar förväntat läge (varje medlem följs live), och inte igen så länge gruppen avviker. Använd \"Kontrollera statusgrupp\" för en kontroll på begäran."
   },
   "args": [
     {
@@ -14,10 +38,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Group"
+        "en": "Group",
+        "da": "Gruppe",
+        "de": "Gruppe",
+        "es": "Grupo",
+        "fr": "Groupe",
+        "it": "Gruppo",
+        "nl": "Groep",
+        "no": "Gruppe",
+        "sv": "Grupp"
       },
       "hint": {
-        "en": "Pick \"Any group\" to run for all of them; the tokens say which one it was."
+        "en": "Pick \"Any group\" to run for all of them; the tokens say which one it was.",
+        "da": "Vælg \"Enhver gruppe\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Wähle \"Jede Gruppe\", um für alle zu laufen; die Tokens sagen, welche es war.",
+        "es": "Elige \"Cualquier grupo\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Choisissez \"N'importe quel groupe\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Scegli \"Qualsiasi gruppo\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Kies \"Elke groep\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Velg \"Hvilken som helst gruppe\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Välj \"Valfri grupp\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -26,56 +66,120 @@
       "name": "mismatch_count",
       "type": "number",
       "title": {
-        "en": "Mismatch count"
+        "en": "Mismatch count",
+        "da": "Antal afvigelser",
+        "de": "Anzahl der Abweichungen",
+        "es": "Número de discrepancias",
+        "fr": "Nombre d'écarts",
+        "it": "Numero di difformità",
+        "nl": "Aantal afwijkingen",
+        "no": "Antall avvik",
+        "sv": "Antal avvikelser"
       }
     },
     {
       "name": "match_count",
       "type": "number",
       "title": {
-        "en": "Match count"
+        "en": "Match count",
+        "da": "Antal der stemmer",
+        "de": "Anzahl der Übereinstimmungen",
+        "es": "Número de coincidencias",
+        "fr": "Nombre de conformes",
+        "it": "Numero di conformità",
+        "nl": "Aantal overeenkomsten",
+        "no": "Antall som stemmer",
+        "sv": "Antal som stämmer"
       }
     },
     {
       "name": "mismatch_list",
       "type": "string",
       "title": {
-        "en": "Mismatched devices"
+        "en": "Mismatched devices",
+        "da": "Afvigende enheder",
+        "de": "Abweichende Geräte",
+        "es": "Dispositivos con discrepancia",
+        "fr": "Appareils en écart",
+        "it": "Dispositivi difformi",
+        "nl": "Afwijkende apparaten",
+        "no": "Avvikende enheter",
+        "sv": "Avvikande enheter"
       }
     },
     {
       "name": "group",
       "type": "string",
       "title": {
-        "en": "Group"
+        "en": "Group",
+        "da": "Gruppe",
+        "de": "Gruppe",
+        "es": "Grupo",
+        "fr": "Groupe",
+        "it": "Gruppo",
+        "nl": "Groep",
+        "no": "Gruppe",
+        "sv": "Grupp"
       }
     },
     {
       "name": "checked_count",
       "type": "number",
       "title": {
-        "en": "Checked devices"
+        "en": "Checked devices",
+        "da": "Tjekkede enheder",
+        "de": "Geprüfte Geräte",
+        "es": "Dispositivos comprobados",
+        "fr": "Appareils vérifiés",
+        "it": "Dispositivi controllati",
+        "nl": "Gecontroleerde apparaten",
+        "no": "Sjekkede enheter",
+        "sv": "Kontrollerade enheter"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

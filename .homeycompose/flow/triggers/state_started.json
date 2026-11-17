@@ -1,9 +1,25 @@
 {
   "title": {
-    "en": "State session started"
+    "en": "State session started",
+    "da": "Statussession startet",
+    "de": "Zustandssitzung gestartet",
+    "es": "Sesión de estado iniciada",
+    "fr": "Session d'état démarrée",
+    "it": "Sessione di stato iniziata",
+    "nl": "Statussessie gestart",
+    "no": "Statusøkt startet",
+    "sv": "Statussession startad"
   },
   "titleFormatted": {
-    "en": "State session started ([[monitor]])"
+    "en": "State session started ([[monitor]])",
+    "da": "Statussession startet ([[monitor]])",
+    "de": "Zustandssitzung gestartet ([[monitor]])",
+    "es": "Sesión de estado iniciada ([[monitor]])",
+    "fr": "Session d'état démarrée ([[monitor]])",
+    "it": "Sessione di stato iniziata ([[monitor]])",
+    "nl": "Statussessie gestart ([[monitor]])",
+    "no": "Statusøkt startet ([[monitor]])",
+    "sv": "Statussession startad ([[monitor]])"
   },
   "args": [
     {
@@ -11,10 +27,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       },
       "hint": {
-        "en": "Which state monitor to watch. Pick \"Any state monitor\" to run for all of them; the tokens say which one it was."
+        "en": "Which state monitor to watch. Pick \"Any state monitor\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken statusmonitor der skal følges. Vælg \"Enhver statusmonitor\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Welcher Zustandsmonitor beobachtet wird. Wähle \"Jeder Zustandsmonitor\", um für alle zu laufen; die Tokens sagen, welcher es war.",
+        "es": "Qué monitor de estado seguir. Elige \"Cualquier monitor de estado\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Quel moniteur d'état suivre. Choisissez \"N'importe quel moniteur d'état\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Quale monitor di stato seguire. Scegli \"Qualsiasi monitor di stato\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Welke statusmonitor je wilt volgen. Kies \"Elke statusmonitor\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Hvilken statusmonitor som skal følges. Velg \"Hvilken som helst statusmonitor\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken statusövervakare som ska följas. Välj \"Valfri statusövervakare\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -23,49 +55,105 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "label",
       "type": "string",
       "title": {
-        "en": "State entered"
+        "en": "State entered",
+        "da": "Ny tilstand",
+        "de": "Neuer Zustand",
+        "es": "Nuevo estado",
+        "fr": "Nouvel état",
+        "it": "Nuovo stato",
+        "nl": "Nieuwe status",
+        "no": "Ny tilstand",
+        "sv": "Nytt läge"
       }
     },
     {
       "name": "power",
       "type": "number",
       "title": {
-        "en": "Power (W)"
+        "en": "Power (W)",
+        "da": "Effekt (W)",
+        "de": "Leistung (W)",
+        "es": "Potencia (W)",
+        "fr": "Puissance (W)",
+        "it": "Potenza (W)",
+        "nl": "Vermogen (W)",
+        "no": "Effekt (W)",
+        "sv": "Effekt (W)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

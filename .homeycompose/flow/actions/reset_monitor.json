@@ -1,19 +1,51 @@
 {
   "title": {
-    "en": "Reset monitor statistics"
+    "en": "Reset monitor statistics",
+    "da": "Nulstil monitorstatistik",
+    "de": "Monitorstatistik zurücksetzen",
+    "es": "Reiniciar estadísticas del monitor",
+    "fr": "Réinitialiser les statistiques du moniteur",
+    "it": "Azzera le statistiche del monitor",
+    "nl": "Monitorstatistieken resetten",
+    "no": "Nullstill monitorstatistikk",
+    "sv": "Nollställ övervakarens statistik"
   },
   "titleFormatted": {
-    "en": "Reset the statistics of [[monitor]]"
+    "en": "Reset the statistics of [[monitor]]",
+    "da": "Nulstil statistikken for [[monitor]]",
+    "de": "Statistik von [[monitor]] zurücksetzen",
+    "es": "Reiniciar las estadísticas de [[monitor]]",
+    "fr": "Réinitialiser les statistiques de [[monitor]]",
+    "it": "Azzera le statistiche di [[monitor]]",
+    "nl": "De statistieken van [[monitor]] resetten",
+    "no": "Nullstill statistikken for [[monitor]]",
+    "sv": "Nollställ statistiken för [[monitor]]"
   },
   "hint": {
-    "en": "For any Activity, State or Voltage monitor: wipes its recorded history and live state (e.g. after fixing a monitor that recorded wrong data) and keeps the monitor itself, its device, capability and settings."
+    "en": "For any Activity, State or Voltage monitor: wipes its recorded history and live state (e.g. after fixing a monitor that recorded wrong data) and keeps the monitor itself, its device, capability and settings.",
+    "da": "For alle aktivitets-, status- og spændingsmonitorer: sletter den gemte historik og den aktuelle tilstand (for eksempel efter at du har rettet en monitor, der gemte forkerte data) og beholder selve monitoren, dens enhed, funktion og indstillinger.",
+    "de": "Für jeden Aktivitäts-, Zustands- oder Spannungsmonitor: löscht den aufgezeichneten Verlauf und den aktuellen Zustand (zum Beispiel nachdem du einen Monitor korrigiert hast, der falsche Daten aufgezeichnet hat) und behält den Monitor selbst, sein Gerät, seine Capability und seine Einstellungen.",
+    "es": "Para cualquier monitor de actividad, de estado o de tensión: borra el historial registrado y el estado en vivo (por ejemplo después de corregir un monitor que registraba datos erróneos) y conserva el propio monitor, su dispositivo, su capacidad y sus ajustes.",
+    "fr": "Pour tout moniteur d'activité, d'état ou de tension : efface l'historique enregistré et l'état en direct (par exemple après avoir corrigé un moniteur qui enregistrait de mauvaises données) et conserve le moniteur lui-même, son appareil, sa capacité et ses réglages.",
+    "it": "Per qualsiasi monitor di attività, di stato o di tensione: cancella lo storico registrato e lo stato in tempo reale (per esempio dopo aver corretto un monitor che registrava dati sbagliati) e conserva il monitor stesso, il suo dispositivo, la capacità e le impostazioni.",
+    "nl": "Voor elke activiteits-, status- of spanningsmonitor: wist de vastgelegde geschiedenis en live status (bijvoorbeeld nadat je een monitor hebt hersteld die verkeerde gegevens vastlegde) en behoudt de monitor zelf, zijn apparaat, capability en instellingen.",
+    "no": "For alle aktivitets-, status- og spenningsmonitorer: sletter den lagrede historikken og den aktuelle tilstanden (for eksempel etter at du har rettet en monitor som lagret feil data) og beholder selve monitoren, enheten, funksjonen og innstillingene.",
+    "sv": "För alla aktivitets-, status- och spänningsövervakare: raderar den sparade historiken och det aktuella läget (till exempel efter att du rättat en övervakare som sparade fel data) och behåller själva övervakaren, dess enhet, funktion och inställningar."
   },
   "args": [
     {
       "name": "monitor",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     }
   ]

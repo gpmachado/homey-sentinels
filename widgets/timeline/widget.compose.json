@@ -1,8 +1,21 @@
 {
-  "name": { "en": "Sentinels Timeline" },
+  "name": {
+    "en": "Sentinels Timeline",
+    "da": "Sentinels Tidslinje",
+    "de": "Sentinels Zeitleiste",
+    "es": "Sentinels Cronología",
+    "fr": "Sentinels Chronologie",
+    "it": "Sentinels Cronologia",
+    "nl": "Sentinels Tijdlijn",
+    "no": "Sentinels Tidslinje",
+    "sv": "Sentinels Tidslinje"
+  },
   "height": 252,
   "settings": [],
   "api": {
-    "getEvents": { "method": "GET", "path": "/events" }
+    "getEvents": {
+      "method": "GET",
+      "path": "/events"
+    }
   }
 }

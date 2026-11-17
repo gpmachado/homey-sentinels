@@ -1,47 +1,111 @@
 {
   "title": {
-    "en": "Get activity statistics"
+    "en": "Get activity statistics",
+    "da": "Hent aktivitetsstatistik",
+    "de": "Aktivitätsstatistik abrufen",
+    "es": "Obtener estadísticas de actividad",
+    "fr": "Obtenir les statistiques d'activité",
+    "it": "Ottieni le statistiche di attività",
+    "nl": "Activiteitsstatistieken ophalen",
+    "no": "Hent aktivitetsstatistikk",
+    "sv": "Hämta aktivitetsstatistik"
   },
   "titleFormatted": {
-    "en": "Get activity statistics for [[monitor]], period: [[period]]"
+    "en": "Get activity statistics for [[monitor]], period: [[period]]",
+    "da": "Hent aktivitetsstatistik for [[monitor]], periode: [[period]]",
+    "de": "Aktivitätsstatistik abrufen für [[monitor]], Zeitraum: [[period]]",
+    "es": "Obtener estadísticas de actividad de [[monitor]], periodo: [[period]]",
+    "fr": "Obtenir les statistiques d'activité de [[monitor]], période : [[period]]",
+    "it": "Ottieni le statistiche di attività di [[monitor]], periodo: [[period]]",
+    "nl": "Activiteitsstatistieken ophalen voor [[monitor]], periode: [[period]]",
+    "no": "Hent aktivitetsstatistikk for [[monitor]], periode: [[period]]",
+    "sv": "Hämta aktivitetsstatistik för [[monitor]], period: [[period]]"
   },
   "args": [
     {
       "name": "monitor",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "period",
       "type": "dropdown",
       "title": {
-        "en": "Period"
+        "en": "Period",
+        "da": "Periode",
+        "de": "Zeitraum",
+        "es": "Periodo",
+        "fr": "Période",
+        "it": "Periodo",
+        "nl": "Periode",
+        "no": "Periode",
+        "sv": "Period"
       },
       "values": [
         {
           "id": "day",
           "label": {
-            "en": "Today"
+            "en": "Today",
+            "da": "I dag",
+            "de": "Heute",
+            "es": "Hoy",
+            "fr": "Aujourd'hui",
+            "it": "Oggi",
+            "nl": "Vandaag",
+            "no": "I dag",
+            "sv": "I dag"
           }
         },
         {
           "id": "week",
           "label": {
-            "en": "Last 7 days"
+            "en": "Last 7 days",
+            "da": "Seneste 7 dage",
+            "de": "Letzte 7 Tage",
+            "es": "Últimos 7 días",
+            "fr": "7 derniers jours",
+            "it": "Ultimi 7 giorni",
+            "nl": "Laatste 7 dagen",
+            "no": "Siste 7 dager",
+            "sv": "Senaste 7 dagarna"
           }
         },
         {
           "id": "month",
           "label": {
-            "en": "Last 30 days"
+            "en": "Last 30 days",
+            "da": "Seneste 30 dage",
+            "de": "Letzte 30 Tage",
+            "es": "Últimos 30 días",
+            "fr": "30 derniers jours",
+            "it": "Ultimi 30 giorni",
+            "nl": "Laatste 30 dagen",
+            "no": "Siste 30 dager",
+            "sv": "Senaste 30 dagarna"
           }
         },
         {
           "id": "all",
           "label": {
-            "en": "All history"
+            "en": "All history",
+            "da": "Hele historikken",
+            "de": "Gesamter Verlauf",
+            "es": "Todo el historial",
+            "fr": "Tout l'historique",
+            "it": "Tutto lo storico",
+            "nl": "Hele geschiedenis",
+            "no": "Hele historikken",
+            "sv": "Hela historiken"
           }
         }
       ]
@@ -52,172 +116,372 @@
       "name": "cycle_count",
       "type": "number",
       "title": {
-        "en": "Cycles"
+        "en": "Cycles",
+        "da": "Cyklusser",
+        "de": "Zyklen",
+        "es": "Ciclos",
+        "fr": "Cycles",
+        "it": "Cicli",
+        "nl": "Cycli",
+        "no": "Sykluser",
+        "sv": "Cykler"
       }
     },
     {
       "name": "active_duration",
       "type": "number",
       "title": {
-        "en": "Active duration (seconds)"
+        "en": "Active duration (seconds)",
+        "da": "Aktiv tid (sekunder)",
+        "de": "Aktive Dauer (Sekunden)",
+        "es": "Tiempo activo (segundos)",
+        "fr": "Durée d'activité (secondes)",
+        "it": "Durata attiva (secondi)",
+        "nl": "Actieve duur (seconden)",
+        "no": "Aktiv tid (sekunder)",
+        "sv": "Aktiv tid (sekunder)"
       }
     },
     {
       "name": "standby_duration",
       "type": "number",
       "title": {
-        "en": "Standby duration (seconds)"
+        "en": "Standby duration (seconds)",
+        "da": "Standbytid (sekunder)",
+        "de": "Standby-Dauer (Sekunden)",
+        "es": "Tiempo en reposo (segundos)",
+        "fr": "Durée de veille (secondes)",
+        "it": "Durata in standby (secondi)",
+        "nl": "Stand-byduur (seconden)",
+        "no": "Hviletid (sekunder)",
+        "sv": "Vilotid (sekunder)"
       }
     },
     {
       "name": "total_energy",
       "type": "number",
       "title": {
-        "en": "Energy (kWh)"
+        "en": "Energy (kWh)",
+        "da": "Energi (kWh)",
+        "de": "Energie (kWh)",
+        "es": "Energía (kWh)",
+        "fr": "Énergie (kWh)",
+        "it": "Energia (kWh)",
+        "nl": "Energie (kWh)",
+        "no": "Energi (kWh)",
+        "sv": "Energi (kWh)"
       }
     },
     {
       "name": "active_energy",
       "type": "number",
       "title": {
-        "en": "Active energy (kWh)"
+        "en": "Active energy (kWh)",
+        "da": "Aktiv energi (kWh)",
+        "de": "Aktive Energie (kWh)",
+        "es": "Energía en actividad (kWh)",
+        "fr": "Énergie en activité (kWh)",
+        "it": "Energia in attività (kWh)",
+        "nl": "Actieve energie (kWh)",
+        "no": "Aktiv energi (kWh)",
+        "sv": "Aktiv energi (kWh)"
       }
     },
     {
       "name": "standby_energy",
       "type": "number",
       "title": {
-        "en": "Standby energy (kWh)"
+        "en": "Standby energy (kWh)",
+        "da": "Standbyenergi (kWh)",
+        "de": "Standby-Energie (kWh)",
+        "es": "Energía en reposo (kWh)",
+        "fr": "Énergie en veille (kWh)",
+        "it": "Energia in standby (kWh)",
+        "nl": "Stand-by-energie (kWh)",
+        "no": "Hvileenergi (kWh)",
+        "sv": "Viloenergi (kWh)"
       }
     },
     {
       "name": "average_power",
       "type": "number",
       "title": {
-        "en": "Average power while active (W)"
+        "en": "Average power while active (W)",
+        "da": "Gennemsnitlig effekt under aktivitet (W)",
+        "de": "Durchschnittliche Leistung im Betrieb (W)",
+        "es": "Potencia media en actividad (W)",
+        "fr": "Puissance moyenne en activité (W)",
+        "it": "Potenza media in attività (W)",
+        "nl": "Gemiddeld vermogen tijdens activiteit (W)",
+        "no": "Gjennomsnittlig effekt når aktiv (W)",
+        "sv": "Medeleffekt när aktiv (W)"
       }
     },
     {
       "name": "max_power",
       "type": "number",
       "title": {
-        "en": "Peak power (W)"
+        "en": "Peak power (W)",
+        "da": "Spidseffekt (W)",
+        "de": "Spitzenleistung (W)",
+        "es": "Potencia máxima (W)",
+        "fr": "Puissance de crête (W)",
+        "it": "Potenza di picco (W)",
+        "nl": "Piekvermogen (W)",
+        "no": "Toppeffekt (W)",
+        "sv": "Toppeffekt (W)"
       }
     },
     {
       "name": "average_current",
       "type": "number",
       "title": {
-        "en": "Average current while active (A)"
+        "en": "Average current while active (A)",
+        "da": "Gennemsnitlig strøm under aktivitet (A)",
+        "de": "Durchschnittlicher Strom im Betrieb (A)",
+        "es": "Corriente media en actividad (A)",
+        "fr": "Courant moyen en activité (A)",
+        "it": "Corrente media in attività (A)",
+        "nl": "Gemiddelde stroom tijdens activiteit (A)",
+        "no": "Gjennomsnittlig strøm når aktiv (A)",
+        "sv": "Medelström när aktiv (A)"
       }
     },
     {
       "name": "max_current",
       "type": "number",
       "title": {
-        "en": "Peak current (A)"
+        "en": "Peak current (A)",
+        "da": "Spidsstrøm (A)",
+        "de": "Spitzenstrom (A)",
+        "es": "Corriente máxima (A)",
+        "fr": "Courant de crête (A)",
+        "it": "Corrente di picco (A)",
+        "nl": "Piekstroom (A)",
+        "no": "Toppstrøm (A)",
+        "sv": "Toppström (A)"
       }
     },
     {
       "name": "median_duration",
       "type": "number",
       "title": {
-        "en": "Median cycle duration (seconds)"
+        "en": "Median cycle duration (seconds)",
+        "da": "Median cyklustid (sekunder)",
+        "de": "Median der Zyklusdauer (Sekunden)",
+        "es": "Duración mediana de los ciclos (segundos)",
+        "fr": "Durée médiane des cycles (secondes)",
+        "it": "Durata mediana dei cicli (secondi)",
+        "nl": "Mediane cyclusduur (seconden)",
+        "no": "Median syklustid (sekunder)",
+        "sv": "Median för cykeltid (sekunder)"
       }
     },
     {
       "name": "median_duration_human",
       "type": "string",
       "title": {
-        "en": "Median cycle duration"
+        "en": "Median cycle duration",
+        "da": "Median cyklustid",
+        "de": "Median der Zyklusdauer",
+        "es": "Duración mediana de los ciclos",
+        "fr": "Durée médiane des cycles",
+        "it": "Durata mediana dei cicli",
+        "nl": "Mediane cyclusduur",
+        "no": "Median syklustid",
+        "sv": "Median för cykeltid"
       }
     },
     {
       "name": "median_energy",
       "type": "number",
       "title": {
-        "en": "Median energy per cycle (kWh)"
+        "en": "Median energy per cycle (kWh)",
+        "da": "Medianenergi pr. cyklus (kWh)",
+        "de": "Median der Energie pro Zyklus (kWh)",
+        "es": "Energía mediana por ciclo (kWh)",
+        "fr": "Énergie médiane par cycle (kWh)",
+        "it": "Energia mediana per ciclo (kWh)",
+        "nl": "Mediane energie per cyclus (kWh)",
+        "no": "Medianenergi per syklus (kWh)",
+        "sv": "Medianenergi per cykel (kWh)"
       }
     },
     {
       "name": "p25_duration",
       "type": "number",
       "title": {
-        "en": "Cycle duration, 25th percentile (seconds)"
+        "en": "Cycle duration, 25th percentile (seconds)",
+        "da": "Cyklustid, 25. percentil (sekunder)",
+        "de": "Zyklusdauer, 25. Perzentil (Sekunden)",
+        "es": "Duración de los ciclos, percentil 25 (segundos)",
+        "fr": "Durée des cycles, 25e centile (secondes)",
+        "it": "Durata dei cicli, 25° percentile (secondi)",
+        "nl": "Cyclusduur, 25e percentiel (seconden)",
+        "no": "Syklustid, 25. persentil (sekunder)",
+        "sv": "Cykeltid, 25:e percentilen (sekunder)"
       }
     },
     {
       "name": "p25_duration_human",
       "type": "string",
       "title": {
-        "en": "Cycle duration, 25th percentile"
+        "en": "Cycle duration, 25th percentile",
+        "da": "Cyklustid, 25. percentil",
+        "de": "Zyklusdauer, 25. Perzentil",
+        "es": "Duración de los ciclos, percentil 25",
+        "fr": "Durée des cycles, 25e centile",
+        "it": "Durata dei cicli, 25° percentile",
+        "nl": "Cyclusduur, 25e percentiel",
+        "no": "Syklustid, 25. persentil",
+        "sv": "Cykeltid, 25:e percentilen"
       }
     },
     {
       "name": "p75_duration",
       "type": "number",
       "title": {
-        "en": "Cycle duration, 75th percentile (seconds)"
+        "en": "Cycle duration, 75th percentile (seconds)",
+        "da": "Cyklustid, 75. percentil (sekunder)",
+        "de": "Zyklusdauer, 75. Perzentil (Sekunden)",
+        "es": "Duración de los ciclos, percentil 75 (segundos)",
+        "fr": "Durée des cycles, 75e centile (secondes)",
+        "it": "Durata dei cicli, 75° percentile (secondi)",
+        "nl": "Cyclusduur, 75e percentiel (seconden)",
+        "no": "Syklustid, 75. persentil (sekunder)",
+        "sv": "Cykeltid, 75:e percentilen (sekunder)"
       }
     },
     {
       "name": "p75_duration_human",
       "type": "string",
       "title": {
-        "en": "Cycle duration, 75th percentile"
+        "en": "Cycle duration, 75th percentile",
+        "da": "Cyklustid, 75. percentil",
+        "de": "Zyklusdauer, 75. Perzentil",
+        "es": "Duración de los ciclos, percentil 75",
+        "fr": "Durée des cycles, 75e centile",
+        "it": "Durata dei cicli, 75° percentile",
+        "nl": "Cyclusduur, 75e percentiel",
+        "no": "Syklustid, 75. persentil",
+        "sv": "Cykeltid, 75:e percentilen"
       }
     },
     {
       "name": "p25_energy",
       "type": "number",
       "title": {
-        "en": "Energy per cycle, 25th percentile (kWh)"
+        "en": "Energy per cycle, 25th percentile (kWh)",
+        "da": "Energi pr. cyklus, 25. percentil (kWh)",
+        "de": "Energie pro Zyklus, 25. Perzentil (kWh)",
+        "es": "Energía por ciclo, percentil 25 (kWh)",
+        "fr": "Énergie par cycle, 25e centile (kWh)",
+        "it": "Energia per ciclo, 25° percentile (kWh)",
+        "nl": "Energie per cyclus, 25e percentiel (kWh)",
+        "no": "Energi per syklus, 25. persentil (kWh)",
+        "sv": "Energi per cykel, 25:e percentilen (kWh)"
       }
     },
     {
       "name": "p75_energy",
       "type": "number",
       "title": {
-        "en": "Energy per cycle, 75th percentile (kWh)"
+        "en": "Energy per cycle, 75th percentile (kWh)",
+        "da": "Energi pr. cyklus, 75. percentil (kWh)",
+        "de": "Energie pro Zyklus, 75. Perzentil (kWh)",
+        "es": "Energía por ciclo, percentil 75 (kWh)",
+        "fr": "Énergie par cycle, 75e centile (kWh)",
+        "it": "Energia per ciclo, 75° percentile (kWh)",
+        "nl": "Energie per cyclus, 75e percentiel (kWh)",
+        "no": "Energi per syklus, 75. persentil (kWh)",
+        "sv": "Energi per cykel, 75:e percentilen (kWh)"
       }
     },
     {
       "name": "energy_quality",
       "type": "string",
       "title": {
-        "en": "Energy quality issue (meter_reset or blank)"
+        "en": "Energy quality issue (meter_reset or blank)",
+        "da": "Problem med energikvaliteten (meter_reset eller tomt)",
+        "de": "Problem mit der Energiequalität (meter_reset oder leer)",
+        "es": "Problema de calidad de la energía (meter_reset o vacío)",
+        "fr": "Problème de qualité de l'énergie (meter_reset ou vide)",
+        "it": "Problema di qualità dell'energia (meter_reset o vuoto)",
+        "nl": "Probleem met energiekwaliteit (meter_reset of leeg)",
+        "no": "Problem med energikvaliteten (meter_reset eller tomt)",
+        "sv": "Problem med energikvaliteten (meter_reset eller tomt)"
       }
     },
     {
       "name": "trend_active_duration_percent",
       "type": "number",
       "title": {
-        "en": "Active time vs previous week (%)"
+        "en": "Active time vs previous week (%)",
+        "da": "Aktiv tid i forhold til sidste uge (%)",
+        "de": "Aktive Zeit gegenüber Vorwoche (%)",
+        "es": "Tiempo activo frente a la semana anterior (%)",
+        "fr": "Temps actif par rapport à la semaine précédente (%)",
+        "it": "Tempo attivo rispetto alla settimana precedente (%)",
+        "nl": "Actieve tijd t.o.v. vorige week (%)",
+        "no": "Aktiv tid mot forrige uke (%)",
+        "sv": "Aktiv tid jämfört med förra veckan (%)"
       }
     },
     {
       "name": "trend_cycle_count_percent",
       "type": "number",
       "title": {
-        "en": "Cycles vs previous week (%)"
+        "en": "Cycles vs previous week (%)",
+        "da": "Cyklusser i forhold til sidste uge (%)",
+        "de": "Zyklen gegenüber Vorwoche (%)",
+        "es": "Ciclos frente a la semana anterior (%)",
+        "fr": "Cycles par rapport à la semaine précédente (%)",
+        "it": "Cicli rispetto alla settimana precedente (%)",
+        "nl": "Cycli t.o.v. vorige week (%)",
+        "no": "Sykluser mot forrige uke (%)",
+        "sv": "Cykler jämfört med förra veckan (%)"
       }
     },
     {
       "name": "trend_energy_percent",
       "type": "number",
       "title": {
-        "en": "Energy vs previous week (%)"
+        "en": "Energy vs previous week (%)",
+        "da": "Energi i forhold til sidste uge (%)",
+        "de": "Energie gegenüber Vorwoche (%)",
+        "es": "Energía frente a la semana anterior (%)",
+        "fr": "Énergie par rapport à la semaine précédente (%)",
+        "it": "Energia rispetto alla settimana precedente (%)",
+        "nl": "Energie t.o.v. vorige week (%)",
+        "no": "Energi mot forrige uke (%)",
+        "sv": "Energi jämfört med förra veckan (%)"
       }
     },
     {
       "name": "trend_summary",
       "type": "string",
       "title": {
-        "en": "Weekly trend"
+        "en": "Weekly trend",
+        "da": "Ugentlig tendens",
+        "de": "Wochentrend",
+        "es": "Tendencia semanal",
+        "fr": "Tendance de la semaine",
+        "it": "Andamento settimanale",
+        "nl": "Weektrend",
+        "no": "Ukestrend",
+        "sv": "Veckotrend"
       }
     }
   ],
   "hint": {
-    "en": "Its tokens are only available in an Advanced Flow."
+    "en": "Its tokens are only available in an Advanced Flow.",
+    "da": "Dens tokens findes kun i et Advanced Flow.",
+    "de": "Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Tokenene finnes bare i en Advanced Flow.",
+    "sv": "Dess tokens finns bara i ett Advanced Flow."
   }
 }

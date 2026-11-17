@@ -1,37 +1,93 @@
 {
   "title": {
-    "en": "Get standby ranking"
+    "en": "Get standby ranking",
+    "da": "Hent standbyrangliste",
+    "de": "Standby-Rangliste abrufen",
+    "es": "Obtener ranking de reposo",
+    "fr": "Obtenir le classement de la veille",
+    "it": "Ottieni la classifica dello standby",
+    "nl": "Stand-byranglijst ophalen",
+    "no": "Hent hvilerangering",
+    "sv": "Hämta vilolista"
   },
   "titleFormatted": {
-    "en": "Get standby ranking, period: [[period]]"
+    "en": "Get standby ranking, period: [[period]]",
+    "da": "Hent standbyrangliste, periode: [[period]]",
+    "de": "Standby-Rangliste abrufen, Zeitraum: [[period]]",
+    "es": "Obtener ranking de reposo, periodo: [[period]]",
+    "fr": "Obtenir le classement de la veille, période : [[period]]",
+    "it": "Ottieni la classifica dello standby, periodo: [[period]]",
+    "nl": "Stand-byranglijst ophalen, periode: [[period]]",
+    "no": "Hent hvilerangering, periode: [[period]]",
+    "sv": "Hämta vilolista, period: [[period]]"
   },
   "hint": {
-    "en": "Which monitors use the most energy while idle, over the period: the total, the biggest one and a top 5 as ready-to-use lines (name and kWh). Needs a device that reports kWh. Its tokens are only available in an Advanced Flow."
+    "en": "Which monitors use the most energy while idle, over the period: the total, the biggest one and a top 5 as ready-to-use lines (name and kWh). Needs a device that reports kWh. Its tokens are only available in an Advanced Flow.",
+    "da": "Hvilke monitorer der bruger mest i hvile i perioden: summen, den største og en top 5 som færdige linjer (navn og kWh). Kræver en enhed, der rapporterer kWh. Dens tokens findes kun i et Advanced Flow.",
+    "de": "Welche Monitore im Zeitraum am meisten verbrauchen, während sie nichts tun: die Summe, der größte und eine Top 5 als fertige Zeilen (Name und kWh). Braucht ein Gerät, das kWh meldet. Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Qué monitores gastan más en reposo durante el periodo: el total, el mayor y un top 5 en líneas listas (nombre y kWh). Necesita un dispositivo que mida kWh. Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Quels moniteurs consomment le plus au repos sur la période : le total, le plus gros et un top 5 en lignes prêtes à l'emploi (nom et kWh). Nécessite un appareil qui mesure les kWh. Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "Quali monitor consumano di più a riposo nel periodo: il totale, il maggiore e una top 5 in righe pronte (nome e kWh). Richiede un dispositivo che misura i kWh. I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "Welke monitors in de periode het meeste verbruiken terwijl ze niets doen: het totaal, de grootste en een top 5 als kant-en-klare regels (naam en kWh). Vereist een apparaat dat kWh meldt. De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Hvilke monitorer som bruker mest i hvile i perioden: totalen, den største og en topp 5 som ferdige linjer (navn og kWh). Krever en enhet som rapporterer kWh. Tokenene finnes bare i en Advanced Flow.",
+    "sv": "Vilka övervakare som förbrukar mest i vila under perioden: totalen, den största och en topp 5 som färdiga rader (namn och kWh). Kräver en enhet som rapporterar kWh. Dess tokens finns bara i ett Advanced Flow."
   },
   "args": [
     {
       "name": "period",
       "type": "dropdown",
       "title": {
-        "en": "Period"
+        "en": "Period",
+        "da": "Periode",
+        "de": "Zeitraum",
+        "es": "Periodo",
+        "fr": "Période",
+        "it": "Periodo",
+        "nl": "Periode",
+        "no": "Periode",
+        "sv": "Period"
       },
       "values": [
         {
           "id": "week",
           "label": {
-            "en": "Last 7 days"
+            "en": "Last 7 days",
+            "da": "Seneste 7 dage",
+            "de": "Letzte 7 Tage",
+            "es": "Últimos 7 días",
+            "fr": "7 derniers jours",
+            "it": "Ultimi 7 giorni",
+            "nl": "Laatste 7 dagen",
+            "no": "Siste 7 dager",
+            "sv": "Senaste 7 dagarna"
           }
         },
         {
           "id": "month",
           "label": {
-            "en": "Last 30 days"
+            "en": "Last 30 days",
+            "da": "Seneste 30 dage",
+            "de": "Letzte 30 Tage",
+            "es": "Últimos 30 días",
+            "fr": "30 derniers jours",
+            "it": "Ultimi 30 giorni",
+            "nl": "Laatste 30 dagen",
+            "no": "Siste 30 dager",
+            "sv": "Senaste 30 dagarna"
           }
         },
         {
           "id": "all",
           "label": {
-            "en": "All history"
+            "en": "All history",
+            "da": "Hele historikken",
+            "de": "Gesamter Verlauf",
+            "es": "Todo el historial",
+            "fr": "Tout l'historique",
+            "it": "Tutto lo storico",
+            "nl": "Hele geschiedenis",
+            "no": "Hele historikken",
+            "sv": "Hela historiken"
           }
         }
       ]
@@ -42,35 +98,75 @@
       "name": "count",
       "type": "number",
       "title": {
-        "en": "Monitors with standby energy"
+        "en": "Monitors with standby energy",
+        "da": "Monitorer med standbyenergi",
+        "de": "Monitore mit Standby-Energie",
+        "es": "Monitores con energía en reposo",
+        "fr": "Moniteurs avec énergie en veille",
+        "it": "Monitor con energia in standby",
+        "nl": "Monitors met stand-by-energie",
+        "no": "Monitorer med hvileenergi",
+        "sv": "Övervakare med viloenergi"
       }
     },
     {
       "name": "total_standby_energy",
       "type": "number",
       "title": {
-        "en": "Total standby energy (kWh)"
+        "en": "Total standby energy (kWh)",
+        "da": "Samlet standbyenergi (kWh)",
+        "de": "Standby-Energie gesamt (kWh)",
+        "es": "Energía total en reposo (kWh)",
+        "fr": "Énergie totale en veille (kWh)",
+        "it": "Energia totale in standby (kWh)",
+        "nl": "Totale stand-by-energie (kWh)",
+        "no": "Total hvileenergi (kWh)",
+        "sv": "Total viloenergi (kWh)"
       }
     },
     {
       "name": "top_name",
       "type": "string",
       "title": {
-        "en": "Biggest standby user"
+        "en": "Biggest standby user",
+        "da": "Største standbyforbruger",
+        "de": "Größter Standby-Verbraucher",
+        "es": "Mayor consumidor en reposo",
+        "fr": "Plus gros consommateur en veille",
+        "it": "Consumatore maggiore in standby",
+        "nl": "Grootste stand-byverbruiker",
+        "no": "Største hvileforbruker",
+        "sv": "Största viloförbrukare"
       }
     },
     {
       "name": "top_standby_energy",
       "type": "number",
       "title": {
-        "en": "Its standby energy (kWh)"
+        "en": "Its standby energy (kWh)",
+        "da": "Dens standbyenergi (kWh)",
+        "de": "Seine Standby-Energie (kWh)",
+        "es": "Su energía en reposo (kWh)",
+        "fr": "Son énergie en veille (kWh)",
+        "it": "La sua energia in standby (kWh)",
+        "nl": "Zijn stand-by-energie (kWh)",
+        "no": "Dens hvileenergi (kWh)",
+        "sv": "Dess viloenergi (kWh)"
       }
     },
     {
       "name": "ranking",
       "type": "string",
       "title": {
-        "en": "Top 5, one line each"
+        "en": "Top 5, one line each",
+        "da": "Top 5, én linje hver",
+        "de": "Top 5, eine Zeile pro Eintrag",
+        "es": "Top 5, una línea cada uno",
+        "fr": "Top 5, une ligne chacun",
+        "it": "Top 5, una riga ciascuno",
+        "nl": "Top 5, één regel per item",
+        "no": "Topp 5, én linje hver",
+        "sv": "Topp 5, en rad var"
       }
     }
   ]

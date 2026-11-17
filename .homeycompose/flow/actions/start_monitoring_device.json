@@ -1,19 +1,51 @@
 {
   "title": {
-    "en": "Start monitoring device"
+    "en": "Start monitoring device",
+    "da": "Begynd at overvåge enheden",
+    "de": "Gerät überwachen",
+    "es": "Empezar a vigilar el dispositivo",
+    "fr": "Commencer à surveiller l'appareil",
+    "it": "Inizia a monitorare il dispositivo",
+    "nl": "Apparaat gaan bewaken",
+    "no": "Begynn å overvåke enheten",
+    "sv": "Börja övervaka enheten"
   },
   "titleFormatted": {
-    "en": "Start monitoring device [[device]], name [[name]]"
+    "en": "Start monitoring device [[device]], name [[name]]",
+    "da": "Begynd at overvåge enheden [[device]], navn [[name]]",
+    "de": "Gerät [[device]] überwachen, Name [[name]]",
+    "es": "Empezar a vigilar el dispositivo [[device]], nombre [[name]]",
+    "fr": "Commencer à surveiller l'appareil [[device]], nom [[name]]",
+    "it": "Inizia a monitorare il dispositivo [[device]], nome [[name]]",
+    "nl": "Apparaat [[device]] gaan bewaken, naam [[name]]",
+    "no": "Begynn å overvåke enheten [[device]], navn [[name]]",
+    "sv": "Börja övervaka enheten [[device]], namn [[name]]"
   },
   "hint": {
-    "en": "For an on/off-only device (a pump, a device with no reliable standby signal) — creates the monitor on first run if it doesn't exist yet, then starts it, in one step. Meant to be driven by a native \"Power becomes greater than X\" trigger (or any other Flow logic) instead of this app's own threshold engine. The resulting monitor never decides active/standby on its own — only this card and \"Stop monitoring device\" do. Its tokens are only available in an Advanced Flow."
+    "en": "For an on/off-only device (a pump, a device with no reliable standby signal) — creates the monitor on first run if it doesn't exist yet, then starts it, in one step. Meant to be driven by a native \"Power becomes greater than X\" trigger (or any other Flow logic) instead of this app's own threshold engine. The resulting monitor never decides active/standby on its own — only this card and \"Stop monitoring device\" do. Its tokens are only available in an Advanced Flow.",
+    "da": "Til en enhed, der kun er tændt/slukket (en pumpe, en enhed uden et pålideligt standbysignal): opretter monitoren første gang, hvis den ikke findes, og starter den, i ét trin. Beregnet til at blive styret af en egen udløser som \"Effekten bliver større end X\" (eller anden Flow-logik) i stedet for appens tærskel. Monitoren afgør aldrig selv aktiv eller standby; det gør kun dette kort og \"Stop med at overvåge enheden\". Dens tokens findes kun i et Advanced Flow.",
+    "de": "Für ein Gerät, das nur an/aus kennt (eine Pumpe, ein Gerät ohne verlässliches Standby-Signal): legt beim ersten Mal den Monitor an, falls es ihn noch nicht gibt, und startet ihn, in einem Schritt. Gedacht für einen eigenen Auslöser wie \"Leistung wird größer als X\" (oder andere Flow-Logik) statt des Schwellenwerts dieser App. Der Monitor entscheidet nie selbst über aktiv/Standby; das tun nur diese Karte und \"Gerät nicht mehr überwachen\". Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Para un dispositivo que solo se enciende y apaga (una bomba, un dispositivo sin una señal de reposo fiable): crea el monitor en la primera ejecución si aún no existe y lo inicia, en un solo paso. Pensado para controlarse con un disparador propio como \"La potencia pasa a ser mayor que X\" (u otra lógica de Flow) en lugar del umbral de esta app. El monitor nunca decide solo entre actividad y reposo; solo lo hacen esta tarjeta y \"Dejar de vigilar el dispositivo\". Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Pour un appareil seulement marche/arrêt (une pompe, un appareil sans signal de veille fiable) : crée le moniteur à la première exécution s'il n'existe pas encore, puis le démarre, en une seule étape. Prévu pour être piloté par un déclencheur natif comme \"La puissance devient supérieure à X\" (ou toute autre logique de Flow) au lieu du seuil de cette app. Le moniteur ne décide jamais seul entre activité et veille ; seules cette carte et \"Arrêter de surveiller l'appareil\" le font. Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "Per un dispositivo solo acceso/spento (una pompa, un dispositivo senza un segnale di standby affidabile): alla prima esecuzione crea il monitor se non esiste ancora e lo avvia, in un solo passo. Pensato per essere comandato da un trigger nativo come \"La potenza diventa maggiore di X\" (o da altra logica di Flow) al posto della soglia di questa app. Il monitor non decide mai da solo tra attività e standby; lo fanno solo questa scheda e \"Smetti di monitorare il dispositivo\". I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "Voor een apparaat dat alleen aan/uit kent (een pomp, een apparaat zonder betrouwbaar stand-bysignaal): maakt bij de eerste keer de monitor aan als die nog niet bestaat en start hem, in één stap. Bedoeld om aangestuurd te worden door een eigen trigger zoals \"Vermogen wordt groter dan X\" (of andere Flow-logica) in plaats van de drempel van deze app. De monitor bepaalt nooit zelf actief/stand-by; alleen deze kaart en \"Apparaat niet meer bewaken\" doen dat. De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "For en enhet som bare er på/av (en pumpe, en enhet uten et pålitelig hvilesignal): lager monitoren første gang hvis den ikke finnes, og starter den, i ett steg. Ment å styres av en egen utløser som \"Effekten blir større enn X\" (eller annen Flow-logikk) i stedet for appens terskel. Monitoren avgjør aldri selv aktiv eller hvile; det gjør bare dette kortet og \"Slutt å overvåke enheten\". Tokenene finnes bare i en Advanced Flow.",
+    "sv": "För en enhet som bara är på/av (en pump, en enhet utan pålitlig vilosignal): skapar övervakaren första gången om den inte finns och startar den, i ett steg. Avsett att styras av en egen utlösare som \"Effekten blir större än X\" (eller annan Flow-logik) i stället för appens tröskel. Övervakaren avgör aldrig själv aktiv eller vila; det gör bara det här kortet och \"Sluta övervaka enheten\". Dess tokens finns bara i ett Advanced Flow."
   },
   "args": [
     {
       "name": "device",
       "type": "autocomplete",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
@@ -21,7 +53,15 @@
       "type": "text",
       "required": false,
       "title": {
-        "en": "Monitor name (optional)"
+        "en": "Monitor name (optional)",
+        "da": "Monitorens navn (valgfrit)",
+        "de": "Name des Monitors (optional)",
+        "es": "Nombre del monitor (opcional)",
+        "fr": "Nom du moniteur (facultatif)",
+        "it": "Nome del monitor (facoltativo)",
+        "nl": "Naam van de monitor (optioneel)",
+        "no": "Navn på monitoren (valgfritt)",
+        "sv": "Övervakarens namn (valfritt)"
       }
     }
   ],
@@ -30,35 +70,75 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "power",
       "type": "number",
       "title": {
-        "en": "Power (W)"
+        "en": "Power (W)",
+        "da": "Effekt (W)",
+        "de": "Leistung (W)",
+        "es": "Potencia (W)",
+        "fr": "Puissance (W)",
+        "it": "Potenza (W)",
+        "nl": "Vermogen (W)",
+        "no": "Effekt (W)",
+        "sv": "Effekt (W)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

@@ -1,19 +1,51 @@
 {
   "title": {
-    "en": "Stop monitoring device"
+    "en": "Stop monitoring device",
+    "da": "Stop med at overvåge enheden",
+    "de": "Gerät nicht mehr überwachen",
+    "es": "Dejar de vigilar el dispositivo",
+    "fr": "Arrêter de surveiller l'appareil",
+    "it": "Smetti di monitorare il dispositivo",
+    "nl": "Apparaat niet meer bewaken",
+    "no": "Slutt å overvåke enheten",
+    "sv": "Sluta övervaka enheten"
   },
   "titleFormatted": {
-    "en": "Stop monitoring device [[device]]"
+    "en": "Stop monitoring device [[device]]",
+    "da": "Stop med at overvåge enheden [[device]]",
+    "de": "Gerät [[device]] nicht mehr überwachen",
+    "es": "Dejar de vigilar el dispositivo [[device]]",
+    "fr": "Arrêter de surveiller l'appareil [[device]]",
+    "it": "Smetti di monitorare il dispositivo [[device]]",
+    "nl": "Apparaat [[device]] niet meer bewaken",
+    "no": "Slutt å overvåke enheten [[device]]",
+    "sv": "Sluta övervaka enheten [[device]]"
   },
   "hint": {
-    "en": "Closes the cycle started by \"Start monitoring device\" for this device — fires \"Activity finished\" with duration, energy and the rest of the usual tokens. Fails if no monitor exists yet for this device; run \"Start monitoring device\" first. Its tokens are only available in an Advanced Flow."
+    "en": "Closes the cycle started by \"Start monitoring device\" for this device — fires \"Activity finished\" with duration, energy and the rest of the usual tokens. Fails if no monitor exists yet for this device; run \"Start monitoring device\" first. Its tokens are only available in an Advanced Flow.",
+    "da": "Lukker den cyklus, \"Begynd at overvåge enheden\" startede for denne enhed, og udløser \"Aktivitet afsluttet\" med varighed, energi og de andre sædvanlige tokens. Mislykkes, hvis der endnu ikke findes en monitor for enheden; kør \"Begynd at overvåge enheden\" først. Dens tokens findes kun i et Advanced Flow.",
+    "de": "Schließt den Zyklus, den \"Gerät überwachen\" für dieses Gerät gestartet hat, und löst \"Aktivität beendet\" mit Dauer, Energie und den übrigen üblichen Tokens aus. Schlägt fehl, wenn es für dieses Gerät noch keinen Monitor gibt; führe zuerst \"Gerät überwachen\" aus. Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Cierra el ciclo que \"Empezar a vigilar el dispositivo\" inició para este dispositivo y activa \"Actividad terminada\" con la duración, la energía y los demás tokens habituales. Falla si aún no existe un monitor para este dispositivo; ejecuta primero \"Empezar a vigilar el dispositivo\". Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Ferme le cycle commencé par \"Commencer à surveiller l'appareil\" pour cet appareil et déclenche \"Activité terminée\" avec la durée, l'énergie et les autres jetons habituels. Échoue s'il n'existe encore aucun moniteur pour cet appareil ; lancez d'abord \"Commencer à surveiller l'appareil\". Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "Chiude il ciclo avviato da \"Inizia a monitorare il dispositivo\" per questo dispositivo e attiva \"Attività terminata\" con durata, energia e gli altri token consueti. Fallisce se per questo dispositivo non esiste ancora un monitor; esegui prima \"Inizia a monitorare il dispositivo\". I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "Sluit de cyclus die \"Apparaat gaan bewaken\" voor dit apparaat startte en activeert \"Activiteit beëindigd\" met duur, energie en de andere gebruikelijke tokens. Mislukt als er nog geen monitor voor dit apparaat is; voer eerst \"Apparaat gaan bewaken\" uit. De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Avslutter syklusen som \"Begynn å overvåke enheten\" startet for denne enheten og utløser \"Aktivitet avsluttet\" med varighet, energi og de andre vanlige tokenene. Mislykkes hvis det ennå ikke finnes noen monitor for enheten; kjør \"Begynn å overvåke enheten\" først. Tokenene finnes bare i en Advanced Flow.",
+    "sv": "Avslutar cykeln som \"Börja övervaka enheten\" startade för den här enheten och utlöser \"Aktivitet avslutad\" med tid, energi och de andra vanliga tokens. Misslyckas om det ännu inte finns någon övervakare för enheten; kör \"Börja övervaka enheten\" först. Dess tokens finns bara i ett Advanced Flow."
   },
   "args": [
     {
       "name": "device",
       "type": "autocomplete",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     }
   ],
@@ -22,77 +54,165 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "duration",
       "type": "number",
       "title": {
-        "en": "Duration (seconds)"
+        "en": "Duration (seconds)",
+        "da": "Varighed (sekunder)",
+        "de": "Dauer (Sekunden)",
+        "es": "Duración (segundos)",
+        "fr": "Durée (secondes)",
+        "it": "Durata (secondi)",
+        "nl": "Duur (seconden)",
+        "no": "Varighet (sekunder)",
+        "sv": "Tid (sekunder)"
       }
     },
     {
       "name": "duration_human",
       "type": "string",
       "title": {
-        "en": "Duration"
+        "en": "Duration",
+        "da": "Varighed",
+        "de": "Dauer",
+        "es": "Duración",
+        "fr": "Durée",
+        "it": "Durata",
+        "nl": "Duur",
+        "no": "Varighet",
+        "sv": "Tid"
       }
     },
     {
       "name": "energy",
       "type": "number",
       "title": {
-        "en": "Energy (kWh)"
+        "en": "Energy (kWh)",
+        "da": "Energi (kWh)",
+        "de": "Energie (kWh)",
+        "es": "Energía (kWh)",
+        "fr": "Énergie (kWh)",
+        "it": "Energia (kWh)",
+        "nl": "Energie (kWh)",
+        "no": "Energi (kWh)",
+        "sv": "Energi (kWh)"
       }
     },
     {
       "name": "average_power",
       "type": "number",
       "title": {
-        "en": "Average power (W)"
+        "en": "Average power (W)",
+        "da": "Gennemsnitlig effekt (W)",
+        "de": "Durchschnittliche Leistung (W)",
+        "es": "Potencia media (W)",
+        "fr": "Puissance moyenne (W)",
+        "it": "Potenza media (W)",
+        "nl": "Gemiddeld vermogen (W)",
+        "no": "Gjennomsnittlig effekt (W)",
+        "sv": "Medeleffekt (W)"
       }
     },
     {
       "name": "max_power",
       "type": "number",
       "title": {
-        "en": "Peak power (W)"
+        "en": "Peak power (W)",
+        "da": "Spidseffekt (W)",
+        "de": "Spitzenleistung (W)",
+        "es": "Potencia máxima (W)",
+        "fr": "Puissance de crête (W)",
+        "it": "Potenza di picco (W)",
+        "nl": "Piekvermogen (W)",
+        "no": "Toppeffekt (W)",
+        "sv": "Toppeffekt (W)"
       }
     },
     {
       "name": "average_current",
       "type": "number",
       "title": {
-        "en": "Average current (A)"
+        "en": "Average current (A)",
+        "da": "Gennemsnitlig strøm (A)",
+        "de": "Durchschnittlicher Strom (A)",
+        "es": "Corriente media (A)",
+        "fr": "Courant moyen (A)",
+        "it": "Corrente media (A)",
+        "nl": "Gemiddelde stroom (A)",
+        "no": "Gjennomsnittlig strøm (A)",
+        "sv": "Medelström (A)"
       }
     },
     {
       "name": "max_current",
       "type": "number",
       "title": {
-        "en": "Peak current (A)"
+        "en": "Peak current (A)",
+        "da": "Spidsstrøm (A)",
+        "de": "Spitzenstrom (A)",
+        "es": "Corriente máxima (A)",
+        "fr": "Courant de crête (A)",
+        "it": "Corrente di picco (A)",
+        "nl": "Piekstroom (A)",
+        "no": "Toppstrøm (A)",
+        "sv": "Toppström (A)"
       }
     },
     {
       "name": "count",
       "type": "number",
       "title": {
-        "en": "Cycles today (including this one)"
+        "en": "Cycles today (including this one)",
+        "da": "Cyklusser i dag (inklusive denne)",
+        "de": "Zyklen heute (einschließlich dieses)",
+        "es": "Ciclos hoy (incluido este)",
+        "fr": "Cycles aujourd'hui (y compris celui-ci)",
+        "it": "Cicli oggi (compreso questo)",
+        "nl": "Cycli vandaag (inclusief deze)",
+        "no": "Sykluser i dag (inkludert denne)",
+        "sv": "Cykler i dag (inklusive denna)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

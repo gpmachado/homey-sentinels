@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Still running long"
+    "en": "Still running long",
+    "da": "Kører stadig længe",
+    "de": "Läuft noch ungewöhnlich lange",
+    "es": "Sigue funcionando demasiado",
+    "fr": "Toujours en marche depuis longtemps",
+    "it": "Ancora in funzione da molto",
+    "nl": "Nog steeds lang actief",
+    "no": "Går fortsatt lenge",
+    "sv": "Går fortfarande länge"
   },
   "titleFormatted": {
-    "en": "[[monitor]] is still running after [[multiplier]]x its usual duration"
+    "en": "[[monitor]] is still running after [[multiplier]]x its usual duration",
+    "da": "[[monitor]] kører stadig efter [[multiplier]]x den sædvanlige varighed",
+    "de": "[[monitor]] läuft nach [[multiplier]]x der üblichen Dauer noch",
+    "es": "[[monitor]] sigue funcionando tras [[multiplier]]x su duración habitual",
+    "fr": "[[monitor]] est toujours en marche après [[multiplier]]x sa durée habituelle",
+    "it": "[[monitor]] è ancora in funzione dopo [[multiplier]]x la durata abituale",
+    "nl": "[[monitor]] is na [[multiplier]]x de gebruikelijke duur nog steeds actief",
+    "no": "[[monitor]] går fortsatt etter [[multiplier]]x den vanlige varigheten",
+    "sv": "[[monitor]] går fortfarande efter [[multiplier]]x sin vanliga tid"
   },
   "hint": {
-    "en": "Fires while the cycle is still running, once it reaches the given multiple of this monitor's usual (median) cycle: a pump that usually runs 50 min, with 2, is reported at 1 h 40 min. No Flow needs to check every few minutes. Needs a handful of completed cycles first to know the usual duration. The message token comes in the Default message language."
+    "en": "Fires while the cycle is still running, once it reaches the given multiple of this monitor's usual (median) cycle: a pump that usually runs 50 min, with 2, is reported at 1 h 40 min. No Flow needs to check every few minutes. Needs a handful of completed cycles first to know the usual duration. The message token comes in the Default message language.",
+    "da": "Udløses, mens cyklussen stadig kører, så snart den når det angivne multiplum af monitorens sædvanlige (median) cyklus: en pumpe, der normalt kører 50 min, meldes med 2 efter 1 t 40 min. Intet Flow behøver at tjekke med få minutters mellemrum. Først skal der være nogle afsluttede cyklusser for at kende den sædvanlige varighed. Beskedtokenet kommer på Standardsprog for beskeder.",
+    "de": "Löst aus, während der Zyklus noch läuft, sobald er das angegebene Vielfache des üblichen Zyklus (Median) dieses Monitors erreicht: Eine Pumpe, die normalerweise 50 min läuft, wird mit 2 nach 1 h 40 min gemeldet. Kein Flow muss alle paar Minuten prüfen. Zuerst sind ein paar abgeschlossene Zyklen nötig, um die übliche Dauer zu kennen. Das Nachrichten-Token kommt in der Standard-Nachrichtensprache.",
+    "es": "Se activa mientras el ciclo sigue en marcha, en cuanto llega al múltiplo indicado del ciclo habitual (mediano) de este monitor: una bomba que suele funcionar 50 min se avisa, con 2, a 1 h 40 min. Ningún Flow tiene que comprobar cada pocos minutos. Antes hacen falta unos cuantos ciclos completos para conocer la duración habitual. El token del mensaje llega en el Idioma de mensajes por defecto.",
+    "fr": "Se déclenche pendant que le cycle tourne encore, dès qu'il atteint le multiple indiqué du cycle habituel (médian) de ce moniteur : une pompe qui tourne d'habitude 50 min est signalée, avec 2, à 1 h 40 min. Aucun Flow n'a besoin de vérifier toutes les quelques minutes. Il faut d'abord quelques cycles terminés pour connaître la durée habituelle. Le jeton de message est dans la Langue des messages par défaut.",
+    "it": "Si attiva mentre il ciclo è ancora in corso, appena raggiunge il multiplo indicato del ciclo abituale (mediano) di questo monitor: una pompa che di solito va per 50 min viene segnalata, con 2, a 1 h 40 min. Nessun Flow deve controllare ogni pochi minuti. Servono prima alcuni cicli completati per conoscere la durata abituale. Il token del messaggio è nella Lingua predefinita dei messaggi.",
+    "nl": "Gaat af terwijl de cyclus nog loopt, zodra die het opgegeven veelvoud van de gebruikelijke (mediane) cyclus van deze monitor bereikt: een pomp die normaal 50 min draait wordt met 2 gemeld na 1 u 40 min. Geen Flow hoeft om de paar minuten te controleren. Er zijn eerst een paar afgeronde cycli nodig om de gebruikelijke duur te kennen. Het berichttoken komt in de Standaard berichttaal.",
+    "no": "Utløses mens syklusen fortsatt pågår, så snart den når det angitte multiplumet av monitorens vanlige (median) syklus: en pumpe som vanligvis går i 50 min, meldes med 2 etter 1 t 40 min. Ingen Flow trenger å sjekke med noen minutters mellomrom. Først trengs noen fullførte sykluser for å kjenne den vanlige varigheten. Meldingstokenet kommer på Standard meldingsspråk.",
+    "sv": "Utlöses medan cykeln fortfarande pågår, så snart den når den angivna multipeln av övervakarens vanliga (median) cykel: en pump som brukar gå 50 min rapporteras, med 2, efter 1 h 40 min. Inget Flow behöver kontrollera med några minuters mellanrum. Först behövs några avslutade cykler för att känna till den vanliga tiden. Meddelandetokenet kommer på Standardspråket för meddelanden."
   },
   "args": [
     {
@@ -14,34 +38,192 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       },
       "hint": {
-        "en": "Activity and state monitors (a door left open far longer than usual). Pick \"Any monitor\" to run for all of them; the tokens say which one it was."
+        "en": "Activity and state monitors (a door left open far longer than usual). Pick \"Any monitor\" to run for all of them; the tokens say which one it was.",
+        "da": "Aktivitets- og statusmonitorer (en dør, der står åben meget længere end normalt). Vælg \"Enhver monitor\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Aktivitäts- und Zustandsmonitore (eine Tür, die viel länger als sonst offen steht). Wähle \"Jeder Monitor\", um für alle zu laufen; die Tokens sagen, welcher es war.",
+        "es": "Monitores de actividad y de estado (una puerta abierta mucho más de lo normal). Elige \"Cualquier monitor\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Moniteurs d'activité et d'état (une porte restée ouverte bien plus longtemps que d'habitude). Choisissez \"N'importe quel moniteur\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Monitor di attività e di stato (una porta lasciata aperta molto più a lungo del solito). Scegli \"Qualsiasi monitor\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Activiteits- en statusmonitors (een deur die veel langer dan normaal open staat). Kies \"Elke monitor\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Aktivitets- og statusmonitorer (en dør som står åpen mye lenger enn vanlig). Velg \"Hvilken som helst monitor\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Aktivitets- och statusövervakare (en dörr som står öppen mycket längre än vanligt). Välj \"Valfri övervakare\" för att köra för alla; tokens säger vilken det var."
       }
     },
     {
       "name": "multiplier",
       "type": "number",
       "title": {
-        "en": "Multiplier"
+        "en": "Multiplier",
+        "da": "Multiplikator",
+        "de": "Faktor",
+        "es": "Multiplicador",
+        "fr": "Multiplicateur",
+        "it": "Moltiplicatore",
+        "nl": "Vermenigvuldiger",
+        "no": "Multiplikator",
+        "sv": "Multiplikator"
       },
       "min": 1,
       "step": 0.5,
       "placeholder": {
-        "en": "e.g. 2"
+        "en": "e.g. 2",
+        "da": "f.eks. 2",
+        "de": "z. B. 2",
+        "es": "p. ej. 2",
+        "fr": "ex. 2",
+        "it": "es. 2",
+        "nl": "bijv. 2",
+        "no": "f.eks. 2",
+        "sv": "t.ex. 2"
       }
     }
   ],
   "tokens": [
-    { "name": "device", "type": "string", "title": { "en": "Device" } },
-    { "name": "monitor", "type": "string", "title": { "en": "Monitor" } },
-    { "name": "duration", "type": "number", "title": { "en": "Running for (seconds)" } },
-    { "name": "duration_human", "type": "string", "title": { "en": "Running for" } },
-    { "name": "median_duration", "type": "number", "title": { "en": "Usual (median) duration (seconds)" } },
-    { "name": "median_duration_human", "type": "string", "title": { "en": "Usual (median) duration" } },
-    { "name": "time", "type": "string", "title": { "en": "Time (local)" } },
-    { "name": "timestamp", "type": "string", "title": { "en": "Timestamp" } },
-    { "name": "message", "type": "string", "title": { "en": "Message" } }
+    {
+      "name": "device",
+      "type": "string",
+      "title": {
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
+      }
+    },
+    {
+      "name": "monitor",
+      "type": "string",
+      "title": {
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
+      }
+    },
+    {
+      "name": "duration",
+      "type": "number",
+      "title": {
+        "en": "Running for (seconds)",
+        "da": "Har kørt i (sekunder)",
+        "de": "Läuft seit (Sekunden)",
+        "es": "Funcionando desde hace (segundos)",
+        "fr": "En marche depuis (secondes)",
+        "it": "In funzione da (secondi)",
+        "nl": "Actief sinds (seconden)",
+        "no": "Har gått i (sekunder)",
+        "sv": "Igång sedan (sekunder)"
+      }
+    },
+    {
+      "name": "duration_human",
+      "type": "string",
+      "title": {
+        "en": "Running for",
+        "da": "Har kørt i",
+        "de": "Läuft seit",
+        "es": "Funcionando desde hace",
+        "fr": "En marche depuis",
+        "it": "In funzione da",
+        "nl": "Actief sinds",
+        "no": "Har gått i",
+        "sv": "Igång sedan"
+      }
+    },
+    {
+      "name": "median_duration",
+      "type": "number",
+      "title": {
+        "en": "Usual (median) duration (seconds)",
+        "da": "Sædvanlig varighed (median) (sekunder)",
+        "de": "Übliche Dauer (Median) (Sekunden)",
+        "es": "Duración habitual (mediana) (segundos)",
+        "fr": "Durée habituelle (médiane) (secondes)",
+        "it": "Durata abituale (mediana) (secondi)",
+        "nl": "Gebruikelijke (mediane) duur (seconden)",
+        "no": "Vanlig varighet (median) (sekunder)",
+        "sv": "Vanlig tid (median) (sekunder)"
+      }
+    },
+    {
+      "name": "median_duration_human",
+      "type": "string",
+      "title": {
+        "en": "Usual (median) duration",
+        "da": "Sædvanlig varighed (median)",
+        "de": "Übliche Dauer (Median)",
+        "es": "Duración habitual (mediana)",
+        "fr": "Durée habituelle (médiane)",
+        "it": "Durata abituale (mediana)",
+        "nl": "Gebruikelijke (mediane) duur",
+        "no": "Vanlig varighet (median)",
+        "sv": "Vanlig tid (median)"
+      }
+    },
+    {
+      "name": "time",
+      "type": "string",
+      "title": {
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
+      }
+    },
+    {
+      "name": "timestamp",
+      "type": "string",
+      "title": {
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
+      }
+    },
+    {
+      "name": "message",
+      "type": "string",
+      "title": {
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
+      }
+    }
   ]
 }

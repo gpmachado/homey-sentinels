@@ -111,5 +111,14 @@
     "activity": "%monitor% (%period%): ciclos %cycles%, energía %energy%, activo %active%.",
     "voltage": "%monitor% (%period%): media %average% V, rango %min%-%max% V, incidentes %incidents%.",
     "state": "%monitor% (%period%): sesiones %sessions%, %label% %duration%."
+  },
+  "anyChoice": {
+    "activity": "Cualquier monitor de actividad",
+    "state": "Cualquier monitor de estado",
+    "voltage": "Cualquier monitor de tensión",
+    "monitor": "Cualquier monitor",
+    "device": "Cualquier dispositivo vigilado",
+    "group": "Cualquier grupo",
+    "description": "Se aplica a todos"
   }
 }

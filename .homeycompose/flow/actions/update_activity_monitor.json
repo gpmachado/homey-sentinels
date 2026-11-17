@@ -1,10 +1,88 @@
 {
-  "title": { "en": "Update activity monitor" },
-  "titleFormatted": { "en": "Update activity monitor [[monitor]] to threshold [[threshold]] W, continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s" },
+  "title": {
+    "en": "Update activity monitor",
+    "da": "Opdater aktivitetsmonitor",
+    "de": "Aktivitätsmonitor aktualisieren",
+    "es": "Actualizar monitor de actividad",
+    "fr": "Mettre à jour le moniteur d'activité",
+    "it": "Aggiorna il monitor di attività",
+    "nl": "Activiteitsmonitor bijwerken",
+    "no": "Oppdater aktivitetsmonitor",
+    "sv": "Uppdatera aktivitetsövervakare"
+  },
+  "titleFormatted": {
+    "en": "Update activity monitor [[monitor]] to threshold [[threshold]] W, continuity [[continuity_minutes]] min, min. confirmation [[min_confirmation_seconds]] s",
+    "da": "Opdater aktivitetsmonitor [[monitor]]: tærskel [[threshold]] W, kontinuitet [[continuity_minutes]] min, min. bekræftelse [[min_confirmation_seconds]] s",
+    "de": "Aktivitätsmonitor [[monitor]] auf Schwellenwert [[threshold]] W, Kontinuität [[continuity_minutes]] min, min. Bestätigung [[min_confirmation_seconds]] s setzen",
+    "es": "Actualizar monitor de actividad [[monitor]]: umbral [[threshold]] W, continuidad [[continuity_minutes]] min, confirmación mín. [[min_confirmation_seconds]] s",
+    "fr": "Mettre à jour le moniteur d'activité [[monitor]] : seuil [[threshold]] W, continuité [[continuity_minutes]] min, confirmation min. [[min_confirmation_seconds]] s",
+    "it": "Aggiorna il monitor di attività [[monitor]]: soglia [[threshold]] W, continuità [[continuity_minutes]] min, conferma min. [[min_confirmation_seconds]] s",
+    "nl": "Activiteitsmonitor [[monitor]] bijwerken naar drempel [[threshold]] W, continuïteit [[continuity_minutes]] min, min. bevestiging [[min_confirmation_seconds]] s",
+    "no": "Oppdater aktivitetsmonitor [[monitor]]: terskel [[threshold]] W, kontinuitet [[continuity_minutes]] min, min. bekreftelse [[min_confirmation_seconds]] s",
+    "sv": "Uppdatera aktivitetsövervakare [[monitor]]: tröskel [[threshold]] W, kontinuitet [[continuity_minutes]] min, min. bekräftelse [[min_confirmation_seconds]] s"
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
-    { "name": "threshold", "type": "number", "title": { "en": "Activity threshold (W)" } },
-    { "name": "continuity_minutes", "type": "number", "required": false, "title": { "en": "Continuity window (minutes, optional)" } },
-    { "name": "min_confirmation_seconds", "type": "number", "required": false, "title": { "en": "Minimum state confirmation (seconds, optional)" } }
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
+      }
+    },
+    {
+      "name": "threshold",
+      "type": "number",
+      "title": {
+        "en": "Activity threshold (W)",
+        "da": "Aktivitetstærskel (W)",
+        "de": "Aktivitätsschwelle (W)",
+        "es": "Umbral de actividad (W)",
+        "fr": "Seuil d'activité (W)",
+        "it": "Soglia di attività (W)",
+        "nl": "Activiteitsdrempel (W)",
+        "no": "Aktivitetsterskel (W)",
+        "sv": "Aktivitetströskel (W)"
+      }
+    },
+    {
+      "name": "continuity_minutes",
+      "type": "number",
+      "required": false,
+      "title": {
+        "en": "Continuity window (minutes, optional)",
+        "da": "Kontinuitetsvindue (minutter, valgfrit)",
+        "de": "Kontinuitätsfenster (Minuten, optional)",
+        "es": "Ventana de continuidad (minutos, opcional)",
+        "fr": "Fenêtre de continuité (minutes, facultatif)",
+        "it": "Finestra di continuità (minuti, facoltativo)",
+        "nl": "Continuïteitsvenster (minuten, optioneel)",
+        "no": "Kontinuitetsvindu (minutter, valgfritt)",
+        "sv": "Kontinuitetsfönster (minuter, valfritt)"
+      }
+    },
+    {
+      "name": "min_confirmation_seconds",
+      "type": "number",
+      "required": false,
+      "title": {
+        "en": "Minimum state confirmation (seconds, optional)",
+        "da": "Mindste bekræftelse af tilstanden (sekunder, valgfrit)",
+        "de": "Minimale Bestätigung des Zustands (Sekunden, optional)",
+        "es": "Confirmación mínima del estado (segundos, opcional)",
+        "fr": "Confirmation minimale de l'état (secondes, facultatif)",
+        "it": "Conferma minima dello stato (secondi, facoltativo)",
+        "nl": "Minimale bevestiging van de status (seconden, optioneel)",
+        "no": "Minste bekreftelse av tilstanden (sekunder, valgfritt)",
+        "sv": "Minsta bekräftelse av läget (sekunder, valfritt)"
+      }
+    }
   ]
 }

@@ -111,5 +111,14 @@
     "activity": "%monitor% (%period%): sykluser %cycles%, energi %energy%, aktiv %active%.",
     "voltage": "%monitor% (%period%): snitt %average% V, område %min%-%max% V, hendelser %incidents%.",
     "state": "%monitor% (%period%): økter %sessions%, %label% %duration%."
+  },
+  "anyChoice": {
+    "activity": "Hvilken som helst aktivitetsmonitor",
+    "state": "Hvilken som helst statusmonitor",
+    "voltage": "Hvilken som helst spenningsmonitor",
+    "monitor": "Hvilken som helst monitor",
+    "device": "Hvilken som helst overvåket enhet",
+    "group": "Hvilken som helst gruppe",
+    "description": "Gjelder alle"
   }
 }

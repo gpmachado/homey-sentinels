@@ -1,8 +1,52 @@
 {
-  "title": { "en": "[[device]] !{{is available|is not available}}" },
-  "titleFormatted": { "en": "[[device]] !{{is available|is not available}}" },
-  "hint": { "en": "Checks the device's own available flag right now — no watchdog needs to be configured for this. Only accurate for devices whose driver actively manages availability; one that never does will always read \"available\" even if it's dead. Add an availability watchdog for that device instead to also catch staleness." },
+  "title": {
+    "en": "[[device]] !{{is available|is not available}}",
+    "da": "[[device]] !{{er tilgængelig|er ikke tilgængelig}}",
+    "de": "[[device]] !{{ist verfügbar|ist nicht verfügbar}}",
+    "es": "[[device]] !{{está disponible|no está disponible}}",
+    "fr": "[[device]] !{{est disponible|n'est pas disponible}}",
+    "it": "[[device]] !{{è disponibile|non è disponibile}}",
+    "nl": "[[device]] !{{is beschikbaar|is niet beschikbaar}}",
+    "no": "[[device]] !{{er tilgjengelig|er ikke tilgjengelig}}",
+    "sv": "[[device]] !{{är tillgänglig|är inte tillgänglig}}"
+  },
+  "titleFormatted": {
+    "en": "[[device]] !{{is available|is not available}}",
+    "da": "[[device]] !{{er tilgængelig|er ikke tilgængelig}}",
+    "de": "[[device]] !{{ist verfügbar|ist nicht verfügbar}}",
+    "es": "[[device]] !{{está disponible|no está disponible}}",
+    "fr": "[[device]] !{{est disponible|n'est pas disponible}}",
+    "it": "[[device]] !{{è disponibile|non è disponibile}}",
+    "nl": "[[device]] !{{is beschikbaar|is niet beschikbaar}}",
+    "no": "[[device]] !{{er tilgjengelig|er ikke tilgjengelig}}",
+    "sv": "[[device]] !{{är tillgänglig|är inte tillgänglig}}"
+  },
+  "hint": {
+    "en": "Checks the device's own available flag right now — no watchdog needs to be configured for this. Only accurate for devices whose driver actively manages availability; one that never does will always read \"available\" even if it's dead. Add an availability watchdog for that device instead to also catch staleness.",
+    "da": "Tjekker enhedens eget tilgængelighedsflag lige nu; der skal ikke være opsat en watchdog til det. Kun pålideligt for enheder, hvis driver faktisk håndterer tilgængelighed; en enhed, hvor det aldrig sker, vises altid som \"tilgængelig\", også når den er død. Tilføj i stedet en tilgængeligheds-watchdog for også at fange stilhed.",
+    "de": "Prüft jetzt das eigene Verfügbarkeits-Flag des Geräts; dafür muss kein Watchdog eingerichtet sein. Nur verlässlich bei Geräten, deren Treiber die Verfügbarkeit wirklich pflegt; ein Gerät, bei dem das nie passiert, zeigt immer \"verfügbar\", auch wenn es ausgefallen ist. Lege dann einen Verfügbarkeits-Watchdog an, um auch Stille zu erkennen.",
+    "es": "Comprueba ahora el indicador de disponibilidad propio del dispositivo; no hace falta configurar un watchdog. Solo es fiable con dispositivos cuyo driver gestiona de verdad la disponibilidad; uno que nunca lo hace siempre aparece \"disponible\", aunque esté muerto. En ese caso añade un watchdog de disponibilidad para detectar también el silencio.",
+    "fr": "Vérifie maintenant l'indicateur de disponibilité propre à l'appareil ; aucun watchdog n'est nécessaire pour cela. Fiable seulement pour les appareils dont le pilote gère vraiment la disponibilité ; un appareil où ce n'est jamais le cas reste toujours \"disponible\", même hors service. Ajoutez plutôt un watchdog de disponibilité pour cet appareil afin de repérer aussi le silence.",
+    "it": "Controlla subito l'indicatore di disponibilità del dispositivo; non serve configurare un watchdog. Affidabile solo per i dispositivi il cui driver gestisce davvero la disponibilità; un dispositivo per cui non succede mai risulta sempre \"disponibile\", anche se è guasto. In quel caso aggiungi un watchdog di disponibilità per rilevare anche il silenzio.",
+    "nl": "Controleert nu de eigen beschikbaarheidsvlag van het apparaat; hiervoor hoeft geen watchdog te zijn ingesteld. Alleen betrouwbaar voor apparaten waarvan de driver de beschikbaarheid echt bijhoudt; een apparaat waarbij dat nooit gebeurt staat altijd op \"beschikbaar\", ook als het dood is. Voeg in dat geval een beschikbaarheidswatchdog toe om ook stilte op te merken.",
+    "no": "Sjekker enhetens eget tilgjengelighetsflagg akkurat nå; det trengs ingen watchdog for dette. Bare pålitelig for enheter der driveren faktisk håndterer tilgjengelighet; en enhet der det aldri skjer vises alltid som \"tilgjengelig\", selv når den er død. Legg da til en tilgjengelighets-watchdog for å fange stillhet også.",
+    "sv": "Kontrollerar enhetens egen tillgänglighetsflagga just nu; ingen watchdog behöver vara inställd för det. Bara pålitligt för enheter vars drivrutin verkligen sköter tillgängligheten; en enhet där det aldrig sker visas alltid som \"tillgänglig\", även när den är död. Lägg då till en tillgänglighets-watchdog för att även upptäcka tystnad."
+  },
   "args": [
-    { "name": "device", "type": "autocomplete", "title": { "en": "Device" } }
+    {
+      "name": "device",
+      "type": "autocomplete",
+      "title": {
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
+      }
+    }
   ]
 }

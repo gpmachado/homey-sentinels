@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Get daily digest"
+    "en": "Get daily digest",
+    "da": "Hent dagsoversigt",
+    "de": "Tagesübersicht abrufen",
+    "es": "Obtener resumen del día",
+    "fr": "Obtenir le résumé du jour",
+    "it": "Ottieni il riepilogo del giorno",
+    "nl": "Dagoverzicht ophalen",
+    "no": "Hent dagsoppsummering",
+    "sv": "Hämta dagssammanfattning"
   },
   "titleFormatted": {
-    "en": "Get daily digest"
+    "en": "Get daily digest",
+    "da": "Hent dagsoversigt",
+    "de": "Tagesübersicht abrufen",
+    "es": "Obtener resumen del día",
+    "fr": "Obtenir le résumé du jour",
+    "it": "Ottieni il riepilogo del giorno",
+    "nl": "Dagoverzicht ophalen",
+    "no": "Hent dagsoppsummering",
+    "sv": "Hämta dagssammanfattning"
   },
   "hint": {
-    "en": "Today in one message for a notification: the cycles and energy of your Activity monitors since midnight, the biggest user, the devices the last availability scan flagged (0 while that scan is off) and the state groups with a mismatch now. The sentence follows the Default message language in Settings; the numbers are there to build your own. Its tokens are only available in an Advanced Flow."
+    "en": "Today in one message for a notification: the cycles and energy of your Activity monitors since midnight, the biggest user, the devices the last availability scan flagged (0 while that scan is off) and the state groups with a mismatch now. The sentence follows the Default message language in Settings; the numbers are there to build your own. Its tokens are only available in an Advanced Flow.",
+    "da": "Dagen i én besked til en notifikation: cyklusserne og energien for dine aktivitetsmonitorer siden midnat, den største forbruger, de enheder den seneste tilgængelighedsscanning markerede (0 hvis scanningen er slået fra) og de statusgrupper, der afviger nu. Sætningen følger Standardsprog for beskeder i indstillingerne; tallene er der, så du kan lave din egen. Dens tokens findes kun i et Advanced Flow.",
+    "de": "Der heutige Tag in einer Nachricht: Zyklen und Energie deiner Aktivitätsmonitore seit Mitternacht, der größte Verbraucher, die Geräte, die der letzte Verfügbarkeitsscan gemeldet hat (0, wenn der Scan aus ist), und die Zustandsgruppen, die gerade abweichen. Der Satz folgt der Standard-Nachrichtensprache in den Einstellungen; die Zahlen sind da, um eigene Sätze zu bauen. Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "El día en un mensaje para una notificación: los ciclos y la energía de tus monitores de actividad desde medianoche, el mayor consumidor, los dispositivos que marcó el último escaneo de disponibilidad (0 si ese escaneo está apagado) y los grupos de estado con una discrepancia ahora. La frase sigue el Idioma de mensajes por defecto de los ajustes; los números están para que armes la tuya. Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "La journée en un message pour une notification : les cycles et l'énergie de vos moniteurs d'activité depuis minuit, le plus gros consommateur, les appareils signalés par le dernier scan de disponibilité (0 si ce scan est désactivé) et les groupes d'état qui présentent un écart. La phrase suit la Langue des messages par défaut des réglages ; les nombres sont là pour composer la vôtre. Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "La giornata in un solo messaggio per una notifica: i cicli e l'energia dei tuoi monitor di attività dalla mezzanotte, il consumatore maggiore, i dispositivi segnalati dall'ultima scansione di disponibilità (0 se la scansione è spenta) e i gruppi di stato che ora sono difformi. La frase segue la Lingua predefinita dei messaggi nelle impostazioni; i numeri servono per comporre la tua. I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "Vandaag in één bericht voor een melding: de cycli en energie van je activiteitsmonitors sinds middernacht, de grootste verbruiker, de apparaten die de laatste beschikbaarheidsscan heeft gemarkeerd (0 als die scan uit staat) en de statusgroepen die nu afwijken. De zin volgt de Standaard berichttaal in de instellingen; de getallen zijn er om je eigen zin te maken. De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Dagen i én melding til et varsel: syklusene og energien til aktivitetsmonitorene dine siden midnatt, den største forbrukeren, enhetene som den siste tilgjengelighetsskanningen flagget (0 hvis skanningen er av) og statusgruppene som avviker nå. Setningen følger Standard meldingsspråk i innstillingene; tallene er der for å lage din egen. Tokenene finnes bare i en Advanced Flow.",
+    "sv": "Dagen i ett meddelande för en avisering: cyklerna och energin för dina aktivitetsövervakare sedan midnatt, den största förbrukaren, enheterna som den senaste tillgänglighetsskanningen flaggade (0 om skanningen är av) och statusgrupperna som avviker nu. Meningen följer Standardspråket för meddelanden i inställningarna; siffrorna finns för att bygga din egen. Dess tokens finns bara i ett Advanced Flow."
   },
   "args": [],
   "tokens": [
@@ -14,49 +38,105 @@
       "name": "cycles",
       "type": "number",
       "title": {
-        "en": "Cycles today"
+        "en": "Cycles today",
+        "da": "Cyklusser i dag",
+        "de": "Zyklen heute",
+        "es": "Ciclos hoy",
+        "fr": "Cycles aujourd'hui",
+        "it": "Cicli oggi",
+        "nl": "Cycli vandaag",
+        "no": "Sykluser i dag",
+        "sv": "Cykler i dag"
       }
     },
     {
       "name": "energy",
       "type": "number",
       "title": {
-        "en": "Energy today (kWh)"
+        "en": "Energy today (kWh)",
+        "da": "Energi i dag (kWh)",
+        "de": "Energie heute (kWh)",
+        "es": "Energía hoy (kWh)",
+        "fr": "Énergie aujourd'hui (kWh)",
+        "it": "Energia oggi (kWh)",
+        "nl": "Energie vandaag (kWh)",
+        "no": "Energi i dag (kWh)",
+        "sv": "Energi i dag (kWh)"
       }
     },
     {
       "name": "top_name",
       "type": "string",
       "title": {
-        "en": "Biggest user today"
+        "en": "Biggest user today",
+        "da": "Største forbruger i dag",
+        "de": "Größter Verbraucher heute",
+        "es": "Mayor consumidor hoy",
+        "fr": "Plus gros consommateur aujourd'hui",
+        "it": "Consumatore maggiore oggi",
+        "nl": "Grootste verbruiker vandaag",
+        "no": "Største forbruker i dag",
+        "sv": "Största förbrukare i dag"
       }
     },
     {
       "name": "top_energy",
       "type": "number",
       "title": {
-        "en": "Its energy today (kWh)"
+        "en": "Its energy today (kWh)",
+        "da": "Dens energi i dag (kWh)",
+        "de": "Seine Energie heute (kWh)",
+        "es": "Su energía hoy (kWh)",
+        "fr": "Son énergie aujourd'hui (kWh)",
+        "it": "La sua energia oggi (kWh)",
+        "nl": "Zijn energie vandaag (kWh)",
+        "no": "Dens energi i dag (kWh)",
+        "sv": "Dess energi i dag (kWh)"
       }
     },
     {
       "name": "problems",
       "type": "number",
       "title": {
-        "en": "Devices needing attention (last scan)"
+        "en": "Devices needing attention (last scan)",
+        "da": "Enheder der kræver opmærksomhed (seneste scanning)",
+        "de": "Geräte, die Aufmerksamkeit brauchen (letzter Scan)",
+        "es": "Dispositivos que necesitan atención (último escaneo)",
+        "fr": "Appareils à surveiller (dernier scan)",
+        "it": "Dispositivi che richiedono attenzione (ultima scansione)",
+        "nl": "Apparaten die aandacht nodig hebben (laatste scan)",
+        "no": "Enheter som trenger oppmerksomhet (siste skanning)",
+        "sv": "Enheter som behöver uppmärksamhet (senaste skanningen)"
       }
     },
     {
       "name": "groups_mismatch",
       "type": "number",
       "title": {
-        "en": "State groups with a mismatch"
+        "en": "State groups with a mismatch",
+        "da": "Statusgrupper med afvigelse",
+        "de": "Zustandsgruppen mit Abweichung",
+        "es": "Grupos de estado con una discrepancia",
+        "fr": "Groupes d'état avec un écart",
+        "it": "Gruppi di stato con una difformità",
+        "nl": "Statusgroepen met een afwijking",
+        "no": "Statusgrupper med avvik",
+        "sv": "Statusgrupper med avvikelse"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

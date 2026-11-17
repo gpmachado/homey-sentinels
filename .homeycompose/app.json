@@ -8,10 +8,26 @@
     "local"
   ],
   "name": {
-    "en": "Sentinels"
+    "en": "Sentinels",
+    "da": "Sentinels",
+    "de": "Sentinels",
+    "es": "Sentinels",
+    "fr": "Sentinels",
+    "it": "Sentinels",
+    "nl": "Sentinels",
+    "no": "Sentinels",
+    "sv": "Sentinels"
   },
   "description": {
-    "en": "Observes existing devices and turns capability updates into activity, cycles, energy and statistics. Read-only — it never controls the devices it monitors."
+    "en": "Observes existing devices and turns capability updates into activity, cycles, energy and statistics. Read-only — it never controls the devices it monitors.",
+    "da": "Følger eksisterende enheder og gør opdateringer af deres funktioner til aktivitet, cyklusser, energi og statistik. Kun læsning: den styrer aldrig de enheder, den overvåger.",
+    "de": "Beobachtet vorhandene Geräte und macht aus Capability-Updates Aktivität, Zyklen, Energie und Statistiken. Nur lesend: Es steuert nie die Geräte, die es überwacht.",
+    "es": "Observa los dispositivos existentes y convierte las actualizaciones de sus capacidades en actividad, ciclos, energía y estadísticas. Solo lectura: nunca controla los dispositivos que vigila.",
+    "fr": "Observe les appareils existants et transforme les mises à jour de leurs capacités en activité, cycles, énergie et statistiques. En lecture seule : il ne commande jamais les appareils qu'il surveille.",
+    "it": "Osserva i dispositivi esistenti e trasforma gli aggiornamenti delle loro capacità in attività, cicli, energia e statistiche. Solo lettura: non controlla mai i dispositivi che monitora.",
+    "nl": "Bekijkt bestaande apparaten en maakt van capability-updates activiteit, cycli, energie en statistieken. Alleen-lezen: het bestuurt nooit de apparaten die het bewaakt.",
+    "no": "Følger eksisterende enheter og gjør oppdateringer av funksjonene deres om til aktivitet, sykluser, energi og statistikk. Bare lesing: den styrer aldri enhetene den overvåker.",
+    "sv": "Följer befintliga enheter och gör om uppdateringar av deras funktioner till aktivitet, cykler, energi och statistik. Endast läsning: den styr aldrig de enheter den övervakar."
   },
   "category": [
     "tools"

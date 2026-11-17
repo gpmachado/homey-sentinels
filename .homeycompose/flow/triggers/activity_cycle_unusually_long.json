@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Cycle unusually long"
+    "en": "Cycle unusually long",
+    "da": "Usædvanlig lang cyklus",
+    "de": "Zyklus ungewöhnlich lang",
+    "es": "Ciclo inusualmente largo",
+    "fr": "Cycle anormalement long",
+    "it": "Ciclo insolitamente lungo",
+    "nl": "Cyclus ongewoon lang",
+    "no": "Uvanlig lang syklus",
+    "sv": "Ovanligt lång cykel"
   },
   "titleFormatted": {
-    "en": "[[monitor]] finishes a cycle at least [[multiplier]]x its usual duration"
+    "en": "[[monitor]] finishes a cycle at least [[multiplier]]x its usual duration",
+    "da": "[[monitor]] afslutter en cyklus på mindst [[multiplier]]x den sædvanlige varighed",
+    "de": "[[monitor]] beendet einen Zyklus von mindestens [[multiplier]]x der üblichen Dauer",
+    "es": "[[monitor]] termina un ciclo de al menos [[multiplier]]x su duración habitual",
+    "fr": "[[monitor]] termine un cycle d'au moins [[multiplier]]x sa durée habituelle",
+    "it": "[[monitor]] termina un ciclo di almeno [[multiplier]]x la durata abituale",
+    "nl": "[[monitor]] sluit een cyclus af van minstens [[multiplier]]x de gebruikelijke duur",
+    "no": "[[monitor]] fullfører en syklus på minst [[multiplier]]x den vanlige varigheten",
+    "sv": "[[monitor]] avslutar en cykel på minst [[multiplier]]x sin vanliga tid"
   },
   "hint": {
-    "en": "Compares the cycle that just finished to the median of this monitor's own history — needs a handful of completed cycles first to have a meaningful median. Simpler and more predictable than statistical anomaly detection (μ±2σ), which struggles with the same skewed, multi-modal duration distributions real appliances produce."
+    "en": "Compares the cycle that just finished to the median of this monitor's own history — needs a handful of completed cycles first to have a meaningful median. Simpler and more predictable than statistical anomaly detection (μ±2σ), which struggles with the same skewed, multi-modal duration distributions real appliances produce.",
+    "da": "Sammenligner den cyklus, der lige er afsluttet, med medianen i monitorens egen historik; først skal der være nogle afsluttede cyklusser for en meningsfuld median. Enklere og mere forudsigeligt end statistisk afvigelsesdetektion (μ±2σ), som har svært ved de skæve, flertoppede varighedsfordelinger, rigtige apparater giver.",
+    "de": "Vergleicht den gerade beendeten Zyklus mit dem Median des eigenen Verlaufs dieses Monitors; zuerst sind ein paar abgeschlossene Zyklen für einen sinnvollen Median nötig. Einfacher und berechenbarer als statistische Anomalieerkennung (μ±2σ), die mit den schiefen, mehrgipfligen Dauerverteilungen echter Geräte Mühe hat.",
+    "es": "Compara el ciclo que acaba de terminar con la mediana del historial de este monitor; antes hacen falta unos cuantos ciclos completos para que la mediana tenga sentido. Más simple y predecible que la detección estadística de anomalías (μ±2σ), que tiene problemas con las distribuciones de duración asimétricas y multimodales de los aparatos reales.",
+    "fr": "Compare le cycle qui vient de se terminer à la médiane de l'historique de ce moniteur ; il faut d'abord quelques cycles terminés pour une médiane parlante. Plus simple et plus prévisible qu'une détection statistique d'anomalies (μ±2σ), qui peine avec les distributions de durée asymétriques et multimodales des vrais appareils.",
+    "it": "Confronta il ciclo appena terminato con la mediana dello storico di questo monitor; servono prima alcuni cicli completati per una mediana significativa. Più semplice e prevedibile del rilevamento statistico delle anomalie (μ±2σ), che fatica con le distribuzioni di durata asimmetriche e multimodali dei veri elettrodomestici.",
+    "nl": "Vergelijkt de net afgeronde cyclus met de mediaan van de eigen geschiedenis van deze monitor; er zijn eerst een paar afgeronde cycli nodig voor een zinvolle mediaan. Eenvoudiger en voorspelbaarder dan statistische afwijkingsdetectie (μ±2σ), die moeite heeft met de scheve, meertoppige duurverdelingen van echte apparaten.",
+    "no": "Sammenligner syklusen som nettopp ble fullført med medianen i monitorens egen historikk; først trengs noen fullførte sykluser for en meningsfull median. Enklere og mer forutsigbart enn statistisk avviksdeteksjon (μ±2σ), som sliter med de skjeve, flertoppede varighetsfordelingene ekte apparater gir.",
+    "sv": "Jämför cykeln som just avslutades med medianen i övervakarens egen historik; först behövs några avslutade cykler för en meningsfull median. Enklare och mer förutsägbart än statistisk avvikelsedetektering (μ±2σ), som har svårt med de sneda, flertoppiga tidsfördelningar som riktiga apparater ger."
   },
   "args": [
     {
@@ -14,21 +38,53 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       },
       "hint": {
-        "en": "Activity and state monitors (a door left open far longer than usual). Pick \"Any monitor\" to run for all of them; the tokens say which one it was."
+        "en": "Activity and state monitors (a door left open far longer than usual). Pick \"Any monitor\" to run for all of them; the tokens say which one it was.",
+        "da": "Aktivitets- og statusmonitorer (en dør, der står åben meget længere end normalt). Vælg \"Enhver monitor\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Aktivitäts- und Zustandsmonitore (eine Tür, die viel länger als sonst offen steht). Wähle \"Jeder Monitor\", um für alle zu laufen; die Tokens sagen, welcher es war.",
+        "es": "Monitores de actividad y de estado (una puerta abierta mucho más de lo normal). Elige \"Cualquier monitor\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Moniteurs d'activité et d'état (une porte restée ouverte bien plus longtemps que d'habitude). Choisissez \"N'importe quel moniteur\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Monitor di attività e di stato (una porta lasciata aperta molto più a lungo del solito). Scegli \"Qualsiasi monitor\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Activiteits- en statusmonitors (een deur die veel langer dan normaal open staat). Kies \"Elke monitor\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Aktivitets- og statusmonitorer (en dør som står åpen mye lenger enn vanlig). Velg \"Hvilken som helst monitor\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Aktivitets- och statusövervakare (en dörr som står öppen mycket längre än vanligt). Välj \"Valfri övervakare\" för att köra för alla; tokens säger vilken det var."
       }
     },
     {
       "name": "multiplier",
       "type": "number",
       "title": {
-        "en": "Multiplier"
+        "en": "Multiplier",
+        "da": "Multiplikator",
+        "de": "Faktor",
+        "es": "Multiplicador",
+        "fr": "Multiplicateur",
+        "it": "Moltiplicatore",
+        "nl": "Vermenigvuldiger",
+        "no": "Multiplikator",
+        "sv": "Multiplikator"
       },
       "min": 1,
       "placeholder": {
-        "en": "e.g. 3"
+        "en": "e.g. 3",
+        "da": "f.eks. 3",
+        "de": "z. B. 3",
+        "es": "p. ej. 3",
+        "fr": "ex. 3",
+        "it": "es. 3",
+        "nl": "bijv. 3",
+        "no": "f.eks. 3",
+        "sv": "t.ex. 3"
       }
     }
   ],
@@ -37,56 +93,120 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "duration",
       "type": "number",
       "title": {
-        "en": "This cycle's duration (seconds)"
+        "en": "This cycle's duration (seconds)",
+        "da": "Varighed for denne cyklus (sekunder)",
+        "de": "Dauer dieses Zyklus (Sekunden)",
+        "es": "Duración de este ciclo (segundos)",
+        "fr": "Durée de ce cycle (secondes)",
+        "it": "Durata di questo ciclo (secondi)",
+        "nl": "Duur van deze cyclus (seconden)",
+        "no": "Varighet for denne syklusen (sekunder)",
+        "sv": "Tid för den här cykeln (sekunder)"
       }
     },
     {
       "name": "duration_human",
       "type": "string",
       "title": {
-        "en": "This cycle's duration"
+        "en": "This cycle's duration",
+        "da": "Varighed for denne cyklus",
+        "de": "Dauer dieses Zyklus",
+        "es": "Duración de este ciclo",
+        "fr": "Durée de ce cycle",
+        "it": "Durata di questo ciclo",
+        "nl": "Duur van deze cyclus",
+        "no": "Varighet for denne syklusen",
+        "sv": "Tid för den här cykeln"
       }
     },
     {
       "name": "median_duration",
       "type": "number",
       "title": {
-        "en": "Usual (median) duration (seconds)"
+        "en": "Usual (median) duration (seconds)",
+        "da": "Sædvanlig varighed (median) (sekunder)",
+        "de": "Übliche Dauer (Median) (Sekunden)",
+        "es": "Duración habitual (mediana) (segundos)",
+        "fr": "Durée habituelle (médiane) (secondes)",
+        "it": "Durata abituale (mediana) (secondi)",
+        "nl": "Gebruikelijke (mediane) duur (seconden)",
+        "no": "Vanlig varighet (median) (sekunder)",
+        "sv": "Vanlig tid (median) (sekunder)"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

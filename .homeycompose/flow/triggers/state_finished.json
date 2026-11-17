@@ -1,9 +1,25 @@
 {
   "title": {
-    "en": "State session finished"
+    "en": "State session finished",
+    "da": "Statussession afsluttet",
+    "de": "Zustandssitzung beendet",
+    "es": "Sesión de estado terminada",
+    "fr": "Session d'état terminée",
+    "it": "Sessione di stato terminata",
+    "nl": "Statussessie beëindigd",
+    "no": "Statusøkt avsluttet",
+    "sv": "Statussession avslutad"
   },
   "titleFormatted": {
-    "en": "State session finished ([[monitor]])"
+    "en": "State session finished ([[monitor]])",
+    "da": "Statussession afsluttet ([[monitor]])",
+    "de": "Zustandssitzung beendet ([[monitor]])",
+    "es": "Sesión de estado terminada ([[monitor]])",
+    "fr": "Session d'état terminée ([[monitor]])",
+    "it": "Sessione di stato terminata ([[monitor]])",
+    "nl": "Statussessie beëindigd ([[monitor]])",
+    "no": "Statusøkt avsluttet ([[monitor]])",
+    "sv": "Statussession avslutad ([[monitor]])"
   },
   "args": [
     {
@@ -11,10 +27,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       },
       "hint": {
-        "en": "Which state monitor to watch. Pick \"Any state monitor\" to run for all of them; the tokens say which one it was."
+        "en": "Which state monitor to watch. Pick \"Any state monitor\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken statusmonitor der skal følges. Vælg \"Enhver statusmonitor\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Welcher Zustandsmonitor beobachtet wird. Wähle \"Jeder Zustandsmonitor\", um für alle zu laufen; die Tokens sagen, welcher es war.",
+        "es": "Qué monitor de estado seguir. Elige \"Cualquier monitor de estado\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Quel moniteur d'état suivre. Choisissez \"N'importe quel moniteur d'état\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Quale monitor di stato seguire. Scegli \"Qualsiasi monitor di stato\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Welke statusmonitor je wilt volgen. Kies \"Elke statusmonitor\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Hvilken statusmonitor som skal følges. Velg \"Hvilken som helst statusmonitor\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken statusövervakare som ska följas. Välj \"Valfri statusövervakare\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -23,105 +55,225 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "duration",
       "type": "number",
       "title": {
-        "en": "Duration (seconds)"
+        "en": "Duration (seconds)",
+        "da": "Varighed (sekunder)",
+        "de": "Dauer (Sekunden)",
+        "es": "Duración (segundos)",
+        "fr": "Durée (secondes)",
+        "it": "Durata (secondi)",
+        "nl": "Duur (seconden)",
+        "no": "Varighet (sekunder)",
+        "sv": "Tid (sekunder)"
       }
     },
     {
       "name": "duration_human",
       "type": "string",
       "title": {
-        "en": "Duration"
+        "en": "Duration",
+        "da": "Varighed",
+        "de": "Dauer",
+        "es": "Duración",
+        "fr": "Durée",
+        "it": "Durata",
+        "nl": "Duur",
+        "no": "Varighet",
+        "sv": "Tid"
       }
     },
     {
       "name": "label",
       "type": "string",
       "title": {
-        "en": "State entered"
+        "en": "State entered",
+        "da": "Ny tilstand",
+        "de": "Neuer Zustand",
+        "es": "Nuevo estado",
+        "fr": "Nouvel état",
+        "it": "Nuovo stato",
+        "nl": "Nieuwe status",
+        "no": "Ny tilstand",
+        "sv": "Nytt läge"
       }
     },
     {
       "name": "count",
       "type": "number",
       "title": {
-        "en": "Sessions today (including this one)"
+        "en": "Sessions today (including this one)",
+        "da": "Sessioner i dag (inklusive denne)",
+        "de": "Sitzungen heute (einschließlich dieser)",
+        "es": "Sesiones hoy (incluida esta)",
+        "fr": "Sessions aujourd'hui (y compris celle-ci)",
+        "it": "Sessioni oggi (compresa questa)",
+        "nl": "Sessies vandaag (inclusief deze)",
+        "no": "Økter i dag (inkludert denne)",
+        "sv": "Sessioner i dag (inklusive denna)"
       }
     },
     {
       "name": "energy",
       "type": "number",
       "title": {
-        "en": "Energy (kWh)"
+        "en": "Energy (kWh)",
+        "da": "Energi (kWh)",
+        "de": "Energie (kWh)",
+        "es": "Energía (kWh)",
+        "fr": "Énergie (kWh)",
+        "it": "Energia (kWh)",
+        "nl": "Energie (kWh)",
+        "no": "Energi (kWh)",
+        "sv": "Energi (kWh)"
       }
     },
     {
       "name": "energy_today",
       "type": "number",
       "title": {
-        "en": "Energy today (kWh)"
+        "en": "Energy today (kWh)",
+        "da": "Energi i dag (kWh)",
+        "de": "Energie heute (kWh)",
+        "es": "Energía hoy (kWh)",
+        "fr": "Énergie aujourd'hui (kWh)",
+        "it": "Energia oggi (kWh)",
+        "nl": "Energie vandaag (kWh)",
+        "no": "Energi i dag (kWh)",
+        "sv": "Energi i dag (kWh)"
       }
     },
     {
       "name": "average_power",
       "type": "number",
       "title": {
-        "en": "Average power (W)"
+        "en": "Average power (W)",
+        "da": "Gennemsnitlig effekt (W)",
+        "de": "Durchschnittliche Leistung (W)",
+        "es": "Potencia media (W)",
+        "fr": "Puissance moyenne (W)",
+        "it": "Potenza media (W)",
+        "nl": "Gemiddeld vermogen (W)",
+        "no": "Gjennomsnittlig effekt (W)",
+        "sv": "Medeleffekt (W)"
       }
     },
     {
       "name": "max_power",
       "type": "number",
       "title": {
-        "en": "Peak power (W)"
+        "en": "Peak power (W)",
+        "da": "Spidseffekt (W)",
+        "de": "Spitzenleistung (W)",
+        "es": "Potencia máxima (W)",
+        "fr": "Puissance de crête (W)",
+        "it": "Potenza di picco (W)",
+        "nl": "Piekvermogen (W)",
+        "no": "Toppeffekt (W)",
+        "sv": "Toppeffekt (W)"
       }
     },
     {
       "name": "average_current",
       "type": "number",
       "title": {
-        "en": "Average current (A)"
+        "en": "Average current (A)",
+        "da": "Gennemsnitlig strøm (A)",
+        "de": "Durchschnittlicher Strom (A)",
+        "es": "Corriente media (A)",
+        "fr": "Courant moyen (A)",
+        "it": "Corrente media (A)",
+        "nl": "Gemiddelde stroom (A)",
+        "no": "Gjennomsnittlig strøm (A)",
+        "sv": "Medelström (A)"
       }
     },
     {
       "name": "max_current",
       "type": "number",
       "title": {
-        "en": "Peak current (A)"
+        "en": "Peak current (A)",
+        "da": "Spidsstrøm (A)",
+        "de": "Spitzenstrom (A)",
+        "es": "Corriente máxima (A)",
+        "fr": "Courant de crête (A)",
+        "it": "Corrente di picco (A)",
+        "nl": "Piekstroom (A)",
+        "no": "Toppstrøm (A)",
+        "sv": "Toppström (A)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

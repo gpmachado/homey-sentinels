@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Cycle count reached"
+    "en": "Cycle count reached",
+    "da": "Antal cyklusser nået",
+    "de": "Zyklusanzahl erreicht",
+    "es": "Número de ciclos alcanzado",
+    "fr": "Nombre de cycles atteint",
+    "it": "Numero di cicli raggiunto",
+    "nl": "Aantal cycli bereikt",
+    "no": "Antall sykluser nådd",
+    "sv": "Antal cykler uppnått"
   },
   "titleFormatted": {
-    "en": "[[monitor]] reaches [[cycles]] cycles today"
+    "en": "[[monitor]] reaches [[cycles]] cycles today",
+    "da": "[[monitor]] når [[cycles]] cyklusser i dag",
+    "de": "[[monitor]] erreicht heute [[cycles]] Zyklen",
+    "es": "[[monitor]] alcanza [[cycles]] ciclos hoy",
+    "fr": "[[monitor]] atteint [[cycles]] cycles aujourd'hui",
+    "it": "[[monitor]] raggiunge [[cycles]] cicli oggi",
+    "nl": "[[monitor]] bereikt vandaag [[cycles]] cycli",
+    "no": "[[monitor]] når [[cycles]] sykluser i dag",
+    "sv": "[[monitor]] når [[cycles]] cykler i dag"
   },
   "hint": {
-    "en": "Fires once, the moment a monitor's cycle count for today reaches this exact number — not on every cycle after it. Useful to flag an abnormal on/off frequency (a pump or a compressor cycling far more than usual)."
+    "en": "Fires once, the moment a monitor's cycle count for today reaches this exact number — not on every cycle after it. Useful to flag an abnormal on/off frequency (a pump or a compressor cycling far more than usual).",
+    "da": "Udløses én gang, i det øjeblik dagens antal cyklusser når præcis dette tal, ikke ved hver cyklus derefter. Nyttigt til at markere en unormal tænd/sluk-frekvens (en pumpe eller kompressor, der starter meget oftere end normalt).",
+    "de": "Löst einmal aus, in dem Moment, in dem die heutige Zyklusanzahl genau diese Zahl erreicht, nicht bei jedem Zyklus danach. Nützlich, um eine ungewöhnliche Schalthäufigkeit zu erkennen (eine Pumpe oder ein Kompressor, der viel öfter taktet als sonst).",
+    "es": "Se activa una vez, en el momento en que el número de ciclos de hoy llega exactamente a esta cifra, no en cada ciclo posterior. Útil para detectar una frecuencia de encendido anormal (una bomba o un compresor que arranca mucho más de lo habitual).",
+    "fr": "Se déclenche une fois, au moment où le nombre de cycles du jour atteint exactement ce nombre, pas à chaque cycle suivant. Utile pour signaler une fréquence marche/arrêt anormale (une pompe ou un compresseur qui démarre bien plus souvent que d'habitude).",
+    "it": "Si attiva una volta, nel momento in cui il numero di cicli di oggi raggiunge esattamente questo valore, non a ogni ciclo successivo. Utile per segnalare una frequenza di accensione anomala (una pompa o un compressore che si accende molto più spesso del solito).",
+    "nl": "Gaat één keer af, op het moment dat het aantal cycli van vandaag precies dit getal bereikt, niet bij elke cyclus daarna. Handig om een abnormale aan/uit-frequentie te signaleren (een pomp of compressor die veel vaker schakelt dan normaal).",
+    "no": "Utløses én gang, i det øyeblikket dagens antall sykluser når nøyaktig dette tallet, ikke ved hver syklus etterpå. Nyttig for å flagge en unormal av/på-frekvens (en pumpe eller kompressor som starter mye oftere enn vanlig).",
+    "sv": "Utlöses en gång, i det ögonblick dagens antal cykler når exakt det här talet, inte vid varje cykel efter det. Användbart för att flagga en onormal på/av-frekvens (en pump eller kompressor som startar mycket oftare än vanligt)."
   },
   "args": [
     {
@@ -14,17 +38,41 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       },
       "hint": {
-        "en": "Activity and state monitors (a window opened five times today). Pick \"Any monitor\" to run for all of them; the tokens say which one it was."
+        "en": "Activity and state monitors (a window opened five times today). Pick \"Any monitor\" to run for all of them; the tokens say which one it was.",
+        "da": "Aktivitets- og statusmonitorer (et vindue, der er åbnet fem gange i dag). Vælg \"Enhver monitor\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Aktivitäts- und Zustandsmonitore (ein Fenster, das heute fünfmal geöffnet wurde). Wähle \"Jeder Monitor\", um für alle zu laufen; die Tokens sagen, welcher es war.",
+        "es": "Monitores de actividad y de estado (una ventana abierta cinco veces hoy). Elige \"Cualquier monitor\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Moniteurs d'activité et d'état (une fenêtre ouverte cinq fois aujourd'hui). Choisissez \"N'importe quel moniteur\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Monitor di attività e di stato (una finestra aperta cinque volte oggi). Scegli \"Qualsiasi monitor\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Activiteits- en statusmonitors (een raam dat vandaag vijf keer is geopend). Kies \"Elke monitor\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Aktivitets- og statusmonitorer (et vindu som er åpnet fem ganger i dag). Velg \"Hvilken som helst monitor\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Aktivitets- och statusövervakare (ett fönster som öppnats fem gånger i dag). Välj \"Valfri övervakare\" för att köra för alla; tokens säger vilken det var."
       }
     },
     {
       "name": "cycles",
       "type": "number",
       "title": {
-        "en": "Cycles"
+        "en": "Cycles",
+        "da": "Cyklusser",
+        "de": "Zyklen",
+        "es": "Ciclos",
+        "fr": "Cycles",
+        "it": "Cicli",
+        "nl": "Cycli",
+        "no": "Sykluser",
+        "sv": "Cykler"
       },
       "min": 1
     }
@@ -34,42 +82,90 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "count",
       "type": "number",
       "title": {
-        "en": "Cycles today"
+        "en": "Cycles today",
+        "da": "Cyklusser i dag",
+        "de": "Zyklen heute",
+        "es": "Ciclos hoy",
+        "fr": "Cycles aujourd'hui",
+        "it": "Cicli oggi",
+        "nl": "Cycli vandaag",
+        "no": "Sykluser i dag",
+        "sv": "Cykler i dag"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

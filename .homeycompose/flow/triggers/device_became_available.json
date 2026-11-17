@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Device became available"
+    "en": "Device became available",
+    "da": "Enheden blev tilgængelig",
+    "de": "Gerät wurde verfügbar",
+    "es": "El dispositivo volvió a estar disponible",
+    "fr": "L'appareil est redevenu disponible",
+    "it": "Il dispositivo è tornato disponibile",
+    "nl": "Apparaat werd beschikbaar",
+    "no": "Enheten ble tilgjengelig",
+    "sv": "Enheten blev tillgänglig"
   },
   "titleFormatted": {
-    "en": "[[device]] became available again"
+    "en": "[[device]] became available again",
+    "da": "[[device]] er tilgængelig igen",
+    "de": "[[device]] ist wieder verfügbar",
+    "es": "[[device]] vuelve a estar disponible",
+    "fr": "[[device]] est de nouveau disponible",
+    "it": "[[device]] è di nuovo disponibile",
+    "nl": "[[device]] is weer beschikbaar",
+    "no": "[[device]] er tilgjengelig igjen",
+    "sv": "[[device]] är tillgänglig igen"
   },
   "hint": {
-    "en": "Fires when a watched device recovers — its available flag returns true, or it starts reporting again after going stale."
+    "en": "Fires when a watched device recovers — its available flag returns true, or it starts reporting again after going stale.",
+    "da": "Udløses, når en overvåget enhed kommer sig: dens tilgængelighedsflag bliver sandt igen, eller den begynder at rapportere igen efter at have været stille.",
+    "de": "Löst aus, wenn sich ein überwachtes Gerät erholt: Sein Verfügbarkeits-Flag wird wieder wahr, oder es meldet sich nach einer Funkstille wieder.",
+    "es": "Se activa cuando un dispositivo vigilado se recupera: su indicador de disponibilidad vuelve a ser verdadero, o vuelve a informar tras un silencio.",
+    "fr": "Se déclenche quand un appareil surveillé se rétablit : son indicateur de disponibilité redevient vrai, ou il recommence à émettre après un silence.",
+    "it": "Si attiva quando un dispositivo sorvegliato si riprende: il suo indicatore di disponibilità torna vero, oppure ricomincia a trasmettere dopo un silenzio.",
+    "nl": "Gaat af als een bewaakt apparaat herstelt: de beschikbaarheidsvlag wordt weer waar, of het meldt zich weer na een stille periode.",
+    "no": "Utløses når en overvåket enhet kommer seg: tilgjengelighetsflagget blir sant igjen, eller den begynner å rapportere igjen etter å ha vært stille.",
+    "sv": "Utlöses när en bevakad enhet återhämtar sig: dess tillgänglighetsflagga blir sann igen, eller den börjar rapportera igen efter att ha varit tyst."
   },
   "args": [
     {
@@ -14,10 +38,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       },
       "hint": {
-        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
+        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken overvåget enhed der skal reageres på. Vælg \"Enhver overvåget enhed\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Auf welches überwachte Gerät reagiert wird. Wähle \"Jedes überwachte Gerät\", um für alle zu laufen; die Tokens sagen, welches es war.",
+        "es": "A qué dispositivo vigilado reaccionar. Elige \"Cualquier dispositivo vigilado\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "À quel appareil surveillé réagir. Choisissez \"N'importe quel appareil surveillé\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "A quale dispositivo sorvegliato reagire. Scegli \"Qualsiasi dispositivo sorvegliato\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Op welk bewaakt apparaat je wilt reageren. Kies \"Elk bewaakt apparaat\" om voor allemaal te werken; de tokens zeggen welk het was.",
+        "no": "Hvilken overvåket enhet det skal reageres på. Velg \"Hvilken som helst overvåket enhet\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken bevakad enhet som ska reageras på. Välj \"Valfri bevakad enhet\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -26,42 +66,90 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "downtime",
       "type": "string",
       "title": {
-        "en": "Downtime"
+        "en": "Downtime",
+        "da": "Nedetid",
+        "de": "Ausfallzeit",
+        "es": "Tiempo caído",
+        "fr": "Durée d'indisponibilité",
+        "it": "Tempo di fermo",
+        "nl": "Uitvaltijd",
+        "no": "Nedetid",
+        "sv": "Avbrottstid"
       }
     },
     {
       "name": "zone",
       "type": "string",
       "title": {
-        "en": "Zone"
+        "en": "Zone",
+        "da": "Zone",
+        "de": "Zone",
+        "es": "Zona",
+        "fr": "Zone",
+        "it": "Zona",
+        "nl": "Zone",
+        "no": "Sone",
+        "sv": "Zon"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message (in the Default message language)"
+        "en": "Message (in the Default message language)",
+        "da": "Besked (på Standardsprog for beskeder)",
+        "de": "Nachricht (in der Standard-Nachrichtensprache)",
+        "es": "Mensaje (en el Idioma de mensajes por defecto)",
+        "fr": "Message (dans la Langue des messages par défaut)",
+        "it": "Messaggio (nella Lingua predefinita dei messaggi)",
+        "nl": "Bericht (in de Standaard berichttaal)",
+        "no": "Melding (på Standard meldingsspråk)",
+        "sv": "Meddelande (på Standardspråket för meddelanden)"
       }
     }
   ]

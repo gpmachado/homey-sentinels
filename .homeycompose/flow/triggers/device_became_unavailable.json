@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Device became unavailable"
+    "en": "Device became unavailable",
+    "da": "Enheden blev utilgængelig",
+    "de": "Gerät wurde nicht verfügbar",
+    "es": "El dispositivo dejó de estar disponible",
+    "fr": "L'appareil est devenu indisponible",
+    "it": "Il dispositivo è diventato non disponibile",
+    "nl": "Apparaat werd onbeschikbaar",
+    "no": "Enheten ble utilgjengelig",
+    "sv": "Enheten blev otillgänglig"
   },
   "titleFormatted": {
-    "en": "[[device]] became unavailable"
+    "en": "[[device]] became unavailable",
+    "da": "[[device]] blev utilgængelig",
+    "de": "[[device]] wurde nicht verfügbar",
+    "es": "[[device]] dejó de estar disponible",
+    "fr": "[[device]] est devenu indisponible",
+    "it": "[[device]] è diventato non disponibile",
+    "nl": "[[device]] werd onbeschikbaar",
+    "no": "[[device]] ble utilgjengelig",
+    "sv": "[[device]] blev otillgänglig"
   },
   "hint": {
-    "en": "Fires when a watched device's own available flag turns false, or when it goes longer than its configured threshold without reporting (catches drivers that never manage available themselves). Configure which devices are watched, and for how many hours, in Settings → Availability or with \"Add availability watchdog\"."
+    "en": "Fires when a watched device's own available flag turns false, or when it goes longer than its configured threshold without reporting (catches drivers that never manage available themselves). Configure which devices are watched, and for how many hours, in Settings → Availability.",
+    "da": "Udløses, når en overvåget enheds eget tilgængelighedsflag bliver falsk, eller når den går længere end den indstillede tærskel uden at rapportere (fanger drivere, der aldrig selv håndterer tilgængelighed). Vælg, hvilke enheder der overvåges, og hvor mange timer, i Indstillinger → Tilgængelighed.",
+    "de": "Löst aus, wenn das eigene Verfügbarkeits-Flag eines überwachten Geräts falsch wird oder es länger als die eingestellte Schwelle nichts meldet (erkennt Treiber, die die Verfügbarkeit nie selbst pflegen). Lege in Einstellungen → Verfügbarkeit fest, welche Geräte überwacht werden und wie viele Stunden.",
+    "es": "Se activa cuando el indicador de disponibilidad propio de un dispositivo vigilado pasa a falso, o cuando pasa más tiempo que el umbral configurado sin informar (detecta drivers que nunca gestionan la disponibilidad). Configura qué dispositivos se vigilan, y durante cuántas horas, en Ajustes → Disponibilidad.",
+    "fr": "Se déclenche quand l'indicateur de disponibilité d'un appareil surveillé passe à faux, ou quand il reste sans émettre plus longtemps que le seuil configuré (repère les pilotes qui ne gèrent jamais eux-mêmes la disponibilité). Choisissez les appareils surveillés, et pendant combien d'heures, dans Réglages → Disponibilité.",
+    "it": "Si attiva quando l'indicatore di disponibilità di un dispositivo sorvegliato diventa falso, o quando resta senza trasmettere più a lungo della soglia configurata (rileva i driver che non gestiscono mai da soli la disponibilità). Scegli quali dispositivi sorvegliare, e per quante ore, in Impostazioni → Disponibilità.",
+    "nl": "Gaat af als de eigen beschikbaarheidsvlag van een bewaakt apparaat onwaar wordt, of als het langer dan de ingestelde drempel niets meldt (vangt drivers die beschikbaarheid nooit zelf bijhouden). Stel in welke apparaten worden bewaakt, en hoeveel uur, in Instellingen → Beschikbaarheid.",
+    "no": "Utløses når en overvåket enhets eget tilgjengelighetsflagg blir usant, eller når den går lenger enn den innstilte terskelen uten å rapportere (fanger drivere som aldri håndterer tilgjengelighet selv). Velg hvilke enheter som overvåkes, og hvor mange timer, i Innstillinger → Tilgjengelighet.",
+    "sv": "Utlöses när en bevakad enhets egen tillgänglighetsflagga blir falsk, eller när den går längre än den inställda tröskeln utan att rapportera (fångar drivrutiner som aldrig själva sköter tillgängligheten). Ställ in vilka enheter som bevakas, och hur många timmar, i Inställningar → Tillgänglighet."
   },
   "args": [
     {
@@ -14,10 +38,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       },
       "hint": {
-        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was."
+        "en": "Which watched device to react to. Pick \"Any watched device\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken overvåget enhed der skal reageres på. Vælg \"Enhver overvåget enhed\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Auf welches überwachte Gerät reagiert wird. Wähle \"Jedes überwachte Gerät\", um für alle zu laufen; die Tokens sagen, welches es war.",
+        "es": "A qué dispositivo vigilado reaccionar. Elige \"Cualquier dispositivo vigilado\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "À quel appareil surveillé réagir. Choisissez \"N'importe quel appareil surveillé\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "A quale dispositivo sorvegliato reagire. Scegli \"Qualsiasi dispositivo sorvegliato\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Op welk bewaakt apparaat je wilt reageren. Kies \"Elk bewaakt apparaat\" om voor allemaal te werken; de tokens zeggen welk het was.",
+        "no": "Hvilken overvåket enhet det skal reageres på. Velg \"Hvilken som helst overvåket enhet\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken bevakad enhet som ska reageras på. Välj \"Valfri bevakad enhet\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -26,49 +66,105 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "zone",
       "type": "string",
       "title": {
-        "en": "Zone"
+        "en": "Zone",
+        "da": "Zone",
+        "de": "Zone",
+        "es": "Zona",
+        "fr": "Zone",
+        "it": "Zona",
+        "nl": "Zone",
+        "no": "Sone",
+        "sv": "Zon"
       }
     },
     {
       "name": "last_seen",
       "type": "string",
       "title": {
-        "en": "Last seen"
+        "en": "Last seen",
+        "da": "Sidst set",
+        "de": "Zuletzt gesehen",
+        "es": "Visto por última vez",
+        "fr": "Vu pour la dernière fois",
+        "it": "Visto l'ultima volta",
+        "nl": "Laatst gezien",
+        "no": "Sist sett",
+        "sv": "Senast sedd"
       }
     },
     {
       "name": "reason",
       "type": "string",
       "title": {
-        "en": "Reason"
+        "en": "Reason",
+        "da": "Årsag",
+        "de": "Grund",
+        "es": "Motivo",
+        "fr": "Raison",
+        "it": "Motivo",
+        "nl": "Reden",
+        "no": "Årsak",
+        "sv": "Orsak"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message (in the Default message language)"
+        "en": "Message (in the Default message language)",
+        "da": "Besked (på Standardsprog for beskeder)",
+        "de": "Nachricht (in der Standard-Nachrichtensprache)",
+        "es": "Mensaje (en el Idioma de mensajes por defecto)",
+        "fr": "Message (dans la Langue des messages par défaut)",
+        "it": "Messaggio (nella Lingua predefinita dei messaggi)",
+        "nl": "Bericht (in de Standaard berichttaal)",
+        "no": "Melding (på Standard meldingsspråk)",
+        "sv": "Meddelande (på Standardspråket för meddelanden)"
       }
     }
   ]

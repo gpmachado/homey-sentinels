@@ -1,14 +1,99 @@
 {
-  "title": { "en": "[[monitor]] !{{is in state|is not in state}} [[state]]" },
-  "titleFormatted": { "en": "[[monitor]] !{{is in state|is not in state}} [[state]]" },
+  "title": {
+    "en": "[[monitor]] !{{is in state|is not in state}} [[state]]",
+    "da": "[[monitor]] !{{er i tilstanden|er ikke i tilstanden}} [[state]]",
+    "de": "[[monitor]] !{{ist im Zustand|ist nicht im Zustand}} [[state]]",
+    "es": "[[monitor]] !{{está en el estado|no está en el estado}} [[state]]",
+    "fr": "[[monitor]] !{{est dans l'état|n'est pas dans l'état}} [[state]]",
+    "it": "[[monitor]] !{{è nello stato|non è nello stato}} [[state]]",
+    "nl": "[[monitor]] !{{is in status|is niet in status}} [[state]]",
+    "no": "[[monitor]] !{{er i tilstanden|er ikke i tilstanden}} [[state]]",
+    "sv": "[[monitor]] !{{är i läget|är inte i läget}} [[state]]"
+  },
+  "titleFormatted": {
+    "en": "[[monitor]] !{{is in state|is not in state}} [[state]]",
+    "da": "[[monitor]] !{{er i tilstanden|er ikke i tilstanden}} [[state]]",
+    "de": "[[monitor]] !{{ist im Zustand|ist nicht im Zustand}} [[state]]",
+    "es": "[[monitor]] !{{está en el estado|no está en el estado}} [[state]]",
+    "fr": "[[monitor]] !{{est dans l'état|n'est pas dans l'état}} [[state]]",
+    "it": "[[monitor]] !{{è nello stato|non è nello stato}} [[state]]",
+    "nl": "[[monitor]] !{{is in status|is niet in status}} [[state]]",
+    "no": "[[monitor]] !{{er i tilstanden|er ikke i tilstanden}} [[state]]",
+    "sv": "[[monitor]] !{{är i läget|är inte i läget}} [[state]]"
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } },
     {
-      "name": "state", "type": "dropdown", "title": { "en": "State" },
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
+      }
+    },
+    {
+      "name": "state",
+      "type": "dropdown",
+      "title": {
+        "en": "State",
+        "da": "Tilstand",
+        "de": "Zustand",
+        "es": "Estado",
+        "fr": "État",
+        "it": "Stato",
+        "nl": "Status",
+        "no": "Tilstand",
+        "sv": "Läge"
+      },
       "values": [
-        { "id": "NORMAL", "title": { "en": "Normal" } },
-        { "id": "UNDERVOLTAGE", "title": { "en": "Undervoltage" } },
-        { "id": "OVERVOLTAGE", "title": { "en": "Overvoltage" } }
+        {
+          "id": "NORMAL",
+          "title": {
+            "en": "Normal",
+            "da": "Normal",
+            "de": "Normal",
+            "es": "Normal",
+            "fr": "Normal",
+            "it": "Normale",
+            "nl": "Normaal",
+            "no": "Normal",
+            "sv": "Normal"
+          }
+        },
+        {
+          "id": "UNDERVOLTAGE",
+          "title": {
+            "en": "Undervoltage",
+            "da": "Underspænding",
+            "de": "Unterspannung",
+            "es": "Subtensión",
+            "fr": "Sous-tension",
+            "it": "Sottotensione",
+            "nl": "Onderspanning",
+            "no": "Underspenning",
+            "sv": "Underspänning"
+          }
+        },
+        {
+          "id": "OVERVOLTAGE",
+          "title": {
+            "en": "Overvoltage",
+            "da": "Overspænding",
+            "de": "Überspannung",
+            "es": "Sobretensión",
+            "fr": "Surtension",
+            "it": "Sovratensione",
+            "nl": "Overspanning",
+            "no": "Overspenning",
+            "sv": "Överspänning"
+          }
+        }
       ]
     }
   ]

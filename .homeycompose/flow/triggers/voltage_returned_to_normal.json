@@ -1,9 +1,25 @@
 {
   "title": {
-    "en": "Voltage returned to normal"
+    "en": "Voltage returned to normal",
+    "da": "Spændingen er normal igen",
+    "de": "Spannung wieder normal",
+    "es": "La tensión volvió a la normalidad",
+    "fr": "Tension revenue à la normale",
+    "it": "Tensione tornata normale",
+    "nl": "Spanning weer normaal",
+    "no": "Spenningen er normal igjen",
+    "sv": "Spänningen är normal igen"
   },
   "titleFormatted": {
-    "en": "Voltage returned to normal ([[monitor]])"
+    "en": "Voltage returned to normal ([[monitor]])",
+    "da": "Spændingen er normal igen ([[monitor]])",
+    "de": "Spannung wieder normal ([[monitor]])",
+    "es": "La tensión volvió a la normalidad ([[monitor]])",
+    "fr": "Tension revenue à la normale ([[monitor]])",
+    "it": "Tensione tornata normale ([[monitor]])",
+    "nl": "Spanning weer normaal ([[monitor]])",
+    "no": "Spenningen er normal igjen ([[monitor]])",
+    "sv": "Spänningen är normal igen ([[monitor]])"
   },
   "args": [
     {
@@ -11,10 +27,26 @@
       "type": "autocomplete",
       "required": true,
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       },
       "hint": {
-        "en": "Which voltage monitor to watch. Pick \"Any voltage monitor\" to run for all of them; the tokens say which one it was."
+        "en": "Which voltage monitor to watch. Pick \"Any voltage monitor\" to run for all of them; the tokens say which one it was.",
+        "da": "Hvilken spændingsmonitor der skal følges. Vælg \"Enhver spændingsmonitor\" for at køre for alle; tokens siger, hvilken det var.",
+        "de": "Welcher Spannungsmonitor beobachtet wird. Wähle \"Jeder Spannungsmonitor\", um für alle zu laufen; die Tokens sagen, welcher es war.",
+        "es": "Qué monitor de tensión seguir. Elige \"Cualquier monitor de tensión\" para seguirlos todos; los tokens dicen cuál fue.",
+        "fr": "Quel moniteur de tension suivre. Choisissez \"N'importe quel moniteur de tension\" pour tous les suivre ; les jetons disent lequel c'était.",
+        "it": "Quale monitor di tensione seguire. Scegli \"Qualsiasi monitor di tensione\" per seguirli tutti; i token dicono quale era.",
+        "nl": "Welke spanningsmonitor je wilt volgen. Kies \"Elke spanningsmonitor\" om voor allemaal te werken; de tokens zeggen welke het was.",
+        "no": "Hvilken spenningsmonitor som skal følges. Velg \"Hvilken som helst spenningsmonitor\" for å kjøre for alle; tokenene sier hvilken det var.",
+        "sv": "Vilken spänningsövervakare som ska följas. Välj \"Valfri spänningsövervakare\" för att köra för alla; tokens säger vilken det var."
       }
     }
   ],
@@ -23,84 +55,180 @@
       "name": "device",
       "type": "string",
       "title": {
-        "en": "Device"
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
       }
     },
     {
       "name": "monitor",
       "type": "string",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "event_type",
       "type": "string",
       "title": {
-        "en": "Previous event (UNDERVOLTAGE/OVERVOLTAGE)"
+        "en": "Previous event (UNDERVOLTAGE/OVERVOLTAGE)",
+        "da": "Forrige hændelse (UNDERVOLTAGE/OVERVOLTAGE)",
+        "de": "Vorheriges Ereignis (UNDERVOLTAGE/OVERVOLTAGE)",
+        "es": "Evento anterior (UNDERVOLTAGE/OVERVOLTAGE)",
+        "fr": "Événement précédent (UNDERVOLTAGE/OVERVOLTAGE)",
+        "it": "Evento precedente (UNDERVOLTAGE/OVERVOLTAGE)",
+        "nl": "Vorige gebeurtenis (UNDERVOLTAGE/OVERVOLTAGE)",
+        "no": "Forrige hendelse (UNDERVOLTAGE/OVERVOLTAGE)",
+        "sv": "Föregående händelse (UNDERVOLTAGE/OVERVOLTAGE)"
       }
     },
     {
       "name": "duration",
       "type": "number",
       "title": {
-        "en": "Duration (seconds)"
+        "en": "Duration (seconds)",
+        "da": "Varighed (sekunder)",
+        "de": "Dauer (Sekunden)",
+        "es": "Duración (segundos)",
+        "fr": "Durée (secondes)",
+        "it": "Durata (secondi)",
+        "nl": "Duur (seconden)",
+        "no": "Varighet (sekunder)",
+        "sv": "Tid (sekunder)"
       }
     },
     {
       "name": "duration_human",
       "type": "string",
       "title": {
-        "en": "Duration"
+        "en": "Duration",
+        "da": "Varighed",
+        "de": "Dauer",
+        "es": "Duración",
+        "fr": "Durée",
+        "it": "Durata",
+        "nl": "Duur",
+        "no": "Varighet",
+        "sv": "Tid"
       }
     },
     {
       "name": "voltage",
       "type": "number",
       "title": {
-        "en": "Voltage now (V)"
+        "en": "Voltage now (V)",
+        "da": "Spænding nu (V)",
+        "de": "Spannung jetzt (V)",
+        "es": "Tensión ahora (V)",
+        "fr": "Tension actuelle (V)",
+        "it": "Tensione ora (V)",
+        "nl": "Spanning nu (V)",
+        "no": "Spenning nå (V)",
+        "sv": "Spänning nu (V)"
       }
     },
     {
       "name": "min_voltage",
       "type": "number",
       "title": {
-        "en": "Minimum voltage observed (V)"
+        "en": "Minimum voltage observed (V)",
+        "da": "Laveste observerede spænding (V)",
+        "de": "Niedrigste beobachtete Spannung (V)",
+        "es": "Tensión mínima observada (V)",
+        "fr": "Tension minimale observée (V)",
+        "it": "Tensione minima osservata (V)",
+        "nl": "Laagste waargenomen spanning (V)",
+        "no": "Laveste observerte spenning (V)",
+        "sv": "Lägsta observerade spänning (V)"
       }
     },
     {
       "name": "max_voltage",
       "type": "number",
       "title": {
-        "en": "Maximum voltage observed (V)"
+        "en": "Maximum voltage observed (V)",
+        "da": "Højeste observerede spænding (V)",
+        "de": "Höchste beobachtete Spannung (V)",
+        "es": "Tensión máxima observada (V)",
+        "fr": "Tension maximale observée (V)",
+        "it": "Tensione massima osservata (V)",
+        "nl": "Hoogste waargenomen spanning (V)",
+        "no": "Høyeste observerte spenning (V)",
+        "sv": "Högsta observerade spänning (V)"
       }
     },
     {
       "name": "average_voltage",
       "type": "number",
       "title": {
-        "en": "Average voltage observed (V)"
+        "en": "Average voltage observed (V)",
+        "da": "Gennemsnitlig observeret spænding (V)",
+        "de": "Durchschnittliche beobachtete Spannung (V)",
+        "es": "Tensión media observada (V)",
+        "fr": "Tension moyenne observée (V)",
+        "it": "Tensione media osservata (V)",
+        "nl": "Gemiddelde waargenomen spanning (V)",
+        "no": "Gjennomsnittlig observert spenning (V)",
+        "sv": "Observerad medelspänning (V)"
       }
     },
     {
       "name": "time",
       "type": "string",
       "title": {
-        "en": "Time (local)"
+        "en": "Time (local)",
+        "da": "Tid (lokal)",
+        "de": "Zeit (lokal)",
+        "es": "Hora (local)",
+        "fr": "Heure (locale)",
+        "it": "Ora (locale)",
+        "nl": "Tijd (lokaal)",
+        "no": "Tid (lokal)",
+        "sv": "Tid (lokal)"
       }
     },
     {
       "name": "timestamp",
       "type": "string",
       "title": {
-        "en": "Timestamp"
+        "en": "Timestamp",
+        "da": "Tidsstempel",
+        "de": "Zeitstempel",
+        "es": "Marca de tiempo",
+        "fr": "Horodatage",
+        "it": "Data e ora",
+        "nl": "Tijdstempel",
+        "no": "Tidsstempel",
+        "sv": "Tidsstämpel"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

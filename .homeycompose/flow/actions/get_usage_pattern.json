@@ -1,44 +1,108 @@
 {
   "title": {
-    "en": "Get usage pattern"
+    "en": "Get usage pattern",
+    "da": "Hent brugsmønster",
+    "de": "Nutzungsmuster abrufen",
+    "es": "Obtener patrón de uso",
+    "fr": "Obtenir le profil d'utilisation",
+    "it": "Ottieni il profilo d'uso",
+    "nl": "Gebruikspatroon ophalen",
+    "no": "Hent bruksmønster",
+    "sv": "Hämta användningsmönster"
   },
   "titleFormatted": {
-    "en": "Get usage pattern of [[monitor]], period: [[period]]"
+    "en": "Get usage pattern of [[monitor]], period: [[period]]",
+    "da": "Hent brugsmønster for [[monitor]], periode: [[period]]",
+    "de": "Nutzungsmuster abrufen von [[monitor]], Zeitraum: [[period]]",
+    "es": "Obtener patrón de uso de [[monitor]], periodo: [[period]]",
+    "fr": "Obtenir le profil d'utilisation de [[monitor]], période : [[period]]",
+    "it": "Ottieni il profilo d'uso di [[monitor]], periodo: [[period]]",
+    "nl": "Gebruikspatroon ophalen van [[monitor]], periode: [[period]]",
+    "no": "Hent bruksmønster for [[monitor]], periode: [[period]]",
+    "sv": "Hämta användningsmönster för [[monitor]], period: [[period]]"
   },
   "hint": {
-    "en": "When a monitor is used: the busiest weekday and hour of its cycles how much of its time on falls in the day (06:00 to 22:00), the energy over the period and the hour with the highest average power, worked out from the cycles it already keeps. Needs at least 5 cycles in the period. The weekday name and the sentence follow the Default message language in Settings. Its tokens are only available in an Advanced Flow."
+    "en": "When a monitor is used: the busiest weekday and hour of its cycles, how much of its time on falls in the day (06:00 to 22:00), the energy over the period and the hour with the highest average power, worked out from the cycles it already keeps. Needs at least 5 cycles in the period. The weekday name and the sentence follow the Default message language in Settings. Its tokens are only available in an Advanced Flow.",
+    "da": "Hvornår en monitor bruges: den ugedag og time med flest cyklusser, hvor meget af tiden tændt der falder om dagen (06:00 til 22:00), energien i perioden og timen med den højeste gennemsnitlige effekt, beregnet ud fra de cyklusser, den allerede gemmer. Kræver mindst 5 cyklusser i perioden. Ugedagens navn og sætningen følger Standardsprog for beskeder i indstillingerne. Dens tokens findes kun i et Advanced Flow.",
+    "de": "Wann ein Monitor genutzt wird: der Wochentag und die Stunde mit den meisten Zyklen, wie viel der Laufzeit tagsüber liegt (06:00 bis 22:00), die Energie im Zeitraum und die Stunde mit der höchsten durchschnittlichen Leistung, berechnet aus den Zyklen, die er bereits speichert. Braucht mindestens 5 Zyklen im Zeitraum. Der Name des Wochentags und der Satz folgen der Standard-Nachrichtensprache in den Einstellungen. Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Cuándo se usa un monitor: el día de la semana y la hora con más ciclos, cuánto del tiempo encendido cae de día (de 06:00 a 22:00), la energía del periodo y la hora con la potencia media más alta, calculados a partir de los ciclos que ya guarda. Necesita al menos 5 ciclos en el periodo. El nombre del día y la frase siguen el Idioma de mensajes por defecto de los ajustes. Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Quand un moniteur est utilisé : le jour de la semaine et l'heure les plus chargés de ses cycles, la part du temps de marche qui tombe dans la journée (06:00 à 22:00), l'énergie sur la période et l'heure où la puissance moyenne est la plus élevée, calculés à partir des cycles qu'il conserve déjà. Nécessite au moins 5 cycles sur la période. Le nom du jour et la phrase suivent la Langue des messages par défaut des réglages. Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "Quando viene usato un monitor: il giorno della settimana e l'ora con più cicli, quanta parte del tempo acceso cade di giorno (dalle 06:00 alle 22:00), l'energia nel periodo e l'ora con la potenza media più alta, calcolati dai cicli che conserva già. Richiede almeno 5 cicli nel periodo. Il nome del giorno e la frase seguono la Lingua predefinita dei messaggi nelle impostazioni. I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "Wanneer een monitor wordt gebruikt: de drukste weekdag en het drukste uur van zijn cycli, hoeveel van de aan-tijd overdag valt (06:00 tot 22:00), de energie in de periode en het uur met het hoogste gemiddelde vermogen, berekend uit de cycli die hij al bewaart. Vereist minstens 5 cycli in de periode. De naam van de weekdag en de zin volgen de Standaard berichttaal in de instellingen. De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Når en monitor brukes: ukedagen og timen med flest sykluser, hvor mye av tiden på som faller på dagtid (06:00 til 22:00), energien i perioden og timen med høyest gjennomsnittlig effekt, regnet ut fra syklusene den allerede lagrer. Krever minst 5 sykluser i perioden. Navnet på ukedagen og setningen følger Standard meldingsspråk i innstillingene. Tokenene finnes bare i en Advanced Flow.",
+    "sv": "När en övervakare används: den veckodag och timme som har flest cykler, hur stor del av tiden på som infaller dagtid (06:00 till 22:00), energin under perioden och timmen med högst medeleffekt, beräknat från de cykler den redan sparar. Kräver minst 5 cykler i perioden. Veckodagens namn och meningen följer Standardspråket för meddelanden i inställningarna. Dess tokens finns bara i ett Advanced Flow."
   },
   "args": [
     {
       "name": "monitor",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "period",
       "type": "dropdown",
       "title": {
-        "en": "Period"
+        "en": "Period",
+        "da": "Periode",
+        "de": "Zeitraum",
+        "es": "Periodo",
+        "fr": "Période",
+        "it": "Periodo",
+        "nl": "Periode",
+        "no": "Periode",
+        "sv": "Period"
       },
       "values": [
         {
           "id": "week",
           "label": {
-            "en": "Last 7 days"
+            "en": "Last 7 days",
+            "da": "Seneste 7 dage",
+            "de": "Letzte 7 Tage",
+            "es": "Últimos 7 días",
+            "fr": "7 derniers jours",
+            "it": "Ultimi 7 giorni",
+            "nl": "Laatste 7 dagen",
+            "no": "Siste 7 dager",
+            "sv": "Senaste 7 dagarna"
           }
         },
         {
           "id": "month",
           "label": {
-            "en": "Last 30 days"
+            "en": "Last 30 days",
+            "da": "Seneste 30 dage",
+            "de": "Letzte 30 Tage",
+            "es": "Últimos 30 días",
+            "fr": "30 derniers jours",
+            "it": "Ultimi 30 giorni",
+            "nl": "Laatste 30 dagen",
+            "no": "Siste 30 dager",
+            "sv": "Senaste 30 dagarna"
           }
         },
         {
           "id": "all",
           "label": {
-            "en": "All history (up to a year)"
+            "en": "All history (up to a year)",
+            "da": "Hele historikken (op til et år)",
+            "de": "Gesamter Verlauf (bis zu einem Jahr)",
+            "es": "Todo el historial (hasta un año)",
+            "fr": "Tout l'historique (jusqu'à un an)",
+            "it": "Tutto lo storico (fino a un anno)",
+            "nl": "Hele geschiedenis (tot een jaar)",
+            "no": "Hele historikken (opptil ett år)",
+            "sv": "Hela historiken (upp till ett år)"
           }
         }
       ]
@@ -49,98 +113,210 @@
       "name": "enough_data",
       "type": "boolean",
       "title": {
-        "en": "Enough cycles to see a pattern"
+        "en": "Enough cycles to see a pattern",
+        "da": "Nok cyklusser til at se et mønster",
+        "de": "Genug Zyklen für ein Muster",
+        "es": "Ciclos suficientes para ver un patrón",
+        "fr": "Assez de cycles pour voir un profil",
+        "it": "Cicli sufficienti per vedere un profilo",
+        "nl": "Genoeg cycli om een patroon te zien",
+        "no": "Nok sykluser til å se et mønster",
+        "sv": "Tillräckligt med cykler för ett mönster"
       }
     },
     {
       "name": "cycle_count",
       "type": "number",
       "title": {
-        "en": "Cycles looked at"
+        "en": "Cycles looked at",
+        "da": "Gennemgåede cyklusser",
+        "de": "Betrachtete Zyklen",
+        "es": "Ciclos considerados",
+        "fr": "Cycles examinés",
+        "it": "Cicli considerati",
+        "nl": "Bekeken cycli",
+        "no": "Sykluser som er sett på",
+        "sv": "Granskade cykler"
       }
     },
     {
       "name": "busiest_weekday",
       "type": "string",
       "title": {
-        "en": "Busiest weekday (name)"
+        "en": "Busiest weekday (name)",
+        "da": "Travleste ugedag (navn)",
+        "de": "Stärkster Wochentag (Name)",
+        "es": "Día con más uso (nombre)",
+        "fr": "Jour le plus chargé (nom)",
+        "it": "Giorno più intenso (nome)",
+        "nl": "Drukste weekdag (naam)",
+        "no": "Travleste ukedag (navn)",
+        "sv": "Mest använda veckodag (namn)"
       }
     },
     {
       "name": "busiest_weekday_number",
       "type": "number",
       "title": {
-        "en": "Busiest weekday (1 = Monday ... 7 = Sunday, 0 = none)"
+        "en": "Busiest weekday (1 = Monday ... 7 = Sunday, 0 = none)",
+        "da": "Travleste ugedag (1 = mandag ... 7 = søndag, 0 = ingen)",
+        "de": "Stärkster Wochentag (1 = Montag ... 7 = Sonntag, 0 = keiner)",
+        "es": "Día con más uso (1 = lunes ... 7 = domingo, 0 = ninguno)",
+        "fr": "Jour le plus chargé (1 = lundi ... 7 = dimanche, 0 = aucun)",
+        "it": "Giorno più intenso (1 = lunedì ... 7 = domenica, 0 = nessuno)",
+        "nl": "Drukste weekdag (1 = maandag ... 7 = zondag, 0 = geen)",
+        "no": "Travleste ukedag (1 = mandag ... 7 = søndag, 0 = ingen)",
+        "sv": "Mest använda veckodag (1 = måndag ... 7 = söndag, 0 = ingen)"
       }
     },
     {
       "name": "busiest_weekday_percent",
       "type": "number",
       "title": {
-        "en": "Share of the cycles on the busiest weekday (%)"
+        "en": "Share of the cycles on the busiest weekday (%)",
+        "da": "Andel af cyklusserne på den travleste ugedag (%)",
+        "de": "Anteil der Zyklen am stärksten Wochentag (%)",
+        "es": "Parte de los ciclos en el día con más uso (%)",
+        "fr": "Part des cycles le jour le plus chargé (%)",
+        "it": "Quota dei cicli nel giorno più intenso (%)",
+        "nl": "Aandeel van de cycli op de drukste weekdag (%)",
+        "no": "Andel av syklusene på den travleste ukedagen (%)",
+        "sv": "Andel av cyklerna den mest använda veckodagen (%)"
       }
     },
     {
       "name": "busiest_hour",
       "type": "number",
       "title": {
-        "en": "Busiest hour (0 to 23, -1 = none)"
+        "en": "Busiest hour (0 to 23, -1 = none)",
+        "da": "Travleste time (0 til 23, -1 = ingen)",
+        "de": "Stärkste Stunde (0 bis 23, -1 = keine)",
+        "es": "Hora con más uso (0 a 23, -1 = ninguna)",
+        "fr": "Heure la plus chargée (0 à 23, -1 = aucune)",
+        "it": "Ora più intensa (da 0 a 23, -1 = nessuna)",
+        "nl": "Drukste uur (0 tot 23, -1 = geen)",
+        "no": "Travleste time (0 til 23, -1 = ingen)",
+        "sv": "Mest använda timme (0 till 23, -1 = ingen)"
       }
     },
     {
       "name": "busiest_hour_label",
       "type": "string",
       "title": {
-        "en": "Busiest hour (for example 18:00-19:00)"
+        "en": "Busiest hour (for example 18:00-19:00)",
+        "da": "Travleste time (for eksempel 18:00-19:00)",
+        "de": "Stärkste Stunde (zum Beispiel 18:00-19:00)",
+        "es": "Hora con más uso (por ejemplo 18:00-19:00)",
+        "fr": "Heure la plus chargée (par exemple 18:00-19:00)",
+        "it": "Ora più intensa (per esempio 18:00-19:00)",
+        "nl": "Drukste uur (bijvoorbeeld 18:00-19:00)",
+        "no": "Travleste time (for eksempel 18:00-19:00)",
+        "sv": "Mest använda timme (till exempel 18:00-19:00)"
       }
     },
     {
       "name": "day_percent",
       "type": "number",
       "title": {
-        "en": "Time on between 06:00 and 22:00 (%)"
+        "en": "Time on between 06:00 and 22:00 (%)",
+        "da": "Tid tændt mellem 06:00 og 22:00 (%)",
+        "de": "Laufzeit zwischen 06:00 und 22:00 (%)",
+        "es": "Tiempo encendido entre 06:00 y 22:00 (%)",
+        "fr": "Temps de marche entre 06:00 et 22:00 (%)",
+        "it": "Tempo acceso tra le 06:00 e le 22:00 (%)",
+        "nl": "Aan-tijd tussen 06:00 en 22:00 (%)",
+        "no": "Tid på mellom 06:00 og 22:00 (%)",
+        "sv": "Tid på mellan 06:00 och 22:00 (%)"
       }
     },
     {
       "name": "night_percent",
       "type": "number",
       "title": {
-        "en": "Time on between 22:00 and 06:00 (%)"
+        "en": "Time on between 22:00 and 06:00 (%)",
+        "da": "Tid tændt mellem 22:00 og 06:00 (%)",
+        "de": "Laufzeit zwischen 22:00 und 06:00 (%)",
+        "es": "Tiempo encendido entre 22:00 y 06:00 (%)",
+        "fr": "Temps de marche entre 22:00 et 06:00 (%)",
+        "it": "Tempo acceso tra le 22:00 e le 06:00 (%)",
+        "nl": "Aan-tijd tussen 22:00 en 06:00 (%)",
+        "no": "Tid på mellom 22:00 og 06:00 (%)",
+        "sv": "Tid på mellan 22:00 och 06:00 (%)"
       }
     },
     {
       "name": "energy_total",
       "type": "number",
       "title": {
-        "en": "Energy of those cycles (kWh, 0 without an energy reading)"
+        "en": "Energy of those cycles (kWh, 0 without an energy reading)",
+        "da": "Energi for de cyklusser (kWh, 0 uden energimåling)",
+        "de": "Energie dieser Zyklen (kWh, 0 ohne Energiemessung)",
+        "es": "Energía de esos ciclos (kWh, 0 sin medición de energía)",
+        "fr": "Énergie de ces cycles (kWh, 0 sans mesure d'énergie)",
+        "it": "Energia di quei cicli (kWh, 0 senza misura di energia)",
+        "nl": "Energie van die cycli (kWh, 0 zonder energiemeting)",
+        "no": "Energi for disse syklusene (kWh, 0 uten energimåling)",
+        "sv": "Energi för de cyklerna (kWh, 0 utan energimätning)"
       }
     },
     {
       "name": "peak_power_hour",
       "type": "number",
       "title": {
-        "en": "Hour with the highest average power while on (0 to 23, -1 = none)"
+        "en": "Hour with the highest average power while on (0 to 23, -1 = none)",
+        "da": "Time med den højeste gennemsnitlige effekt når tændt (0 til 23, -1 = ingen)",
+        "de": "Stunde mit der höchsten durchschnittlichen Leistung im Betrieb (0 bis 23, -1 = keine)",
+        "es": "Hora con la potencia media más alta encendido (0 a 23, -1 = ninguna)",
+        "fr": "Heure de puissance moyenne la plus élevée en marche (0 à 23, -1 = aucune)",
+        "it": "Ora con la potenza media più alta da acceso (da 0 a 23, -1 = nessuna)",
+        "nl": "Uur met het hoogste gemiddelde vermogen tijdens aan (0 tot 23, -1 = geen)",
+        "no": "Time med høyest gjennomsnittlig effekt når den er på (0 til 23, -1 = ingen)",
+        "sv": "Timme med högst medeleffekt när den är på (0 till 23, -1 = ingen)"
       }
     },
     {
       "name": "peak_power_hour_label",
       "type": "string",
       "title": {
-        "en": "Hour with the highest average power (for example 18:00-19:00)"
+        "en": "Hour with the highest average power (for example 18:00-19:00)",
+        "da": "Time med den højeste gennemsnitlige effekt (for eksempel 18:00-19:00)",
+        "de": "Stunde mit der höchsten durchschnittlichen Leistung (zum Beispiel 18:00-19:00)",
+        "es": "Hora con la potencia media más alta (por ejemplo 18:00-19:00)",
+        "fr": "Heure de puissance moyenne la plus élevée (par exemple 18:00-19:00)",
+        "it": "Ora con la potenza media più alta (per esempio 18:00-19:00)",
+        "nl": "Uur met het hoogste gemiddelde vermogen (bijvoorbeeld 18:00-19:00)",
+        "no": "Time med høyest gjennomsnittlig effekt (for eksempel 18:00-19:00)",
+        "sv": "Timme med högst medeleffekt (till exempel 18:00-19:00)"
       }
     },
     {
       "name": "peak_power",
       "type": "number",
       "title": {
-        "en": "Average power in that hour (W)"
+        "en": "Average power in that hour (W)",
+        "da": "Gennemsnitlig effekt i den time (W)",
+        "de": "Durchschnittliche Leistung in dieser Stunde (W)",
+        "es": "Potencia media en esa hora (W)",
+        "fr": "Puissance moyenne pendant cette heure (W)",
+        "it": "Potenza media in quell'ora (W)",
+        "nl": "Gemiddeld vermogen in dat uur (W)",
+        "no": "Gjennomsnittlig effekt i den timen (W)",
+        "sv": "Medeleffekt under den timmen (W)"
       }
     },
     {
       "name": "message",
       "type": "string",
       "title": {
-        "en": "Message"
+        "en": "Message",
+        "da": "Besked",
+        "de": "Nachricht",
+        "es": "Mensaje",
+        "fr": "Message",
+        "it": "Messaggio",
+        "nl": "Bericht",
+        "no": "Melding",
+        "sv": "Meddelande"
       }
     }
   ]

@@ -1,31 +1,79 @@
 {
   "title": {
-    "en": "[[monitor]] !{{usually does not start in this hour|usually starts in this hour}} (under [[percent]] % of its cycles)"
+    "en": "[[monitor]] !{{usually does not start in this hour|usually starts in this hour}} (under [[percent]] % of its cycles)",
+    "da": "[[monitor]] !{{starter normalt ikke i denne time|starter normalt i denne time}} (under [[percent]] % af dens cyklusser)",
+    "de": "[[monitor]] !{{startet in dieser Stunde normalerweise nicht|startet in dieser Stunde normalerweise}} (unter [[percent]] % seiner Zyklen)",
+    "es": "[[monitor]] !{{no suele arrancar a esta hora|suele arrancar a esta hora}} (menos del [[percent]] % de sus ciclos)",
+    "fr": "[[monitor]] !{{ne démarre généralement pas à cette heure|démarre généralement à cette heure}} (moins de [[percent]] % de ses cycles)",
+    "it": "[[monitor]] !{{di solito non si avvia in quest'ora|di solito si avvia in quest'ora}} (meno del [[percent]] % dei suoi cicli)",
+    "nl": "[[monitor]] !{{start meestal niet in dit uur|start meestal in dit uur}} (minder dan [[percent]] % van de cycli)",
+    "no": "[[monitor]] !{{starter vanligvis ikke i denne timen|starter vanligvis i denne timen}} (under [[percent]] % av syklusene)",
+    "sv": "[[monitor]] !{{startar oftast inte den här timmen|startar oftast den här timmen}} (under [[percent]] % av dess cykler)"
   },
   "titleFormatted": {
-    "en": "[[monitor]] !{{usually does not start in this hour|usually starts in this hour}} (under [[percent]] % of its cycles)"
+    "en": "[[monitor]] !{{usually does not start in this hour|usually starts in this hour}} (under [[percent]] % of its cycles)",
+    "da": "[[monitor]] !{{starter normalt ikke i denne time|starter normalt i denne time}} (under [[percent]] % af dens cyklusser)",
+    "de": "[[monitor]] !{{startet in dieser Stunde normalerweise nicht|startet in dieser Stunde normalerweise}} (unter [[percent]] % seiner Zyklen)",
+    "es": "[[monitor]] !{{no suele arrancar a esta hora|suele arrancar a esta hora}} (menos del [[percent]] % de sus ciclos)",
+    "fr": "[[monitor]] !{{ne démarre généralement pas à cette heure|démarre généralement à cette heure}} (moins de [[percent]] % de ses cycles)",
+    "it": "[[monitor]] !{{di solito non si avvia in quest'ora|di solito si avvia in quest'ora}} (meno del [[percent]] % dei suoi cicli)",
+    "nl": "[[monitor]] !{{start meestal niet in dit uur|start meestal in dit uur}} (minder dan [[percent]] % van de cycli)",
+    "no": "[[monitor]] !{{starter vanligvis ikke i denne timen|starter vanligvis i denne timen}} (under [[percent]] % av syklusene)",
+    "sv": "[[monitor]] !{{startar oftast inte den här timmen|startar oftast den här timmen}} (under [[percent]] % av dess cykler)"
   },
   "hint": {
-    "en": "True when fewer than this percent of the monitor's cycles started in the current hour of the day (your time zone), so a start now is out of the ordinary. Use it after Activity started: a fryer on at 3 am. False until the monitor has at least 20 cycles to learn from. Works with Activity and State monitors."
+    "en": "True when fewer than this percent of the monitor's cycles started in the current hour of the day (your time zone), so a start now is out of the ordinary. Use it after Activity started: a fryer on at 3 am. False until the monitor has at least 20 cycles to learn from. Works with Activity and State monitors.",
+    "da": "Sand, når færre end denne procentdel af monitorens cyklusser startede i døgnets nuværende time (din tidszone), så en start nu er usædvanlig. Brug den efter \"Aktivitet startet\": en frituregryde tændt klokken 3 om natten. Falsk, indtil monitoren har mindst 20 cyklusser at lære af. Virker med aktivitets- og statusmonitorer.",
+    "de": "Wahr, wenn weniger als dieser Prozentsatz der Zyklen des Monitors in der aktuellen Stunde des Tages begonnen hat (deine Zeitzone), ein Start jetzt also ungewöhnlich ist. Nutze es nach \"Aktivität gestartet\": eine Fritteuse um 3 Uhr nachts. Falsch, bis der Monitor mindestens 20 Zyklen zum Lernen hat. Funktioniert mit Aktivitäts- und Zustandsmonitoren.",
+    "es": "Verdadero cuando menos de este porcentaje de los ciclos del monitor empezó en la hora actual del día (tu zona horaria), así que un arranque ahora es inusual. Úsalo después de \"Actividad iniciada\": una freidora encendida a las 3 de la madrugada. Falso hasta que el monitor tenga al menos 20 ciclos de los que aprender. Funciona con monitores de actividad y de estado.",
+    "fr": "Vrai quand moins de ce pourcentage des cycles du moniteur ont commencé à l'heure actuelle de la journée (votre fuseau horaire) : un démarrage maintenant sort de l'ordinaire. À utiliser après \"Activité démarrée\" : une friteuse allumée à 3 h du matin. Faux tant que le moniteur n'a pas au moins 20 cycles pour apprendre. Fonctionne avec les moniteurs d'activité et d'état.",
+    "it": "Vero quando meno di questa percentuale dei cicli del monitor è iniziata nell'ora attuale del giorno (il tuo fuso orario), quindi un avvio adesso è insolito. Usalo dopo \"Attività iniziata\": una friggitrice accesa alle 3 di notte. Falso finché il monitor non ha almeno 20 cicli da cui imparare. Funziona con i monitor di attività e di stato.",
+    "nl": "Waar als minder dan dit percentage van de cycli van de monitor in het huidige uur van de dag begon (jouw tijdzone), dus een start nu is ongewoon. Gebruik het na \"Activiteit gestart\": een frituurpan aan om 3 uur 's nachts. Onwaar totdat de monitor minstens 20 cycli heeft om van te leren. Werkt met activiteits- en statusmonitors.",
+    "no": "Sann når færre enn denne prosentandelen av monitorens sykluser startet i døgnets nåværende time (din tidssone), så en start nå er uvanlig. Bruk den etter \"Aktivitet startet\": en frityrkoker på klokken 3 om natten. Usann til monitoren har minst 20 sykluser å lære av. Fungerer med aktivitets- og statusmonitorer.",
+    "sv": "Sant när färre än den här procentandelen av övervakarens cykler startade under dygnets aktuella timme (din tidszon), så en start nu är ovanlig. Använd det efter \"Aktivitet startad\": en fritös på klockan 3 på natten. Falskt tills övervakaren har minst 20 cykler att lära sig av. Fungerar med aktivitets- och statusövervakare."
   },
   "args": [
     {
       "name": "monitor",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "percent",
       "type": "number",
       "title": {
-        "en": "Percent"
+        "en": "Percent",
+        "da": "Procent",
+        "de": "Prozent",
+        "es": "Porcentaje",
+        "fr": "Pourcentage",
+        "it": "Percentuale",
+        "nl": "Percentage",
+        "no": "Prosent",
+        "sv": "Procent"
       },
       "min": 0,
       "max": 100,
       "placeholder": {
-        "en": "e.g. 5"
+        "en": "e.g. 5",
+        "da": "f.eks. 5",
+        "de": "z. B. 5",
+        "es": "p. ej. 5",
+        "fr": "ex. 5",
+        "it": "es. 5",
+        "nl": "bijv. 5",
+        "no": "f.eks. 5",
+        "sv": "t.ex. 5"
       }
     }
   ]

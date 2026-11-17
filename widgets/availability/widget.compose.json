@@ -1,20 +1,58 @@
 {
   "name": {
-    "en": "Sentinels Watchdogs"
+    "en": "Sentinels Watchdogs",
+    "da": "Sentinels Watchdogs",
+    "de": "Sentinels Watchdogs",
+    "es": "Sentinels Watchdogs",
+    "fr": "Sentinels Watchdogs",
+    "it": "Sentinels Watchdogs",
+    "nl": "Sentinels Watchdogs",
+    "no": "Sentinels Watchdogs",
+    "sv": "Sentinels Watchdogs"
   },
   "height": 300,
   "settings": [
     {
       "id": "title",
       "type": "text",
-      "title": { "en": "Title" },
-      "hint": { "en": "Shown above the list. Leave empty for no title." },
+      "title": {
+        "en": "Title",
+        "da": "Titel",
+        "de": "Titel",
+        "es": "Título",
+        "fr": "Titre",
+        "it": "Titolo",
+        "nl": "Titel",
+        "no": "Tittel",
+        "sv": "Titel"
+      },
+      "hint": {
+        "en": "Shown above the list. Leave empty for no title.",
+        "da": "Vises over listen. Lad den stå tom for ingen titel.",
+        "de": "Wird über der Liste angezeigt. Leer lassen für keinen Titel.",
+        "es": "Se muestra encima de la lista. Déjalo vacío para no tener título.",
+        "fr": "Affiché au-dessus de la liste. Laissez vide pour ne pas avoir de titre.",
+        "it": "Mostrato sopra l'elenco. Lascia vuoto per nessun titolo.",
+        "nl": "Wordt boven de lijst getoond. Laat leeg voor geen titel.",
+        "no": "Vises over listen. La stå tomt for ingen tittel.",
+        "sv": "Visas ovanför listan. Lämna tomt för ingen titel."
+      },
       "value": ""
     },
     {
       "id": "onlyDown",
       "type": "checkbox",
-      "title": { "en": "Only show devices that are down" },
+      "title": {
+        "en": "Only show devices that are down",
+        "da": "Vis kun enheder, der er nede",
+        "de": "Nur ausgefallene Geräte zeigen",
+        "es": "Mostrar solo los dispositivos caídos",
+        "fr": "N'afficher que les appareils en panne",
+        "it": "Mostra solo i dispositivi fuori servizio",
+        "nl": "Alleen apparaten tonen die uitvallen",
+        "no": "Vis bare enheter som er nede",
+        "sv": "Visa bara enheter som är nere"
+      },
       "value": false
     }
   ],

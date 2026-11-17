@@ -1,27 +1,243 @@
 {
-  "name": { "en": "Sentinels Overview" },
+  "name": {
+    "en": "Sentinels Overview",
+    "da": "Sentinels Oversigt",
+    "de": "Sentinels Übersicht",
+    "es": "Sentinels Resumen",
+    "fr": "Sentinels Vue d'ensemble",
+    "it": "Sentinels Panoramica",
+    "nl": "Sentinels Overzicht",
+    "no": "Sentinels Oversikt",
+    "sv": "Sentinels Översikt"
+  },
   "height": 300,
   "settings": [
-    { "id": "title", "type": "text", "title": { "en": "Title" }, "hint": { "en": "Shown above the list. Leave empty for no title." }, "value": "" },
-    { "id": "showAll", "type": "checkbox", "title": { "en": "Show every monitor" }, "hint": { "en": "Lists all your monitors and groups instead of the items picked below." }, "value": false },
     {
-      "id": "kind", "type": "dropdown", "title": { "en": "Only show (with Show every monitor)" }, "value": "all",
+      "id": "title",
+      "type": "text",
+      "title": {
+        "en": "Title",
+        "da": "Titel",
+        "de": "Titel",
+        "es": "Título",
+        "fr": "Titre",
+        "it": "Titolo",
+        "nl": "Titel",
+        "no": "Tittel",
+        "sv": "Titel"
+      },
+      "hint": {
+        "en": "Shown above the list. Leave empty for no title.",
+        "da": "Vises over listen. Lad den stå tom for ingen titel.",
+        "de": "Wird über der Liste angezeigt. Leer lassen für keinen Titel.",
+        "es": "Se muestra encima de la lista. Déjalo vacío para no tener título.",
+        "fr": "Affiché au-dessus de la liste. Laissez vide pour ne pas avoir de titre.",
+        "it": "Mostrato sopra l'elenco. Lascia vuoto per nessun titolo.",
+        "nl": "Wordt boven de lijst getoond. Laat leeg voor geen titel.",
+        "no": "Vises over listen. La stå tomt for ingen tittel.",
+        "sv": "Visas ovanför listan. Lämna tomt för ingen titel."
+      },
+      "value": ""
+    },
+    {
+      "id": "showAll",
+      "type": "checkbox",
+      "title": {
+        "en": "Show every monitor",
+        "da": "Vis alle monitorer",
+        "de": "Alle Monitore zeigen",
+        "es": "Mostrar todos los monitores",
+        "fr": "Afficher tous les moniteurs",
+        "it": "Mostra tutti i monitor",
+        "nl": "Elke monitor tonen",
+        "no": "Vis alle monitorer",
+        "sv": "Visa alla övervakare"
+      },
+      "hint": {
+        "en": "Lists all your monitors and groups instead of the items picked below.",
+        "da": "Viser alle dine monitorer og grupper i stedet for de elementer, der er valgt nedenfor.",
+        "de": "Zeigt alle deine Monitore und Gruppen statt der unten gewählten Einträge.",
+        "es": "Muestra todos tus monitores y grupos en lugar de los elementos elegidos abajo.",
+        "fr": "Affiche tous vos moniteurs et groupes au lieu des éléments choisis ci-dessous.",
+        "it": "Elenca tutti i tuoi monitor e gruppi al posto degli elementi scelti qui sotto.",
+        "nl": "Toont al je monitors en groepen in plaats van de items hieronder.",
+        "no": "Viser alle monitorene og gruppene dine i stedet for elementene som er valgt nedenfor.",
+        "sv": "Visar alla dina övervakare och grupper i stället för de poster som valts nedan."
+      },
+      "value": false
+    },
+    {
+      "id": "kind",
+      "type": "dropdown",
+      "title": {
+        "en": "Only show (with Show every monitor)",
+        "da": "Vis kun (med Vis alle monitorer)",
+        "de": "Nur zeigen (mit Alle Monitore zeigen)",
+        "es": "Mostrar solo (con Mostrar todos los monitores)",
+        "fr": "N'afficher que (avec Afficher tous les moniteurs)",
+        "it": "Mostra solo (con Mostra tutti i monitor)",
+        "nl": "Alleen tonen (met Elke monitor tonen)",
+        "no": "Vis bare (med Vis alle monitorer)",
+        "sv": "Visa bara (med Visa alla övervakare)"
+      },
+      "value": "all",
       "values": [
-        { "id": "all", "label": { "en": "Everything" } },
-        { "id": "activity", "label": { "en": "Activity monitors" } },
-        { "id": "state", "label": { "en": "State monitors" } },
-        { "id": "voltage", "label": { "en": "Voltage monitors" } },
-        { "id": "group", "label": { "en": "Groups" } }
+        {
+          "id": "all",
+          "label": {
+            "en": "Everything",
+            "da": "Alt",
+            "de": "Alles",
+            "es": "Todo",
+            "fr": "Tout",
+            "it": "Tutto",
+            "nl": "Alles",
+            "no": "Alt",
+            "sv": "Allt"
+          }
+        },
+        {
+          "id": "activity",
+          "label": {
+            "en": "Activity monitors",
+            "da": "Aktivitetsmonitorer",
+            "de": "Aktivitätsmonitore",
+            "es": "Monitores de actividad",
+            "fr": "Moniteurs d'activité",
+            "it": "Monitor di attività",
+            "nl": "Activiteitsmonitors",
+            "no": "Aktivitetsmonitorer",
+            "sv": "Aktivitetsövervakare"
+          }
+        },
+        {
+          "id": "state",
+          "label": {
+            "en": "State monitors",
+            "da": "Statusmonitorer",
+            "de": "Zustandsmonitore",
+            "es": "Monitores de estado",
+            "fr": "Moniteurs d'état",
+            "it": "Monitor di stato",
+            "nl": "Statusmonitors",
+            "no": "Statusmonitorer",
+            "sv": "Statusövervakare"
+          }
+        },
+        {
+          "id": "voltage",
+          "label": {
+            "en": "Voltage monitors",
+            "da": "Spændingsmonitorer",
+            "de": "Spannungsmonitore",
+            "es": "Monitores de tensión",
+            "fr": "Moniteurs de tension",
+            "it": "Monitor di tensione",
+            "nl": "Spanningsmonitors",
+            "no": "Spenningsmonitorer",
+            "sv": "Spänningsövervakare"
+          }
+        },
+        {
+          "id": "group",
+          "label": {
+            "en": "Groups",
+            "da": "Grupper",
+            "de": "Gruppen",
+            "es": "Grupos",
+            "fr": "Groupes",
+            "it": "Gruppi",
+            "nl": "Groepen",
+            "no": "Grupper",
+            "sv": "Grupper"
+          }
+        }
       ]
     },
-    { "id": "monitor1", "type": "autocomplete", "title": { "en": "Item 1" } },
-    { "id": "monitor2", "type": "autocomplete", "title": { "en": "Item 2" } },
-    { "id": "monitor3", "type": "autocomplete", "title": { "en": "Item 3" } },
-    { "id": "monitor4", "type": "autocomplete", "title": { "en": "Item 4" } },
-    { "id": "monitor5", "type": "autocomplete", "title": { "en": "Item 5" } }
+    {
+      "id": "monitor1",
+      "type": "autocomplete",
+      "title": {
+        "en": "Item 1",
+        "da": "Element 1",
+        "de": "Eintrag 1",
+        "es": "Elemento 1",
+        "fr": "Élément 1",
+        "it": "Elemento 1",
+        "nl": "Item 1",
+        "no": "Element 1",
+        "sv": "Post 1"
+      }
+    },
+    {
+      "id": "monitor2",
+      "type": "autocomplete",
+      "title": {
+        "en": "Item 2",
+        "da": "Element 2",
+        "de": "Eintrag 2",
+        "es": "Elemento 2",
+        "fr": "Élément 2",
+        "it": "Elemento 2",
+        "nl": "Item 2",
+        "no": "Element 2",
+        "sv": "Post 2"
+      }
+    },
+    {
+      "id": "monitor3",
+      "type": "autocomplete",
+      "title": {
+        "en": "Item 3",
+        "da": "Element 3",
+        "de": "Eintrag 3",
+        "es": "Elemento 3",
+        "fr": "Élément 3",
+        "it": "Elemento 3",
+        "nl": "Item 3",
+        "no": "Element 3",
+        "sv": "Post 3"
+      }
+    },
+    {
+      "id": "monitor4",
+      "type": "autocomplete",
+      "title": {
+        "en": "Item 4",
+        "da": "Element 4",
+        "de": "Eintrag 4",
+        "es": "Elemento 4",
+        "fr": "Élément 4",
+        "it": "Elemento 4",
+        "nl": "Item 4",
+        "no": "Element 4",
+        "sv": "Post 4"
+      }
+    },
+    {
+      "id": "monitor5",
+      "type": "autocomplete",
+      "title": {
+        "en": "Item 5",
+        "da": "Element 5",
+        "de": "Eintrag 5",
+        "es": "Elemento 5",
+        "fr": "Élément 5",
+        "it": "Elemento 5",
+        "nl": "Item 5",
+        "no": "Element 5",
+        "sv": "Post 5"
+      }
+    }
   ],
   "api": {
-    "getSummary": { "method": "GET", "path": "/summary" },
-    "getList": { "method": "GET", "path": "/list" }
+    "getSummary": {
+      "method": "GET",
+      "path": "/summary"
+    },
+    "getList": {
+      "method": "GET",
+      "path": "/list"
+    }
   }
 }

@@ -1,30 +1,78 @@
 {
   "title": {
-    "en": "[[monitor]] !{{has not been active for at least|has been active within the last}} [[hours]] hours"
+    "en": "[[monitor]] !{{has not been active for at least|has been active within the last}} [[hours]] hours",
+    "da": "[[monitor]] !{{har ikke været aktiv de|har været aktiv de}} seneste [[hours]] timer",
+    "de": "[[monitor]] !{{war nicht aktiv in|war aktiv in}} den letzten [[hours]] Stunden",
+    "es": "[[monitor]] !{{no ha estado activo en|ha estado activo en}} las últimas [[hours]] horas",
+    "fr": "[[monitor]] !{{n'a pas été actif durant|a été actif durant}} les [[hours]] dernières heures",
+    "it": "[[monitor]] !{{non è stato attivo nelle|è stato attivo nelle}} ultime [[hours]] ore",
+    "nl": "[[monitor]] !{{is niet actief geweest in|is actief geweest in}} de laatste [[hours]] uur",
+    "no": "[[monitor]] !{{har ikke vært aktiv de|har vært aktiv de}} siste [[hours]] timene",
+    "sv": "[[monitor]] !{{har inte varit aktiv de|har varit aktiv de}} senaste [[hours]] timmarna"
   },
   "titleFormatted": {
-    "en": "[[monitor]] !{{has not been active for at least|has been active within the last}} [[hours]] hours"
+    "en": "[[monitor]] !{{has not been active for at least|has been active within the last}} [[hours]] hours",
+    "da": "[[monitor]] !{{har ikke været aktiv de|har været aktiv de}} seneste [[hours]] timer",
+    "de": "[[monitor]] !{{war nicht aktiv in|war aktiv in}} den letzten [[hours]] Stunden",
+    "es": "[[monitor]] !{{no ha estado activo en|ha estado activo en}} las últimas [[hours]] horas",
+    "fr": "[[monitor]] !{{n'a pas été actif durant|a été actif durant}} les [[hours]] dernières heures",
+    "it": "[[monitor]] !{{non è stato attivo nelle|è stato attivo nelle}} ultime [[hours]] ore",
+    "nl": "[[monitor]] !{{is niet actief geweest in|is actief geweest in}} de laatste [[hours]] uur",
+    "no": "[[monitor]] !{{har ikke vært aktiv de|har vært aktiv de}} siste [[hours]] timene",
+    "sv": "[[monitor]] !{{har inte varit aktiv de|har varit aktiv de}} senaste [[hours]] timmarna"
   },
   "hint": {
-    "en": "True when the monitor is idle and its last cycle ended at least this long ago (for a monitor that has not finished a cycle yet, since it was first seen). False while it is running, or before it has recorded anything. For a freezer, a pump or a door that should have cycled by now. Works with Activity and State monitors."
+    "en": "True when the monitor is idle and its last cycle ended at least this long ago (for a monitor that has not finished a cycle yet, since it was first seen). False while it is running, or before it has recorded anything. For a freezer, a pump or a door that should have cycled by now. Works with Activity and State monitors.",
+    "da": "Sand, når monitoren hviler og dens seneste cyklus sluttede for mindst så længe siden (for en monitor, der endnu ikke har afsluttet en cyklus: siden den første gang blev set). Falsk mens den kører, eller før den har registreret noget. Til en fryser, en pumpe eller en dør, der burde have kørt nu. Virker med aktivitets- og statusmonitorer.",
+    "de": "Wahr, wenn der Monitor ruht und sein letzter Zyklus mindestens so lange zurückliegt (bei einem Monitor ohne abgeschlossenen Zyklus: seit er zuerst gesehen wurde). Falsch, solange er läuft oder bevor er etwas aufgezeichnet hat. Für eine Gefriertruhe, eine Pumpe oder eine Tür, die längst hätte laufen sollen. Funktioniert mit Aktivitäts- und Zustandsmonitoren.",
+    "es": "Verdadero cuando el monitor está en reposo y su último ciclo terminó hace al menos este tiempo (en un monitor que aún no ha completado un ciclo: desde que se vio por primera vez). Falso mientras funciona o antes de que haya registrado algo. Para un congelador, una bomba o una puerta que ya debería haber funcionado. Funciona con monitores de actividad y de estado.",
+    "fr": "Vrai quand le moniteur est au repos et que son dernier cycle s'est terminé il y a au moins cette durée (pour un moniteur qui n'a encore fini aucun cycle : depuis sa première apparition). Faux pendant qu'il fonctionne ou avant qu'il ait enregistré quoi que ce soit. Pour un congélateur, une pompe ou une porte qui aurait déjà dû fonctionner. Fonctionne avec les moniteurs d'activité et d'état.",
+    "it": "Vero quando il monitor è a riposo e il suo ultimo ciclo è terminato almeno da questo tempo (per un monitor che non ha ancora completato un ciclo: da quando è stato visto la prima volta). Falso mentre è in funzione o prima che abbia registrato qualcosa. Per un congelatore, una pompa o una porta che avrebbero già dovuto funzionare. Funziona con i monitor di attività e di stato.",
+    "nl": "Waar als de monitor stilstaat en zijn laatste cyclus minstens zo lang geleden eindigde (voor een monitor die nog geen cyclus heeft afgerond: sinds hij voor het eerst werd gezien). Onwaar terwijl hij loopt of voordat hij iets heeft vastgelegd. Voor een vriezer, een pomp of een deur die inmiddels had moeten werken. Werkt met activiteits- en statusmonitors.",
+    "no": "Sann når monitoren hviler og den siste syklusen sluttet for minst så lenge siden (for en monitor som ennå ikke har fullført en syklus: siden den først ble sett). Usann mens den går, eller før den har registrert noe. For en fryser, en pumpe eller en dør som burde ha gått nå. Fungerer med aktivitets- og statusmonitorer.",
+    "sv": "Sant när övervakaren vilar och dess senaste cykel slutade för minst så länge sedan (för en övervakare som ännu inte avslutat en cykel: sedan den först sågs). Falskt medan den är igång eller innan den har registrerat något. För en frys, en pump eller en dörr som borde ha gått vid det här laget. Fungerar med aktivitets- och statusövervakare."
   },
   "args": [
     {
       "name": "monitor",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "hours",
       "type": "number",
       "title": {
-        "en": "Hours"
+        "en": "Hours",
+        "da": "Timer",
+        "de": "Stunden",
+        "es": "Horas",
+        "fr": "Heures",
+        "it": "Ore",
+        "nl": "Uren",
+        "no": "Timer",
+        "sv": "Timmar"
       },
       "min": 0,
       "placeholder": {
-        "en": "e.g. 6"
+        "en": "e.g. 6",
+        "da": "f.eks. 6",
+        "de": "z. B. 6",
+        "es": "p. ej. 6",
+        "fr": "ex. 6",
+        "it": "es. 6",
+        "nl": "bijv. 6",
+        "no": "f.eks. 6",
+        "sv": "t.ex. 6"
       }
     }
   ]

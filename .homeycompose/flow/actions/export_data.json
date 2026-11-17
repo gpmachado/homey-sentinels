@@ -1,12 +1,36 @@
 {
   "title": {
-    "en": "Export data as JSON"
+    "en": "Export data as JSON",
+    "da": "Eksporter data som JSON",
+    "de": "Daten als JSON exportieren",
+    "es": "Exportar datos como JSON",
+    "fr": "Exporter les données en JSON",
+    "it": "Esporta i dati in JSON",
+    "nl": "Gegevens exporteren als JSON",
+    "no": "Eksporter data som JSON",
+    "sv": "Exportera data som JSON"
   },
   "titleFormatted": {
-    "en": "Export all Sentinels data as JSON"
+    "en": "Export all Sentinels data as JSON",
+    "da": "Eksporter alle Sentinels-data som JSON",
+    "de": "Alle Sentinels-Daten als JSON exportieren",
+    "es": "Exportar todos los datos de Sentinels como JSON",
+    "fr": "Exporter toutes les données de Sentinels en JSON",
+    "it": "Esporta tutti i dati di Sentinels in JSON",
+    "nl": "Alle Sentinels-gegevens exporteren als JSON",
+    "no": "Eksporter alle Sentinels-data som JSON",
+    "sv": "Exportera all Sentinels-data som JSON"
   },
   "hint": {
-    "en": "Returns the entire store — every monitor's configuration, history and stats — as one JSON string token. Meant for a backup/inspection flow (e.g. an HTTP request or a file-writing app), not a plain notification — check the size token first if you're about to put it somewhere with a size limit. Its tokens are only available in an Advanced Flow."
+    "en": "Returns the entire store — every monitor's configuration, history and stats — as one JSON string token. Meant for a backup/inspection flow (e.g. an HTTP request or a file-writing app), not a plain notification — check the size token first if you're about to put it somewhere with a size limit. Its tokens are only available in an Advanced Flow.",
+    "da": "Returnerer hele lageret (hver monitors konfiguration, historik og statistik) som ét JSON-teksttoken. Beregnet til et flow til backup eller kontrol (for eksempel en HTTP-forespørgsel eller en app, der skriver filer), ikke til en almindelig notifikation. Tjek størrelsestokenet først, hvis målet har en størrelsesgrænse. Dens tokens findes kun i et Advanced Flow.",
+    "de": "Gibt den gesamten Speicher (Konfiguration, Verlauf und Statistiken jedes Monitors) als ein JSON-Text-Token zurück. Gedacht für einen Backup- oder Prüf-Flow (zum Beispiel eine HTTP-Anfrage oder eine App, die Dateien schreibt), nicht für eine normale Benachrichtigung. Prüfe zuerst das Größen-Token, wenn das Ziel eine Größenbegrenzung hat. Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Devuelve todo el almacenamiento (la configuración, el historial y las estadísticas de cada monitor) como un único token de texto JSON. Pensado para un flow de copia de seguridad o de revisión (por ejemplo una petición HTTP o una app que escribe archivos), no para una notificación normal. Revisa primero el token de tamaño si el destino tiene un límite. Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Renvoie tout le stockage (la configuration, l'historique et les statistiques de chaque moniteur) sous forme d'un seul jeton texte JSON. Prévu pour un flow de sauvegarde ou d'inspection (par exemple une requête HTTP ou une app qui écrit des fichiers), pas pour une simple notification. Vérifiez d'abord le jeton de taille si la destination a une limite. Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "Restituisce tutto l'archivio (la configurazione, lo storico e le statistiche di ogni monitor) come un unico token di testo JSON. Pensato per un flow di backup o di verifica (per esempio una richiesta HTTP o un'app che scrive file), non per una semplice notifica. Controlla prima il token della dimensione se la destinazione ha un limite. I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "Geeft de hele opslag (de configuratie, geschiedenis en statistieken van elke monitor) terug als één JSON-tekst-token. Bedoeld voor een back-up- of inspectieflow (bijvoorbeeld een HTTP-verzoek of een app die bestanden schrijft), niet voor een gewone melding. Controleer eerst het grootte-token als je het ergens met een groottelimiet neerzet. De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Returnerer hele lagringen (konfigurasjonen, historikken og statistikken til hver monitor) som ett JSON-teksttoken. Ment for en flow for sikkerhetskopi eller kontroll (for eksempel en HTTP-forespørsel eller en app som skriver filer), ikke for et vanlig varsel. Sjekk størrelsestokenet først hvis målet har en størrelsesgrense. Tokenene finnes bare i en Advanced Flow.",
+    "sv": "Returnerar hela lagringen (varje övervakares konfiguration, historik och statistik) som ett enda JSON-texttoken. Avsett för ett flöde för säkerhetskopiering eller granskning (till exempel en HTTP-förfrågan eller en app som skriver filer), inte för en vanlig avisering. Kontrollera storlekstokenet först om målet har en storleksgräns. Dess tokens finns bara i ett Advanced Flow."
   },
   "args": [],
   "tokens": [
@@ -14,14 +38,30 @@
       "name": "json",
       "type": "string",
       "title": {
-        "en": "JSON"
+        "en": "JSON",
+        "da": "JSON",
+        "de": "JSON",
+        "es": "JSON",
+        "fr": "JSON",
+        "it": "JSON",
+        "nl": "JSON",
+        "no": "JSON",
+        "sv": "JSON"
       }
     },
     {
       "name": "size_bytes",
       "type": "number",
       "title": {
-        "en": "Size (bytes)"
+        "en": "Size (bytes)",
+        "da": "Størrelse (bytes)",
+        "de": "Größe (Bytes)",
+        "es": "Tamaño (bytes)",
+        "fr": "Taille (octets)",
+        "it": "Dimensione (byte)",
+        "nl": "Grootte (bytes)",
+        "no": "Størrelse (byte)",
+        "sv": "Storlek (byte)"
       }
     }
   ]

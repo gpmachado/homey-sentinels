@@ -1,47 +1,111 @@
 {
   "title": {
-    "en": "Get voltage statistics"
+    "en": "Get voltage statistics",
+    "da": "Hent spændingsstatistik",
+    "de": "Spannungsstatistik abrufen",
+    "es": "Obtener estadísticas de tensión",
+    "fr": "Obtenir les statistiques de tension",
+    "it": "Ottieni le statistiche di tensione",
+    "nl": "Spanningsstatistieken ophalen",
+    "no": "Hent spenningsstatistikk",
+    "sv": "Hämta spänningsstatistik"
   },
   "titleFormatted": {
-    "en": "Get voltage statistics for [[monitor]], period: [[period]]"
+    "en": "Get voltage statistics for [[monitor]], period: [[period]]",
+    "da": "Hent spændingsstatistik for [[monitor]], periode: [[period]]",
+    "de": "Spannungsstatistik abrufen für [[monitor]], Zeitraum: [[period]]",
+    "es": "Obtener estadísticas de tensión de [[monitor]], periodo: [[period]]",
+    "fr": "Obtenir les statistiques de tension de [[monitor]], période : [[period]]",
+    "it": "Ottieni le statistiche di tensione di [[monitor]], periodo: [[period]]",
+    "nl": "Spanningsstatistieken ophalen voor [[monitor]], periode: [[period]]",
+    "no": "Hent spenningsstatistikk for [[monitor]], periode: [[period]]",
+    "sv": "Hämta spänningsstatistik för [[monitor]], period: [[period]]"
   },
   "args": [
     {
       "name": "monitor",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "period",
       "type": "dropdown",
       "title": {
-        "en": "Period"
+        "en": "Period",
+        "da": "Periode",
+        "de": "Zeitraum",
+        "es": "Periodo",
+        "fr": "Période",
+        "it": "Periodo",
+        "nl": "Periode",
+        "no": "Periode",
+        "sv": "Period"
       },
       "values": [
         {
           "id": "day",
           "label": {
-            "en": "Today"
+            "en": "Today",
+            "da": "I dag",
+            "de": "Heute",
+            "es": "Hoy",
+            "fr": "Aujourd'hui",
+            "it": "Oggi",
+            "nl": "Vandaag",
+            "no": "I dag",
+            "sv": "I dag"
           }
         },
         {
           "id": "week",
           "label": {
-            "en": "Last 7 days"
+            "en": "Last 7 days",
+            "da": "Seneste 7 dage",
+            "de": "Letzte 7 Tage",
+            "es": "Últimos 7 días",
+            "fr": "7 derniers jours",
+            "it": "Ultimi 7 giorni",
+            "nl": "Laatste 7 dagen",
+            "no": "Siste 7 dager",
+            "sv": "Senaste 7 dagarna"
           }
         },
         {
           "id": "month",
           "label": {
-            "en": "Last 30 days"
+            "en": "Last 30 days",
+            "da": "Seneste 30 dage",
+            "de": "Letzte 30 Tage",
+            "es": "Últimos 30 días",
+            "fr": "30 derniers jours",
+            "it": "Ultimi 30 giorni",
+            "nl": "Laatste 30 dagen",
+            "no": "Siste 30 dager",
+            "sv": "Senaste 30 dagarna"
           }
         },
         {
           "id": "all",
           "label": {
-            "en": "All history"
+            "en": "All history",
+            "da": "Hele historikken",
+            "de": "Gesamter Verlauf",
+            "es": "Todo el historial",
+            "fr": "Tout l'historique",
+            "it": "Tutto lo storico",
+            "nl": "Hele geschiedenis",
+            "no": "Hele historikken",
+            "sv": "Hela historiken"
           }
         }
       ]
@@ -52,53 +116,117 @@
       "name": "average_voltage",
       "type": "number",
       "title": {
-        "en": "Average voltage (V)"
+        "en": "Average voltage (V)",
+        "da": "Gennemsnitlig spænding (V)",
+        "de": "Durchschnittliche Spannung (V)",
+        "es": "Tensión media (V)",
+        "fr": "Tension moyenne (V)",
+        "it": "Tensione media (V)",
+        "nl": "Gemiddelde spanning (V)",
+        "no": "Gjennomsnittlig spenning (V)",
+        "sv": "Medelspänning (V)"
       }
     },
     {
       "name": "min_voltage",
       "type": "number",
       "title": {
-        "en": "Minimum voltage (V)"
+        "en": "Minimum voltage (V)",
+        "da": "Laveste spænding (V)",
+        "de": "Minimale Spannung (V)",
+        "es": "Tensión mínima (V)",
+        "fr": "Tension minimale (V)",
+        "it": "Tensione minima (V)",
+        "nl": "Minimale spanning (V)",
+        "no": "Laveste spenning (V)",
+        "sv": "Lägsta spänning (V)"
       }
     },
     {
       "name": "max_voltage",
       "type": "number",
       "title": {
-        "en": "Maximum voltage (V)"
+        "en": "Maximum voltage (V)",
+        "da": "Højeste spænding (V)",
+        "de": "Maximale Spannung (V)",
+        "es": "Tensión máxima (V)",
+        "fr": "Tension maximale (V)",
+        "it": "Tensione massima (V)",
+        "nl": "Maximale spanning (V)",
+        "no": "Høyeste spenning (V)",
+        "sv": "Högsta spänning (V)"
       }
     },
     {
       "name": "undervoltage_count",
       "type": "number",
       "title": {
-        "en": "Undervoltage events"
+        "en": "Undervoltage events",
+        "da": "Underspændingshændelser",
+        "de": "Unterspannungsereignisse",
+        "es": "Episodios de subtensión",
+        "fr": "Épisodes de sous-tension",
+        "it": "Episodi di sottotensione",
+        "nl": "Onderspanningsgebeurtenissen",
+        "no": "Underspenningshendelser",
+        "sv": "Underspänningshändelser"
       }
     },
     {
       "name": "undervoltage_duration",
       "type": "number",
       "title": {
-        "en": "Undervoltage duration (seconds)"
+        "en": "Undervoltage duration (seconds)",
+        "da": "Tid med underspænding (sekunder)",
+        "de": "Dauer der Unterspannung (Sekunden)",
+        "es": "Duración de la subtensión (segundos)",
+        "fr": "Durée de sous-tension (secondes)",
+        "it": "Durata della sottotensione (secondi)",
+        "nl": "Duur van onderspanning (seconden)",
+        "no": "Tid med underspenning (sekunder)",
+        "sv": "Tid med underspänning (sekunder)"
       }
     },
     {
       "name": "overvoltage_count",
       "type": "number",
       "title": {
-        "en": "Overvoltage events"
+        "en": "Overvoltage events",
+        "da": "Overspændingshændelser",
+        "de": "Überspannungsereignisse",
+        "es": "Episodios de sobretensión",
+        "fr": "Épisodes de surtension",
+        "it": "Episodi di sovratensione",
+        "nl": "Overspanningsgebeurtenissen",
+        "no": "Overspenningshendelser",
+        "sv": "Överspänningshändelser"
       }
     },
     {
       "name": "overvoltage_duration",
       "type": "number",
       "title": {
-        "en": "Overvoltage duration (seconds)"
+        "en": "Overvoltage duration (seconds)",
+        "da": "Tid med overspænding (sekunder)",
+        "de": "Dauer der Überspannung (Sekunden)",
+        "es": "Duración de la sobretensión (segundos)",
+        "fr": "Durée de surtension (secondes)",
+        "it": "Durata della sovratensione (secondi)",
+        "nl": "Duur van overspanning (seconden)",
+        "no": "Tid med overspenning (sekunder)",
+        "sv": "Tid med överspänning (sekunder)"
       }
     }
   ],
   "hint": {
-    "en": "Its tokens are only available in an Advanced Flow."
+    "en": "Its tokens are only available in an Advanced Flow.",
+    "da": "Dens tokens findes kun i et Advanced Flow.",
+    "de": "Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Tokenene finnes bare i en Advanced Flow.",
+    "sv": "Dess tokens finns bara i ett Advanced Flow."
   }
 }

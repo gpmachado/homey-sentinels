@@ -1,8 +1,52 @@
 {
-  "title": { "en": "Recalibrate threshold" },
-  "titleFormatted": { "en": "Recalibrate threshold for [[monitor]]" },
-  "hint": { "en": "Re-enables auto-calibration for an activity monitor that already has a threshold (manually set or previously calibrated) — the next time enough power history confirms a new standby/active split, the threshold updates automatically, same as a freshly created monitor. Existing history and current threshold are kept until then." },
+  "title": {
+    "en": "Recalibrate threshold",
+    "da": "Kalibrer tærsklen igen",
+    "de": "Schwellenwert neu kalibrieren",
+    "es": "Recalibrar el umbral",
+    "fr": "Recalibrer le seuil",
+    "it": "Ricalibra la soglia",
+    "nl": "Drempel opnieuw kalibreren",
+    "no": "Kalibrer terskelen på nytt",
+    "sv": "Kalibrera om tröskeln"
+  },
+  "titleFormatted": {
+    "en": "Recalibrate threshold for [[monitor]]",
+    "da": "Kalibrer tærsklen igen for [[monitor]]",
+    "de": "Schwellenwert neu kalibrieren für [[monitor]]",
+    "es": "Recalibrar el umbral de [[monitor]]",
+    "fr": "Recalibrer le seuil de [[monitor]]",
+    "it": "Ricalibra la soglia di [[monitor]]",
+    "nl": "Drempel opnieuw kalibreren voor [[monitor]]",
+    "no": "Kalibrer terskelen på nytt for [[monitor]]",
+    "sv": "Kalibrera om tröskeln för [[monitor]]"
+  },
+  "hint": {
+    "en": "Re-enables auto-calibration for an activity monitor that already has a threshold (manually set or previously calibrated) — the next time enough power history confirms a new standby/active split, the threshold updates automatically, same as a freshly created monitor. Existing history and current threshold are kept until then.",
+    "da": "Slår automatisk kalibrering til igen for en aktivitetsmonitor, der allerede har en tærskel (sat manuelt eller kalibreret tidligere). Så snart nok effekthistorik bekræfter et nyt skel mellem standby og aktiv, opdateres tærsklen automatisk, som for en ny monitor. Historikken og den nuværende tærskel bevares indtil da.",
+    "de": "Schaltet die automatische Kalibrierung für einen Aktivitätsmonitor wieder ein, der bereits einen Schwellenwert hat (manuell gesetzt oder früher kalibriert). Sobald genug Leistungsverlauf eine neue Grenze zwischen Standby und aktiv bestätigt, wird der Schwellenwert automatisch angepasst, wie bei einem neuen Monitor. Der bisherige Verlauf und der aktuelle Schwellenwert bleiben bis dahin erhalten.",
+    "es": "Vuelve a activar la calibración automática de un monitor de actividad que ya tiene un umbral (puesto a mano o calibrado antes). En cuanto suficiente historial de potencia confirme una nueva separación entre reposo y actividad, el umbral se actualiza solo, como en un monitor nuevo. Hasta entonces se conservan el historial y el umbral actual.",
+    "fr": "Réactive la calibration automatique d'un moniteur d'activité qui a déjà un seuil (réglé à la main ou déjà calibré). Dès qu'assez d'historique de puissance confirme une nouvelle séparation entre veille et activité, le seuil se met à jour tout seul, comme pour un nouveau moniteur. L'historique et le seuil actuel sont conservés d'ici là.",
+    "it": "Riattiva la calibrazione automatica per un monitor di attività che ha già una soglia (impostata a mano o già calibrata). Appena abbastanza storico di potenza conferma una nuova separazione tra standby e attività, la soglia si aggiorna da sola, come per un monitor nuovo. Fino ad allora lo storico e la soglia attuale restano invariati.",
+    "nl": "Zet automatische kalibratie weer aan voor een activiteitsmonitor die al een drempel heeft (handmatig ingesteld of eerder gekalibreerd). Zodra genoeg vermogensgeschiedenis een nieuwe grens tussen stand-by en actief bevestigt, wordt de drempel automatisch bijgewerkt, net als bij een nieuwe monitor. De bestaande geschiedenis en de huidige drempel blijven tot dan behouden.",
+    "no": "Slår på automatisk kalibrering igjen for en aktivitetsmonitor som allerede har en terskel (satt for hånd eller kalibrert tidligere). Så snart nok effekthistorikk bekrefter et nytt skille mellom hvile og aktiv, oppdateres terskelen automatisk, som for en ny monitor. Historikken og den nåværende terskelen beholdes til da.",
+    "sv": "Slår på automatisk kalibrering igen för en aktivitetsövervakare som redan har en tröskel (inställd för hand eller kalibrerad tidigare). Så snart tillräckligt med effekthistorik bekräftar en ny gräns mellan vila och aktiv uppdateras tröskeln automatiskt, som för en ny övervakare. Historiken och den nuvarande tröskeln behålls tills dess."
+  },
   "args": [
-    { "name": "monitor", "type": "autocomplete", "title": { "en": "Monitor" } }
+    {
+      "name": "monitor",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
+      }
+    }
   ]
 }

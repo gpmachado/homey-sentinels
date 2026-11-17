@@ -1,47 +1,111 @@
 {
   "title": {
-    "en": "Get state statistics"
+    "en": "Get state statistics",
+    "da": "Hent statusstatistik",
+    "de": "Zustandsstatistik abrufen",
+    "es": "Obtener estadísticas de estado",
+    "fr": "Obtenir les statistiques d'état",
+    "it": "Ottieni le statistiche di stato",
+    "nl": "Statusstatistieken ophalen",
+    "no": "Hent statusstatistikk",
+    "sv": "Hämta statusstatistik"
   },
   "titleFormatted": {
-    "en": "Get state statistics for [[monitor]], period: [[period]]"
+    "en": "Get state statistics for [[monitor]], period: [[period]]",
+    "da": "Hent statusstatistik for [[monitor]], periode: [[period]]",
+    "de": "Zustandsstatistik abrufen für [[monitor]], Zeitraum: [[period]]",
+    "es": "Obtener estadísticas de estado de [[monitor]], periodo: [[period]]",
+    "fr": "Obtenir les statistiques d'état de [[monitor]], période : [[period]]",
+    "it": "Ottieni le statistiche di stato di [[monitor]], periodo: [[period]]",
+    "nl": "Statusstatistieken ophalen voor [[monitor]], periode: [[period]]",
+    "no": "Hent statusstatistikk for [[monitor]], periode: [[period]]",
+    "sv": "Hämta statusstatistik för [[monitor]], period: [[period]]"
   },
   "args": [
     {
       "name": "monitor",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "period",
       "type": "dropdown",
       "title": {
-        "en": "Period"
+        "en": "Period",
+        "da": "Periode",
+        "de": "Zeitraum",
+        "es": "Periodo",
+        "fr": "Période",
+        "it": "Periodo",
+        "nl": "Periode",
+        "no": "Periode",
+        "sv": "Period"
       },
       "values": [
         {
           "id": "day",
           "label": {
-            "en": "Today"
+            "en": "Today",
+            "da": "I dag",
+            "de": "Heute",
+            "es": "Hoy",
+            "fr": "Aujourd'hui",
+            "it": "Oggi",
+            "nl": "Vandaag",
+            "no": "I dag",
+            "sv": "I dag"
           }
         },
         {
           "id": "week",
           "label": {
-            "en": "Last 7 days"
+            "en": "Last 7 days",
+            "da": "Seneste 7 dage",
+            "de": "Letzte 7 Tage",
+            "es": "Últimos 7 días",
+            "fr": "7 derniers jours",
+            "it": "Ultimi 7 giorni",
+            "nl": "Laatste 7 dagen",
+            "no": "Siste 7 dager",
+            "sv": "Senaste 7 dagarna"
           }
         },
         {
           "id": "month",
           "label": {
-            "en": "Last 30 days"
+            "en": "Last 30 days",
+            "da": "Seneste 30 dage",
+            "de": "Letzte 30 Tage",
+            "es": "Últimos 30 días",
+            "fr": "30 derniers jours",
+            "it": "Ultimi 30 giorni",
+            "nl": "Laatste 30 dagen",
+            "no": "Siste 30 dager",
+            "sv": "Senaste 30 dagarna"
           }
         },
         {
           "id": "all",
           "label": {
-            "en": "All history"
+            "en": "All history",
+            "da": "Hele historikken",
+            "de": "Gesamter Verlauf",
+            "es": "Todo el historial",
+            "fr": "Tout l'historique",
+            "it": "Tutto lo storico",
+            "nl": "Hele geschiedenis",
+            "no": "Hele historikken",
+            "sv": "Hela historiken"
           }
         }
       ]
@@ -52,137 +116,297 @@
       "name": "cycle_count",
       "type": "number",
       "title": {
-        "en": "Sessions"
+        "en": "Sessions",
+        "da": "Sessioner",
+        "de": "Sitzungen",
+        "es": "Sesiones",
+        "fr": "Sessions",
+        "it": "Sessioni",
+        "nl": "Sessies",
+        "no": "Økter",
+        "sv": "Sessioner"
       }
     },
     {
       "name": "true_label",
       "type": "string",
       "title": {
-        "en": "Label for true"
+        "en": "Label for true",
+        "da": "Etiket for sand",
+        "de": "Bezeichnung für wahr",
+        "es": "Etiqueta para verdadero",
+        "fr": "Libellé pour vrai",
+        "it": "Etichetta per vero",
+        "nl": "Label voor waar",
+        "no": "Etikett for sann",
+        "sv": "Etikett för sant"
       }
     },
     {
       "name": "false_label",
       "type": "string",
       "title": {
-        "en": "Label for false"
+        "en": "Label for false",
+        "da": "Etiket for falsk",
+        "de": "Bezeichnung für falsch",
+        "es": "Etiqueta para falso",
+        "fr": "Libellé pour faux",
+        "it": "Etichetta per falso",
+        "nl": "Label voor onwaar",
+        "no": "Etikett for usann",
+        "sv": "Etikett för falskt"
       }
     },
     {
       "name": "true_duration",
       "type": "number",
       "title": {
-        "en": "Duration as true (seconds)"
+        "en": "Duration as true (seconds)",
+        "da": "Tid som sand (sekunder)",
+        "de": "Dauer als wahr (Sekunden)",
+        "es": "Tiempo en verdadero (segundos)",
+        "fr": "Durée à vrai (secondes)",
+        "it": "Durata come vero (secondi)",
+        "nl": "Duur als waar (seconden)",
+        "no": "Tid som sann (sekunder)",
+        "sv": "Tid som sant (sekunder)"
       }
     },
     {
       "name": "false_duration",
       "type": "number",
       "title": {
-        "en": "Duration as false (seconds)"
+        "en": "Duration as false (seconds)",
+        "da": "Tid som falsk (sekunder)",
+        "de": "Dauer als falsch (Sekunden)",
+        "es": "Tiempo en falso (segundos)",
+        "fr": "Durée à faux (secondes)",
+        "it": "Durata come falso (secondi)",
+        "nl": "Duur als onwaar (seconden)",
+        "no": "Tid som usann (sekunder)",
+        "sv": "Tid som falskt (sekunder)"
       }
     },
     {
       "name": "median_duration",
       "type": "number",
       "title": {
-        "en": "Median session duration (seconds)"
+        "en": "Median session duration (seconds)",
+        "da": "Median sessionstid (sekunder)",
+        "de": "Median der Sitzungsdauer (Sekunden)",
+        "es": "Duración mediana de las sesiones (segundos)",
+        "fr": "Durée médiane des sessions (secondes)",
+        "it": "Durata mediana delle sessioni (secondi)",
+        "nl": "Mediane sessieduur (seconden)",
+        "no": "Median øktvarighet (sekunder)",
+        "sv": "Median för sessionstid (sekunder)"
       }
     },
     {
       "name": "median_duration_human",
       "type": "string",
       "title": {
-        "en": "Median session duration"
+        "en": "Median session duration",
+        "da": "Median sessionstid",
+        "de": "Median der Sitzungsdauer",
+        "es": "Duración mediana de las sesiones",
+        "fr": "Durée médiane des sessions",
+        "it": "Durata mediana delle sessioni",
+        "nl": "Mediane sessieduur",
+        "no": "Median øktvarighet",
+        "sv": "Median för sessionstid"
       }
     },
     {
       "name": "p25_duration",
       "type": "number",
       "title": {
-        "en": "Session duration, 25th percentile (seconds)"
+        "en": "Session duration, 25th percentile (seconds)",
+        "da": "Sessionstid, 25. percentil (sekunder)",
+        "de": "Sitzungsdauer, 25. Perzentil (Sekunden)",
+        "es": "Duración de las sesiones, percentil 25 (segundos)",
+        "fr": "Durée des sessions, 25e centile (secondes)",
+        "it": "Durata delle sessioni, 25° percentile (secondi)",
+        "nl": "Sessieduur, 25e percentiel (seconden)",
+        "no": "Øktvarighet, 25. persentil (sekunder)",
+        "sv": "Sessionstid, 25:e percentilen (sekunder)"
       }
     },
     {
       "name": "p25_duration_human",
       "type": "string",
       "title": {
-        "en": "Session duration, 25th percentile"
+        "en": "Session duration, 25th percentile",
+        "da": "Sessionstid, 25. percentil",
+        "de": "Sitzungsdauer, 25. Perzentil",
+        "es": "Duración de las sesiones, percentil 25",
+        "fr": "Durée des sessions, 25e centile",
+        "it": "Durata delle sessioni, 25° percentile",
+        "nl": "Sessieduur, 25e percentiel",
+        "no": "Øktvarighet, 25. persentil",
+        "sv": "Sessionstid, 25:e percentilen"
       }
     },
     {
       "name": "p75_duration",
       "type": "number",
       "title": {
-        "en": "Session duration, 75th percentile (seconds)"
+        "en": "Session duration, 75th percentile (seconds)",
+        "da": "Sessionstid, 75. percentil (sekunder)",
+        "de": "Sitzungsdauer, 75. Perzentil (Sekunden)",
+        "es": "Duración de las sesiones, percentil 75 (segundos)",
+        "fr": "Durée des sessions, 75e centile (secondes)",
+        "it": "Durata delle sessioni, 75° percentile (secondi)",
+        "nl": "Sessieduur, 75e percentiel (seconden)",
+        "no": "Øktvarighet, 75. persentil (sekunder)",
+        "sv": "Sessionstid, 75:e percentilen (sekunder)"
       }
     },
     {
       "name": "p75_duration_human",
       "type": "string",
       "title": {
-        "en": "Session duration, 75th percentile"
+        "en": "Session duration, 75th percentile",
+        "da": "Sessionstid, 75. percentil",
+        "de": "Sitzungsdauer, 75. Perzentil",
+        "es": "Duración de las sesiones, percentil 75",
+        "fr": "Durée des sessions, 75e centile",
+        "it": "Durata delle sessioni, 75° percentile",
+        "nl": "Sessieduur, 75e percentiel",
+        "no": "Øktvarighet, 75. persentil",
+        "sv": "Sessionstid, 75:e percentilen"
       }
     },
     {
       "name": "trend_active_duration_percent",
       "type": "number",
       "title": {
-        "en": "True time vs previous week (%)"
+        "en": "True time vs previous week (%)",
+        "da": "Tid som sand i forhold til sidste uge (%)",
+        "de": "Zeit als wahr gegenüber Vorwoche (%)",
+        "es": "Tiempo en verdadero frente a la semana anterior (%)",
+        "fr": "Temps à vrai par rapport à la semaine précédente (%)",
+        "it": "Tempo come vero rispetto alla settimana precedente (%)",
+        "nl": "Tijd als waar t.o.v. vorige week (%)",
+        "no": "Tid som sann mot forrige uke (%)",
+        "sv": "Tid som sant jämfört med förra veckan (%)"
       }
     },
     {
       "name": "trend_cycle_count_percent",
       "type": "number",
       "title": {
-        "en": "Sessions vs previous week (%)"
+        "en": "Sessions vs previous week (%)",
+        "da": "Sessioner i forhold til sidste uge (%)",
+        "de": "Sitzungen gegenüber Vorwoche (%)",
+        "es": "Sesiones frente a la semana anterior (%)",
+        "fr": "Sessions par rapport à la semaine précédente (%)",
+        "it": "Sessioni rispetto alla settimana precedente (%)",
+        "nl": "Sessies t.o.v. vorige week (%)",
+        "no": "Økter mot forrige uke (%)",
+        "sv": "Sessioner jämfört med förra veckan (%)"
       }
     },
     {
       "name": "trend_summary",
       "type": "string",
       "title": {
-        "en": "Weekly trend"
+        "en": "Weekly trend",
+        "da": "Ugentlig tendens",
+        "de": "Wochentrend",
+        "es": "Tendencia semanal",
+        "fr": "Tendance de la semaine",
+        "it": "Andamento settimanale",
+        "nl": "Weektrend",
+        "no": "Ukestrend",
+        "sv": "Veckotrend"
       }
     },
     {
       "name": "energy",
       "type": "number",
       "title": {
-        "en": "Energy (kWh)"
+        "en": "Energy (kWh)",
+        "da": "Energi (kWh)",
+        "de": "Energie (kWh)",
+        "es": "Energía (kWh)",
+        "fr": "Énergie (kWh)",
+        "it": "Energia (kWh)",
+        "nl": "Energie (kWh)",
+        "no": "Energi (kWh)",
+        "sv": "Energi (kWh)"
       }
     },
     {
       "name": "average_power",
       "type": "number",
       "title": {
-        "en": "Average power (W)"
+        "en": "Average power (W)",
+        "da": "Gennemsnitlig effekt (W)",
+        "de": "Durchschnittliche Leistung (W)",
+        "es": "Potencia media (W)",
+        "fr": "Puissance moyenne (W)",
+        "it": "Potenza media (W)",
+        "nl": "Gemiddeld vermogen (W)",
+        "no": "Gjennomsnittlig effekt (W)",
+        "sv": "Medeleffekt (W)"
       }
     },
     {
       "name": "max_power",
       "type": "number",
       "title": {
-        "en": "Peak power (W)"
+        "en": "Peak power (W)",
+        "da": "Spidseffekt (W)",
+        "de": "Spitzenleistung (W)",
+        "es": "Potencia máxima (W)",
+        "fr": "Puissance de crête (W)",
+        "it": "Potenza di picco (W)",
+        "nl": "Piekvermogen (W)",
+        "no": "Toppeffekt (W)",
+        "sv": "Toppeffekt (W)"
       }
     },
     {
       "name": "average_current",
       "type": "number",
       "title": {
-        "en": "Average current (A)"
+        "en": "Average current (A)",
+        "da": "Gennemsnitlig strøm (A)",
+        "de": "Durchschnittlicher Strom (A)",
+        "es": "Corriente media (A)",
+        "fr": "Courant moyen (A)",
+        "it": "Corrente media (A)",
+        "nl": "Gemiddelde stroom (A)",
+        "no": "Gjennomsnittlig strøm (A)",
+        "sv": "Medelström (A)"
       }
     },
     {
       "name": "max_current",
       "type": "number",
       "title": {
-        "en": "Peak current (A)"
+        "en": "Peak current (A)",
+        "da": "Spidsstrøm (A)",
+        "de": "Spitzenstrom (A)",
+        "es": "Corriente máxima (A)",
+        "fr": "Courant de crête (A)",
+        "it": "Corrente di picco (A)",
+        "nl": "Piekstroom (A)",
+        "no": "Toppstrøm (A)",
+        "sv": "Toppström (A)"
       }
     }
   ],
   "hint": {
-    "en": "Its tokens are only available in an Advanced Flow."
+    "en": "Its tokens are only available in an Advanced Flow.",
+    "da": "Dens tokens findes kun i et Advanced Flow.",
+    "de": "Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Tokenene finnes bare i en Advanced Flow.",
+    "sv": "Dess tokens finns bara i ett Advanced Flow."
   }
 }

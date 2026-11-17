@@ -1,44 +1,108 @@
 {
   "title": {
-    "en": "Get group statistics"
+    "en": "Get group statistics",
+    "da": "Hent gruppestatistik",
+    "de": "Gruppenstatistik abrufen",
+    "es": "Obtener estadísticas del grupo",
+    "fr": "Obtenir les statistiques du groupe",
+    "it": "Ottieni le statistiche del gruppo",
+    "nl": "Groepsstatistieken ophalen",
+    "no": "Hent gruppestatistikk",
+    "sv": "Hämta gruppstatistik"
   },
   "titleFormatted": {
-    "en": "Get group statistics for [[group]], period: [[period]]"
+    "en": "Get group statistics for [[group]], period: [[period]]",
+    "da": "Hent gruppestatistik for [[group]], periode: [[period]]",
+    "de": "Gruppenstatistik abrufen für [[group]], Zeitraum: [[period]]",
+    "es": "Obtener estadísticas del grupo [[group]], periodo: [[period]]",
+    "fr": "Obtenir les statistiques du groupe [[group]], période : [[period]]",
+    "it": "Ottieni le statistiche del gruppo [[group]], periodo: [[period]]",
+    "nl": "Groepsstatistieken ophalen voor [[group]], periode: [[period]]",
+    "no": "Hent gruppestatistikk for [[group]], periode: [[period]]",
+    "sv": "Hämta gruppstatistik för [[group]], period: [[period]]"
   },
   "hint": {
-    "en": "A group has no continuous per-device history (see \"[Group] has a mismatch\"'s own limitation) — but the app polls every group every few minutes and keeps a light daily tally of how often and for how long it found a mismatch, which this reads. Its tokens are only available in an Advanced Flow."
+    "en": "A group has no continuous per-device history (see \"[Group] has a mismatch\"'s own limitation) — but the app polls every group every few minutes and keeps a light daily tally of how often and for how long it found a mismatch, which this reads. Its tokens are only available in an Advanced Flow.",
+    "da": "En gruppe har ingen løbende historik pr. enhed (se begrænsningen for \"[Gruppe] har en afvigelse\"), men appen fører en lille daglig optælling af, hvor ofte og hvor længe den fandt en afvigelse, og det er det, dette kort læser. Dens tokens findes kun i et Advanced Flow.",
+    "de": "Eine Gruppe hat keinen fortlaufenden Verlauf pro Gerät (siehe die Einschränkung von \"[Gruppe] hat eine Abweichung\"), aber die App führt pro Tag mit, wie oft und wie lange sie eine Abweichung gefunden hat, und das liest diese Karte. Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Un grupo no tiene un historial continuo por dispositivo (ver la limitación de \"[Grupo] tiene una discrepancia\"), pero la app lleva una cuenta diaria de cuántas veces y durante cuánto tiempo encontró una discrepancia, y eso es lo que lee esta tarjeta. Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Un groupe n'a pas d'historique continu par appareil (voir la limite de \"[Groupe] présente un écart\"), mais l'app tient un petit compte quotidien du nombre de fois et de la durée pendant laquelle elle a trouvé un écart, et c'est ce que lit cette carte. Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "Un gruppo non ha uno storico continuo per dispositivo (vedi il limite di \"[Gruppo] ha una difformità\"), ma l'app tiene un piccolo conteggio giornaliero di quante volte e per quanto tempo ha trovato una difformità, ed è ciò che legge questa scheda. I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "Een groep heeft geen doorlopende geschiedenis per apparaat (zie de beperking van \"[Groep] heeft een afwijking\"), maar de app houdt per dag bij hoe vaak en hoe lang hij een afwijking vond, en dat leest deze kaart. De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "En gruppe har ingen løpende historikk per enhet (se begrensningen til \"[Gruppe] har et avvik\"), men appen fører en liten daglig telling av hvor ofte og hvor lenge den fant et avvik, og det er det dette kortet leser. Tokenene finnes bare i en Advanced Flow.",
+    "sv": "En grupp har ingen löpande historik per enhet (se begränsningen för \"[Grupp] har en avvikelse\"), men appen för en liten daglig räkning av hur ofta och hur länge den hittade en avvikelse, och det är vad det här kortet läser. Dess tokens finns bara i ett Advanced Flow."
   },
   "args": [
     {
       "name": "group",
       "type": "autocomplete",
       "title": {
-        "en": "Group"
+        "en": "Group",
+        "da": "Gruppe",
+        "de": "Gruppe",
+        "es": "Grupo",
+        "fr": "Groupe",
+        "it": "Gruppo",
+        "nl": "Groep",
+        "no": "Gruppe",
+        "sv": "Grupp"
       }
     },
     {
       "name": "period",
       "type": "dropdown",
       "title": {
-        "en": "Period"
+        "en": "Period",
+        "da": "Periode",
+        "de": "Zeitraum",
+        "es": "Periodo",
+        "fr": "Période",
+        "it": "Periodo",
+        "nl": "Periode",
+        "no": "Periode",
+        "sv": "Period"
       },
       "values": [
         {
           "id": "day",
           "label": {
-            "en": "Today"
+            "en": "Today",
+            "da": "I dag",
+            "de": "Heute",
+            "es": "Hoy",
+            "fr": "Aujourd'hui",
+            "it": "Oggi",
+            "nl": "Vandaag",
+            "no": "I dag",
+            "sv": "I dag"
           }
         },
         {
           "id": "week",
           "label": {
-            "en": "Last 7 days"
+            "en": "Last 7 days",
+            "da": "Seneste 7 dage",
+            "de": "Letzte 7 Tage",
+            "es": "Últimos 7 días",
+            "fr": "7 derniers jours",
+            "it": "Ultimi 7 giorni",
+            "nl": "Laatste 7 dagen",
+            "no": "Siste 7 dager",
+            "sv": "Senaste 7 dagarna"
           }
         },
         {
           "id": "month",
           "label": {
-            "en": "Last 30 days"
+            "en": "Last 30 days",
+            "da": "Seneste 30 dage",
+            "de": "Letzte 30 Tage",
+            "es": "Últimos 30 días",
+            "fr": "30 derniers jours",
+            "it": "Ultimi 30 giorni",
+            "nl": "Laatste 30 dagen",
+            "no": "Siste 30 dager",
+            "sv": "Senaste 30 dagarna"
           }
         }
       ]
@@ -49,21 +113,45 @@
       "name": "mismatch_seconds",
       "type": "number",
       "title": {
-        "en": "Time with a mismatch (seconds)"
+        "en": "Time with a mismatch (seconds)",
+        "da": "Tid med afvigelse (sekunder)",
+        "de": "Zeit mit Abweichung (Sekunden)",
+        "es": "Tiempo con discrepancia (segundos)",
+        "fr": "Temps avec un écart (secondes)",
+        "it": "Tempo con una difformità (secondi)",
+        "nl": "Tijd met een afwijking (seconden)",
+        "no": "Tid med avvik (sekunder)",
+        "sv": "Tid med avvikelse (sekunder)"
       }
     },
     {
       "name": "mismatch_duration_human",
       "type": "string",
       "title": {
-        "en": "Time with a mismatch"
+        "en": "Time with a mismatch",
+        "da": "Tid med afvigelse",
+        "de": "Zeit mit Abweichung",
+        "es": "Tiempo con discrepancia",
+        "fr": "Temps avec un écart",
+        "it": "Tempo con una difformità",
+        "nl": "Tijd met een afwijking",
+        "no": "Tid med avvik",
+        "sv": "Tid med avvikelse"
       }
     },
     {
       "name": "check_count",
       "type": "number",
       "title": {
-        "en": "Checks performed"
+        "en": "Checks performed",
+        "da": "Udførte tjek",
+        "de": "Durchgeführte Prüfungen",
+        "es": "Comprobaciones realizadas",
+        "fr": "Vérifications effectuées",
+        "it": "Controlli eseguiti",
+        "nl": "Uitgevoerde controles",
+        "no": "Utførte kontroller",
+        "sv": "Utförda kontroller"
       }
     }
   ]

@@ -1,10 +1,95 @@
 {
-  "title": { "en": "!{{Two voltage monitors are|Two voltage monitors are not}} more than [[percent]]% apart" },
-  "titleFormatted": { "en": "!{{[[monitor_a]] and [[monitor_b]] differ by more than|do not differ by more than}} [[percent]]%" },
-  "hint": { "en": "Compares the current reading of two Voltage monitors (e.g. two phases of a three-phase meter, watched as separate monitors) as a percent of their average: |A - B| / ((A + B) / 2) x 100. For more than two phases, chain this condition once per pair with AND/OR. Compare monitors that read the same thing (phase-neutral with phase-neutral, phase-phase with phase-phase). False while either monitor has no reading yet." },
+  "title": {
+    "en": "!{{Two voltage monitors are|Two voltage monitors are not}} more than [[percent]]% apart",
+    "da": "!{{To spændingsmonitorer afviger|To spændingsmonitorer afviger ikke}} mere end [[percent]]%",
+    "de": "!{{Zwei Spannungsmonitore liegen|Zwei Spannungsmonitore liegen nicht}} mehr als [[percent]]% auseinander",
+    "es": "!{{Dos monitores de tensión difieren en|Dos monitores de tensión no difieren en}} más de un [[percent]]%",
+    "fr": "!{{Deux moniteurs de tension s'écartent de|Deux moniteurs de tension ne s'écartent pas de}} plus de [[percent]]%",
+    "it": "!{{Due monitor di tensione differiscono di|Due monitor di tensione non differiscono di}} oltre il [[percent]]%",
+    "nl": "!{{Twee spanningsmonitors liggen|Twee spanningsmonitors liggen niet}} meer dan [[percent]]% uit elkaar",
+    "no": "!{{To spenningsmonitorer skiller seg|To spenningsmonitorer skiller seg ikke}} mer enn [[percent]]%",
+    "sv": "!{{Två spänningsövervakare skiljer sig|Två spänningsövervakare skiljer sig inte}} mer än [[percent]]%"
+  },
+  "titleFormatted": {
+    "en": "!{{[[monitor_a]] and [[monitor_b]] differ by more than|do not differ by more than}} [[percent]]%",
+    "da": "!{{[[monitor_a]] og [[monitor_b]] afviger mere end|afviger ikke mere end}} [[percent]]%",
+    "de": "!{{[[monitor_a]] und [[monitor_b]] unterscheiden sich um mehr als|unterscheiden sich nicht um mehr als}} [[percent]]%",
+    "es": "!{{[[monitor_a]] y [[monitor_b]] difieren en más de un|no difieren en más de un}} [[percent]]%",
+    "fr": "!{{[[monitor_a]] et [[monitor_b]] diffèrent de plus de|ne diffèrent pas de plus de}} [[percent]]%",
+    "it": "!{{[[monitor_a]] e [[monitor_b]] differiscono di oltre il|non differiscono di oltre il}} [[percent]]%",
+    "nl": "!{{[[monitor_a]] en [[monitor_b]] verschillen meer dan|verschillen niet meer dan}} [[percent]]%",
+    "no": "!{{[[monitor_a]] og [[monitor_b]] skiller seg mer enn|skiller seg ikke mer enn}} [[percent]]%",
+    "sv": "!{{[[monitor_a]] och [[monitor_b]] skiljer sig mer än|skiljer sig inte mer än}} [[percent]]%"
+  },
+  "hint": {
+    "en": "Compares the current reading of two Voltage monitors (e.g. two phases of a three-phase meter, watched as separate monitors) as a percent of their average: |A - B| / ((A + B) / 2) x 100. For more than two phases, chain this condition once per pair with AND/OR. Compare monitors that read the same thing (phase-neutral with phase-neutral, phase-phase with phase-phase). False while either monitor has no reading yet.",
+    "da": "Sammenligner den aktuelle måling fra to spændingsmonitorer (for eksempel to faser i en trefasemåler, overvåget som separate monitorer) som procent af deres gennemsnit: |A - B| / ((A + B) / 2) x 100. Ved mere end to faser kæder du betingelsen én gang pr. par med OG/ELLER. Sammenlign monitorer, der måler det samme (fase-nul med fase-nul, fase-fase med fase-fase). Falsk, så længe en af monitorerne mangler en måling.",
+    "de": "Vergleicht den aktuellen Messwert zweier Spannungsmonitore (zum Beispiel zwei Phasen eines Drehstromzählers, als getrennte Monitore überwacht) als Prozent ihres Mittelwerts: |A - B| / ((A + B) / 2) x 100. Für mehr als zwei Phasen diese Bedingung einmal pro Paar mit UND/ODER verketten. Vergleiche Monitore, die dasselbe messen (Phase-Neutral mit Phase-Neutral, Phase-Phase mit Phase-Phase). Falsch, solange einer der Monitore noch keinen Messwert hat.",
+    "es": "Compara la lectura actual de dos monitores de tensión (por ejemplo dos fases de un medidor trifásico, vigiladas como monitores separados) como porcentaje de su media: |A - B| / ((A + B) / 2) x 100. Para más de dos fases, encadena esta condición una vez por pareja con Y/O. Compara monitores que midan lo mismo (fase-neutro con fase-neutro, fase-fase con fase-fase). Falso mientras alguno de los monitores no tenga lectura.",
+    "fr": "Compare la mesure actuelle de deux moniteurs de tension (par exemple deux phases d'un compteur triphasé, suivies comme des moniteurs séparés) en pourcentage de leur moyenne : |A - B| / ((A + B) / 2) x 100. Pour plus de deux phases, enchaînez cette condition une fois par paire avec ET/OU. Comparez des moniteurs qui mesurent la même chose (phase-neutre avec phase-neutre, phase-phase avec phase-phase). Faux tant que l'un des moniteurs n'a pas encore de mesure.",
+    "it": "Confronta la lettura attuale di due monitor di tensione (per esempio due fasi di un contatore trifase, seguite come monitor separati) in percentuale della loro media: |A - B| / ((A + B) / 2) x 100. Per più di due fasi, concatena questa condizione una volta per coppia con E/O. Confronta monitor che misurano la stessa cosa (fase-neutro con fase-neutro, fase-fase con fase-fase). Falso finché uno dei monitor non ha ancora una lettura.",
+    "nl": "Vergelijkt de huidige meting van twee spanningsmonitors (bijvoorbeeld twee fasen van een driefasenmeter, bewaakt als aparte monitors) als percentage van hun gemiddelde: |A - B| / ((A + B) / 2) x 100. Voor meer dan twee fasen gebruik je deze voorwaarde één keer per paar met EN/OF. Vergelijk monitors die hetzelfde meten (fase-nul met fase-nul, fase-fase met fase-fase). Onwaar zolang een van de monitors nog geen meting heeft.",
+    "no": "Sammenligner den nåværende målingen til to spenningsmonitorer (for eksempel to faser i en trefasemåler, overvåket som egne monitorer) som prosent av gjennomsnittet: |A - B| / ((A + B) / 2) x 100. For flere enn to faser kjeder du denne betingelsen én gang per par med OG/ELLER. Sammenlign monitorer som måler det samme (fase-null med fase-null, fase-fase med fase-fase). Usann så lenge en av monitorene mangler måling.",
+    "sv": "Jämför den aktuella mätningen för två spänningsövervakare (till exempel två faser i en trefasmätare, övervakade som separata övervakare) som procent av deras medelvärde: |A - B| / ((A + B) / 2) x 100. För fler än två faser kedjar du villkoret en gång per par med OCH/ELLER. Jämför övervakare som mäter samma sak (fas-nolla med fas-nolla, fas-fas med fas-fas). Falskt så länge någon av övervakarna saknar mätning."
+  },
   "args": [
-    { "name": "monitor_a", "type": "autocomplete", "title": { "en": "Monitor A" } },
-    { "name": "monitor_b", "type": "autocomplete", "title": { "en": "Monitor B" } },
-    { "name": "percent", "type": "number", "min": 0, "step": 0.5, "placeholder": { "en": "e.g. 5" }, "title": { "en": "Percent" } }
+    {
+      "name": "monitor_a",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor A",
+        "da": "Monitor A",
+        "de": "Monitor A",
+        "es": "Monitor A",
+        "fr": "Moniteur A",
+        "it": "Monitor A",
+        "nl": "Monitor A",
+        "no": "Monitor A",
+        "sv": "Övervakare A"
+      }
+    },
+    {
+      "name": "monitor_b",
+      "type": "autocomplete",
+      "title": {
+        "en": "Monitor B",
+        "da": "Monitor B",
+        "de": "Monitor B",
+        "es": "Monitor B",
+        "fr": "Moniteur B",
+        "it": "Monitor B",
+        "nl": "Monitor B",
+        "no": "Monitor B",
+        "sv": "Övervakare B"
+      }
+    },
+    {
+      "name": "percent",
+      "type": "number",
+      "min": 0,
+      "step": 0.5,
+      "placeholder": {
+        "en": "e.g. 5",
+        "da": "f.eks. 5",
+        "de": "z. B. 5",
+        "es": "p. ej. 5",
+        "fr": "ex. 5",
+        "it": "es. 5",
+        "nl": "bijv. 5",
+        "no": "f.eks. 5",
+        "sv": "t.ex. 5"
+      },
+      "title": {
+        "en": "Percent",
+        "da": "Procent",
+        "de": "Prozent",
+        "es": "Porcentaje",
+        "fr": "Pourcentage",
+        "it": "Percentuale",
+        "nl": "Percentage",
+        "no": "Prosent",
+        "sv": "Procent"
+      }
+    }
   ]
 }

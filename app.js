@@ -10,7 +10,7 @@ const { punctuationToAscii } = require('./lib/text');
 const { DeviceDirectory } = require('./lib/device-directory');
 const { openHistoryDb } = require('./lib/history-db');
 const { setDecimalComma } = require('./lib/message-template');
-const { DEVICE_CACHE_REFRESH_MS, HISTORY_CONSOLIDATION_MS, EVENT_LOG_MAX, GROUP_POLL_INTERVAL_MS, AVAILABILITY_POLL_INTERVAL_MS, SAVE_DEBOUNCE_MS, roundTokens } = require('./lib/app/constants');
+const { DEVICE_CACHE_REFRESH_MS, HISTORY_CONSOLIDATION_MS, STARTUP_GROUPS_DELAY_MS, STARTUP_CONSOLIDATION_DELAY_MS, EVENT_LOG_MAX, GROUP_POLL_INTERVAL_MS, AVAILABILITY_POLL_INTERVAL_MS, SAVE_DEBOUNCE_MS, roundTokens } = require('./lib/app/constants');
 
 // Regenerated on every commit (see scripts/write-build-info.js, .git/hooks/post-commit) — the
 // app's own version stays 1.0.0 across every dev iteration, so without this a pasted log has no
@@ -108,9 +108,15 @@ class StatisticTrackerApp extends Homey.App {
     // otherwise the app never reports ready and no card shows up in the Flow editor at all.
     this.gateway.refreshSystemTimezone().catch((error) => this.error('Failed to detect system timezone', error));
     this._scheduleWithBackoff('System timezone refresh', () => this.gateway.refreshSystemTimezone(), DEVICE_CACHE_REFRESH_MS);
-    this._consolidateHistory();
+    // The start is spread out instead of doing everything at once: the monitors first, the groups' device reads and
+    // subscriptions a little later, and the history consolidation (a few hundred ms of CPU in one go) last. Done
+    // together they set off Homey's CPU warning on every start.
+    this.homey.setTimeout(() => this._consolidateHistory(), STARTUP_CONSOLIDATION_DELAY_MS);
     this.homey.setInterval(() => this._consolidateHistory(), HISTORY_CONSOLIDATION_MS);
-    this._pollGroups().catch((error) => this.error('Failed to poll groups', error));
+    this.homey.setTimeout(() => {
+      Object.values(this.store.data.groups).forEach((group) => this._startGroupWatch(group));
+      this._pollGroups().catch((error) => this.error('Failed to poll groups', error));
+    }, STARTUP_GROUPS_DELAY_MS);
     this._scheduleWithBackoff('Group mismatch polling', () => this._pollGroups(), GROUP_POLL_INTERVAL_MS);
     // Right after the app starts some drivers haven't loaded their devices yet, so the first look at the
     // watchdogs waits (Settings -> Availability -> defaults) instead of raising alarms that clear themselves.
@@ -126,7 +132,6 @@ class StatisticTrackerApp extends Homey.App {
     for (const collection of ['monitors', 'voltageMonitors', 'stateMonitors']) {
       Object.values(this.store.data[collection]).forEach((monitor) => this._resumeMonitor(collection, monitor));
     }
-    Object.values(this.store.data.groups).forEach((group) => this._startGroupWatch(group));
     this.log(this._startupSummary());
   }
 

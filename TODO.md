@@ -395,12 +395,16 @@ cycle" anomaly is done; a statistics library, standard deviation / z-score on fe
 - (Done, removed from the list: the throwaway `memprobe` app is gone; monitors of a deleted device are now flagged
   `deviceMissing` and stop retrying, see the 2026-09-27 round.)
 
+### Interface in Homey's languages: Flow cards DONE 2026-11-16, Settings and widget content PENDING
+The Flow cards, widget names and widget settings come in en, nl, de, fr, it, es, sv, no and da (Homey has no
+Portuguese; the messages the app writes still offer Portuguese). `test/manifest-i18n.test.js` fails on a text added
+in English only. The "Any ..." choices use `locales/<lang>.json` (`anyChoice`) through `homey.__`. Machine-quality
+translations: a native check is welcome. Still English: the Settings page and the text inside the widgets.
+
 ### Decided against
 - Electricity cost in Sentinels, in any form (2026-10-21): see "Energy cost removed" above.
 - Calculated or estimated energy (power x time) for a device without `meter_power` (2026-11-16): if it cannot be
   measured, the app does not guess. Energy stays measured only.
-- Translating the interface (Flow cards, Settings, widgets) (2026-11-16): it stays English; only the messages and
-  text tokens the app writes are localized.
 - Watchdog opt-out by default was replaced by the scan with sane defaults; a device-class adaptive threshold
   (median of report intervals) was judged fragile for sensors that only report on change.
 - Statistics library (nothing beyond mean / median / percentile is needed), per-device matrix in Groups,

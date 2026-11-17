@@ -1,6 +1,14 @@
 {
   "name": {
-    "en": "Sentinels Voltage"
+    "en": "Sentinels Voltage",
+    "da": "Sentinels Spænding",
+    "de": "Sentinels Spannung",
+    "es": "Sentinels Tensión",
+    "fr": "Sentinels Tension",
+    "it": "Sentinels Tensione",
+    "nl": "Sentinels Spanning",
+    "no": "Sentinels Spenning",
+    "sv": "Sentinels Spänning"
   },
   "height": 260,
   "settings": [],

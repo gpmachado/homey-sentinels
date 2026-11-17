@@ -1,8 +1,52 @@
 {
-  "title": { "en": "[[device]] !{{is already monitored|is not monitored}}" },
-  "titleFormatted": { "en": "[[device]] !{{is already monitored|is not monitored}}" },
-  "hint": { "en": "Checks whether this device already has an activity, state, or voltage monitor configured on it — useful to guard a Flow that creates monitors dynamically against adding a duplicate." },
+  "title": {
+    "en": "[[device]] !{{is already monitored|is not monitored}}",
+    "da": "[[device]] !{{overvåges allerede|overvåges ikke}}",
+    "de": "[[device]] !{{wird bereits überwacht|wird nicht überwacht}}",
+    "es": "[[device]] !{{ya está vigilado|no está vigilado}}",
+    "fr": "[[device]] !{{est déjà surveillé|n'est pas surveillé}}",
+    "it": "[[device]] !{{è già monitorato|non è monitorato}}",
+    "nl": "[[device]] !{{wordt al bewaakt|wordt niet bewaakt}}",
+    "no": "[[device]] !{{overvåkes allerede|overvåkes ikke}}",
+    "sv": "[[device]] !{{övervakas redan|övervakas inte}}"
+  },
+  "titleFormatted": {
+    "en": "[[device]] !{{is already monitored|is not monitored}}",
+    "da": "[[device]] !{{overvåges allerede|overvåges ikke}}",
+    "de": "[[device]] !{{wird bereits überwacht|wird nicht überwacht}}",
+    "es": "[[device]] !{{ya está vigilado|no está vigilado}}",
+    "fr": "[[device]] !{{est déjà surveillé|n'est pas surveillé}}",
+    "it": "[[device]] !{{è già monitorato|non è monitorato}}",
+    "nl": "[[device]] !{{wordt al bewaakt|wordt niet bewaakt}}",
+    "no": "[[device]] !{{overvåkes allerede|overvåkes ikke}}",
+    "sv": "[[device]] !{{övervakas redan|övervakas inte}}"
+  },
+  "hint": {
+    "en": "Checks whether this device already has an activity, state, or voltage monitor configured on it — useful to guard a Flow that creates monitors dynamically against adding a duplicate.",
+    "da": "Tjekker, om enheden allerede har en aktivitets-, status- eller spændingsmonitor, nyttigt for at forhindre, at et Flow, der opretter monitorer, tilføjer en dublet.",
+    "de": "Prüft, ob dieses Gerät bereits einen Aktivitäts-, Zustands- oder Spannungsmonitor hat, nützlich, um einen Flow, der Monitore anlegt, vor einem Duplikat zu schützen.",
+    "es": "Comprueba si este dispositivo ya tiene un monitor de actividad, de estado o de tensión, útil para que un Flow que crea monitores no añada uno duplicado.",
+    "fr": "Vérifie si cet appareil a déjà un moniteur d'activité, d'état ou de tension, utile pour empêcher un Flow qui crée des moniteurs d'en ajouter un en double.",
+    "it": "Controlla se questo dispositivo ha già un monitor di attività, di stato o di tensione, utile per evitare che un Flow che crea monitor ne aggiunga uno doppio.",
+    "nl": "Controleert of dit apparaat al een activiteits-, status- of spanningsmonitor heeft, handig om een Flow die monitors aanmaakt te beschermen tegen een dubbele.",
+    "no": "Sjekker om enheten allerede har en aktivitets-, status- eller spenningsmonitor, nyttig for å hindre at en Flow som lager monitorer legger til et duplikat.",
+    "sv": "Kontrollerar om enheten redan har en aktivitets-, status- eller spänningsövervakare, användbart för att hindra ett Flow som skapar övervakare från att lägga till en dubblett."
+  },
   "args": [
-    { "name": "device", "type": "autocomplete", "title": { "en": "Device" } }
+    {
+      "name": "device",
+      "type": "autocomplete",
+      "title": {
+        "en": "Device",
+        "da": "Enhed",
+        "de": "Gerät",
+        "es": "Dispositivo",
+        "fr": "Appareil",
+        "it": "Dispositivo",
+        "nl": "Apparaat",
+        "no": "Enhet",
+        "sv": "Enhet"
+      }
+    }
   ]
 }

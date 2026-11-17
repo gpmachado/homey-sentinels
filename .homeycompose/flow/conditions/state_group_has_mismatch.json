@@ -1,7 +1,41 @@
 {
-  "title": { "en": "[[group]] !{{has a mismatch|has no mismatch}}" },
-  "titleFormatted": { "en": "[[group]] !{{has a mismatch|has no mismatch}}" },
+  "title": {
+    "en": "[[group]] !{{has a mismatch|has no mismatch}}",
+    "da": "[[group]] !{{har en afvigelse|har ingen afvigelse}}",
+    "de": "[[group]] !{{hat eine Abweichung|hat keine Abweichung}}",
+    "es": "[[group]] !{{tiene una discrepancia|no tiene discrepancias}}",
+    "fr": "[[group]] !{{présente un écart|ne présente pas d'écart}}",
+    "it": "[[group]] !{{ha una difformità|non ha difformità}}",
+    "nl": "[[group]] !{{heeft een afwijking|heeft geen afwijking}}",
+    "no": "[[group]] !{{har et avvik|har ingen avvik}}",
+    "sv": "[[group]] !{{har en avvikelse|har ingen avvikelse}}"
+  },
+  "titleFormatted": {
+    "en": "[[group]] !{{has a mismatch|has no mismatch}}",
+    "da": "[[group]] !{{har en afvigelse|har ingen afvigelse}}",
+    "de": "[[group]] !{{hat eine Abweichung|hat keine Abweichung}}",
+    "es": "[[group]] !{{tiene una discrepancia|no tiene discrepancias}}",
+    "fr": "[[group]] !{{présente un écart|ne présente pas d'écart}}",
+    "it": "[[group]] !{{ha una difformità|non ha difformità}}",
+    "nl": "[[group]] !{{heeft een afwijking|heeft geen afwijking}}",
+    "no": "[[group]] !{{har et avvik|har ingen avvik}}",
+    "sv": "[[group]] !{{har en avvikelse|har ingen avvikelse}}"
+  },
   "args": [
-    { "name": "group", "type": "autocomplete", "title": { "en": "Group" } }
+    {
+      "name": "group",
+      "type": "autocomplete",
+      "title": {
+        "en": "Group",
+        "da": "Gruppe",
+        "de": "Gruppe",
+        "es": "Grupo",
+        "fr": "Groupe",
+        "it": "Gruppo",
+        "nl": "Groep",
+        "no": "Gruppe",
+        "sv": "Grupp"
+      }
+    }
   ]
 }

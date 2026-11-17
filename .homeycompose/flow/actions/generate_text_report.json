@@ -1,44 +1,108 @@
 {
   "title": {
-    "en": "Generate text report"
+    "en": "Generate text report",
+    "da": "Lav tekstrapport",
+    "de": "Textbericht erstellen",
+    "es": "Generar informe de texto",
+    "fr": "Générer un rapport texte",
+    "it": "Genera un resoconto testuale",
+    "nl": "Tekstrapport maken",
+    "no": "Lag tekstrapport",
+    "sv": "Skapa textrapport"
   },
   "titleFormatted": {
-    "en": "Generate text report for [[item]], period: [[period]]"
+    "en": "Generate text report for [[item]], period: [[period]]",
+    "da": "Lav tekstrapport for [[item]], periode: [[period]]",
+    "de": "Textbericht erstellen für [[item]], Zeitraum: [[period]]",
+    "es": "Generar informe de texto de [[item]], periodo: [[period]]",
+    "fr": "Générer un rapport texte pour [[item]], période : [[period]]",
+    "it": "Genera un resoconto testuale per [[item]], periodo: [[period]]",
+    "nl": "Tekstrapport maken voor [[item]], periode: [[period]]",
+    "no": "Lag tekstrapport for [[item]], periode: [[period]]",
+    "sv": "Skapa textrapport för [[item]], period: [[period]]"
   },
   "hint": {
-    "en": "Builds one ready-to-use sentence summarizing an activity/state/voltage monitor's statistics for the period — for a push notification or chat message without concatenating a dozen tokens by hand. Its tokens are only available in an Advanced Flow."
+    "en": "Builds one ready-to-use sentence summarizing an activity/state/voltage monitor's statistics for the period — for a push notification or chat message without concatenating a dozen tokens by hand. Its tokens are only available in an Advanced Flow.",
+    "da": "Laver én færdig sætning, der opsummerer statistikken for en aktivitets-, status- eller spændingsmonitor i perioden, til en pushnotifikation eller chatbesked uden at sætte et dusin tokens sammen i hånden. Dens tokens findes kun i et Advanced Flow.",
+    "de": "Erstellt einen fertigen Satz, der die Statistik eines Aktivitäts-, Zustands- oder Spannungsmonitors für den Zeitraum zusammenfasst, für eine Push-Nachricht oder einen Chat, ohne ein Dutzend Tokens von Hand zu verketten. Die Tokens gibt es nur in einem Advanced Flow.",
+    "es": "Crea una frase lista que resume las estadísticas de un monitor de actividad, de estado o de tensión en el periodo, para una notificación o un mensaje sin juntar a mano una docena de tokens. Sus tokens solo están disponibles en un Advanced Flow.",
+    "fr": "Compose une phrase prête à l'emploi qui résume les statistiques d'un moniteur d'activité, d'état ou de tension sur la période, pour une notification ou un message sans assembler une dizaine de jetons à la main. Ses jetons ne sont disponibles que dans un Advanced Flow.",
+    "it": "Crea una frase pronta che riassume le statistiche di un monitor di attività, di stato o di tensione nel periodo, per una notifica o un messaggio senza unire a mano una dozzina di token. I suoi token sono disponibili solo in un Advanced Flow.",
+    "nl": "Maakt één kant-en-klare zin die de statistieken van een activiteits-, status- of spanningsmonitor over de periode samenvat, voor een pushmelding of chatbericht zonder een tiental tokens met de hand aan elkaar te plakken. De tokens zijn alleen beschikbaar in een Advanced Flow.",
+    "no": "Lager én ferdig setning som oppsummerer statistikken til en aktivitets-, status- eller spenningsmonitor for perioden, til et push-varsel eller en chatmelding uten å sette sammen et dusin tokens for hånd. Tokenene finnes bare i en Advanced Flow.",
+    "sv": "Skapar en färdig mening som sammanfattar statistiken för en aktivitets-, status- eller spänningsövervakare under perioden, för en pushavisering eller ett chattmeddelande utan att sätta ihop ett dussin tokens för hand. Dess tokens finns bara i ett Advanced Flow."
   },
   "args": [
     {
       "name": "item",
       "type": "autocomplete",
       "title": {
-        "en": "Monitor"
+        "en": "Monitor",
+        "da": "Monitor",
+        "de": "Monitor",
+        "es": "Monitor",
+        "fr": "Moniteur",
+        "it": "Monitor",
+        "nl": "Monitor",
+        "no": "Monitor",
+        "sv": "Övervakare"
       }
     },
     {
       "name": "period",
       "type": "dropdown",
       "title": {
-        "en": "Period"
+        "en": "Period",
+        "da": "Periode",
+        "de": "Zeitraum",
+        "es": "Periodo",
+        "fr": "Période",
+        "it": "Periodo",
+        "nl": "Periode",
+        "no": "Periode",
+        "sv": "Period"
       },
       "values": [
         {
           "id": "day",
           "label": {
-            "en": "Today"
+            "en": "Today",
+            "da": "I dag",
+            "de": "Heute",
+            "es": "Hoy",
+            "fr": "Aujourd'hui",
+            "it": "Oggi",
+            "nl": "Vandaag",
+            "no": "I dag",
+            "sv": "I dag"
           }
         },
         {
           "id": "week",
           "label": {
-            "en": "Last 7 days"
+            "en": "Last 7 days",
+            "da": "Seneste 7 dage",
+            "de": "Letzte 7 Tage",
+            "es": "Últimos 7 días",
+            "fr": "7 derniers jours",
+            "it": "Ultimi 7 giorni",
+            "nl": "Laatste 7 dagen",
+            "no": "Siste 7 dager",
+            "sv": "Senaste 7 dagarna"
           }
         },
         {
           "id": "month",
           "label": {
-            "en": "Last 30 days"
+            "en": "Last 30 days",
+            "da": "Seneste 30 dage",
+            "de": "Letzte 30 Tage",
+            "es": "Últimos 30 días",
+            "fr": "30 derniers jours",
+            "it": "Ultimi 30 giorni",
+            "nl": "Laatste 30 dagen",
+            "no": "Siste 30 dager",
+            "sv": "Senaste 30 dagarna"
           }
         }
       ]
@@ -49,7 +113,15 @@
       "name": "report",
       "type": "string",
       "title": {
-        "en": "Report"
+        "en": "Report",
+        "da": "Rapport",
+        "de": "Bericht",
+        "es": "Informe",
+        "fr": "Rapport",
+        "it": "Resoconto",
+        "nl": "Rapport",
+        "no": "Rapport",
+        "sv": "Rapport"
       }
     }
   ]
