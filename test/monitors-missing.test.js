@@ -3,23 +3,19 @@
 // device comes back, and named in the startup summary. Uses the real mixins with a fake app around them.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const SentinelStore = require('../lib/store');
-const monitorAdmin = require('../lib/app/monitor-admin');
-const housekeeping = require('../lib/app/housekeeping');
+const { fakeApp: baseApp, memoryStore } = require('./helpers/fake-app');
 
 const flush = () => new Promise((resolve) => setImmediate(resolve));
 
 async function fakeApp() {
-  const data = {};
-  const store = new SentinelStore({ get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} });
-  await store.load();
-  const logs = []; const events = []; const timers = []; const watched = [];
-  const app = Object.assign({
-    store, logs, events, watched, timers,
-    log: (m) => logs.push(m), error: (m) => logs.push(`ERR ${m}`), _logEvent: (m) => events.push(m), _scheduleSave: () => {},
+  const store = await memoryStore();
+  const events = []; const timers = []; const watched = [];
+  const app = baseApp({
+    store, events, watched, timers,
+    _logEvent: (m) => events.push(m),
     homey: { setTimeout: (fn, ms) => timers.push({ fn, ms }) },
     _watch: async (m) => { watched.push(m.id); }, _watchVoltage: async (m) => { watched.push(m.id); }, _watchState: async (m) => { watched.push(m.id); }
-  }, monitorAdmin, housekeeping);
+  });
   return app;
 }
 const monitor = (app, id, deviceId = 'dev1') => { app.store.data.monitors[id] = { id, name: `M ${id}`, deviceId, deviceName: `Device ${deviceId}` }; return app.store.data.monitors[id]; };
@@ -92,5 +88,5 @@ test('flagging a monitor missing stops a retry loop already in flight, instead o
   assert.equal(m.deviceMissing, true);
   await runNextTimer(); // attempt #4 fires, but isStillWanted() is now false
   assert.equal(app.timers.length, 0); // ...so it logged nothing and scheduled nothing further
-  assert.equal(app.logs.filter((l) => l.includes('could not start watching')).length, 3); // only failures #1-#3 logged
+  assert.equal([...app.logs, ...app.errors].filter((l) => l.includes('could not start watching')).length, 3); // only failures #1-#3 logged
 });

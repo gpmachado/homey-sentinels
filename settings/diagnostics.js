@@ -100,7 +100,7 @@ function statusReport(d) {
   lines.push('Memory: heap ' + (d.load.heapUsedBytes ? megabytes(d.load.heapUsedBytes) : 'unknown')
     + '; CPU warnings ' + warning(d.load.cpuWarning, f.cpuAgoMs) + '; memory warnings ' + warning(d.load.memoryWarning, f.memoryAgoMs));
   lines.push('Watched values ' + d.subscriptions + '; detailed log ' + (d.detailedLog ? 'on' : 'off')
-    + '; last error ' + (d.lastError ? agoText(f.errorAgoMs) + ' ago' + (d.lastError.summary ? ': ' + d.lastError.summary : '') : 'none'));
+    + '; last error ' + (d.lastError ? agoText(f.errorAgoMs) + ' ago (text on the Diagnostics tab)' : 'none'));
   var counts = {};
   d.monitors.forEach(function (m) { counts[m.kind] = (counts[m.kind] || 0) + 1; });
   lines.push('Monitors: ' + (counts.activity || 0) + ' activity, ' + (counts.state || 0) + ' state, ' + (counts.voltage || 0) + ' voltage; '

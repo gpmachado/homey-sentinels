@@ -9,6 +9,7 @@
     "test": "node --test \"test/**/*.test.js\"",
     "stamp": "node scripts/write-build-info.js",
     "hooks": "node scripts/install-git-hooks.js",
+    "i18n": "node scripts/manifest-i18n.js",
     "lint": "eslint ."
   },
   "dependencies": {

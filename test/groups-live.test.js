@@ -3,26 +3,18 @@
 // Uses the real mixin and store with a fake gateway that lets the test emit capability events.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const SentinelStore = require('../lib/store');
-const groupsMixin = require('../lib/app/groups');
-const monitorAdmin = require('../lib/app/monitor-admin'); // for _say, the sentence in the chosen language
+const { fakeApp: baseApp, memoryStore } = require('./helpers/fake-app');
 
 async function fakeApp({ initial = {}, groupType = 'switch', expectedState = true, deviceIds = ['a', 'b', 'c'], gone = [] } = {}) {
-  const data = {};
-  const store = new SentinelStore({ get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} });
-  await store.load();
+  const store = await memoryStore();
   const group = store.createGroup({ name: 'Fontes', type: groupType, expectedState, devices: deviceIds.map((id) => ({ id, name: `Dev ${id}` })) });
   const handlers = new Map(); // `${owner}|${deviceId}` -> handler
   const values = { ...initial };
   const fired = { mismatch: [], matched: [] };
-  const app = Object.assign({
+  const app = baseApp({
     store,
-    _groupLive: new Map(),
-    _groupWatchGeneration: new Map(),
-    _groupMissing: new Map(),
-    log: () => {}, error: () => {}, _logEvent: () => {}, _scheduleSave: () => {}, _getTimezone: () => 'UTC',
+    _logEvent: () => {},
     _stamp: () => ({ timestamp: '2026-11-12T00:00:00.000Z', time: '2026-11-12 00:00:00' }),
-    homey: { setTimeout: (fn, ms) => setTimeout(fn, ms) },
     groupCards: {
       mismatchDetected: { trigger: async (tokens, state) => { fired.mismatch.push({ tokens, state }); } },
       matchedAgain: { trigger: async (tokens, state) => { fired.matched.push({ tokens, state }); } }
@@ -40,7 +32,7 @@ async function fakeApp({ initial = {}, groupType = 'switch', expectedState = tru
         return { id, name: `Dev ${id}`, capabilitiesObj: { [groupType === 'switch' ? 'onoff' : 'alarm_contact']: { value: values[id] } } };
       }
     }
-  }, groupsMixin, monitorAdmin);
+  });
   const emit = (deviceId, value) => { values[deviceId] = value; return handlers.get(`group:${group.id}|${deviceId}`)(value, Date.now(), {}); };
   return { app, group, emit, fired, handlers, values };
 }

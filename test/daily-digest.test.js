@@ -2,7 +2,7 @@
 // The daily digest: today's cycles and energy, the biggest user, flagged devices and groups, in one sentence.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const summaries = require('../lib/app/summaries');
+const { fakeApp: baseApp } = require('./helpers/fake-app');
 const { startOfLocalDay } = require('../lib/time');
 
 const DAY_START = startOfLocalDay(new Date(), 'UTC').getTime();
@@ -10,10 +10,10 @@ const monitor = (name, kwh, cycles) => ({
   name, periods: kwh ? [{ startedAt: DAY_START + 1, endedAt: DAY_START + 2, state: 'ACTIVE', seconds: 1, energy: kwh, minPower: 1, maxPower: 1, powerSum: 1, sampleCount: 1 }] : [],
   cycles: Array.from({ length: cycles }, (_, i) => ({ startedAt: DAY_START + 1 + i, endedAt: DAY_START + 2 + i, duration: 1, averagePower: 1, maxPower: 1, energy: kwh / (cycles || 1) })), dailySummaries: []
 });
-const fakeApp = ({ monitors = {}, groups = {}, problems = null, language = 'en' } = {}) => Object.assign({
+const fakeApp = ({ monitors = {}, groups = {}, problems = null, language = 'en' } = {}) => baseApp({
   store: { data: { monitors, groups } },
-  _getTimezone: () => 'UTC', _messageLanguage: () => language, _availabilityScan: problems === null ? null : { problems }
-}, summaries);
+  _messageLanguage: () => language, _availabilityScan: problems === null ? null : { problems }
+});
 
 test('adds up the day, names the biggest user, counts flagged devices and groups in a mismatch', () => {
   const digest = fakeApp({

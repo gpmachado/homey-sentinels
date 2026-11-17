@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const SentinelStore = require('../lib/store');
-const activity = require('../lib/app/activity');
+const { fakeApp: baseApp, memorySettings } = require('./helpers/fake-app');
 const { replayInsights, applyBackfill, liveHistoryStart } = require('../lib/insights-replay');
 const { ActivityEngine } = require('../lib/activity-engine');
 
@@ -22,8 +22,8 @@ function sevenDays(days = 7, end = NOW) {
 }
 
 async function fakeStore() {
-  const saved = {};
-  const settings = { get: (key) => saved[key], set: async (key, value) => { saved[key] = value; }, unset: (key) => { delete saved[key]; } };
+  const settings = memorySettings();
+  const { saved } = settings;
   const store = new SentinelStore(settings);
   await store.load();
   const { monitor } = store.upsertMonitor({ device: { id: 'pump', name: 'Pump' }, name: 'Bomba', threshold: 40 });
@@ -131,11 +131,10 @@ test('the rebuilt history and the marker survive a save and a load', async () =>
 
 async function fakeApp(entriesOrError) {
   const { store, monitor } = await fakeStore();
-  const logs = [];
-  const app = Object.assign({
-    store, logs, log: (message) => logs.push(message),
+  const app = baseApp({
+    store,
     gateway: { async getInsightEntries() { if (entriesOrError instanceof Error) throw entriesOrError; return entriesOrError; } }
-  }, activity);
+  });
   return { app, monitor };
 }
 

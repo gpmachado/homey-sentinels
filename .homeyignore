@@ -4,6 +4,8 @@ SUGESTOES_E_OTIMIZACOES.md
 *.log
 # Dev-only — never needed to run the app, just bloats the package installed on the Homey Pro
 test/
+i18n/
+scripts/
 package-lock.json
 *.md
 /logs/

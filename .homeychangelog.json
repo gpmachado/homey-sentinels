@@ -37,5 +37,8 @@
   },
   "1.0.12": {
     "en": "\"Still running long\" now has a ready message in your Default message language, also shown in the Timeline. State monitors whose device also reports power keep their real peak power in Get usage pattern, and State statistics show power and energy only when the device reports them."
+  },
+  "1.0.13": {
+    "en": "Flow cards, widget names and settings, and the Settings page now follow Homey's language: English, Dutch, German, French, Italian, Spanish, Swedish, Norwegian and Danish. New Diagnostics tab in Settings: version, history database, last save, memory, Homey's CPU and memory warnings, the last error and each monitor's last reading, with a Copy report button for bug reports. Lighter start: groups and the history clean-up wait a moment after the monitors, so Homey rarely warns about CPU when the app starts. Widgets pause while the dashboard is not on screen, and a group member that resends the same value no longer re-checks the group."
   }
 }

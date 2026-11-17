@@ -30,3 +30,11 @@ test('every text in the manifest sources has all the languages', () => {
   for (const file of files) visit(JSON.parse(fs.readFileSync(file, 'utf8')), file);
   assert.deepEqual(missing, []);
 });
+
+test('every Flow card and widget text is what the tables in i18n/manifest/ say, with no row missing or left over', () => {
+  const { sync } = require('../scripts/manifest-i18n');
+  const result = sync(); // writes nothing
+  assert.deepEqual(result.missing, [], 'add the translation to i18n/manifest/<lang>.json');
+  assert.deepEqual(result.changed, [], 'a text was edited in the JSON and not in i18n/manifest/: change the table, then npm run i18n');
+  assert.deepEqual(result.unused, [], 'remove these rows from i18n/manifest/ (no card or widget uses them any more)');
+});

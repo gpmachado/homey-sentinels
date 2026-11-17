@@ -2,13 +2,11 @@
 // Notification sentences (availability, calibration, the weekly trend) come out in the Default message language.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const monitorAdmin = require('../lib/app/monitor-admin');
+const { fakeApp } = require('./helpers/fake-app');
 const { weeklyTrend, trendSummary } = require('../lib/statistics');
 const { wordingFor } = require('../lib/wording');
 
-const appIn = (language) => Object.assign({
-  store: { getMessageSettings: () => ({ messageLanguage: language }) }, homey: { i18n: { getLanguage: () => 'en' } }
-}, monitorAdmin);
+const appIn = (language) => fakeApp({ store: { getMessageSettings: () => ({ messageLanguage: language }) } });
 
 test('availability sentences in Portuguese, with the numbers in', () => {
   const app = appIn('pt');

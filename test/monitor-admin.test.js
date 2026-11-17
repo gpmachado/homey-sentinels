@@ -3,8 +3,7 @@
 // rename all go through one code path per step, so each kind is checked against the same expectations.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const SentinelStore = require('../lib/store');
-const monitorAdmin = require('../lib/app/monitor-admin');
+const { fakeApp: baseApp, memoryStore } = require('./helpers/fake-app');
 
 const flush = () => new Promise((resolve) => setImmediate(resolve));
 const KINDS = {
@@ -14,21 +13,17 @@ const KINDS = {
 };
 
 async function fakeApp(devices = {}) {
-  const data = {};
-  const store = new SentinelStore({ get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} });
-  await store.load();
+  const store = await memoryStore();
   const unsubscribed = []; const watched = []; const resets = [];
-  const app = Object.assign({
+  const app = baseApp({
     store, unsubscribed, watched, resets,
-    log: () => {}, error: () => {}, _logEvent: () => {}, _scheduleSave: () => {},
-    _lastCalibrationAttempt: new Map(), _calibrationAttempts: new Map(),
-    homey: { setTimeout: (fn, ms) => setTimeout(fn, ms) },
+    _logEvent: () => {},
     _watch: async (m) => { watched.push(m.id); }, _watchState: async (m) => { watched.push(m.id); }, _watchVoltage: async (m) => { watched.push(m.id); },
     gateway: {
       unsubscribeCapabilities: (owner, deviceId, capability, aux) => unsubscribed.push({ owner, deviceId, capability, aux }),
       getDevice: async (id) => devices[id]
     }
-  }, monitorAdmin);
+  });
   for (const [kind, info] of Object.entries(KINDS)) {
     const original = store[info.reset].bind(store);
     store[info.reset] = (item) => { resets.push(kind); return original(item); };
@@ -172,10 +167,8 @@ test('api.getDefaultWording offers the languages, says which is in use and serve
 });
 
 test('creating an Activity monitor without a threshold asks Insights for a starting one; with a threshold it does not', async () => {
-  const { _seedThresholdFromInsights } = require('../lib/app/activity');
   for (const [threshold, expectedAsks] of [[undefined, 2], [50, 0]]) {
     const app = await wordingApp();
-    app._seedThresholdFromInsights = _seedThresholdFromInsights;
     const asked = [];
     app.gateway.getInsightValues = async (deviceId, capability, resolution) => { asked.push([deviceId, capability, resolution]); return []; };
     await app._createActivityMonitor({ deviceId: 'meter', threshold });
@@ -186,9 +179,7 @@ test('creating an Activity monitor without a threshold asks Insights for a start
 });
 
 test('a rejected monitor edit changes nothing, including the name sent with it', async () => {
-  const data = {};
-  const store = new SentinelStore({ get: (k) => data[k], set: async (k, v) => { data[k] = v; }, unset: () => {} });
-  await store.load();
+  const store = await memoryStore();
   const device = { id: 'd', name: 'D' };
   const activity = store.upsertMonitor({ device, threshold: 10, name: 'Old', capability: 'measure_power', auxiliaryCapabilities: [] }).monitor;
   const voltage = store.createVoltageMonitor({ device, capability: 'measure_voltage', minVoltage: 110, maxVoltage: 135, name: 'Old' });

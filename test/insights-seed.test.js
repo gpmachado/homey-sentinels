@@ -3,8 +3,7 @@
 // default, and keeps calibrating from its own readings afterwards.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const SentinelStore = require('../lib/store');
-const activity = require('../lib/app/activity');
+const { fakeApp: baseApp, memoryStore } = require('./helpers/fake-app');
 const { thresholdFromReadings } = require('../lib/statistics');
 
 const standbyAndActive = (standby, active, standbyCount = 120, activeCount = 40) => [
@@ -13,12 +12,11 @@ const standbyAndActive = (standby, active, standbyCount = 120, activeCount = 40)
 ];
 
 async function fakeApp(answers) {
-  const store = new SentinelStore({ get: () => undefined, set: async () => {}, unset: () => {} });
-  await store.load();
+  const store = await memoryStore();
   const { monitor } = store.upsertMonitor({ device: { id: 'pump', name: 'Pump' }, name: 'Bomba do poco' });
-  const calls = []; const logs = [];
-  const app = Object.assign({
-    store, calls, logs, log: (m) => logs.push(m),
+  const calls = [];
+  const app = baseApp({
+    store, calls,
     gateway: {
       async getInsightValues(deviceId, capability, resolution) {
         calls.push([deviceId, capability, resolution]);
@@ -27,7 +25,7 @@ async function fakeApp(answers) {
         return answer || [];
       }
     }
-  }, activity);
+  });
   return { app, monitor };
 }
 

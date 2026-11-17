@@ -5,17 +5,15 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const flowCards = require('../lib/app/flow-cards');
-const groups = require('../lib/app/groups');
-const availabilityWatchdogs = require('../lib/app/availability-watchdogs');
+const { fakeApp: baseApp } = require('./helpers/fake-app');
 
 function fakeApp() {
   const cards = {};
   const card = (id) => (cards[id] ||= { id, run: null, autocomplete: {}, registerRunListener(fn) { this.run = fn; return this; }, registerArgumentAutocompleteListener(arg, fn) { this.autocomplete[arg] = fn; return this; }, on(event, fn) { this.handlers = { ...this.handlers, [event]: fn }; return this; }, trigger: async () => {} });
-  const app = Object.assign({}, flowCards, groups, availabilityWatchdogs, {
-    homey: { flow: { getTriggerCard: card, getConditionCard: card, getActionCard: card } },
+  const app = baseApp({
+    homey: { __: (key) => key, flow: { getTriggerCard: card, getConditionCard: card, getActionCard: card } },
     store: { data: { monitors: { m1: { id: 'm1', name: 'Bomba' } }, stateMonitors: { s1: { id: 's1', name: 'Porta' } }, voltageMonitors: { v1: { id: 'v1', name: 'Fase A' } }, groups: { g1: { id: 'g1', name: 'Portas', devices: [] } }, availabilityWatchdogs: { d1: { deviceId: 'd1', name: 'Sensor' } } } },
-    directory: { ensure: async () => [] }, log() {}, error() {}, _debug() {},
+    directory: { ensure: async () => [] },
     _calibrationAttempts: new Map([['m1', 5]]), _lastCalibrationAttempt: new Map([['m1', 1]]), saved: 0,
     _voltageStatistics: () => ({ average_voltage: null, min_voltage: null, max_voltage: null, undervoltage_count: 0, undervoltage_duration: 0, overvoltage_count: 0, overvoltage_duration: 0 })
   });
@@ -99,16 +97,14 @@ test('voltage statistics never hand a null to a number token', async () => {
 });
 
 test('a state monitor also fires the cycle triggers, and "running longer than" accepts it', async () => {
-  const state = require('../lib/app/state');
-  const activity = require('../lib/app/activity');
   const fired = [];
   const recorder = (name) => ({ trigger: async (tokens, filter) => { fired.push([name, tokens, filter]); } });
   const door = { id: 's1', name: 'Porta', deviceName: 'Sensor', falseLabel: 'Closed', trueLabel: 'Open', messageTemplateFinished: '', state: 'STANDBY' };
-  const app = Object.assign({}, activity, state, {
+  const app = baseApp({
     stateCards: { started: recorder('state_started'), finished: recorder('state_finished') },
     cards: { cyclesReached: recorder('cycles_reached'), unusuallyLong: recorder('unusually_long') },
     _stateStatistics: () => ({ cycle_count: 5, energy: 0 }), _medianCycleDuration: () => 60,
-    _getTimezone: () => 'UTC', _scheduleSave() {}, _logEvent() {}, log() {}, _debug() {}
+    _logEvent() {}
   });
   await app._handleStateEvents(door, [{ type: 'finished', timestamp: Date.UTC(2026, 10, 1), duration: 600, duration_human: '10 min' }]);
   assert.deepEqual(fired.map(([name]) => name), ['state_finished', 'cycles_reached', 'unusually_long']);
@@ -189,16 +185,15 @@ test('a group member whose name ends in a space does not leave a space before th
 });
 
 test('"still running" sets one timer per multiplier at start + N x the usual cycle, and fires only if that cycle is still on', async () => {
-  const activity = require('../lib/app/activity');
   const timers = []; const fired = [];
   const since = Date.now() - 10 * 60000; // started 10 min ago, usual cycle 50 min
   const pump = { id: 'm1', name: 'Bomba', deviceName: 'Tomada', state: 'ACTIVE', activeSince: since };
   const flows = [{ monitor: { id: '*' }, multiplier: 2 }, { monitor: { id: 'm1' }, multiplier: 2 }, { monitor: { id: 'other' }, multiplier: 3 }, { monitor: { id: 'm1' }, multiplier: 1.5 }];
-  const app = Object.assign({}, activity, {
+  const app = baseApp({
     store: { data: { monitors: { m1: pump }, stateMonitors: {} } },
     cards: { stillRunning: { getArgumentValues: async () => flows, trigger: async (tokens, state) => { fired.push([tokens, state]); } } },
     homey: { setTimeout: (fn, ms) => timers.push({ fn, ms }) },
-    _medianCycleDuration: () => 3000, _getTimezone: () => 'UTC', _debug() {}, log() {}, error() {}, _logEvent() {},
+    _medianCycleDuration: () => 3000, _logEvent() {},
     _defaultWording: () => require('../lib/wording').wordingFor('pt')
   });
   await app._scheduleOverrunChecks(pump);
@@ -252,12 +247,11 @@ test('the merged cards replace the old per-kind ones in the manifest', () => {
 });
 
 test('"still running" reads no history when no Flow uses the card', async () => {
-  const activity = require('../lib/app/activity');
   let statsRead = 0;
-  const app = Object.assign({}, activity, {
+  const app = baseApp({
     cards: { stillRunning: { getArgumentValues: async () => [] } },
     homey: { setTimeout() { throw new Error('no timer expected'); } },
-    _medianCycleDuration: () => { statsRead += 1; return 3000; }, _debug() {}
+    _medianCycleDuration: () => { statsRead += 1; return 3000; }
   });
   await app._scheduleOverrunChecks({ id: 'm1', state: 'ACTIVE', activeSince: Date.now() });
   assert.equal(statsRead, 0);

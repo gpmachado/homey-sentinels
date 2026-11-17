@@ -3,11 +3,9 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const api = require('../api');
-const monitorAdmin = require('../lib/app/monitor-admin');
+const { fakeApp } = require('./helpers/fake-app');
 
-const homeyIn = (language) => ({
-  app: Object.assign({ store: { getMessageSettings: () => ({ messageLanguage: language }) }, homey: { i18n: { getLanguage: () => 'en' } } }, monitorAdmin)
-});
+const homeyIn = (language) => ({ app: fakeApp({ store: { getMessageSettings: () => ({ messageLanguage: language }) } }) });
 
 test('getDefaultWording carries the group, Activity, State and Voltage sentences in the chosen language', async () => {
   const info = await api.getDefaultWording({ homey: homeyIn('pt') });

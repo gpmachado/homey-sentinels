@@ -86,13 +86,14 @@ test('the Settings page opens in German, translated, without an error or an aler
     assert.ok(rows.includes('CPU-Warnungen von Homey1 von 12, vor 9 min'), rows.join(' / '));
     assert.ok(rows.includes('Pump · Aktivitätletzter Messwert vor 5 min, kalibriert'), rows.join(' / '));
     assert.equal(document.querySelectorAll('.status-warn').length, 3, 'the CPU warning, the last error and the missing device');
-    assert.ok(rows.includes('Letzter Fehlervor 2 min: Failed to poll group Portas timeout'), rows.join(' / '));
+    assert.ok(rows.includes('Letzter Fehlervor 2 min: [Portas] group could not start watching (Not Found); retrying in 10 s'), rows.join(' / '));
     document.getElementById('status-copy-btn').click();
     const report = document.getElementById('status-report').value;
-    assert.match(report, /^Sentinels 1\.0\.12, build abc1234 \(2026-11-16\), Node v22\.23\.5, SQLite 3\.54\.1, running for 10 min/);
+    assert.match(report, /^Sentinels 1\.0\.13, build abc1234 \(2026-11-16\), Node v22\.23\.5, SQLite 3\.54\.1, running for 10 min/);
     assert.match(report, /CPU warnings 1\/12 \(9 min ago\)/);
     assert.match(report, /voltage #2: no reading yet, DEVICE MISSING/);
-    assert.match(report, /last error 2 min ago: Failed to poll group\n/);
+    // The error text can start with a name ('[Portas] group ...'): the report gives only its age.
+    assert.match(report, /last error 2 min ago \(text on the Diagnostics tab\)\n/);
     assert.ok(!report.includes('Sonoff') && !report.includes('Pump') && !report.includes('Portas'), 'no device, monitor or group names in the report');
     assert.deepEqual(errors, []);
   } finally {

@@ -38,7 +38,10 @@ npm run hooks          # once per clone: refreshes build-info.json after every c
 
 The interface (Flow cards, widgets' names and settings, the Settings page) comes in Homey's languages: en, nl, de, fr, it,
 es, sv, no and da. Homey has no Portuguese; the messages the app writes have their own language setting, which offers it.
-- A Flow card or widget text needs all nine in its JSON (`test/manifest-i18n.test.js`).
+- A Flow card or widget text is translated in `i18n/manifest/<lang>.json`, one table per language keyed by the English
+  text, not in the card's JSON. Write the English in the JSON, add a row to each table, and run `npm run i18n`: it fills
+  every JSON under `.homeycompose/` and `widgets/` from the tables. To change a translation, change the table and run it
+  again. `test/manifest-i18n.test.js` fails if a JSON and the tables disagree, a row is missing, or a row is no longer used.
 - A Settings text goes through `t('English text')` (values as `t('{n} cycles', { n })`); its translations live in
   `settings/i18n-strings.js`, keyed by the English text (`test/settings-i18n.test.js`). The page's own HTML is plain English,
   translated at start by `translatePage()`.
@@ -114,8 +117,10 @@ and mention it in HOWTO. A card that returns tokens only shows in Advanced Flow 
 ## Tests
 
 `npm test` and `npm run lint` must pass, and CI runs them (Node 22 and 24) together with `homey app validate` on every push. New logic goes
-into a pure function in `lib/` with a test; the mixins are tested with the real code and a fake gateway
-(`test/groups-live.test.js` shows the pattern). The widgets and real device I/O are **not**
+into a pure function in `lib/` with a test; the mixins are tested with the real code and a fake gateway. Build the
+app with `fakeApp({ ... })` from `test/helpers/fake-app.js`: it has every real method of the app (app.js and all of
+`lib/app/`) and quiet defaults for what `onInit` sets up, so pass only what the test is about; `memoryStore()` gives a
+real, empty store (`test/groups-live.test.js` shows the pattern). The widgets and real device I/O are **not**
 covered by tests; check those by hand with `homey app run -r` and say what you checked in the pull request.
 The Settings page is: `test/settings-page.test.js` runs the real `settings/index.html` and its scripts in jsdom against a
 stand-in for Homey's settings runtime (`test/settings-harness/`), plays a scripted session (open and cancel every form, submit,

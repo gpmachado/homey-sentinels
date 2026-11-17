@@ -6,19 +6,9 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const Module = require('node:module');
+const { loadApp } = require('./helpers/fake-app');
 
 const root = path.join(__dirname, '..');
-
-function loadApp() {
-  const originalLoad = Module._load;
-  Module._load = function (request, ...rest) {
-    if (request === 'homey') return { App: class { log() {} error() {} } };
-    return originalLoad.call(this, request, ...rest);
-  };
-  try { return require(path.join(root, 'app.js')); } finally { Module._load = originalLoad; }
-}
-
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const mixinFiles = fs.readdirSync(path.join(root, 'lib', 'app')).filter((f) => f.endsWith('.js') && f !== 'constants.js');
 const appSources = ['app.js', ...mixinFiles.map((f) => `lib/app/${f}`)];

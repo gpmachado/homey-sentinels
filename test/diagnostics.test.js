@@ -2,11 +2,11 @@
 // The Diagnostics tab's data: built from what the app already has in memory, without touching the devices.
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const diagnostics = require('../lib/app/diagnostics');
+const { App, fakeApp: baseApp } = require('./helpers/fake-app');
 
 function fakeApp() {
-  const app = Object.assign(Object.create(diagnostics), {
-    homey: { manifest: { version: '1.0.12' } },
+  return baseApp({
+    homey: { manifest: { version: '1.0.13' } },
     buildInfo: { commit: 'abc1234', dirty: true, subject: 'x', commitDate: '2026-11-16T22:00:00-03:00' },
     _startedAt: 1000,
     _history: { sizeBytes: () => 2048 },
@@ -21,7 +21,6 @@ function fakeApp() {
       }
     }
   });
-  return app;
 }
 
 test('getDiagnostics reports build, storage, load and the last reading of each monitor', () => {
@@ -29,7 +28,7 @@ test('getDiagnostics reports build, storage, load and the last reading of each m
   app._rememberWarning('cpu', { count: 1, limit: 12 });
   app._rememberError(['Failed to poll groups', new Error('timeout')]);
   const d = app.getDiagnostics();
-  assert.equal(d.app.version, '1.0.12');
+  assert.equal(d.app.version, '1.0.13');
   assert.deepEqual(d.app.build, { commit: 'abc1234', dirty: true, subject: 'x', date: '2026-11-16T22:00:00-03:00' });
   assert.equal(d.app.startedAt, 1000);
   assert.deepEqual({ database: d.storage.database, sizeBytes: d.storage.sizeBytes, degraded: d.storage.degraded, lastSave: d.storage.lastSave }, { database: true, sizeBytes: 2048, degraded: false, lastSave: { at: 5000, ms: 12 } });
@@ -66,29 +65,17 @@ test('remembering an error never throws: circular objects, BigInt and undefined 
   assert.equal(app._lastError.message, 'Failed [object Object] 10 undefined');
 });
 
-test('the summary for the copied report is only the fixed text an error call starts with, not the names after it', () => {
-  const app = fakeApp();
-  app._rememberError(['Failed to poll group', 'Portas', new Error('timeout')]);
-  assert.equal(app._lastError.message, 'Failed to poll group Portas timeout');
-  assert.equal(app._lastError.summary, 'Failed to poll group');
-  app._rememberError([new Error('Monitor Pump not found')]);
-  assert.equal(app._lastError.summary, 'Error');
-});
-
 test('the app still logs an error when remembering it fails', () => {
-  const Module = require('node:module');
-  const path = require('node:path');
-  const originalLoad = Module._load;
+  // The class's own error(), not the helper's recorder: it reaches Homey's (here the stand-in's) error() through super.
   const logged = [];
-  Module._load = function (request, ...rest) {
-    if (request === 'homey') return { App: class { error(...args) { logged.push(args); } } };
-    return originalLoad.call(this, request, ...rest);
-  };
-  let App;
-  try { App = require(path.join(__dirname, '..', 'app.js')); } finally { Module._load = originalLoad; }
-  const app = Object.create(App.prototype);
-  app._rememberError = () => { throw new Error('broken'); };
-  app.error('Failed to save', new Error('disk'));
+  const Homey = Object.getPrototypeOf(App.prototype);
+  const original = Homey.error;
+  Homey.error = function (...args) { logged.push(args); };
+  try {
+    const app = Object.create(App.prototype);
+    app._rememberError = () => { throw new Error('broken'); };
+    app.error('Failed to save', new Error('disk'));
+  } finally { Homey.error = original; }
   assert.equal(logged.length, 1);
   assert.equal(logged[0][0], 'Failed to save');
 });
