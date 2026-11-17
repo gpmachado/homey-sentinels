@@ -59,6 +59,40 @@ test('getDiagnostics says so when the history database did not open, and copes w
   assert.equal(d.app.build, null);
 });
 
+test('remembering an error never throws: circular objects, BigInt and undefined are written as plain text', () => {
+  const app = fakeApp();
+  const circular = { name: 'request' }; circular.self = circular;
+  assert.doesNotThrow(() => app._rememberError(['Failed', circular, 10n, undefined]));
+  assert.equal(app._lastError.message, 'Failed [object Object] 10 undefined');
+});
+
+test('the summary for the copied report is only the fixed text an error call starts with, not the names after it', () => {
+  const app = fakeApp();
+  app._rememberError(['Failed to poll group', 'Portas', new Error('timeout')]);
+  assert.equal(app._lastError.message, 'Failed to poll group Portas timeout');
+  assert.equal(app._lastError.summary, 'Failed to poll group');
+  app._rememberError([new Error('Monitor Pump not found')]);
+  assert.equal(app._lastError.summary, 'Error');
+});
+
+test('the app still logs an error when remembering it fails', () => {
+  const Module = require('node:module');
+  const path = require('node:path');
+  const originalLoad = Module._load;
+  const logged = [];
+  Module._load = function (request, ...rest) {
+    if (request === 'homey') return { App: class { error(...args) { logged.push(args); } } };
+    return originalLoad.call(this, request, ...rest);
+  };
+  let App;
+  try { App = require(path.join(__dirname, '..', 'app.js')); } finally { Module._load = originalLoad; }
+  const app = Object.create(App.prototype);
+  app._rememberError = () => { throw new Error('broken'); };
+  app.error('Failed to save', new Error('disk'));
+  assert.equal(logged.length, 1);
+  assert.equal(logged[0][0], 'Failed to save');
+});
+
 test('an error message is cut short and objects are written out', () => {
   const app = fakeApp();
   app._rememberError(['x'.repeat(400)]);

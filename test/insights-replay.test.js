@@ -140,7 +140,9 @@ async function fakeApp(entriesOrError) {
 }
 
 test('rebuildHistoryFromInsights reports what it added and logs it', async () => {
-  const { app, monitor } = await fakeApp(sevenDays(7, Date.now()));
+  // Ends at the last UTC midnight, not at Date.now(): between 08:00 and 10:00 UTC the last day's run (08:00-10:00) would
+  // still be going at the end of the series and not count as a cycle.
+  const { app, monitor } = await fakeApp(sevenDays(7, Math.floor(Date.now() / DAY) * DAY));
   const result = await app.rebuildHistoryFromInsights(monitor);
   assert.equal(result.cycles, 7);
   assert.match(app.logs.at(-1), /history rebuilt from Homey Insights \(last7Days\).*7 cycles/);

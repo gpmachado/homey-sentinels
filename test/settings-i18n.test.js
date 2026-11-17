@@ -32,6 +32,10 @@ function pageTexts() {
     for (const match of read(`settings/${file}`).matchAll(/\bt\(\s*(?:[^'()]*\?\s*)?'((?:[^'\\]|\\.)*)'(?:\s*:\s*'((?:[^'\\]|\\.)*)')?/g)) {
       [match[1], match[2]].filter((text) => text !== undefined).forEach((text) => texts.add(text.replace(/\\'/g, "'")));
     }
+    // Label tables passed through t() later (GROUP_TYPE_LABELS, KIND_LABELS): every value is a text to translate.
+    for (const table of read(`settings/${file}`).matchAll(/var [A-Z_]+_LABELS = \{([^}]*)\}/g)) {
+      for (const value of table[1].matchAll(/:\s*'((?:[^'\\]|\\.)*)'/g)) texts.add(value[1]);
+    }
   }
   return [...texts].filter((text) => /[A-Za-z]{2}/.test(text) && !/^%[^ ]*%$/.test(text) && text !== 'Sentinels');
 }
@@ -81,13 +85,15 @@ test('the Settings page opens in German, translated, without an error or an aler
     assert.ok(rows.includes('Zuletzt gespeichertvor 10 s, in 25 ms'), rows.join(' / '));
     assert.ok(rows.includes('CPU-Warnungen von Homey1 von 12, vor 9 min'), rows.join(' / '));
     assert.ok(rows.includes('Pump · Aktivitätletzter Messwert vor 5 min, kalibriert'), rows.join(' / '));
-    assert.equal(document.querySelectorAll('.status-warn').length, 2, 'the CPU warning and the missing device');
+    assert.equal(document.querySelectorAll('.status-warn').length, 3, 'the CPU warning, the last error and the missing device');
+    assert.ok(rows.includes('Letzter Fehlervor 2 min: Failed to poll group Portas timeout'), rows.join(' / '));
     document.getElementById('status-copy-btn').click();
     const report = document.getElementById('status-report').value;
     assert.match(report, /^Sentinels 1\.0\.12, build abc1234 \(2026-11-16\), Node v22\.23\.5, SQLite 3\.54\.1, running for 10 min/);
     assert.match(report, /CPU warnings 1\/12 \(9 min ago\)/);
     assert.match(report, /voltage #2: no reading yet, DEVICE MISSING/);
-    assert.ok(!report.includes('Sonoff') && !report.includes('Pump'), 'no device or monitor names in the report');
+    assert.match(report, /last error 2 min ago: Failed to poll group\n/);
+    assert.ok(!report.includes('Sonoff') && !report.includes('Pump') && !report.includes('Portas'), 'no device, monitor or group names in the report');
     assert.deepEqual(errors, []);
   } finally {
     dom.window.close();

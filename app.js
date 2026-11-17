@@ -140,7 +140,7 @@ class StatisticTrackerApp extends Homey.App {
 
   // Every error the app logs; the last one also shows in the Diagnostics tab of Settings.
   error(...args) {
-    this._rememberError(args);
+    try { this._rememberError(args); } catch (error) { /* the Diagnostics tab must never stop an error from being logged */ }
     return super.error(...args);
   }
 

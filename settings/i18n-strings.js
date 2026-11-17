@@ -1,4 +1,6 @@
-// Generated: the Settings page translations, English text to its translation, per Homey language (see settings/i18n.js).
+// The Settings page translations, English text to its translation, per Homey language (see settings/i18n.js).
+// Kept by hand: add a new text here in every language when the page gets one. test/settings-i18n.test.js lists any text
+// of the page that is missing, or whose {placeholders} differ from the English (CONTRIBUTING.md, Languages).
 var SETTINGS_TRANSLATIONS = {
  "da": {
   "Monitors": "Monitorer",

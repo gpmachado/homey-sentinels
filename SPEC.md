@@ -89,7 +89,9 @@ auto-detected on the device and tracked without separate configuration.
 
 Same engine as Activity Monitor, generalized to a **boolean** capability (`alarm_contact`,
 `alarm_motion`, `onoff`) instead of a numeric threshold — for devices where "on/off" has no
-meaningful wattage (a door, a presence sensor).
+meaningful wattage (a door, a presence sensor). An **enum** capability works too (an appliance's own state,
+`machine_state`): `activeValues` lists which of its values count as active (e.g. `Running`, `Rinse`); it is
+`null` for a plain boolean.
 
 Raw `true` is always ACTIVE, unconditionally — there is no "which value means active" choice.
 Earlier this was a picker (`active_value: true/false`), which turned out to be a real footgun:
@@ -261,10 +263,10 @@ Activity and State monitors share one `ActivityEngine` class:
 - Retention: raw `periods` kept 7 days (`GRANULAR_RETENTION_DAYS`), then folded by
   `SentinelStore#_foldActivityLikeMonitors()` into one `dailySummaries[]` entry per calendar
   day, kept up to 90 days total (`TOTAL_RETENTION_DAYS`) and dropped after. `cycles[]` (one
-  compact entry per finished session) is never pruned — it's what keeps `cycle_count` and
-  power/current stats exact for "month"/"all" queries regardless of how much period detail
-  behind them has already been folded away. This is a deliberate Time-Machine-style retention
-  choice, not indefinite raw history.
+  compact entry per finished session) outlives them: it is kept 365 days (`CYCLE_RETENTION_DAYS`
+  in `lib/store/retention.js`) and keeps `cycle_count` and power/current stats exact for "month"/"all"
+  queries however much period detail behind them has been folded away. `totals.cycleCount` stays lifetime,
+  so the "all" count does not drop when a cycle older than a year is removed.
 - `percentile()` (linear interpolation, P50 = median) gives `p25_/p75_duration` and `p25_/p75_energy` under the same
   `MEDIAN_MIN_CYCLES` gate; they are tokens of the activity statistics action (durations only for State monitors).
 - `weeklyTrend` needs `TREND_MIN_BASELINE_CYCLES` (3) cycles in the previous week; below that it reports
