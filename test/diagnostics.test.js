@@ -37,7 +37,8 @@ test('getDiagnostics reports build, storage, load and the last reading of each m
   assert.equal(d.storage.lastConsolidation, null);
   assert.deepEqual({ count: d.load.cpuWarning.count, limit: d.load.cpuWarning.limit }, { count: 1, limit: 12 });
   assert.equal(d.load.memoryWarning, null);
-  assert.ok(d.load.heapUsedBytes > 0 && d.load.rssBytes > 0);
+  assert.ok(d.load.heapUsedBytes > 0);
+  assert.equal('rssBytes' in d.load, false, 'the resident memory is refused on the Homey');
   assert.equal(d.subscriptions, 2);
   assert.equal(d.detailedLog, true);
   assert.equal(d.lastError.message, 'Failed to poll groups timeout');

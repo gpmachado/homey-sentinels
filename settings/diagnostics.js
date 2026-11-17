@@ -64,7 +64,7 @@ function renderStatus(d) {
       ? t('{time} ago, in {ms} ms', { time: agoText(f.consolidationAgoMs), ms: d.storage.lastConsolidation.ms })
       : t('Not yet: 2 minutes after the start, then every 6 hours'));
 
-  var load = statusRow(t('Memory'), t('{heap} in use, {process} for the whole app', { heap: megabytes(d.load.heapUsedBytes), process: megabytes(d.load.rssBytes) }))
+  var load = statusRow(t('Memory'), d.load.heapUsedBytes ? t('{heap} in use', { heap: megabytes(d.load.heapUsedBytes) }) : '—')
     + statusRow(t('CPU warnings from Homey'), warningText(d.load.cpuWarning, f.cpuAgoMs), Boolean(d.load.cpuWarning))
     + statusRow(t('Memory warnings from Homey'), warningText(d.load.memoryWarning, f.memoryAgoMs), Boolean(d.load.memoryWarning))
     + statusRow(t('Device values watched'), String(d.subscriptions))
@@ -97,7 +97,7 @@ function statusReport(d) {
       + '; last consolidation ' + (d.storage.lastConsolidation ? agoText(f.consolidationAgoMs) + ' ago (' + d.storage.lastConsolidation.ms + ' ms, ' + d.storage.lastConsolidation.changed + ' changed)' : 'not yet')
   ];
   d.storage.warnings.forEach(function (w) { lines.push('Storage warning: ' + w); });
-  lines.push('Memory: heap ' + megabytes(d.load.heapUsedBytes) + ', process ' + megabytes(d.load.rssBytes)
+  lines.push('Memory: heap ' + (d.load.heapUsedBytes ? megabytes(d.load.heapUsedBytes) : 'unknown')
     + '; CPU warnings ' + warning(d.load.cpuWarning, f.cpuAgoMs) + '; memory warnings ' + warning(d.load.memoryWarning, f.memoryAgoMs));
   lines.push('Watched values ' + d.subscriptions + '; detailed log ' + (d.detailedLog ? 'on' : 'off')
     + '; last error ' + (d.lastError ? agoText(f.errorAgoMs) + ' ago: ' + d.lastError.message : 'none'));
